@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plomberie Pro</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif;}
+body{background:#0a0a0a;color:#f1f1f1;min-height:100vh;}
+.hidden{display:none!important;}
+/* LOGIN */
+#login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+.login-box{background:#141414;border:1px solid #222;border-radius:20px;padding:40px 30px;width:100%;max-width:380px;}
+.logo{text-align:center;margin-bottom:32px;}
+.logo .icon{font-size:52px;margin-bottom:12px;}
+.logo .brand{color:#f97316;font-size:11px;letter-spacing:3px;margin-bottom:6px;}
+.logo h1{font-size:26px;font-weight:800;}
+.field{margin-bottom:16px;}
+.field label{display:block;color:#666;font-size:11px;letter-spacing:1px;margin-bottom:6px;}
+.field input{width:100%;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:10px;padding:12px 16px;color:#f1f1f1;font-size:16px;outline:none;}
+.pin-row{display:flex;gap:10px;justify-content:center;margin:10px 0;}
+.pin-row input{width:56px;height:56px;text-align:center;font-size:22px;font-weight:800;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:12px;color:#f97316;outline:none;}
+.btn{width:100%;background:#f97316;color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px;}
+.btn:hover{opacity:0.9;}
+.btn-sec{background:#1e1e1e;color:#ccc;border:1px solid #333;}
+.error{color:#ef4444;font-size:13px;text-align:center;margin-top:10px;display:none;}
+/* APP */
+#app{display:none;}
+.header{background:#0f0f0f;border-bottom:1px solid #1a1a1a;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;}
+.header .user-info .name{font-weight:700;font-size:15px;}
+.header .user-info .role{color:#555;font-size:10px;letter-spacing:1px;}
+.header .ca{text-align:right;}
+.header .ca .amount{color:#f97316;font-weight:800;font-size:18px;}
+.header .ca .label{color:#444;font-size:10px;}
+.nav{background:#0f0f0f;border-bottom:1px solid #1a1a1a;display:flex;}
+.nav button{flex:1;background:none;border:none;border-bottom:2px solid transparent;padding:13px 0;color:#555;cursor:pointer;font-size:12px;font-weight:700;transition:all 0.2s;}
+.nav button.active{color:#f97316;border-bottom-color:#f97316;}
+.content{max-width:600px;margin:0 auto;padding:20px 16px;}
+/* STATUT */
+.statut-card{background:#141414;border:1px solid #222;border-radius:14px;padding:16px 18px;margin-bottom:16px;}
+.statut-card .lbl{color:#555;font-size:11px;letter-spacing:1.5px;margin-bottom:10px;}
+.statut-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.statut-btns button{flex:1;min-width:100px;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:8px;padding:9px;color:#555;cursor:pointer;font-size:11px;font-weight:700;transition:all 0.15s;}
+/* TABS */
+.tabs{display:flex;gap:4px;background:#0f0f0f;border-radius:10px;padding:4px;margin-bottom:18px;}
+.tabs button{flex:1;background:none;border:none;border-radius:8px;padding:9px 6px;color:#555;cursor:pointer;font-size:11px;font-weight:700;transition:all 0.2s;}
+.tabs button.active{background:#f97316;color:#000;}
+/* CARTE RDV */
+.carte-rdv{background:#141414;border:1px solid #333;border-radius:14px;margin-bottom:10px;overflow:hidden;transition:all 0.2s;}
+.carte-rdv.today{border-left:3px solid #3b82f6;}
+.carte-rdv.done{border-left:3px solid #22c55e;}
+.carte-header{padding:16px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.carte-header .left .top{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.carte-header .left .heure{color:#3b82f6;font-weight:700;font-size:16px;}
+.carte-header .left .nom{font-weight:700;}
+.carte-header .left .sub{color:#666;font-size:13px;}
+.carte-header .right .prix{color:#f97316;font-weight:800;font-size:18px;text-align:right;}
+.carte-header .right .arrow{color:#333;font-size:16px;text-align:right;margin-top:4px;}
+.badge{background:#3b82f620;color:#3b82f6;border:1px solid #3b82f640;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;}
+.badge.done{background:#22c55e20;color:#22c55e;border-color:#22c55e40;}
+.carte-body{padding:0 18px 18px;border-top:1px solid #1a1a1a;}
+.info-row{margin-top:12px;}
+.info-row .lbl{color:#555;font-size:11px;letter-spacing:1px;margin-bottom:4px;}
+.info-row .val{color:#ccc;font-size:14px;}
+.info-row a{color:#3b82f6;text-decoration:none;}
+.prix-box{background:#f9731610;border:1px solid #f9731630;border-radius:10px;padding:12px 16px;margin-top:12px;}
+.prix-box .lbl{color:#555;font-size:11px;letter-spacing:1px;margin-bottom:4px;}
+.prix-box .val{color:#f97316;font-weight:800;font-size:28px;}
+.prix-box .note{color:#666;font-size:11px;margin-top:2px;}
+.notes-box{background:#0f0f0f;border-radius:8px;padding:10px 12px;color:#aaa;font-size:14px;font-style:italic;}
+.actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.actions button{flex:1;border:none;border-radius:10px;padding:11px;cursor:pointer;font-size:13px;font-weight:700;}
+.btn-blue{background:#3b82f618;color:#3b82f6;border:1px solid #3b82f640!important;}
+.btn-green{background:#22c55e18;color:#22c55e;border:1px solid #22c55e40!important;}
+.btn-gray{background:#1e1e1e;color:#ccc;border:1px solid #333!important;}
+/* PERF */
+.perf-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+.perf-card{background:#0f0f0f;border-radius:10px;padding:12px 14px;}
+.perf-card .lbl{color:#555;font-size:10px;letter-spacing:1px;margin-bottom:4px;}
+.perf-card .val{font-weight:800;font-size:20px;}
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.9);display:flex;align-items:flex-end;justify-content:center;z-index:100;}
+.modal{background:#0f0f0f;border:1px solid #2a2a2a;border-radius:20px 20px 0 0;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;padding:24px;}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.modal-header h2{color:#f97316;font-size:16px;}
+.modal-close{background:#222;border:none;color:#888;border-radius:8px;width:34px;height:34px;font-size:18px;cursor:pointer;}
+/* SCRIPT */
+.script-box{background:#0a1628;border:1px solid #1e3a5f;border-radius:12px;padding:18px;line-height:1.9;color:#d1e8ff;font-size:14px;white-space:pre-wrap;margin-bottom:16px;}
+/* RAPPORT */
+.photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+.photo-slot{height:130px;border:2px dashed #2a2a2a;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:#444;position:relative;}
+.photo-slot img{width:100%;height:100%;object-fit:cover;border-radius:10px;}
+.photo-del{position:absolute;top:6px;right:6px;background:#ef4444;border:none;color:#fff;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:14px;}
+textarea{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:8px;padding:10px 14px;color:#f1f1f1;font-size:14px;outline:none;resize:vertical;font-family:inherit;box-sizing:border-box;margin-top:8px;}
+.field-input{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:8px;padding:12px 14px;color:#eab308;font-size:24px;font-weight:800;outline:none;box-sizing:border-box;}
+/* VENTES */
+.vente-item{background:#0f0f0f;border:1px solid #1e1e1e;border-radius:10px;margin-bottom:8px;overflow:hidden;}
+.vente-item.selected{background:#22c55e10;border-color:#22c55e40;}
+.vente-header{padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.vente-header .vente-left{display:flex;align-items:center;gap:10px;}
+.vente-header .vente-left .vente-name{font-size:14px;font-weight:600;}
+.vente-header .vente-left .vente-type{color:#555;font-size:11px;}
+.vente-header .vente-right .prime{color:#eab308;font-weight:700;font-size:13px;}
+.vente-header .vente-right .check{font-size:18px;}
+.prime-recap{background:#eab30810;border:1px solid #eab30840;border-radius:14px;padding:16px 20px;margin-bottom:20px;}
+.prime-recap .title{color:#eab308;font-size:11px;letter-spacing:1px;margin-bottom:10px;}
+.prime-recap .row{display:flex;justify-content:space-between;margin-bottom:6px;}
+.prime-recap .row .name{color:#aaa;font-size:13px;}
+.prime-recap .row .amount{color:#eab308;font-weight:700;}
+.prime-recap .total{border-top:1px solid #eab30830;margin-top:10px;padding-top:10px;display:flex;justify-content:space-between;}
+.prime-recap .total .label{color:#eab308;font-weight:700;}
+.prime-recap .total .amount{color:#eab308;font-weight:800;font-size:18px;}
+/* SUCCESS */
+.success-screen{text-align:center;padding:40px 20px;}
+.success-screen .icon{font-size:56px;margin-bottom:14px;}
+.success-screen h2{color:#22c55e;font-size:22px;margin-bottom:8px;}
+.success-screen p{color:#888;font-size:14px;margin-bottom:20px;}
+.prime-win{background:#eab30815;border:1px solid #eab30840;border-radius:12px;padding:16px 20px;margin-bottom:20px;}
+.prime-win .label{color:#eab308;font-size:12px;letter-spacing:1px;}
+.prime-win .amount{color:#eab308;font-weight:800;font-size:32px;margin-top:6px;}
+.empty{text-align:center;padding:48px 0;color:#333;}
+.empty .icon{font-size:40px;margin-bottom:12px;}
+.devis-tag{background:#3b82f612;border:1px solid #3b82f630;border-radius:8px;padding:8px 12px;margin-top:10px;}
+.devis-tag span{color:#3b82f6;font-size:12px;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+
+<div id="login">
+  <div class="login-box">
+    <div class="logo">
+      <div class="icon">🔧</div>
+      <div class="brand">DÉPANNAGE PLOMBERIE</div>
+      <h1>Connexion</h1>
+    </div>
+    <div class="field">
+      <label>IDENTIFIANT</label>
+      <input type="text" id="identifiant" placeholder="Ex: tech1" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>CODE PIN</label>
+      <div class="pin-row">
+        <input type="password" maxlength="1" class="pin-input" id="p1" inputmode="numeric">
+        <input type="password" maxlength="1" class="pin-input" id="p2" inputmode="numeric">
+        <input type="password" maxlength="1" class="pin-input" id="p3" inputmode="numeric">
+        <input type="password" maxlength="1" class="pin-input" id="p4" inputmode="numeric">
+      </div>
+    </div>
+    <button class="btn" onclick="seConnecter()">Se connecter</button>
+    <div class="error" id="loginError">Identifiant ou PIN incorrect</div>
+  </div>
+</div>
+
+<!-- APP -->
+
+<div id="app">
+  <div class="header">
+    <div class="user-info">
+      <div class="name" id="headerNom"></div>
+      <div class="role" id="headerRole"></div>
+    </div>
+    <div class="ca">
+      <div class="amount" id="headerCA">0 €</div>
+      <div class="label">AUJOURD'HUI</div>
+    </div>
+  </div>
+  <div class="nav">
+    <button class="active" onclick="showTab('agenda')">📅 Agenda</button>
+    <button onclick="showTab('perf')">🏆 Performances</button>
+  </div>
+  <div class="content">
+    <div id="tab-agenda">
+      <div class="statut-card">
+        <div class="lbl">MON STATUT</div>
+        <div class="statut-btns">
+          <button onclick="setStatut('Disponible','#22c55e')" id="s1">🟢 Disponible</button>
+          <button onclick="setStatut('En intervention','#f97316')" id="s2">🔧 En intervention</button>
+          <button onclick="setStatut('Pause','#eab308')" id="s3">⏸️ Pause</button>
+          <button onclick="setStatut('Indisponible','#ef4444')" id="s4">🔴 Indisponible</button>
+        </div>
+      </div>
+      <div class="tabs">
+        <button class="active" onclick="showVue('auj')">Aujourd'hui</button>
+        <button onclick="showVue('venir')">À venir</button>
+        <button onclick="showVue('passes')">Passés</button>
+      </div>
+      <div id="liste-rdv"></div>
+    </div>
+    <div id="tab-perf" class="hidden">
+      <div class="statut-card">
+        <div class="lbl" id="perf-mois">PERFORMANCES — CE MOIS</div>
+        <div class="perf-grid" id="perf-grid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SCRIPT IA -->
+
+<div class="modal-bg hidden" id="modal-script">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>🤖 Script Vente IA</h2>
+      <button class="modal-close" onclick="closeModal('modal-script')">×</button>
+    </div>
+    <div id="script-rdv-info" style="background:#f9731610;border:1px solid #f9731630;border-radius:10px;padding:12px 14px;margin-bottom:16px;"></div>
+    <div id="script-loading" style="text-align:center;padding:40px 0;color:#f97316;">⚙️ Génération en cours...</div>
+    <div id="script-content" class="hidden">
+      <div class="script-box" id="script-text"></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-gray" onclick="genererScript()">🔄 Régénérer</button>
+        <button class="btn btn-blue" onclick="copierScript()">📋 Copier</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RAPPORT -->
+
+<div class="modal-bg hidden" id="modal-rapport" style="align-items:flex-start;">
+  <div class="modal" style="border-radius:0;max-height:100vh;min-height:100vh;">
+    <div id="rapport-debut" class="hidden">
+      <div style="text-align:center;padding:20px 0;">
+        <div style="font-size:52px;margin-bottom:14px;">🔧</div>
+        <div style="color:#22c55e;font-size:11px;letter-spacing:2px;margin-bottom:8px;">DÉMARRAGE INTERVENTION</div>
+        <div style="font-weight:800;font-size:20px;margin-bottom:4px;" id="debut-nom"></div>
+        <div style="color:#888;font-size:14px;margin-bottom:4px;" id="debut-type"></div>
+        <div style="color:#666;font-size:13px;margin-bottom:20px;" id="debut-adresse"></div>
+        <div class="prix-box" style="text-align:left;">
+          <div class="lbl">PRIX À FACTURER</div>
+          <div class="val" id="debut-prix"></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:20px;justify-content:center;">
+          <button class="btn btn-gray" style="flex:1;" onclick="closeModal('modal-rapport')">Annuler</button>
+          <button class="btn btn-green" style="flex:1;" onclick="showRapportForm()">✅ Démarrer</button>
+        </div>
+        <div style="color:#444;font-size:11px;margin-top:12px;" id="debut-heure"></div>
+      </div>
+    </div>
+    <div id="rapport-form" class="hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div>
+          <div style="color:#f97316;font-size:11px;letter-spacing:2px;">RAPPORT D'INTERVENTION</div>
+          <div style="font-weight:800;font-size:17px;" id="form-nom"></div>
+        </div>
+        <div style="color:#555;font-size:11px;" id="form-heure"></div>
+      </div>
+      <!-- Photos -->
+      <div class="statut-card">
+        <div class="lbl">PHOTOS (2 OBLIGATOIRES)</div>
+        <div class="photo-grid">
+          <div class="photo-slot" id="slot1" onclick="document.getElementById('photo1').click()">
+            <div style="font-size:28px;margin-bottom:6px;">📷</div>
+            <div style="font-size:12px;">Photo 1</div>
+          </div>
+          <div class="photo-slot" id="slot2" onclick="document.getElementById('photo2').click()">
+            <div style="font-size:28px;margin-bottom:6px;">📷</div>
+            <div style="font-size:12px;">Photo 2</div>
+          </div>
+        </div>
+        <input type="file" id="photo1" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(0,this)">
+        <input type="file" id="photo2" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(1,this)">
+      </div>
+      <!-- Description -->
+      <div class="statut-card" style="border-left:3px solid #3b82f6;">
+        <div class="lbl">CE QUI S'EST PASSÉ *</div>
+        <textarea id="description" rows="4" placeholder="Problème trouvé, travaux réalisés, pièces changées..."></textarea>
+      </div>
+      <!-- Ventes -->
+      <div class="statut-card" style="border-left:3px solid #22c55e;">
+        <div class="lbl">VENTES ADDITIONNELLES</div>
+        <div id="primeEnCours" style="display:none;background:#eab30815;border:1px solid #eab30840;border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="color:#eab308;font-size:12px;">🏆 Prime estimée</span>
+          <span style="color:#eab308;font-weight:800;font-size:18px;" id="primeTotal">0 €</span>
+        </div>
+        <div id="liste-ventes"></div>
+      </div>
+      <!-- Montant -->
+      <div class="statut-card" style="border-left:3px solid #eab308;">
+        <div class="lbl">MONTANT FINAL (€)</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
+          <input type="number" class="field-input" id="montantFinal" style="flex:1;">
+          <div style="color:#444;font-size:12px;">Initial<br><span style="color:#f97316;font-weight:700;" id="prixInitial"></span></div>
+        </div>
+      </div>
+      <!-- Recap primes -->
+      <div class="prime-recap hidden" id="recapPrimes">
+        <div class="title">🏆 RÉCAP PRIMES</div>
+        <div id="recapListe"></div>
+        <div class="total">
+          <div class="label">TOTAL PRIME</div>
+          <div class="amount" id="recapTotal"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;padding-bottom:30px;">
+        <button class="btn btn-gray" onclick="closeModal('modal-rapport')">← Retour</button>
+        <button class="btn btn-green" id="btnTerminer" onclick="soumettre()" style="flex:1;">✅ Terminer & Envoyer</button>
+      </div>
+    </div>
+    <div id="rapport-succes" class="hidden">
+      <div class="success-screen">
+        <div class="icon">✅</div>
+        <h2>Intervention terminée !</h2>
+        <p>Rapport envoyé au patron</p>
+        <div class="prime-win hidden" id="primeWin">
+          <div class="label">🏆 PRIME GAGNÉE</div>
+          <div class="amount" id="primeWinAmount"></div>
+        </div>
+        <button class="btn" onclick="closeModal('modal-rapport')">Retour à l'agenda</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DONNÉES ──────────────────────────────────────────────────────────────────
+const USERS = {
+  patron:   { nom: "Patron", role: "PATRON", pin: "2580", couleur: "#f97316" },
+  dispatch: { nom: "Secrétariat", role: "DISPATCH", pin: "1470", couleur: "#8b5cf6" },
+  tech1:    { nom: "Technicien 1", role: "TECHNICIEN", pin: "3691", couleur: "#3b82f6" },
+  tech2:    { nom: "Technicien 2", role: "TECHNICIEN", pin: "8024", couleur: "#8b5cf6" },
+};
+
+const VENTES = [
+  { id:"contrat", icon:"📋", label:"Contrat entretien annuel", primeMin:10, primeMax:20, type:"directe" },
+  { id:"ballon",  icon:"🔵", label:"Ballon électrique",        primeMin:30, primeMax:50, type:"devis" },
+  { id:"adoucisseur", icon:"💧", label:"Adoucisseur d'eau",    primeMin:100, primeMax:150, type:"devis" },
+  { id:"chaudiere",   icon:"🔥", label:"Remplacement chaudière", primeMin:100, primeMax:300, type:"devis" },
+  { id:"gros",    icon:"🏗️", label:"Gros chantier (>1000€)",  primeMin:20, primeMax:150, type:"devis" },
+  { id:"joints",  icon:"🔧", label:"Réfection joints",         primeMin:10, primeMax:20, type:"directe" },
+  { id:"robinet", icon:"🚿", label:"Remplacement robinetterie", primeMin:15, primeMax:30, type:"directe" },
+];
+
+const todayStr = () => new Date().toISOString().split("T")[0];
+
+const DEMO_RDV = [
+  { id:1, clientNom:"Martin Dupont", clientTel:"06 12 34 56 78", adresse:"12 rue des Lilas, Paris 75011", type:"Fuite d'eau", technicien:"Technicien 1", dateRdv:todayStr(), heureRdv:"09:00", prixVente:280, statut:"Confirmé", notes:"Fuite sous évier cuisine - tache plafond" },
+  { id:2, clientNom:"Sophie Bernard", clientTel:"07 98 76 54 32", adresse:"5 avenue Victor Hugo, Paris 75016", type:"Débouchage", technicien:"Technicien 1", dateRdv:todayStr(), heureRdv:"14:00", prixVente:150, statut:"Confirmé", notes:"Baignoire bouchée - eau stagnante" },
+  { id:3, clientNom:"Jean Moreau", clientTel:"06 55 44 33 22", adresse:"8 rue du Château, Vincennes", type:"Chaudière", technicien:"Technicien 1", dateRdv:getFutureDate(1), heureRdv:"11:00", prixVente:450, statut:"Confirmé", notes:"Chaudière gaz en panne la nuit" },
+  { id:4, clientNom:"Amina Kaci", clientTel:"06 77 88 99 00", adresse:"3 impasse des Roses, Montreuil", type:"Urgent / Dépannage", technicien:"Technicien 2", dateRdv:todayStr(), heureRdv:"16:30", prixVente:320, statut:"Confirmé", notes:"Inondation sous-sol urgent" },
+];
+
+function getFutureDate(n){ const d=new Date(); d.setDate(d.getDate()+n); return d.toISOString().split("T")[0]; }
+
+// ─── ÉTAT ─────────────────────────────────────────────────────────────────────
+let currentUser = null;
+let currentVue = "auj";
+let currentRdv = null;
+let photos = [null, null];
+let ventesSelectionnees = [];
+let heureDebut = "";
+let expandedId = null;
+
+function getRdvs(){ const s=localStorage.getItem("pl_rdvs"); if(s) return JSON.parse(s); localStorage.setItem("pl_rdvs",JSON.stringify(DEMO_RDV)); return DEMO_RDV; }
+function saveRdvs(rdvs){ localStorage.setItem("pl_rdvs",JSON.stringify(rdvs)); }
+function getPrimes(){ return JSON.parse(localStorage.getItem("pl_primes")||"{}"); }
+function savePrimes(p){ localStorage.setItem("pl_primes",JSON.stringify(p)); }
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+document.querySelectorAll(".pin-input").forEach((el,i,arr)=>{
+  el.addEventListener("input",()=>{ if(el.value && i<arr.length-1) arr[i+1].focus(); });
+});
+
+function seConnecter(){
+  const id = document.getElementById("identifiant").value.trim().toLowerCase();
+  const pin = ["p1","p2","p3","p4"].map(i=>document.getElementById(i).value).join("");
+  const user = USERS[id];
+  if(!user || user.pin !== pin){
+    document.getElementById("loginError").style.display="block"; return;
+  }
+  currentUser = { ...user, id };
+  localStorage.setItem("pl_session", JSON.stringify(currentUser));
+  lancerApp();
+}
+
+function lancerApp(){
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="block";
+  document.getElementById("headerNom").textContent = currentUser.nom;
+  document.getElementById("headerRole").textContent = currentUser.role;
+  updateCA();
+  renderRdv();
+  renderPerf();
+}
+
+function logout(){
+  localStorage.removeItem("pl_session");
+  currentUser=null;
+  document.getElementById("login").style.display="flex";
+  document.getElementById("app").style.display="none";
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+function showTab(tab){
+  document.getElementById("tab-agenda").classList.toggle("hidden", tab!=="agenda");
+  document.getElementById("tab-perf").classList.toggle("hidden", tab!=="perf");
+  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",(tab==="agenda"&&i===0)||(tab==="perf"&&i===1)));
+}
+
+function showVue(vue){
+  currentVue=vue;
+  document.querySelectorAll(".tabs button").forEach((b,i)=>b.classList.toggle("active",["auj","venir","passes"][i]===vue));
+  renderRdv();
+}
+
+// ─── STATUT ───────────────────────────────────────────────────────────────────
+function setStatut(statut, color){
+  const dispos=JSON.parse(localStorage.getItem("pl_dispos")||"{}");
+  dispos[currentUser.nom]={statut,updatedAt:new Date().toISOString()};
+  localStorage.setItem("pl_dispos",JSON.stringify(dispos));
+  document.querySelectorAll(".statut-btns button").forEach(b=>{
+    b.style.background=""; b.style.color=""; b.style.borderColor="";
+  });
+  event.target.style.background=color+"25";
+  event.target.style.color=color;
+  event.target.style.borderColor=color;
+}
+
+// ─── LISTE RDV ────────────────────────────────────────────────────────────────
+function getMesRdvs(){
+  const rdvs = getRdvs();
+  if(!currentUser) return [];
+  if(currentUser.role==="PATRON"||currentUser.role==="DISPATCH") return rdvs;
+  return rdvs.filter(r=>r.technicien===currentUser.nom);
+}
+
+function renderRdv(){
+  const rdvs = getMesRdvs();
+  const today = todayStr();
+  let liste;
+  if(currentVue==="auj") liste=rdvs.filter(r=>r.dateRdv===today).sort((a,b)=>a.heureRdv.localeCompare(b.heureRdv));
+  else if(currentVue==="venir") liste=rdvs.filter(r=>r.dateRdv>today).sort((a,b)=>a.dateRdv.localeCompare(b.dateRdv));
+  else liste=rdvs.filter(r=>r.dateRdv<today).sort((a,b)=>b.dateRdv.localeCompare(a.dateRdv));
+
+  updateCA();
+  const container = document.getElementById("liste-rdv");
+  if(!liste.length){ container.innerHTML=`<div class="empty"><div class="icon">📭</div>Aucun RDV</div>`; return; }
+  container.innerHTML = liste.map(r=>carteRdvHtml(r)).join("");
+}
+
+function carteRdvHtml(r){
+  const today = todayStr();
+  const isToday = r.dateRdv===today;
+  const isDone = r.statut==="Terminé";
+  const isExpanded = expandedId===r.id;
+  const cls = isDone?"done":isToday?"today":"";
+  const badge = isDone?`<span class="badge done">TERMINÉ ✓</span>`:isToday?`<span class="badge">AUJOURD'HUI</span>`:"";
+  return `
+  <div class="carte-rdv ${cls}" id="carte-${r.id}">
+    <div class="carte-header" onclick="toggleCarte(${r.id})">
+      <div class="left">
+        <div class="top">
+          <span class="heure">${r.heureRdv}</span>
+          <span class="nom">${r.clientNom}</span>
+          ${badge}
+        </div>
+        <div class="sub">${r.type} · ${r.adresse.split(",")[0]}</div>
+      </div>
+      <div class="right">
+        <div class="prix">${r.prixVente} €</div>
+        <div class="arrow">${isExpanded?"▲":"▼"}</div>
+      </div>
+    </div>
+    ${isExpanded?carteBodyHtml(r,isToday,isDone):""}
+  </div>`;
+}
+
+function carteBodyHtml(r,isToday,isDone){
+  return `
+  <div class="carte-body">
+    <div class="info-row"><div class="lbl">ADRESSE</div><div class="val">${r.adresse}</div></div>
+    <div class="info-row"><div class="lbl">TÉLÉPHONE</div><div class="val"><a href="tel:${r.clientTel}">${r.clientTel}</a></div></div>
+    ${r.notes?`<div class="info-row"><div class="lbl">NOTES PATRON</div><div class="notes-box">${r.notes}</div></div>`:""}
+    <div class="prix-box">
+      <div class="lbl">PRIX À FACTURER</div>
+      <div class="val">${r.prixVente} €</div>
+      <div class="note">Ne pas descendre sans accord patron</div>
+    </div>
+    ${!isDone?`<div class="actions">
+      <button class="btn-blue actions" onclick="ouvrirScript(${r.id})">🤖 Script IA</button>
+      ${isToday?`<button class="btn-green actions" onclick="ouvrirRapport(${r.id})">🔧 Démarrer</button>`:""}
+      <button class="btn-gray actions" onclick="window.open('https://maps.google.com/?q=${encodeURIComponent(r.adresse)}')">🗺️</button>
+    </div>`:""}
+  </div>`;
+}
+
+function toggleCarte(id){
+  expandedId = expandedId===id?null:id;
+  renderRdv();
+}
+
+function updateCA(){
+  const rdvs=getMesRdvs();
+  const ca=rdvs.filter(r=>r.dateRdv===todayStr()).reduce((s,r)=>s+(r.prixVente||0),0);
+  document.getElementById("headerCA").textContent=ca+" €";
+}
+
+// ─── PERF ─────────────────────────────────────────────────────────────────────
+function renderPerf(){
+  const mois=new Date().toISOString().slice(0,7);
+  const primes=getPrimes();
+  const data=primes[currentUser?.nom]?.[mois]||{total:0,ventes:0,ca:0};
+  const rapports=JSON.parse(localStorage.getItem("pl_rapports")||"[]");
+  const mesR=rapports.filter(r=>r.technicien===currentUser?.nom&&r.date?.startsWith(mois));
+  const ca=mesR.reduce((s,r)=>s+(r.montantFinal||0),0);
+  document.getElementById("perf-grid").innerHTML=[
+    ["CA réalisé",ca+" €","#f97316"],
+    ["Primes gagnées",data.total+" €","#eab308"],
+    ["Ventes additionnelles",data.ventes,"#22c55e"],
+    ["Interventions",mesR.length,"#3b82f6"],
+  ].map(([l,v,c])=>`<div class="perf-card"><div class="lbl">${l.toUpperCase()}</div><div class="val" style="color:${c}">${v}</div></div>`).join("");
+}
+
+// ─── SCRIPT IA ────────────────────────────────────────────────────────────────
+let currentScriptRdv=null;
+
+function ouvrirScript(id){
+  const rdv=getRdvs().find(r=>r.id===id);
+  currentScriptRdv=rdv;
+  document.getElementById("script-rdv-info").innerHTML=`<div style="color:#f97316;font-size:12px;margin-bottom:4px;">INTERVENTION</div><div style="font-weight:700;">${rdv.type} — ${rdv.clientNom}</div><div style="color:#666;font-size:13px;margin-top:2px;">${rdv.notes||""}</div>`;
+  document.getElementById("script-loading").classList.remove("hidden");
+  document.getElementById("script-content").classList.add("hidden");
+  document.getElementById("modal-script").classList.remove("hidden");
+  genererScript();
+}
+
+async function genererScript(){
+  document.getElementById("script-loading").classList.remove("hidden");
+  document.getElementById("script-content").classList.add("hidden");
+  try{
+    const r=currentScriptRdv;
+    const res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",max_tokens:1000,
+        system:"Tu es un coach commercial pour techniciens plombiers. Génère des scripts de vente additionnelle courts, naturels, efficaces. Lisible sur téléphone. Réponds UNIQUEMENT avec le script structuré.",
+        messages:[{role:"user",content:`Type: ${r.type}\nNotes: ${r.notes||"RAS"}\nPrix: ${r.prixVente}€\n\nGénère un script avec:\n1. Observation visuelle en arrivant\n2. 2-3 offres additionnelles avec phrases exactes\n3. Closing naturel\n\nProduits: Adoucisseur, Contrat entretien, Ballon électrique, Chaudière, Robinetterie, Réfection joints`}]
+      })
+    });
+    const d=await res.json();
+    document.getElementById("script-text").textContent=d.content?.[0]?.text||"Erreur";
+  }catch(e){ document.getElementById("script-text").textContent="❌ Erreur de connexion"; }
+  document.getElementById("script-loading").classList.add("hidden");
+  document.getElementById("script-content").classList.remove("hidden");
+}
+
+function copierScript(){ navigator.clipboard.writeText(document.getElementById("script-text").textContent); }
+
+// ─── RAPPORT ──────────────────────────────────────────────────────────────────
+function ouvrirRapport(id){
+  const rdv=getRdvs().find(r=>r.id===id);
+  currentRdv=rdv;
+  photos=[null,null];
+  ventesSelectionnees=[];
+  heureDebut=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+  document.getElementById("debut-nom").textContent=rdv.clientNom;
+  document.getElementById("debut-type").textContent=rdv.type;
+  document.getElementById("debut-adresse").textContent=rdv.adresse;
+  document.getElementById("debut-prix").textContent=rdv.prixVente+" €";
+  document.getElementById("debut-heure").textContent="Début : "+heureDebut;
+  document.getElementById("rapport-debut").classList.remove("hidden");
+  document.getElementById("rapport-form").classList.add("hidden");
+  document.getElementById("rapport-succes").classList.add("hidden");
+  document.getElementById("modal-rapport").classList.remove("hidden");
+}
+
+function showRapportForm(){
+  document.getElementById("rapport-debut").classList.add("hidden");
+  document.getElementById("rapport-form").classList.remove("hidden");
+  document.getElementById("form-nom").textContent=currentRdv.clientNom;
+  document.getElementById("form-heure").textContent="⏱ Début : "+heureDebut;
+  document.getElementById("montantFinal").value=currentRdv.prixVente;
+  document.getElementById("prixInitial").textContent=currentRdv.prixVente+" €";
+  document.getElementById("description").value="";
+  renderSlots();
+  renderVentes();
+}
+
+function handlePhoto(i,input){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{ photos[i]={url:e.target.result}; renderSlots(); };
+  reader.readAsDataURL(file);
+}
+
+function renderSlots(){
+  [0,1].forEach(i=>{
+    const slot=document.getElementById("slot"+(i+1));
+    if(photos[i]){
+      slot.innerHTML=`<img src="${photos[i].url}"><button class="photo-del" onclick="delPhoto(${i},event)">×</button>`;
+    } else {
+      slot.innerHTML=`<div style="font-size:28px;margin-bottom:6px;">📷</div><div style="font-size:12px;">Photo ${i+1}</div>`;
+    }
+  });
+  checkBtnTerminer();
+}
+
+function delPhoto(i,e){ e.stopPropagation(); photos[i]=null; renderSlots(); }
+
+function renderVentes(){
+  document.getElementById("liste-ventes").innerHTML=VENTES.map(v=>{
+    const sel=ventesSelectionnees.find(x=>x.id===v.id);
+    return `<div class="vente-item ${sel?"selected":""}" onclick="toggleVente('${v.id}')">
+      <div class="vente-header">
+        <div class="vente-left">
+          <span style="font-size:20px">${v.icon}</span>
+          <div>
+            <div class="vente-name">${v.label}</div>
+            <div class="vente-type">${v.type==="devis"?"→ Devis patron":"→ Vente directe"}</div>
+          </div>
+        </div>
+        <div class="vente-right">
+          <div class="prime">${v.primeMin}-${v.primeMax}€</div>
+          <div class="check">${sel?"✅":"○"}</div>
+        </div>
+      </div>
+      ${sel&&v.type==="devis"?`<div class="devis-tag"><span>📤 Demande envoyée au patron</span></div>`:""}
+    </div>`;
+  }).join("");
+  updatePrimeTotal();
+}
+
+function toggleVente(id){
+  const v=VENTES.find(x=>x.id===id);
+  const idx=ventesSelectionnees.findIndex(x=>x.id===id);
+  if(idx>=0) ventesSelectionnees.splice(idx,1);
+  else ventesSelectionnees.push({...v, primeChoisie:v.primeMin});
+  renderVentes();
+}
+
+function updatePrimeTotal(){
+  const total=ventesSelectionnees.reduce((s,v)=>s+(v.primeChoisie||v.primeMin),0);
+  document.getElementById("primeTotal").textContent=total+" €";
+  const primeEnCours=document.getElementById("primeEnCours");
+  if(total>0){ primeEnCours.style.display="flex"; } else { primeEnCours.style.display="none"; }
+  // recap
+  const recap=document.getElementById("recapPrimes");
+  if(ventesSelectionnees.length>0){
+    recap.classList.remove("hidden");
+    document.getElementById("recapListe").innerHTML=ventesSelectionnees.map(v=>`<div class="row"><span class="name">${v.icon} ${v.label}</span><span class="amount">${v.primeChoisie||v.primeMin} €</span></div>`).join("");
+    document.getElementById("recapTotal").textContent=total+" €";
+  } else { recap.classList.add("hidden"); }
+}
+
+function checkBtnTerminer(){
+  const ok=photos[0]&&photos[1]&&document.getElementById("description")?.value?.trim();
+  const btn=document.getElementById("btnTerminer");
+  if(btn){ btn.disabled=!ok; btn.textContent=ok?"✅ Terminer & Envoyer":"⚠️ 2 photos + description requis"; }
+}
+
+document.addEventListener("input",e=>{ if(e.target.id==="description") checkBtnTerminer(); });
+
+function soumettre(){
+  const heureFin=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+  const totalPrimes=ventesSelectionnees.reduce((s,v)=>s+(v.primeChoisie||v.primeMin),0);
+  const rapport={
+    id:Date.now(), rdvId:currentRdv.id, clientNom:currentRdv.clientNom,
+    clientTel:currentRdv.clientTel, adresse:currentRdv.adresse,
+    type:currentRdv.type, technicien:currentRdv.nom||currentUser.nom,
+    heureDebut, heureFin, date:todayStr(),
+    description:document.getElementById("description").value,
+    montantFinal:Number(document.getElementById("montantFinal").value),
+    prixInitial:currentRdv.prixVente,
+    ventes:ventesSelectionnees, totalPrimes,
+    photos:photos.filter(Boolean).map(p=>p.url),
+    soumisLe:new Date().toISOString(), statut:"En attente facturation"
+  };
+  // Sauvegarder rapport
+  const rapports=JSON.parse(localStorage.getItem("pl_rapports")||"[]");
+  rapports.push(rapport); localStorage.setItem("pl_rapports",JSON.stringify(rapports));
+  // Devis patron
+  const demandesDevis=ventesSelectionnees.filter(v=>v.type==="devis");
+  if(demandesDevis.length){
+    const devis=JSON.parse(localStorage.getItem("pl_devis")||"[]");
+    demandesDevis.forEach(d=>devis.push({id:Date.now()+Math.random(),type:d.label,clientNom:currentRdv.clientNom,clientTel:currentRdv.clientTel,adresse:currentRdv.adresse,technicien:currentUser.nom,date:todayStr(),statut:"Nouveau"}));
+    localStorage.setItem("pl_devis",JSON.stringify(devis));
+  }
+  // Primes
+  const mois=new Date().toISOString().slice(0,7);
+  const primes=getPrimes();
+  if(!primes[currentUser.nom]) primes[currentUser.nom]={};
+  if(!primes[currentUser.nom][mois]) primes[currentUser.nom][mois]={total:0,ventes:0,ca:0};
+  primes[currentUser.nom][mois].total+=totalPrimes;
+  primes[currentUser.nom][mois].ventes+=ventesSelectionnees.length;
+  primes[currentUser.nom][mois].ca+=Number(document.getElementById("montantFinal").value);
+  savePrimes(primes);
+  // Statut RDV
+  const rdvs=getRdvs().map(r=>r.id===currentRdv.id?{...r,statut:"Terminé",rapport}:r);
+  saveRdvs(rdvs);
+  // Succès
+  document.getElementById("rapport-form").classList.add("hidden");
+  document.getElementById("rapport-succes").classList.remove("hidden");
+  if(totalPrimes>0){
+    document.getElementById("primeWin").classList.remove("hidden");
+    document.getElementById("primeWinAmount").textContent=totalPrimes+" €";
+  }
+  renderRdv(); renderPerf();
+}
+
+// ─── MODALS ───────────────────────────────────────────────────────────────────
+function closeModal(id){
+  document.getElementById(id).classList.add("hidden");
+  renderRdv();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+window.onload=()=>{
+  const s=localStorage.getItem("pl_session");
+  if(s){ currentUser=JSON.parse(s); lancerApp(); }
+};
+</script>
+
+</body>
+</html>
