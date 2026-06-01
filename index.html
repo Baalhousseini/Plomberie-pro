@@ -3,12 +3,13 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Plomberie Pro</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif;}
 body{background:#0a0a0a;color:#f1f1f1;min-height:100vh;}
 .hidden{display:none!important;}
+
 /* LOGIN */
 #login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
 .login-box{background:#141414;border:1px solid #222;border-radius:20px;padding:40px 30px;width:100%;max-width:380px;}
@@ -20,110 +21,197 @@ body{background:#0a0a0a;color:#f1f1f1;min-height:100vh;}
 .field label{display:block;color:#666;font-size:11px;letter-spacing:1px;margin-bottom:6px;}
 .field input{width:100%;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:10px;padding:12px 16px;color:#f1f1f1;font-size:16px;outline:none;}
 .pin-row{display:flex;gap:10px;justify-content:center;margin:10px 0;}
-.pin-row input{width:56px;height:56px;text-align:center;font-size:22px;font-weight:800;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:12px;color:#f97316;outline:none;}
-.btn{width:100%;background:#f97316;color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px;}
-.btn:hover{opacity:0.9;}
-.btn-sec{background:#1e1e1e;color:#ccc;border:1px solid #333;}
-.error{color:#ef4444;font-size:13px;text-align:center;margin-top:10px;display:none;}
-/* APP */
-#app{display:none;}
-.header{background:#0f0f0f;border-bottom:1px solid #1a1a1a;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;}
-.header .user-info .name{font-weight:700;font-size:15px;}
-.header .user-info .role{color:#555;font-size:10px;letter-spacing:1px;}
-.header .ca{text-align:right;}
-.header .ca .amount{color:#f97316;font-weight:800;font-size:18px;}
-.header .ca .label{color:#444;font-size:10px;}
-.nav{background:#0f0f0f;border-bottom:1px solid #1a1a1a;display:flex;}
-.nav button{flex:1;background:none;border:none;border-bottom:2px solid transparent;padding:13px 0;color:#555;cursor:pointer;font-size:12px;font-weight:700;transition:all 0.2s;}
+.pin-input{width:56px!important;height:56px;text-align:center;font-size:22px;font-weight:800;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:12px;color:#f97316;outline:none;}
+.btn-primary{width:100%;background:#f97316;color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px;}
+.error-msg{color:#ef4444;font-size:13px;text-align:center;margin-top:10px;}
+
+/* HEADER */
+.header{background:#0f0f0f;border-bottom:1px solid #1a1a1a;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
+.header-left{display:flex;align-items:center;gap:10px;}
+.avatar{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;}
+.user-name{font-weight:700;font-size:14px;}
+.user-role{color:#555;font-size:10px;letter-spacing:1px;}
+.header-right{display:flex;align-items:center;gap:10px;}
+.ca-box{text-align:right;}
+.ca-amount{color:#f97316;font-weight:800;font-size:16px;}
+.ca-label{color:#444;font-size:9px;letter-spacing:1px;}
+.btn-logout{background:#ef444418;border:1px solid #ef444430;color:#ef4444;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;}
+
+/* NAV */
+.nav{background:#0f0f0f;border-bottom:1px solid #1a1a1a;display:flex;overflow-x:auto;}
+.nav button{flex:1;min-width:80px;background:none;border:none;border-bottom:2px solid transparent;padding:12px 8px;color:#555;cursor:pointer;font-size:11px;font-weight:700;white-space:nowrap;transition:all 0.2s;}
 .nav button.active{color:#f97316;border-bottom-color:#f97316;}
-.content{max-width:600px;margin:0 auto;padding:20px 16px;}
-/* STATUT */
-.statut-card{background:#141414;border:1px solid #222;border-radius:14px;padding:16px 18px;margin-bottom:16px;}
-.statut-card .lbl{color:#555;font-size:11px;letter-spacing:1.5px;margin-bottom:10px;}
-.statut-btns{display:flex;gap:8px;flex-wrap:wrap;}
-.statut-btns button{flex:1;min-width:100px;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:8px;padding:9px;color:#555;cursor:pointer;font-size:11px;font-weight:700;transition:all 0.15s;}
+
+/* CONTENT */
+.content{max-width:600px;margin:0 auto;padding:16px;}
+
+/* CARDS */
+.card{background:#141414;border:1px solid #222;border-radius:14px;padding:16px 18px;margin-bottom:12px;}
+.card.accent-orange{border-left:3px solid #f97316;}
+.card.accent-blue{border-left:3px solid #3b82f6;}
+.card.accent-green{border-left:3px solid #22c55e;}
+.card.accent-yellow{border-left:3px solid #eab308;}
+.card.accent-purple{border-left:3px solid #8b5cf6;}
+.lbl{color:#555;font-size:10px;letter-spacing:1.5px;margin-bottom:8px;font-weight:700;}
+
+/* STATUT DISPO */
+.statut-btns{display:flex;gap:6px;flex-wrap:wrap;}
+.statut-btn{flex:1;min-width:110px;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:8px;padding:9px 6px;color:#555;cursor:pointer;font-size:11px;font-weight:700;text-align:center;transition:all 0.15s;}
+
 /* TABS */
-.tabs{display:flex;gap:4px;background:#0f0f0f;border-radius:10px;padding:4px;margin-bottom:18px;}
-.tabs button{flex:1;background:none;border:none;border-radius:8px;padding:9px 6px;color:#555;cursor:pointer;font-size:11px;font-weight:700;transition:all 0.2s;}
-.tabs button.active{background:#f97316;color:#000;}
+.tabs{display:flex;gap:4px;background:#0f0f0f;border-radius:10px;padding:4px;margin-bottom:16px;}
+.tab-btn{flex:1;background:none;border:none;border-radius:8px;padding:9px 4px;color:#555;cursor:pointer;font-size:11px;font-weight:700;transition:all 0.2s;}
+.tab-btn.active{background:#f97316;color:#000;}
+
 /* CARTE RDV */
-.carte-rdv{background:#141414;border:1px solid #333;border-radius:14px;margin-bottom:10px;overflow:hidden;transition:all 0.2s;}
+.carte-rdv{background:#141414;border:1px solid #222;border-radius:14px;margin-bottom:10px;overflow:hidden;}
 .carte-rdv.today{border-left:3px solid #3b82f6;}
-.carte-rdv.done{border-left:3px solid #22c55e;}
-.carte-header{padding:16px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
-.carte-header .left .top{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
-.carte-header .left .heure{color:#3b82f6;font-weight:700;font-size:16px;}
-.carte-header .left .nom{font-weight:700;}
-.carte-header .left .sub{color:#666;font-size:13px;}
-.carte-header .right .prix{color:#f97316;font-weight:800;font-size:18px;text-align:right;}
-.carte-header .right .arrow{color:#333;font-size:16px;text-align:right;margin-top:4px;}
-.badge{background:#3b82f620;color:#3b82f6;border:1px solid #3b82f640;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;}
-.badge.done{background:#22c55e20;color:#22c55e;border-color:#22c55e40;}
-.carte-body{padding:0 18px 18px;border-top:1px solid #1a1a1a;}
-.info-row{margin-top:12px;}
-.info-row .lbl{color:#555;font-size:11px;letter-spacing:1px;margin-bottom:4px;}
-.info-row .val{color:#ccc;font-size:14px;}
-.info-row a{color:#3b82f6;text-decoration:none;}
-.prix-box{background:#f9731610;border:1px solid #f9731630;border-radius:10px;padding:12px 16px;margin-top:12px;}
-.prix-box .lbl{color:#555;font-size:11px;letter-spacing:1px;margin-bottom:4px;}
-.prix-box .val{color:#f97316;font-weight:800;font-size:28px;}
-.prix-box .note{color:#666;font-size:11px;margin-top:2px;}
-.notes-box{background:#0f0f0f;border-radius:8px;padding:10px 12px;color:#aaa;font-size:14px;font-style:italic;}
-.actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
-.actions button{flex:1;border:none;border-radius:10px;padding:11px;cursor:pointer;font-size:13px;font-weight:700;}
+.carte-rdv.done{border-left:3px solid #22c55e;opacity:0.7;}
+.carte-header{padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.carte-heure{color:#3b82f6;font-weight:800;font-size:15px;font-family:monospace;}
+.carte-nom{font-weight:700;font-size:14px;}
+.carte-sub{color:#666;font-size:12px;margin-top:2px;}
+.carte-prix{color:#f97316;font-weight:800;font-size:16px;text-align:right;white-space:nowrap;}
+.carte-arrow{color:#333;font-size:14px;margin-top:2px;text-align:right;}
+.badge{display:inline-block;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;}
+.badge-blue{background:#3b82f620;color:#3b82f6;border:1px solid #3b82f640;}
+.badge-green{background:#22c55e20;color:#22c55e;border:1px solid #22c55e40;}
+.badge-orange{background:#f9731620;color:#f97316;border:1px solid #f9731640;}
+.badge-yellow{background:#eab30820;color:#eab308;border:1px solid #eab30840;}
+.badge-purple{background:#8b5cf620;color:#8b5cf6;border:1px solid #8b5cf640;}
+
+/* CARTE BODY */
+.carte-body{padding:0 16px 16px;border-top:1px solid #1a1a1a;}
+.info-item{margin-top:12px;}
+.info-val{color:#ccc;font-size:13px;margin-top:3px;}
+.info-val a{color:#3b82f6;text-decoration:none;}
+.notes-box{background:#0f0f0f;border-radius:8px;padding:10px 12px;color:#aaa;font-size:13px;font-style:italic;margin-top:3px;}
+.prix-box{background:#f9731610;border:1px solid #f9731630;border-radius:10px;padding:12px 14px;margin-top:12px;}
+.prix-val{color:#f97316;font-weight:800;font-size:26px;}
+.prix-note{color:#555;font-size:11px;margin-top:2px;}
+
+/* STATUTS RDV */
+.statuts-rdv{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;}
+.statut-rdv-btn{flex:1;min-width:80px;border:none;border-radius:8px;padding:8px 6px;cursor:pointer;font-size:11px;font-weight:700;text-align:center;transition:all 0.2s;}
+
+/* CHRONO */
+.chrono-box{background:#0f0f0f;border:1px solid #2a2a2a;border-radius:10px;padding:12px 14px;margin-top:12px;display:flex;justify-content:space-between;align-items:center;}
+.chrono-time{font-family:monospace;font-size:22px;font-weight:800;color:#f97316;}
+
+/* ACTIONS */
+.actions-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.action-btn{flex:1;border:none;border-radius:10px;padding:11px 8px;cursor:pointer;font-size:12px;font-weight:700;text-align:center;}
 .btn-blue{background:#3b82f618;color:#3b82f6;border:1px solid #3b82f640!important;}
 .btn-green{background:#22c55e18;color:#22c55e;border:1px solid #22c55e40!important;}
 .btn-gray{background:#1e1e1e;color:#ccc;border:1px solid #333!important;}
+.btn-orange{background:#f9731618;color:#f97316;border:1px solid #f9731640!important;}
+.btn-yellow{background:#eab30818;color:#eab308;border:1px solid #eab30840!important;}
+
 /* PERF */
-.perf-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+.perf-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
 .perf-card{background:#0f0f0f;border-radius:10px;padding:12px 14px;}
-.perf-card .lbl{color:#555;font-size:10px;letter-spacing:1px;margin-bottom:4px;}
-.perf-card .val{font-weight:800;font-size:20px;}
+.perf-val{font-weight:800;font-size:20px;margin-top:4px;}
+.progress-bar{background:#1a1a1a;border-radius:6px;height:8px;margin-top:8px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:6px;background:#f97316;transition:width 0.5s;}
+
+/* SEMAINE */
+.semaine-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.semaine-nav button{background:#1e1e1e;border:1px solid #333;color:#ccc;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:12px;font-weight:700;}
+.semaine-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.jour-cell{background:#141414;border:1px solid #222;border-radius:8px;padding:6px 4px;min-height:80px;}
+.jour-cell.today{border-color:#f97316;background:#f9731608;}
+.jour-nom{color:#555;font-size:9px;font-weight:700;letter-spacing:1px;text-align:center;margin-bottom:4px;}
+.jour-num{font-size:16px;font-weight:800;text-align:center;margin-bottom:4px;}
+.jour-cell.today .jour-num{color:#f97316;}
+.rdv-mini{border-radius:4px;padding:3px 4px;margin-bottom:2px;font-size:9px;font-weight:700;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
+
 /* MODAL */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.9);display:flex;align-items:flex-end;justify-content:center;z-index:100;}
-.modal{background:#0f0f0f;border:1px solid #2a2a2a;border-radius:20px 20px 0 0;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;padding:24px;}
-.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
-.modal-header h2{color:#f97316;font-size:16px;}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:100;overflow-y:auto;}
+.modal-sheet{background:#0f0f0f;border:1px solid #2a2a2a;border-radius:20px 20px 0 0;min-height:100vh;padding:20px 16px 40px;}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.modal-title{color:#f97316;font-size:11px;letter-spacing:2px;font-weight:700;}
+.modal-subtitle{font-size:17px;font-weight:800;margin-top:2px;}
 .modal-close{background:#222;border:none;color:#888;border-radius:8px;width:34px;height:34px;font-size:18px;cursor:pointer;}
-/* SCRIPT */
+
+/* SCRIPT IA */
 .script-box{background:#0a1628;border:1px solid #1e3a5f;border-radius:12px;padding:18px;line-height:1.9;color:#d1e8ff;font-size:14px;white-space:pre-wrap;margin-bottom:16px;}
-/* RAPPORT */
-.photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
-.photo-slot{height:130px;border:2px dashed #2a2a2a;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:#444;position:relative;}
-.photo-slot img{width:100%;height:100%;object-fit:cover;border-radius:10px;}
-.photo-del{position:absolute;top:6px;right:6px;background:#ef4444;border:none;color:#fff;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:14px;}
-textarea{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:8px;padding:10px 14px;color:#f1f1f1;font-size:14px;outline:none;resize:vertical;font-family:inherit;box-sizing:border-box;margin-top:8px;}
-.field-input{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:8px;padding:12px 14px;color:#eab308;font-size:24px;font-weight:800;outline:none;box-sizing:border-box;}
+
+/* PHOTOS */
+.photos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+.photo-slot{height:100px;border:2px dashed #2a2a2a;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:#444;position:relative;overflow:hidden;}
+.photo-slot img{width:100%;height:100%;object-fit:cover;}
+.photo-del{position:absolute;top:4px;right:4px;background:#ef4444;border:none;color:#fff;border-radius:5px;width:22px;height:22px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;}
+.photo-label{font-size:9px;font-weight:700;letter-spacing:1px;margin-top:4px;}
+
+/* CHECKLIST */
+.check-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #1a1a1a;cursor:pointer;}
+.check-item:last-child{border-bottom:none;}
+.check-box{width:22px;height:22px;border-radius:6px;border:2px solid #333;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;}
+.check-box.checked{background:#22c55e;border-color:#22c55e;}
+.check-text{font-size:13px;color:#ccc;}
+
+/* SIGNATURE */
+#signatureCanvas{width:100%;height:180px;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:10px;touch-action:none;cursor:crosshair;}
+
 /* VENTES */
-.vente-item{background:#0f0f0f;border:1px solid #1e1e1e;border-radius:10px;margin-bottom:8px;overflow:hidden;}
+.vente-item{background:#0f0f0f;border:1px solid #1e1e1e;border-radius:10px;margin-bottom:8px;overflow:hidden;transition:all 0.2s;}
 .vente-item.selected{background:#22c55e10;border-color:#22c55e40;}
-.vente-header{padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
-.vente-header .vente-left{display:flex;align-items:center;gap:10px;}
-.vente-header .vente-left .vente-name{font-size:14px;font-weight:600;}
-.vente-header .vente-left .vente-type{color:#555;font-size:11px;}
-.vente-header .vente-right .prime{color:#eab308;font-weight:700;font-size:13px;}
-.vente-header .vente-right .check{font-size:18px;}
-.prime-recap{background:#eab30810;border:1px solid #eab30840;border-radius:14px;padding:16px 20px;margin-bottom:20px;}
-.prime-recap .title{color:#eab308;font-size:11px;letter-spacing:1px;margin-bottom:10px;}
-.prime-recap .row{display:flex;justify-content:space-between;margin-bottom:6px;}
-.prime-recap .row .name{color:#aaa;font-size:13px;}
-.prime-recap .row .amount{color:#eab308;font-weight:700;}
-.prime-recap .total{border-top:1px solid #eab30830;margin-top:10px;padding-top:10px;display:flex;justify-content:space-between;}
-.prime-recap .total .label{color:#eab308;font-weight:700;}
-.prime-recap .total .amount{color:#eab308;font-weight:800;font-size:18px;}
+.vente-row{padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.vente-icon{font-size:20px;margin-right:10px;}
+.vente-name{font-size:13px;font-weight:600;}
+.vente-type{color:#555;font-size:10px;margin-top:1px;}
+.vente-prime{color:#eab308;font-weight:700;font-size:12px;}
+
+/* PRIME RECAP */
+.prime-bar{background:#eab30815;border:1px solid #eab30840;border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.prime-label{color:#eab308;font-size:12px;}
+.prime-amount{color:#eab308;font-weight:800;font-size:18px;}
+
+/* OBJECTIF */
+.objectif-card{background:#0f0f0f;border-radius:10px;padding:14px;margin-top:10px;}
+.objectif-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+
+/* NOTE */
+textarea{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:8px;padding:10px 14px;color:#f1f1f1;font-size:14px;outline:none;resize:vertical;font-family:inherit;box-sizing:border-box;}
+input[type=number]{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:8px;padding:12px 14px;color:#eab308;font-size:24px;font-weight:800;outline:none;box-sizing:border-box;font-family:monospace;}
+
 /* SUCCESS */
-.success-screen{text-align:center;padding:40px 20px;}
-.success-screen .icon{font-size:56px;margin-bottom:14px;}
-.success-screen h2{color:#22c55e;font-size:22px;margin-bottom:8px;}
-.success-screen p{color:#888;font-size:14px;margin-bottom:20px;}
-.prime-win{background:#eab30815;border:1px solid #eab30840;border-radius:12px;padding:16px 20px;margin-bottom:20px;}
-.prime-win .label{color:#eab308;font-size:12px;letter-spacing:1px;}
-.prime-win .amount{color:#eab308;font-weight:800;font-size:32px;margin-top:6px;}
-.empty{text-align:center;padding:48px 0;color:#333;}
-.empty .icon{font-size:40px;margin-bottom:12px;}
-.devis-tag{background:#3b82f612;border:1px solid #3b82f630;border-radius:8px;padding:8px 12px;margin-top:10px;}
-.devis-tag span{color:#3b82f6;font-size:12px;}
+.success-box{text-align:center;padding:40px 20px;}
+.success-icon{font-size:60px;margin-bottom:16px;}
+.success-title{color:#22c55e;font-size:22px;font-weight:800;margin-bottom:8px;}
+.success-sub{color:#888;font-size:14px;margin-bottom:24px;}
+.prime-win{background:#eab30815;border:1px solid #eab30840;border-radius:12px;padding:16px 20px;margin-bottom:20px;display:inline-block;}
+.prime-win-label{color:#eab308;font-size:11px;letter-spacing:1px;}
+.prime-win-amount{color:#eab308;font-weight:800;font-size:32px;margin-top:4px;}
+
+/* HISTORIQUE */
+.hist-item{background:#141414;border:1px solid #222;border-radius:10px;padding:12px 14px;margin-bottom:8px;}
+.hist-date{color:#555;font-size:11px;font-family:monospace;}
+.hist-nom{font-weight:700;font-size:14px;margin:2px 0;}
+.hist-type{color:#888;font-size:12px;}
+.hist-row{display:flex;justify-content:space-between;align-items:center;}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:48px 0;color:#333;}
+.empty-icon{font-size:40px;margin-bottom:12px;}
+
+/* NOTIF */
+.notif{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#f97316;color:#000;border-radius:12px;padding:12px 20px;font-weight:700;font-size:14px;z-index:999;animation:slideIn 0.3s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* MODE CLAIR */
+body.light{background:#f5f5f5;color:#1a1a1a;}
+body.light .header,body.light .nav{background:#fff;border-color:#e5e5e5;}
+body.light .card,body.light .carte-rdv,body.light .hist-item{background:#fff;border-color:#e5e5e5;}
+body.light .lbl{color:#999;}
+body.light .info-val{color:#333;}
+body.light .notes-box,body.light .objectif-card,body.light .perf-card{background:#f0f0f0;}
+body.light .tab-btn{color:#999;}
+body.light .statut-btn{background:#f0f0f0;border-color:#ddd;color:#999;}
+body.light textarea,body.light input[type=number],body.light .field input{background:#f0f0f0;border-color:#ddd;color:#1a1a1a;}
+body.light #signatureCanvas{background:#f0f0f0;border-color:#ddd;}
 </style>
+
 </head>
 <body>
 
@@ -138,7 +226,7 @@ textarea{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:8p
     </div>
     <div class="field">
       <label>IDENTIFIANT</label>
-      <input type="text" id="identifiant" placeholder="Ex: tech1" autocomplete="off">
+      <input type="text" id="identifiant" placeholder="Ex: tech1" autocomplete="off" autocapitalize="none">
     </div>
     <div class="field">
       <label>CODE PIN</label>
@@ -149,70 +237,150 @@ textarea{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:8p
         <input type="password" maxlength="1" class="pin-input" id="p4" inputmode="numeric">
       </div>
     </div>
-    <button class="btn" onclick="seConnecter()">Se connecter</button>
-    <div class="error" id="loginError">Identifiant ou PIN incorrect</div>
+    <button class="btn-primary" onclick="seConnecter()">Se connecter</button>
+    <div class="error-msg hidden" id="loginError">Identifiant ou PIN incorrect</div>
   </div>
 </div>
 
 <!-- APP -->
 
-<div id="app">
+<div id="app" class="hidden">
+  <!-- Header -->
   <div class="header">
-    <div class="user-info">
-      <div class="name" id="headerNom"></div>
-      <div class="role" id="headerRole"></div>
+    <div class="header-left">
+      <div class="avatar" id="headerAvatar"></div>
+      <div>
+        <div class="user-name" id="headerNom"></div>
+        <div class="user-role" id="headerRole"></div>
+      </div>
     </div>
-    <div class="ca">
-      <div class="amount" id="headerCA">0 €</div>
-      <div class="label">AUJOURD'HUI</div>
+    <div class="header-right">
+      <div class="ca-box">
+        <div class="ca-amount" id="headerCA">0 €</div>
+        <div class="ca-label">AUJOURD'HUI</div>
+      </div>
+      <button class="btn-logout" onclick="logout()">🚪</button>
+      <button class="btn-logout" onclick="toggleTheme()" style="background:#3b82f618;border-color:#3b82f640;color:#3b82f6;" id="themeBtn">🌙</button>
     </div>
   </div>
+
+  <!-- Nav -->
+
   <div class="nav">
-    <button class="active" onclick="showTab('agenda')">📅 Agenda</button>
-    <button onclick="showTab('perf')">🏆 Performances</button>
+    <button class="active" onclick="showPage('agenda')">📅 Agenda</button>
+    <button onclick="showPage('semaine')">📆 Semaine</button>
+    <button onclick="showPage('perf')">🏆 Perfs</button>
+    <button onclick="showPage('historique')">📋 Historique</button>
   </div>
+
   <div class="content">
-    <div id="tab-agenda">
-      <div class="statut-card">
+    <!-- PAGE AGENDA -->
+    <div id="page-agenda">
+      <!-- Statut dispo -->
+      <div class="card accent-orange">
         <div class="lbl">MON STATUT</div>
-        <div class="statut-btns">
-          <button onclick="setStatut('Disponible','#22c55e')" id="s1">🟢 Disponible</button>
-          <button onclick="setStatut('En intervention','#f97316')" id="s2">🔧 En intervention</button>
-          <button onclick="setStatut('Pause','#eab308')" id="s3">⏸️ Pause</button>
-          <button onclick="setStatut('Indisponible','#ef4444')" id="s4">🔴 Indisponible</button>
+        <div class="statut-btns" id="statutBtns">
+          <button class="statut-btn" onclick="setStatut('Disponible','#22c55e',this)">🟢 Disponible</button>
+          <button class="statut-btn" onclick="setStatut('En intervention','#f97316',this)">🔧 En interv.</button>
+          <button class="statut-btn" onclick="setStatut('Pause','#eab308',this)">⏸️ Pause</button>
+          <button class="statut-btn" onclick="setStatut('Indisponible','#ef4444',this)">🔴 Indispo</button>
         </div>
       </div>
-      <div class="tabs">
-        <button class="active" onclick="showVue('auj')">Aujourd'hui</button>
-        <button onclick="showVue('venir')">À venir</button>
-        <button onclick="showVue('passes')">Passés</button>
+
+```
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showVue('auj',this)">Aujourd'hui</button>
+    <button class="tab-btn" onclick="showVue('venir',this)">À venir</button>
+    <button class="tab-btn" onclick="showVue('passes',this)">Passés</button>
+  </div>
+
+  <div id="liste-rdv"></div>
+</div>
+
+<!-- PAGE SEMAINE -->
+<div id="page-semaine" class="hidden">
+  <div class="semaine-nav">
+    <button onclick="changerSemaine(-1)">← Préc.</button>
+    <span style="color:#f97316;font-size:12px;font-weight:700;" id="semaine-label"></span>
+    <button onclick="changerSemaine(1)">Suiv. →</button>
+  </div>
+  <div class="semaine-grid" id="semaine-grid"></div>
+</div>
+
+<!-- PAGE PERF -->
+<div id="page-perf" class="hidden">
+  <div class="card accent-yellow">
+    <div class="lbl" id="perf-mois-label"></div>
+    <div class="perf-grid" id="perf-grid"></div>
+    <div style="margin-top:16px;">
+      <div class="lbl">OBJECTIF MENSUEL CA</div>
+      <div class="objectif-card">
+        <div class="objectif-row">
+          <span style="color:#ccc;font-size:13px;">Réalisé</span>
+          <span style="color:#f97316;font-weight:800;" id="obj-realise">0 €</span>
+        </div>
+        <div class="objectif-row">
+          <span style="color:#ccc;font-size:13px;">Objectif</span>
+          <span style="color:#555;font-weight:700;" id="obj-target">5 000 €</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="obj-bar" style="width:0%"></div></div>
+        <div style="color:#555;font-size:11px;margin-top:6px;" id="obj-pct">0% de l'objectif</div>
       </div>
-      <div id="liste-rdv"></div>
     </div>
-    <div id="tab-perf" class="hidden">
-      <div class="statut-card">
-        <div class="lbl" id="perf-mois">PERFORMANCES — CE MOIS</div>
-        <div class="perf-grid" id="perf-grid"></div>
+    <div style="margin-top:16px;">
+      <div class="lbl">OBJECTIF VENTES ADDITIONNELLES</div>
+      <div class="objectif-card">
+        <div class="objectif-row">
+          <span style="color:#ccc;font-size:13px;">Réalisées</span>
+          <span style="color:#22c55e;font-weight:800;" id="obj-ventes">0</span>
+        </div>
+        <div class="objectif-row">
+          <span style="color:#ccc;font-size:13px;">Objectif</span>
+          <span style="color:#555;font-weight:700;">10 / mois</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="obj-ventes-bar" style="width:0%;background:#22c55e"></div></div>
       </div>
     </div>
+  </div>
+  <!-- Historique ventes -->
+  <div class="card accent-green">
+    <div class="lbl">MES VENTES ADDITIONNELLES</div>
+    <div id="hist-ventes" style="margin-top:8px;"></div>
+  </div>
+</div>
+
+<!-- PAGE HISTORIQUE -->
+<div id="page-historique" class="hidden">
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">MES INTERVENTIONS</div>
+    <div id="liste-historique" style="margin-top:8px;"></div>
+  </div>
+</div>
+```
+
   </div>
 </div>
 
 <!-- MODAL SCRIPT IA -->
 
 <div class="modal-bg hidden" id="modal-script">
-  <div class="modal">
+  <div class="modal-sheet">
     <div class="modal-header">
-      <h2>🤖 Script Vente IA</h2>
+      <div>
+        <div class="modal-title">SCRIPT IA — VENTE ADDITIONNELLE</div>
+        <div class="modal-subtitle" id="script-rdv-nom"></div>
+      </div>
       <button class="modal-close" onclick="closeModal('modal-script')">×</button>
     </div>
-    <div id="script-rdv-info" style="background:#f9731610;border:1px solid #f9731630;border-radius:10px;padding:12px 14px;margin-bottom:16px;"></div>
-    <div id="script-loading" style="text-align:center;padding:40px 0;color:#f97316;">⚙️ Génération en cours...</div>
-    <div id="script-content" class="hidden">
+    <div id="script-info-box" style="background:#f9731610;border:1px solid #f9731630;border-radius:10px;padding:12px 14px;margin-bottom:16px;"></div>
+    <div id="script-loading" style="text-align:center;padding:40px 0;color:#f97316;font-size:14px;">⚙️ Génération en cours...</div>
+    <div id="script-result" class="hidden">
       <div class="script-box" id="script-text"></div>
       <div style="display:flex;gap:10px;">
-        <button class="btn btn-gray" onclick="genererScript()">🔄 Régénérer</button>
-        <button class="btn btn-blue" onclick="copierScript()">📋 Copier</button>
+        <button class="action-btn btn-gray" onclick="genererScript()">🔄 Régénérer</button>
+        <button class="action-btn btn-blue" onclick="copierScript()">📋 Copier</button>
+        <button class="action-btn btn-orange" onclick="closeModal('modal-script')">Fermer</button>
       </div>
     </div>
   </div>
@@ -220,405 +388,613 @@ textarea{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:8p
 
 <!-- MODAL RAPPORT -->
 
-<div class="modal-bg hidden" id="modal-rapport" style="align-items:flex-start;">
-  <div class="modal" style="border-radius:0;max-height:100vh;min-height:100vh;">
-    <div id="rapport-debut" class="hidden">
-      <div style="text-align:center;padding:20px 0;">
-        <div style="font-size:52px;margin-bottom:14px;">🔧</div>
-        <div style="color:#22c55e;font-size:11px;letter-spacing:2px;margin-bottom:8px;">DÉMARRAGE INTERVENTION</div>
-        <div style="font-weight:800;font-size:20px;margin-bottom:4px;" id="debut-nom"></div>
-        <div style="color:#888;font-size:14px;margin-bottom:4px;" id="debut-type"></div>
-        <div style="color:#666;font-size:13px;margin-bottom:20px;" id="debut-adresse"></div>
-        <div class="prix-box" style="text-align:left;">
-          <div class="lbl">PRIX À FACTURER</div>
-          <div class="val" id="debut-prix"></div>
-        </div>
-        <div style="display:flex;gap:10px;margin-top:20px;justify-content:center;">
-          <button class="btn btn-gray" style="flex:1;" onclick="closeModal('modal-rapport')">Annuler</button>
-          <button class="btn btn-green" style="flex:1;" onclick="showRapportForm()">✅ Démarrer</button>
-        </div>
-        <div style="color:#444;font-size:11px;margin-top:12px;" id="debut-heure"></div>
-      </div>
+<div class="modal-bg hidden" id="modal-rapport">
+  <div class="modal-sheet">
+
+```
+<!-- ÉTAPE 1 : DÉMARRAGE -->
+<div id="etape-debut" class="hidden">
+  <div style="text-align:center;padding:20px 0 30px;">
+    <div style="font-size:52px;margin-bottom:16px;">🔧</div>
+    <div style="color:#22c55e;font-size:11px;letter-spacing:2px;margin-bottom:8px;">DÉMARRAGE INTERVENTION</div>
+    <div style="font-weight:800;font-size:20px;margin-bottom:4px;" id="d-nom"></div>
+    <div style="color:#888;font-size:14px;margin-bottom:4px;" id="d-type"></div>
+    <div style="color:#666;font-size:12px;margin-bottom:20px;" id="d-adresse"></div>
+    <div class="prix-box" style="text-align:left;margin-bottom:20px;">
+      <div class="lbl">PRIX À FACTURER</div>
+      <div class="prix-val" id="d-prix"></div>
+      <div class="prix-note">Ne pas descendre sans accord patron</div>
     </div>
-    <div id="rapport-form" class="hidden">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-        <div>
-          <div style="color:#f97316;font-size:11px;letter-spacing:2px;">RAPPORT D'INTERVENTION</div>
-          <div style="font-weight:800;font-size:17px;" id="form-nom"></div>
-        </div>
-        <div style="color:#555;font-size:11px;" id="form-heure"></div>
-      </div>
-      <!-- Photos -->
-      <div class="statut-card">
-        <div class="lbl">PHOTOS (2 OBLIGATOIRES)</div>
-        <div class="photo-grid">
-          <div class="photo-slot" id="slot1" onclick="document.getElementById('photo1').click()">
-            <div style="font-size:28px;margin-bottom:6px;">📷</div>
-            <div style="font-size:12px;">Photo 1</div>
-          </div>
-          <div class="photo-slot" id="slot2" onclick="document.getElementById('photo2').click()">
-            <div style="font-size:28px;margin-bottom:6px;">📷</div>
-            <div style="font-size:12px;">Photo 2</div>
-          </div>
-        </div>
-        <input type="file" id="photo1" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(0,this)">
-        <input type="file" id="photo2" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(1,this)">
-      </div>
-      <!-- Description -->
-      <div class="statut-card" style="border-left:3px solid #3b82f6;">
-        <div class="lbl">CE QUI S'EST PASSÉ *</div>
-        <textarea id="description" rows="4" placeholder="Problème trouvé, travaux réalisés, pièces changées..."></textarea>
-      </div>
-      <!-- Ventes -->
-      <div class="statut-card" style="border-left:3px solid #22c55e;">
-        <div class="lbl">VENTES ADDITIONNELLES</div>
-        <div id="primeEnCours" style="display:none;background:#eab30815;border:1px solid #eab30840;border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
-          <span style="color:#eab308;font-size:12px;">🏆 Prime estimée</span>
-          <span style="color:#eab308;font-weight:800;font-size:18px;" id="primeTotal">0 €</span>
-        </div>
-        <div id="liste-ventes"></div>
-      </div>
-      <!-- Montant -->
-      <div class="statut-card" style="border-left:3px solid #eab308;">
-        <div class="lbl">MONTANT FINAL (€)</div>
-        <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
-          <input type="number" class="field-input" id="montantFinal" style="flex:1;">
-          <div style="color:#444;font-size:12px;">Initial<br><span style="color:#f97316;font-weight:700;" id="prixInitial"></span></div>
-        </div>
-      </div>
-      <!-- Recap primes -->
-      <div class="prime-recap hidden" id="recapPrimes">
-        <div class="title">🏆 RÉCAP PRIMES</div>
-        <div id="recapListe"></div>
-        <div class="total">
-          <div class="label">TOTAL PRIME</div>
-          <div class="amount" id="recapTotal"></div>
-        </div>
-      </div>
-      <div style="display:flex;gap:10px;padding-bottom:30px;">
-        <button class="btn btn-gray" onclick="closeModal('modal-rapport')">← Retour</button>
-        <button class="btn btn-green" id="btnTerminer" onclick="soumettre()" style="flex:1;">✅ Terminer & Envoyer</button>
-      </div>
+    <div style="display:flex;gap:10px;">
+      <button class="action-btn btn-gray" style="flex:1;" onclick="closeModal('modal-rapport')">Annuler</button>
+      <button class="action-btn btn-green" style="flex:1;" onclick="showEtape('form')">✅ Démarrer</button>
     </div>
-    <div id="rapport-succes" class="hidden">
-      <div class="success-screen">
-        <div class="icon">✅</div>
-        <h2>Intervention terminée !</h2>
-        <p>Rapport envoyé au patron</p>
-        <div class="prime-win hidden" id="primeWin">
-          <div class="label">🏆 PRIME GAGNÉE</div>
-          <div class="amount" id="primeWinAmount"></div>
-        </div>
-        <button class="btn" onclick="closeModal('modal-rapport')">Retour à l'agenda</button>
-      </div>
+    <div style="color:#444;font-size:11px;margin-top:12px;" id="d-heure"></div>
+  </div>
+</div>
+
+<!-- ÉTAPE 2 : FORMULAIRE -->
+<div id="etape-form" class="hidden">
+  <div class="modal-header">
+    <div>
+      <div class="modal-title">RAPPORT D'INTERVENTION</div>
+      <div class="modal-subtitle" id="f-nom"></div>
     </div>
+    <div style="color:#555;font-size:11px;font-family:monospace;" id="f-chrono">00:00</div>
+  </div>
+
+  <!-- Statuts RDV -->
+  <div class="card accent-blue" style="margin-bottom:12px;">
+    <div class="lbl">STATUT DE L'INTERVENTION</div>
+    <div class="statuts-rdv" id="statuts-rdv">
+      <button class="statut-rdv-btn" onclick="setStatutRdv('En route','#3b82f6',this)" style="background:#3b82f618;color:#3b82f6;border:1px solid #3b82f640;">🚗 En route</button>
+      <button class="statut-rdv-btn" onclick="setStatutRdv('Arrivé','#8b5cf6',this)" style="background:#1e1e1e;color:#666;">📍 Arrivé</button>
+      <button class="statut-rdv-btn" onclick="setStatutRdv('En cours','#f97316',this)" style="background:#1e1e1e;color:#666;">🔧 En cours</button>
+      <button class="statut-rdv-btn" onclick="setStatutRdv('Terminé','#22c55e',this)" style="background:#1e1e1e;color:#666;">✅ Terminé</button>
+    </div>
+    <!-- Chrono -->
+    <div class="chrono-box">
+      <div>
+        <div class="lbl" style="margin-bottom:2px;">DURÉE</div>
+        <div class="chrono-time" id="chrono-display">00:00</div>
+      </div>
+      <div style="color:#555;font-size:12px;text-align:right;">Début<br><span style="color:#f97316;font-family:monospace;" id="chrono-debut"></span></div>
+    </div>
+  </div>
+
+  <!-- Photos AVANT -->
+  <div class="card accent-orange" style="margin-bottom:12px;">
+    <div class="lbl">📷 PHOTOS AVANT (jusqu'à 3)</div>
+    <div class="photos-grid" id="slots-avant">
+      <div class="photo-slot" onclick="triggerPhoto('avant',0)"><div>📷</div><div class="photo-label">AVANT 1</div></div>
+      <div class="photo-slot" onclick="triggerPhoto('avant',1)"><div>📷</div><div class="photo-label">AVANT 2</div></div>
+      <div class="photo-slot" onclick="triggerPhoto('avant',2)"><div>📷</div><div class="photo-label">AVANT 3</div></div>
+    </div>
+    <input type="file" id="file-avant-0" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto('avant',0,this)">
+    <input type="file" id="file-avant-1" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto('avant',1,this)">
+    <input type="file" id="file-avant-2" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto('avant',2,this)">
+  </div>
+
+  <!-- Photos APRÈS -->
+  <div class="card accent-green" style="margin-bottom:12px;">
+    <div class="lbl">📷 PHOTOS APRÈS (jusqu'à 3)</div>
+    <div class="photos-grid" id="slots-apres">
+      <div class="photo-slot" onclick="triggerPhoto('apres',0)"><div>📷</div><div class="photo-label">APRÈS 1</div></div>
+      <div class="photo-slot" onclick="triggerPhoto('apres',1)"><div>📷</div><div class="photo-label">APRÈS 2</div></div>
+      <div class="photo-slot" onclick="triggerPhoto('apres',2)"><div>📷</div><div class="photo-label">APRÈS 3</div></div>
+    </div>
+    <input type="file" id="file-apres-0" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto('apres',0,this)">
+    <input type="file" id="file-apres-1" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto('apres',1,this)">
+    <input type="file" id="file-apres-2" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto('apres',2,this)">
+  </div>
+
+  <!-- Description -->
+  <div class="card accent-blue" style="margin-bottom:12px;">
+    <div class="lbl">CE QUI S'EST PASSÉ *</div>
+    <textarea id="description" rows="4" placeholder="Problème trouvé, travaux réalisés, pièces changées..."></textarea>
+    <!-- Note vocale -->
+    <button class="action-btn btn-purple" id="btnVocal" onclick="toggleVocal()" style="margin-top:8px;width:100%;background:#8b5cf618;color:#8b5cf6;border:1px solid #8b5cf640;">🎤 Note vocale</button>
+  </div>
+
+  <!-- Checklist -->
+  <div class="card accent-purple" style="margin-bottom:12px;">
+    <div class="lbl">✅ CHECKLIST QUALITÉ</div>
+    <div id="checklist">
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-text">Zone de travail nettoyée</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-text">Robinets / vannes testés</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-text">Absence de fuite vérifiée</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-text">Client informé du travail effectué</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-text">Matériel et outils récupérés</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-text">Photo après prise</span></div>
+    </div>
+    <div style="margin-top:8px;text-align:right;color:#555;font-size:12px;" id="check-count">0/6 points</div>
+  </div>
+
+  <!-- Ventes additionnelles -->
+  <div class="card accent-green" style="margin-bottom:12px;">
+    <div class="lbl">💶 VENTES ADDITIONNELLES</div>
+    <div class="prime-bar hidden" id="prime-bar">
+      <span class="prime-label">🏆 Prime estimée</span>
+      <span class="prime-amount" id="prime-total">0 €</span>
+    </div>
+    <div id="liste-ventes"></div>
+  </div>
+
+  <!-- Signature -->
+  <div class="card accent-yellow" style="margin-bottom:12px;">
+    <div class="lbl">✍️ SIGNATURE CLIENT</div>
+    <div style="color:#666;font-size:12px;margin-bottom:8px;">Faire signer le client sur l'écran</div>
+    <canvas id="signatureCanvas"></canvas>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="action-btn btn-gray" style="flex:1;" onclick="clearSignature()">🗑️ Effacer</button>
+      <div style="color:#555;font-size:11px;align-self:center;">Dessinez ci-dessus</div>
+    </div>
+  </div>
+
+  <!-- Montant final -->
+  <div class="card accent-yellow" style="margin-bottom:12px;">
+    <div class="lbl">MONTANT FINAL (€)</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
+      <input type="number" id="montantFinal">
+      <div style="color:#444;font-size:12px;white-space:nowrap;">Initial<br><span style="color:#f97316;font-weight:700;" id="f-prix-initial"></span></div>
+    </div>
+  </div>
+
+  <!-- Recap primes -->
+  <div id="recap-primes" class="hidden" style="background:#eab30810;border:1px solid #eab30840;border-radius:14px;padding:16px 20px;margin-bottom:16px;">
+    <div class="lbl">🏆 RÉCAP PRIMES</div>
+    <div id="recap-liste"></div>
+    <div style="border-top:1px solid #eab30830;margin-top:10px;padding-top:10px;display:flex;justify-content:space-between;">
+      <span style="color:#eab308;font-weight:700;">TOTAL PRIME</span>
+      <span style="color:#eab308;font-weight:800;font-size:18px;" id="recap-total"></span>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:10px;padding-bottom:30px;">
+    <button class="action-btn btn-gray" onclick="closeModal('modal-rapport')" style="flex:0 0 auto;">← Retour</button>
+    <button class="action-btn btn-green" id="btn-terminer" onclick="soumettre()" style="flex:1;">✅ Terminer & Envoyer</button>
+  </div>
+</div>
+
+<!-- ÉTAPE 3 : SUCCÈS -->
+<div id="etape-succes" class="hidden">
+  <div class="success-box">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Intervention terminée !</div>
+    <div class="success-sub">Rapport envoyé au patron & secrétariat</div>
+    <div class="prime-win hidden" id="prime-win">
+      <div class="prime-win-label">🏆 PRIME GAGNÉE CE RAPPORT</div>
+      <div class="prime-win-amount" id="prime-win-amount"></div>
+    </div>
+    <button class="btn-primary" style="margin-top:10px;" onclick="closeModal('modal-rapport')">Retour à l'agenda</button>
+  </div>
+</div>
+```
+
   </div>
 </div>
 
 <script>
-// ─── DONNÉES ──────────────────────────────────────────────────────────────────
-const USERS = {
-  patron:   { nom: "Patron", role: "PATRON", pin: "2580", couleur: "#f97316" },
-  dispatch: { nom: "Secrétariat", role: "DISPATCH", pin: "1470", couleur: "#8b5cf6" },
-  tech1:    { nom: "Technicien 1", role: "TECHNICIEN", pin: "3691", couleur: "#3b82f6" },
-  tech2:    { nom: "Technicien 2", role: "TECHNICIEN", pin: "8024", couleur: "#8b5cf6" },
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+const USERS={
+  patron:{nom:"Patron",role:"PATRON",pin:"2580",couleur:"#f97316",avatar:"PA"},
+  dispatch:{nom:"Secrétariat",role:"DISPATCH",pin:"1470",couleur:"#8b5cf6",avatar:"SE"},
+  tech1:{nom:"Technicien 1",role:"TECHNICIEN",pin:"3691",couleur:"#3b82f6",avatar:"T1"},
+  tech2:{nom:"Technicien 2",role:"TECHNICIEN",pin:"8024",couleur:"#8b5cf6",avatar:"T2"},
 };
 
-const VENTES = [
-  { id:"contrat", icon:"📋", label:"Contrat entretien annuel", primeMin:10, primeMax:20, type:"directe" },
-  { id:"ballon",  icon:"🔵", label:"Ballon électrique",        primeMin:30, primeMax:50, type:"devis" },
-  { id:"adoucisseur", icon:"💧", label:"Adoucisseur d'eau",    primeMin:100, primeMax:150, type:"devis" },
-  { id:"chaudiere",   icon:"🔥", label:"Remplacement chaudière", primeMin:100, primeMax:300, type:"devis" },
-  { id:"gros",    icon:"🏗️", label:"Gros chantier (>1000€)",  primeMin:20, primeMax:150, type:"devis" },
-  { id:"joints",  icon:"🔧", label:"Réfection joints",         primeMin:10, primeMax:20, type:"directe" },
-  { id:"robinet", icon:"🚿", label:"Remplacement robinetterie", primeMin:15, primeMax:30, type:"directe" },
+const VENTES=[
+  {id:"contrat",icon:"📋",label:"Contrat entretien annuel",primeMin:10,primeMax:20,type:"directe"},
+  {id:"ballon",icon:"🔵",label:"Ballon électrique",primeMin:30,primeMax:50,type:"devis"},
+  {id:"adoucisseur",icon:"💧",label:"Adoucisseur d'eau",primeMin:100,primeMax:150,type:"devis"},
+  {id:"chaudiere",icon:"🔥",label:"Remplacement chaudière",primeMin:100,primeMax:300,type:"devis"},
+  {id:"gros",icon:"🏗️",label:"Gros chantier (>1000€)",primeMin:20,primeMax:150,type:"devis"},
+  {id:"joints",icon:"🔧",label:"Réfection joints",primeMin:10,primeMax:20,type:"directe"},
+  {id:"robinet",icon:"🚿",label:"Remplacement robinetterie",primeMin:15,primeMax:30,type:"directe"},
 ];
 
-const todayStr = () => new Date().toISOString().split("T")[0];
+const CHECKLIST_ITEMS=["Zone de travail nettoyée","Robinets / vannes testés","Absence de fuite vérifiée","Client informé du travail effectué","Matériel et outils récupérés","Photo après prise"];
 
-const DEMO_RDV = [
-  { id:1, clientNom:"Martin Dupont", clientTel:"06 12 34 56 78", adresse:"12 rue des Lilas, Paris 75011", type:"Fuite d'eau", technicien:"Technicien 1", dateRdv:todayStr(), heureRdv:"09:00", prixVente:280, statut:"Confirmé", notes:"Fuite sous évier cuisine - tache plafond" },
-  { id:2, clientNom:"Sophie Bernard", clientTel:"07 98 76 54 32", adresse:"5 avenue Victor Hugo, Paris 75016", type:"Débouchage", technicien:"Technicien 1", dateRdv:todayStr(), heureRdv:"14:00", prixVente:150, statut:"Confirmé", notes:"Baignoire bouchée - eau stagnante" },
-  { id:3, clientNom:"Jean Moreau", clientTel:"06 55 44 33 22", adresse:"8 rue du Château, Vincennes", type:"Chaudière", technicien:"Technicien 1", dateRdv:getFutureDate(1), heureRdv:"11:00", prixVente:450, statut:"Confirmé", notes:"Chaudière gaz en panne la nuit" },
-  { id:4, clientNom:"Amina Kaci", clientTel:"06 77 88 99 00", adresse:"3 impasse des Roses, Montreuil", type:"Urgent / Dépannage", technicien:"Technicien 2", dateRdv:todayStr(), heureRdv:"16:30", prixVente:320, statut:"Confirmé", notes:"Inondation sous-sol urgent" },
+const todayStr=()=>new Date().toISOString().split("T")[0];
+const moisStr=()=>new Date().toISOString().slice(0,7);
+const getFutureDate=n=>{const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().split("T")[0];};
+
+const DEMO_RDV=[
+  {id:1,clientNom:"Martin Dupont",clientTel:"06 12 34 56 78",adresse:"12 rue des Lilas, Paris 75011",type:"Fuite d'eau",technicien:"Technicien 1",dateRdv:todayStr(),heureRdv:"09:00",prixVente:280,statut:"Confirmé",notes:"Fuite sous évier cuisine"},
+  {id:2,clientNom:"Sophie Bernard",clientTel:"07 98 76 54 32",adresse:"5 avenue Victor Hugo, Paris 75016",type:"Débouchage",technicien:"Technicien 1",dateRdv:todayStr(),heureRdv:"14:00",prixVente:150,statut:"Confirmé",notes:"Baignoire bouchée"},
+  {id:3,clientNom:"Jean Moreau",clientTel:"06 55 44 33 22",adresse:"8 rue du Château, Vincennes",type:"Chaudière",technicien:"Technicien 1",dateRdv:getFutureDate(1),heureRdv:"11:00",prixVente:450,statut:"Confirmé",notes:"Chaudière gaz en panne"},
+  {id:4,clientNom:"Amina Kaci",clientTel:"06 77 88 99 00",adresse:"3 impasse des Roses, Montreuil",type:"Urgent / Dépannage",technicien:"Technicien 2",dateRdv:todayStr(),heureRdv:"16:30",prixVente:320,statut:"Confirmé",notes:"Inondation sous-sol"},
 ];
-
-function getFutureDate(n){ const d=new Date(); d.setDate(d.getDate()+n); return d.toISOString().split("T")[0]; }
 
 // ─── ÉTAT ─────────────────────────────────────────────────────────────────────
-let currentUser = null;
-let currentVue = "auj";
-let currentRdv = null;
-let photos = [null, null];
-let ventesSelectionnees = [];
-let heureDebut = "";
-let expandedId = null;
+let currentUser=null,currentVue="auj",currentRdv=null,expandedId=null;
+let photosAvant=[null,null,null],photosApres=[null,null,null];
+let ventesSelectionnees=[],heureDebut="",chronoInterval=null,chronoStart=null;
+let signatureCtx=null,isDrawing=false,statutRdvCurrent="En route";
+let recognition=null,isRecording=false,semaineOffset=0;
 
-function getRdvs(){ const s=localStorage.getItem("pl_rdvs"); if(s) return JSON.parse(s); localStorage.setItem("pl_rdvs",JSON.stringify(DEMO_RDV)); return DEMO_RDV; }
-function saveRdvs(rdvs){ localStorage.setItem("pl_rdvs",JSON.stringify(rdvs)); }
-function getPrimes(){ return JSON.parse(localStorage.getItem("pl_primes")||"{}"); }
-function savePrimes(p){ localStorage.setItem("pl_primes",JSON.stringify(p)); }
+// ─── STORAGE ──────────────────────────────────────────────────────────────────
+const getRdvs=()=>{const s=localStorage.getItem("pl_rdvs");if(s)return JSON.parse(s);localStorage.setItem("pl_rdvs",JSON.stringify(DEMO_RDV));return DEMO_RDV;};
+const saveRdvs=r=>localStorage.setItem("pl_rdvs",JSON.stringify(r));
+const getPrimes=()=>JSON.parse(localStorage.getItem("pl_primes")||"{}");
+const savePrimes=p=>localStorage.setItem("pl_primes",JSON.stringify(p));
+const getRapports=()=>JSON.parse(localStorage.getItem("pl_rapports")||"[]");
+const saveRapports=r=>localStorage.setItem("pl_rapports",JSON.stringify(r));
 
 // ─── AUTH ─────────────────────────────────────────────────────────────────────
 document.querySelectorAll(".pin-input").forEach((el,i,arr)=>{
-  el.addEventListener("input",()=>{ if(el.value && i<arr.length-1) arr[i+1].focus(); });
+  el.addEventListener("input",()=>{if(el.value&&i<arr.length-1)arr[i+1].focus();});
+  el.addEventListener("keydown",e=>{if(e.key==="Backspace"&&!el.value&&i>0)arr[i-1].focus();});
 });
 
 function seConnecter(){
-  const id = document.getElementById("identifiant").value.trim().toLowerCase();
-  const pin = ["p1","p2","p3","p4"].map(i=>document.getElementById(i).value).join("");
-  const user = USERS[id];
-  if(!user || user.pin !== pin){
-    document.getElementById("loginError").style.display="block"; return;
-  }
-  currentUser = { ...user, id };
-  localStorage.setItem("pl_session", JSON.stringify(currentUser));
+  const id=document.getElementById("identifiant").value.trim().toLowerCase();
+  const pin=["p1","p2","p3","p4"].map(i=>document.getElementById(i).value).join("");
+  const user=USERS[id];
+  if(!user||user.pin!==pin){document.getElementById("loginError").classList.remove("hidden");return;}
+  currentUser={...user,id};
+  localStorage.setItem("pl_session",JSON.stringify(currentUser));
   lancerApp();
 }
 
 function lancerApp(){
-  document.getElementById("login").style.display="none";
-  document.getElementById("app").style.display="block";
-  document.getElementById("headerNom").textContent = currentUser.nom;
-  document.getElementById("headerRole").textContent = currentUser.role;
-  updateCA();
-  renderRdv();
-  renderPerf();
+  document.getElementById("login").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  const av=document.getElementById("headerAvatar");
+  av.textContent=currentUser.avatar;
+  av.style.background=currentUser.couleur+"25";
+  av.style.border=`2px solid ${currentUser.couleur}`;
+  av.style.color=currentUser.couleur;
+  document.getElementById("headerNom").textContent=currentUser.nom;
+  document.getElementById("headerRole").textContent=currentUser.role;
+  updateCA();renderRdv();renderPerf();renderSemaine();renderHistorique();
+  initSignature();
+  verifierAlertes();
 }
 
 function logout(){
   localStorage.removeItem("pl_session");
   currentUser=null;
-  document.getElementById("login").style.display="flex";
-  document.getElementById("app").style.display="none";
+  document.getElementById("login").classList.remove("hidden");
+  document.getElementById("app").classList.add("hidden");
+}
+
+function toggleTheme(){
+  document.body.classList.toggle("light");
+  document.getElementById("themeBtn").textContent=document.body.classList.contains("light")?"🌙":"☀️";
 }
 
 // ─── NAVIGATION ───────────────────────────────────────────────────────────────
-function showTab(tab){
-  document.getElementById("tab-agenda").classList.toggle("hidden", tab!=="agenda");
-  document.getElementById("tab-perf").classList.toggle("hidden", tab!=="perf");
-  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",(tab==="agenda"&&i===0)||(tab==="perf"&&i===1)));
+function showPage(page){
+  ["agenda","semaine","perf","historique"].forEach(p=>document.getElementById("page-"+p).classList.add("hidden"));
+  document.getElementById("page-"+page).classList.remove("hidden");
+  document.querySelectorAll(".nav button").forEach((b,i)=>{
+    b.classList.toggle("active",["agenda","semaine","perf","historique"][i]===page);
+  });
+  if(page==="perf")renderPerf();
+  if(page==="semaine")renderSemaine();
+  if(page==="historique")renderHistorique();
 }
 
-function showVue(vue){
+function showVue(vue,btn){
   currentVue=vue;
-  document.querySelectorAll(".tabs button").forEach((b,i)=>b.classList.toggle("active",["auj","venir","passes"][i]===vue));
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  if(btn)btn.classList.add("active");
   renderRdv();
 }
 
-// ─── STATUT ───────────────────────────────────────────────────────────────────
-function setStatut(statut, color){
-  const dispos=JSON.parse(localStorage.getItem("pl_dispos")||"{}");
-  dispos[currentUser.nom]={statut,updatedAt:new Date().toISOString()};
-  localStorage.setItem("pl_dispos",JSON.stringify(dispos));
-  document.querySelectorAll(".statut-btns button").forEach(b=>{
-    b.style.background=""; b.style.color=""; b.style.borderColor="";
-  });
-  event.target.style.background=color+"25";
-  event.target.style.color=color;
-  event.target.style.borderColor=color;
+// ─── STATUT DISPO ─────────────────────────────────────────────────────────────
+function setStatut(statut,color,btn){
+  document.querySelectorAll(".statut-btn").forEach(b=>{b.style.background="";b.style.color="";b.style.borderColor="";});
+  btn.style.background=color+"25";btn.style.color=color;btn.style.borderColor=color;
+  const d=JSON.parse(localStorage.getItem("pl_dispos")||"{}");
+  d[currentUser.nom]={statut,updatedAt:new Date().toISOString()};
+  localStorage.setItem("pl_dispos",JSON.stringify(d));
+  showNotif("Statut : "+statut);
 }
 
-// ─── LISTE RDV ────────────────────────────────────────────────────────────────
+// ─── RDV LIST ─────────────────────────────────────────────────────────────────
 function getMesRdvs(){
-  const rdvs = getRdvs();
-  if(!currentUser) return [];
-  if(currentUser.role==="PATRON"||currentUser.role==="DISPATCH") return rdvs;
+  const rdvs=getRdvs();
+  if(!currentUser)return[];
+  if(currentUser.role==="PATRON"||currentUser.role==="DISPATCH")return rdvs;
   return rdvs.filter(r=>r.technicien===currentUser.nom);
 }
 
 function renderRdv(){
-  const rdvs = getMesRdvs();
-  const today = todayStr();
-  let liste;
-  if(currentVue==="auj") liste=rdvs.filter(r=>r.dateRdv===today).sort((a,b)=>a.heureRdv.localeCompare(b.heureRdv));
-  else if(currentVue==="venir") liste=rdvs.filter(r=>r.dateRdv>today).sort((a,b)=>a.dateRdv.localeCompare(b.dateRdv));
-  else liste=rdvs.filter(r=>r.dateRdv<today).sort((a,b)=>b.dateRdv.localeCompare(a.dateRdv));
-
   updateCA();
-  const container = document.getElementById("liste-rdv");
-  if(!liste.length){ container.innerHTML=`<div class="empty"><div class="icon">📭</div>Aucun RDV</div>`; return; }
-  container.innerHTML = liste.map(r=>carteRdvHtml(r)).join("");
+  const rdvs=getMesRdvs(),today=todayStr();
+  let liste;
+  if(currentVue==="auj")liste=rdvs.filter(r=>r.dateRdv===today).sort((a,b)=>a.heureRdv.localeCompare(b.heureRdv));
+  else if(currentVue==="venir")liste=rdvs.filter(r=>r.dateRdv>today).sort((a,b)=>a.dateRdv.localeCompare(b.dateRdv));
+  else liste=rdvs.filter(r=>r.dateRdv<today).sort((a,b)=>b.dateRdv.localeCompare(a.dateRdv));
+  const c=document.getElementById("liste-rdv");
+  if(!liste.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div>Aucun RDV</div>`;return;}
+  c.innerHTML=liste.map(r=>carteHtml(r)).join("");
 }
 
-function carteRdvHtml(r){
-  const today = todayStr();
-  const isToday = r.dateRdv===today;
-  const isDone = r.statut==="Terminé";
-  const isExpanded = expandedId===r.id;
-  const cls = isDone?"done":isToday?"today":"";
-  const badge = isDone?`<span class="badge done">TERMINÉ ✓</span>`:isToday?`<span class="badge">AUJOURD'HUI</span>`:"";
-  return `
-  <div class="carte-rdv ${cls}" id="carte-${r.id}">
-    <div class="carte-header" onclick="toggleCarte(${r.id})">
-      <div class="left">
-        <div class="top">
-          <span class="heure">${r.heureRdv}</span>
-          <span class="nom">${r.clientNom}</span>
-          ${badge}
-        </div>
-        <div class="sub">${r.type} · ${r.adresse.split(",")[0]}</div>
+function carteHtml(r){
+  const isToday=r.dateRdv===todayStr(),isDone=r.statut==="Terminé",isExp=expandedId===r.id;
+  const cls=isDone?"done":isToday?"today":"";
+  const badge=isDone?`<span class="badge badge-green">TERMINÉ ✓</span>`:isToday?`<span class="badge badge-blue">AUJOURD'HUI</span>`:"";
+  const dateLabel=r.dateRdv!==todayStr()?`<span style="color:#555;font-size:11px;margin-left:4px;">${new Date(r.dateRdv+"T12:00").toLocaleDateString("fr-FR",{day:"numeric",month:"short"})}</span>`:"";
+  return`<div class="carte-rdv ${cls}" id="c-${r.id}">
+  <div class="carte-header" onclick="toggleCarte(${r.id})">
+    <div style="flex:1;">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;">
+        <span class="carte-heure">${r.heureRdv}</span>${dateLabel}
+        <span class="carte-nom">${r.clientNom}</span>${badge}
       </div>
-      <div class="right">
-        <div class="prix">${r.prixVente} €</div>
-        <div class="arrow">${isExpanded?"▲":"▼"}</div>
-      </div>
+      <div class="carte-sub">${r.type} · ${r.adresse.split(",")[0]}</div>
     </div>
-    ${isExpanded?carteBodyHtml(r,isToday,isDone):""}
-  </div>`;
+    <div style="text-align:right;flex-shrink:0;">
+      <div class="carte-prix">${r.prixVente}€</div>
+      <div class="carte-arrow">${isExp?"▲":"▼"}</div>
+    </div>
+  </div>
+  ${isExp?carteBodyHtml(r,isToday,isDone):""}
+</div>`;
 }
 
 function carteBodyHtml(r,isToday,isDone){
-  return `
-  <div class="carte-body">
-    <div class="info-row"><div class="lbl">ADRESSE</div><div class="val">${r.adresse}</div></div>
-    <div class="info-row"><div class="lbl">TÉLÉPHONE</div><div class="val"><a href="tel:${r.clientTel}">${r.clientTel}</a></div></div>
-    ${r.notes?`<div class="info-row"><div class="lbl">NOTES PATRON</div><div class="notes-box">${r.notes}</div></div>`:""}
-    <div class="prix-box">
-      <div class="lbl">PRIX À FACTURER</div>
-      <div class="val">${r.prixVente} €</div>
-      <div class="note">Ne pas descendre sans accord patron</div>
-    </div>
-    ${!isDone?`<div class="actions">
-      <button class="btn-blue actions" onclick="ouvrirScript(${r.id})">🤖 Script IA</button>
-      ${isToday?`<button class="btn-green actions" onclick="ouvrirRapport(${r.id})">🔧 Démarrer</button>`:""}
-      <button class="btn-gray actions" onclick="window.open('https://maps.google.com/?q=${encodeURIComponent(r.adresse)}')">🗺️</button>
-    </div>`:""}
-  </div>`;
+  return`<div class="carte-body">
+  <div class="info-item"><div class="lbl">ADRESSE</div><div class="info-val">${r.adresse}</div></div>
+  <div class="info-item"><div class="lbl">TÉLÉPHONE</div><div class="info-val"><a href="tel:${r.clientTel}">${r.clientTel}</a></div></div>
+  ${r.notes?`<div class="info-item"><div class="lbl">NOTES PATRON</div><div class="notes-box">${r.notes}</div></div>`:""}
+  <div class="prix-box">
+    <div class="lbl">PRIX À FACTURER</div>
+    <div class="prix-val">${r.prixVente} €</div>
+    <div class="prix-note">Ne pas descendre sans accord patron</div>
+  </div>
+  ${!isDone?`<div class="actions-row">
+    <button class="action-btn btn-blue" onclick="ouvrirScript(${r.id})">🤖 Script IA</button>
+    ${isToday?`<button class="action-btn btn-green" onclick="ouvrirRapport(${r.id})">🔧 Démarrer</button>`:""}
+    <button class="action-btn btn-gray" onclick="window.open('https://maps.google.com/?q=${encodeURIComponent(r.adresse)}','_blank')">🗺️ GPS</button>
+    <button class="action-btn btn-gray" onclick="window.open('tel:${r.clientTel}')">📞</button>
+  </div>`:""}
+</div>`;
 }
 
-function toggleCarte(id){
-  expandedId = expandedId===id?null:id;
-  renderRdv();
-}
+function toggleCarte(id){expandedId=expandedId===id?null:id;renderRdv();}
 
 function updateCA(){
-  const rdvs=getMesRdvs();
-  const ca=rdvs.filter(r=>r.dateRdv===todayStr()).reduce((s,r)=>s+(r.prixVente||0),0);
+  const ca=getMesRdvs().filter(r=>r.dateRdv===todayStr()).reduce((s,r)=>s+(r.prixVente||0),0);
   document.getElementById("headerCA").textContent=ca+" €";
 }
 
+// ─── SEMAINE ──────────────────────────────────────────────────────────────────
+function renderSemaine(){
+  const rdvs=getMesRdvs();
+  const debut=new Date();
+  debut.setDate(debut.getDate()-debut.getDay()+1+semaineOffset*7);
+  debut.setHours(0,0,0,0);
+  const jours=Array.from({length:7},(_,i)=>{const d=new Date(debut);d.setDate(d.getDate()+i);return d;});
+  const noms=["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
+  document.getElementById("semaine-label").textContent=
+    jours[0].toLocaleDateString("fr-FR",{day:"numeric",month:"short"})+" — "+
+    jours[6].toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"});
+  const colors={"Fuite d'eau":"#3b82f6","Débouchage":"#8b5cf6","Chaudière":"#f97316","Urgent / Dépannage":"#ef4444"};
+  document.getElementById("semaine-grid").innerHTML=jours.map((j,i)=>{
+    const iso=j.toISOString().split("T")[0];
+    const isToday=iso===todayStr();
+    const mesRdvs=rdvs.filter(r=>r.dateRdv===iso).sort((a,b)=>a.heureRdv.localeCompare(b.heureRdv));
+    return`<div class="jour-cell${isToday?" today":""}">
+      <div class="jour-nom">${noms[i]}</div>
+      <div class="jour-num">${j.getDate()}</div>
+      ${mesRdvs.map(r=>`<div class="rdv-mini" style="background:${(colors[r.type]||"#555")}25;color:${colors[r.type]||"#888"};border:1px solid ${colors[r.type]||"#555"}40;">${r.heureRdv} ${r.clientNom.split(" ")[0]}</div>`).join("")}
+    </div>`;
+  }).join("");
+}
+
+function changerSemaine(d){semaineOffset+=d;renderSemaine();}
+
 // ─── PERF ─────────────────────────────────────────────────────────────────────
 function renderPerf(){
-  const mois=new Date().toISOString().slice(0,7);
-  const primes=getPrimes();
-  const data=primes[currentUser?.nom]?.[mois]||{total:0,ventes:0,ca:0};
-  const rapports=JSON.parse(localStorage.getItem("pl_rapports")||"[]");
-  const mesR=rapports.filter(r=>r.technicien===currentUser?.nom&&r.date?.startsWith(mois));
-  const ca=mesR.reduce((s,r)=>s+(r.montantFinal||0),0);
+  if(!currentUser)return;
+  const mois=moisStr(),primes=getPrimes();
+  const data=primes[currentUser.nom]?.[mois]||{total:0,ventes:0,ca:0};
+  const rapports=getRapports().filter(r=>r.technicien===currentUser.nom&&r.date?.startsWith(mois));
+  const ca=rapports.reduce((s,r)=>s+(r.montantFinal||0),0);
+  document.getElementById("perf-mois-label").textContent="PERFORMANCES — "+new Date().toLocaleDateString("fr-FR",{month:"long",year:"numeric"}).toUpperCase();
   document.getElementById("perf-grid").innerHTML=[
     ["CA réalisé",ca+" €","#f97316"],
     ["Primes gagnées",data.total+" €","#eab308"],
     ["Ventes additionnelles",data.ventes,"#22c55e"],
-    ["Interventions",mesR.length,"#3b82f6"],
-  ].map(([l,v,c])=>`<div class="perf-card"><div class="lbl">${l.toUpperCase()}</div><div class="val" style="color:${c}">${v}</div></div>`).join("");
+    ["Interventions",rapports.length,"#3b82f6"],
+  ].map(([l,v,c])=>`<div class="perf-card" style="border-left:2px solid ${c}40"><div class="lbl">${l.toUpperCase()}</div><div class="perf-val" style="color:${c}">${v}</div></div>`).join("");
+  const obj=5000,pct=Math.min(100,Math.round(ca/obj*100));
+  document.getElementById("obj-realise").textContent=ca+" €";
+  document.getElementById("obj-bar").style.width=pct+"%";
+  document.getElementById("obj-pct").textContent=pct+"% de l'objectif";
+  const vPct=Math.min(100,Math.round(data.ventes/10*100));
+  document.getElementById("obj-ventes").textContent=data.ventes;
+  document.getElementById("obj-ventes-bar").style.width=vPct+"%";
+  // Historique ventes
+  const toutesVentes=getRapports().filter(r=>r.technicien===currentUser.nom).flatMap(r=>(r.ventes||[]).map(v=>({...v,date:r.date,client:r.clientNom})));
+  document.getElementById("hist-ventes").innerHTML=toutesVentes.length?toutesVentes.slice(-10).reverse().map(v=>`<div class="hist-item"><div class="hist-row"><div><div class="hist-nom">${v.icon||""} ${v.label}</div><div class="hist-type">${v.client} · ${v.date}</div></div><div style="color:#eab308;font-weight:800;">${v.primeMin||v.primeChoisie||0} €</div></div></div>`).join(""):`<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">💶</div>Aucune vente encore</div>`;
+}
+
+// ─── HISTORIQUE ───────────────────────────────────────────────────────────────
+function renderHistorique(){
+  if(!currentUser)return;
+  const rapports=getRapports().filter(r=>r.technicien===currentUser.nom).sort((a,b)=>b.date?.localeCompare(a.date));
+  document.getElementById("liste-historique").innerHTML=rapports.length?rapports.map(r=>`<div class="hist-item"><div class="hist-row"><div><div class="hist-date">${r.date} ${r.heureDebut}→${r.heureFin}</div><div class="hist-nom">${r.clientNom}</div><div class="hist-type">${r.type}</div></div><div style="text-align:right;"><div style="color:#f97316;font-weight:800;">${r.montantFinal} €</div>${r.totalPrimes>0?`<div style="color:#eab308;font-size:12px;">+${r.totalPrimes}€ prime</div>`:""}</div></div></div>`).join(""):`<div class="empty-state"><div class="empty-icon">📋</div>Aucune intervention</div>`;
+}
+
+// ─── ALERTES ──────────────────────────────────────────────────────────────────
+function verifierAlertes(){
+  const rdvs=getMesRdvs().filter(r=>r.dateRdv===todayStr()&&r.statut!=="Terminé");
+  rdvs.forEach(r=>{
+    const [h,m]=r.heureRdv.split(":").map(Number);
+    const rdvTime=new Date();rdvTime.setHours(h,m,0,0);
+    const diff=(rdvTime-new Date())/60000;
+    if(diff>0&&diff<=30)showNotif(`⏰ RDV dans ${Math.round(diff)} min — ${r.clientNom}`);
+  });
+  setTimeout(verifierAlertes,60000);
+}
+
+// ─── NOTIF ────────────────────────────────────────────────────────────────────
+function showNotif(msg){
+  const n=document.createElement("div");n.className="notif";n.textContent=msg;
+  document.body.appendChild(n);setTimeout(()=>n.remove(),4000);
 }
 
 // ─── SCRIPT IA ────────────────────────────────────────────────────────────────
-let currentScriptRdv=null;
-
+let scriptRdv=null;
 function ouvrirScript(id){
-  const rdv=getRdvs().find(r=>r.id===id);
-  currentScriptRdv=rdv;
-  document.getElementById("script-rdv-info").innerHTML=`<div style="color:#f97316;font-size:12px;margin-bottom:4px;">INTERVENTION</div><div style="font-weight:700;">${rdv.type} — ${rdv.clientNom}</div><div style="color:#666;font-size:13px;margin-top:2px;">${rdv.notes||""}</div>`;
+  scriptRdv=getRdvs().find(r=>r.id===id);
+  document.getElementById("script-rdv-nom").textContent=scriptRdv.clientNom+" · "+scriptRdv.type;
+  document.getElementById("script-info-box").innerHTML=`<div style="color:#f97316;font-size:11px;margin-bottom:4px;">INTERVENTION</div><div style="font-weight:700;">${scriptRdv.type} — ${scriptRdv.clientNom}</div><div style="color:#666;font-size:12px;margin-top:2px;">${scriptRdv.notes||""}</div>`;
   document.getElementById("script-loading").classList.remove("hidden");
-  document.getElementById("script-content").classList.add("hidden");
+  document.getElementById("script-result").classList.add("hidden");
   document.getElementById("modal-script").classList.remove("hidden");
   genererScript();
 }
 
 async function genererScript(){
   document.getElementById("script-loading").classList.remove("hidden");
-  document.getElementById("script-content").classList.add("hidden");
+  document.getElementById("script-result").classList.add("hidden");
   try{
-    const r=currentScriptRdv;
     const res=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        model:"claude-sonnet-4-20250514",max_tokens:1000,
-        system:"Tu es un coach commercial pour techniciens plombiers. Génère des scripts de vente additionnelle courts, naturels, efficaces. Lisible sur téléphone. Réponds UNIQUEMENT avec le script structuré.",
-        messages:[{role:"user",content:`Type: ${r.type}\nNotes: ${r.notes||"RAS"}\nPrix: ${r.prixVente}€\n\nGénère un script avec:\n1. Observation visuelle en arrivant\n2. 2-3 offres additionnelles avec phrases exactes\n3. Closing naturel\n\nProduits: Adoucisseur, Contrat entretien, Ballon électrique, Chaudière, Robinetterie, Réfection joints`}]
-      })
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,
+        system:"Tu es un coach commercial pour techniciens plombiers. Génère des scripts de vente additionnelle courts, naturels, efficaces. Lisible sur téléphone. Réponds UNIQUEMENT avec le script.",
+        messages:[{role:"user",content:`Type: ${scriptRdv.type}\nNotes: ${scriptRdv.notes||"RAS"}\nPrix: ${scriptRdv.prixVente}€\n\nScript avec:\n1. Observation visuelle en arrivant\n2. 2-3 offres additionnelles avec phrases exactes\n3. Closing naturel\n\nProduits: Adoucisseur, Contrat entretien, Ballon électrique, Chaudière, Robinetterie, Réfection joints`}]})
     });
     const d=await res.json();
     document.getElementById("script-text").textContent=d.content?.[0]?.text||"Erreur";
-  }catch(e){ document.getElementById("script-text").textContent="❌ Erreur de connexion"; }
+  }catch{document.getElementById("script-text").textContent="❌ Erreur de connexion";}
   document.getElementById("script-loading").classList.add("hidden");
-  document.getElementById("script-content").classList.remove("hidden");
+  document.getElementById("script-result").classList.remove("hidden");
 }
 
-function copierScript(){ navigator.clipboard.writeText(document.getElementById("script-text").textContent); }
+function copierScript(){navigator.clipboard.writeText(document.getElementById("script-text").textContent);showNotif("Script copié !");}
 
 // ─── RAPPORT ──────────────────────────────────────────────────────────────────
 function ouvrirRapport(id){
-  const rdv=getRdvs().find(r=>r.id===id);
-  currentRdv=rdv;
-  photos=[null,null];
-  ventesSelectionnees=[];
+  currentRdv=getRdvs().find(r=>r.id===id);
+  photosAvant=[null,null,null];photosApres=[null,null,null];
+  ventesSelectionnees=[];statutRdvCurrent="En route";
   heureDebut=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
-  document.getElementById("debut-nom").textContent=rdv.clientNom;
-  document.getElementById("debut-type").textContent=rdv.type;
-  document.getElementById("debut-adresse").textContent=rdv.adresse;
-  document.getElementById("debut-prix").textContent=rdv.prixVente+" €";
-  document.getElementById("debut-heure").textContent="Début : "+heureDebut;
-  document.getElementById("rapport-debut").classList.remove("hidden");
-  document.getElementById("rapport-form").classList.add("hidden");
-  document.getElementById("rapport-succes").classList.add("hidden");
+  document.getElementById("d-nom").textContent=currentRdv.clientNom;
+  document.getElementById("d-type").textContent=currentRdv.type;
+  document.getElementById("d-adresse").textContent=currentRdv.adresse;
+  document.getElementById("d-prix").textContent=currentRdv.prixVente+" €";
+  document.getElementById("d-heure").textContent="Début : "+heureDebut;
   document.getElementById("modal-rapport").classList.remove("hidden");
+  showEtape("debut");
 }
 
-function showRapportForm(){
-  document.getElementById("rapport-debut").classList.add("hidden");
-  document.getElementById("rapport-form").classList.remove("hidden");
-  document.getElementById("form-nom").textContent=currentRdv.clientNom;
-  document.getElementById("form-heure").textContent="⏱ Début : "+heureDebut;
-  document.getElementById("montantFinal").value=currentRdv.prixVente;
-  document.getElementById("prixInitial").textContent=currentRdv.prixVente+" €";
-  document.getElementById("description").value="";
-  renderSlots();
-  renderVentes();
+function showEtape(e){
+  ["debut","form","succes"].forEach(x=>document.getElementById("etape-"+x).classList.add("hidden"));
+  document.getElementById("etape-"+e).classList.remove("hidden");
+  if(e==="form"){
+    document.getElementById("f-nom").textContent=currentRdv.clientNom;
+    document.getElementById("f-prix-initial").textContent=currentRdv.prixVente+" €";
+    document.getElementById("montantFinal").value=currentRdv.prixVente;
+    document.getElementById("description").value="";
+    document.getElementById("chrono-debut").textContent=heureDebut;
+    renderSlotsAvant();renderSlotsApres();renderVentes();startChrono();
+    // Reset checklist
+    document.querySelectorAll(".check-item").forEach(i=>{i.querySelector(".check-box").classList.remove("checked");});
+    updateCheckCount();
+    // Reset signature
+    if(signatureCtx)signatureCtx.clearRect(0,0,signatureCtx.canvas.width,signatureCtx.canvas.height);
+  }
 }
 
-function handlePhoto(i,input){
-  const file=input.files[0]; if(!file) return;
+// ─── CHRONO ───────────────────────────────────────────────────────────────────
+function startChrono(){
+  chronoStart=Date.now();
+  if(chronoInterval)clearInterval(chronoInterval);
+  chronoInterval=setInterval(()=>{
+    const s=Math.floor((Date.now()-chronoStart)/1000);
+    const m=Math.floor(s/60),sec=s%60;
+    document.getElementById("chrono-display").textContent=String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0");
+    document.getElementById("f-chrono").textContent=String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0");
+  },1000);
+}
+
+// ─── STATUT RDV ───────────────────────────────────────────────────────────────
+function setStatutRdv(s,color,btn){
+  statutRdvCurrent=s;
+  document.querySelectorAll(".statut-rdv-btn").forEach(b=>{b.style.background="#1e1e1e";b.style.color="#666";b.style.borderColor="transparent";});
+  btn.style.background=color+"25";btn.style.color=color;btn.style.borderColor=color+"60";
+  showNotif("Statut : "+s);
+}
+
+// ─── PHOTOS ───────────────────────────────────────────────────────────────────
+function triggerPhoto(type,i){document.getElementById(`file-${type}-${i}`).click();}
+
+function handlePhoto(type,i,input){
+  const file=input.files[0];if(!file)return;
   const reader=new FileReader();
-  reader.onload=e=>{ photos[i]={url:e.target.result}; renderSlots(); };
+  reader.onload=e=>{
+    if(type==="avant")photosAvant[i]={url:e.target.result};
+    else photosApres[i]={url:e.target.result};
+    if(type==="avant")renderSlotsAvant();else renderSlotsApres();
+  };
   reader.readAsDataURL(file);
 }
 
-function renderSlots(){
-  [0,1].forEach(i=>{
-    const slot=document.getElementById("slot"+(i+1));
-    if(photos[i]){
-      slot.innerHTML=`<img src="${photos[i].url}"><button class="photo-del" onclick="delPhoto(${i},event)">×</button>`;
-    } else {
-      slot.innerHTML=`<div style="font-size:28px;margin-bottom:6px;">📷</div><div style="font-size:12px;">Photo ${i+1}</div>`;
-    }
-  });
-  checkBtnTerminer();
+function renderSlotsAvant(){renderSlots("avant",photosAvant,"slots-avant");}
+function renderSlotsApres(){renderSlots("apres",photosApres,"slots-apres");}
+
+function renderSlots(type,photos,containerId){
+  const labels=["AVANT","AVANT","AVANT"];const labelsA=["APRÈS","APRÈS","APRÈS"];
+  document.getElementById(containerId).innerHTML=photos.map((p,i)=>p
+    ?`<div class="photo-slot" onclick="triggerPhoto('${type}',${i})"><img src="${p.url}"><button class="photo-del" onclick="delPhoto(event,'${type}',${i})">×</button></div>`
+    :`<div class="photo-slot" onclick="triggerPhoto('${type}',${i})"><div>📷</div><div class="photo-label">${type==="avant"?labels[i]:labelsA[i]} ${i+1}</div></div>`
+  ).join("");
 }
 
-function delPhoto(i,e){ e.stopPropagation(); photos[i]=null; renderSlots(); }
+function delPhoto(e,type,i){
+  e.stopPropagation();
+  if(type==="avant"){photosAvant[i]=null;renderSlotsAvant();}
+  else{photosApres[i]=null;renderSlotsApres();}
+}
 
+// ─── CHECKLIST ────────────────────────────────────────────────────────────────
+function toggleCheck(item){
+  item.querySelector(".check-box").classList.toggle("checked");
+  updateCheckCount();
+}
+function updateCheckCount(){
+  const total=document.querySelectorAll(".check-box").length;
+  const done=document.querySelectorAll(".check-box.checked").length;
+  document.getElementById("check-count").textContent=done+"/"+total+" points";
+  document.getElementById("check-count").style.color=done===total?"#22c55e":"#555";
+}
+
+// ─── SIGNATURE ────────────────────────────────────────────────────────────────
+function initSignature(){
+  const canvas=document.getElementById("signatureCanvas");
+  if(!canvas)return;
+  canvas.width=canvas.offsetWidth||320;canvas.height=180;
+  signatureCtx=canvas.getContext("2d");
+  signatureCtx.strokeStyle="#f97316";signatureCtx.lineWidth=2;signatureCtx.lineCap="round";
+  const getPos=e=>{const r=canvas.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};};
+  canvas.addEventListener("mousedown",e=>{isDrawing=true;const p=getPos(e);signatureCtx.beginPath();signatureCtx.moveTo(p.x,p.y);});
+  canvas.addEventListener("mousemove",e=>{if(!isDrawing)return;const p=getPos(e);signatureCtx.lineTo(p.x,p.y);signatureCtx.stroke();});
+  canvas.addEventListener("mouseup",()=>isDrawing=false);
+  canvas.addEventListener("touchstart",e=>{e.preventDefault();isDrawing=true;const p=getPos(e);signatureCtx.beginPath();signatureCtx.moveTo(p.x,p.y);},{passive:false});
+  canvas.addEventListener("touchmove",e=>{e.preventDefault();if(!isDrawing)return;const p=getPos(e);signatureCtx.lineTo(p.x,p.y);signatureCtx.stroke();},{passive:false});
+  canvas.addEventListener("touchend",()=>isDrawing=false);
+}
+function clearSignature(){if(signatureCtx)signatureCtx.clearRect(0,0,signatureCtx.canvas.width,signatureCtx.canvas.height);}
+
+// ─── NOTE VOCALE ──────────────────────────────────────────────────────────────
+function toggleVocal(){
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){showNotif("Reconnaissance vocale non supportée");return;}
+  if(isRecording){recognition?.stop();isRecording=false;document.getElementById("btnVocal").textContent="🎤 Note vocale";return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recognition=new SR();recognition.lang="fr-FR";recognition.continuous=true;
+  recognition.onresult=e=>{
+    const txt=Array.from(e.results).map(r=>r[0].transcript).join(" ");
+    document.getElementById("description").value+=txt+" ";
+  };
+  recognition.onend=()=>{isRecording=false;document.getElementById("btnVocal").textContent="🎤 Note vocale";};
+  recognition.start();isRecording=true;
+  document.getElementById("btnVocal").textContent="⏹️ Arrêter l'enregistrement";
+  showNotif("🎤 Enregistrement en cours...");
+}
+
+// ─── VENTES ───────────────────────────────────────────────────────────────────
 function renderVentes(){
   document.getElementById("liste-ventes").innerHTML=VENTES.map(v=>{
     const sel=ventesSelectionnees.find(x=>x.id===v.id);
-    return `<div class="vente-item ${sel?"selected":""}" onclick="toggleVente('${v.id}')">
-      <div class="vente-header">
-        <div class="vente-left">
-          <span style="font-size:20px">${v.icon}</span>
-          <div>
-            <div class="vente-name">${v.label}</div>
-            <div class="vente-type">${v.type==="devis"?"→ Devis patron":"→ Vente directe"}</div>
-          </div>
+    return`<div class="vente-item${sel?" selected":""}" onclick="toggleVente('${v.id}')">
+      <div class="vente-row">
+        <div style="display:flex;align-items:center;gap:8px;flex:1;">
+          <span class="vente-icon">${v.icon}</span>
+          <div><div class="vente-name">${v.label}</div><div class="vente-type">${v.type==="devis"?"→ Devis patron":"→ Vente directe"}</div></div>
         </div>
-        <div class="vente-right">
-          <div class="prime">${v.primeMin}-${v.primeMax}€</div>
-          <div class="check">${sel?"✅":"○"}</div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div class="vente-prime">${v.primeMin}-${v.primeMax}€</div>
+          <div style="font-size:18px;">${sel?"✅":"○"}</div>
         </div>
       </div>
-      ${sel&&v.type==="devis"?`<div class="devis-tag"><span>📤 Demande envoyée au patron</span></div>`:""}
+      ${sel&&v.type==="devis"?`<div style="background:#3b82f612;border:1px solid #3b82f630;padding:8px 12px;margin:0 12px 12px;border-radius:8px;"><span style="color:#3b82f6;font-size:12px;">📤 Demande envoyée au patron</span></div>`:""}
     </div>`;
   }).join("");
   updatePrimeTotal();
@@ -627,90 +1003,90 @@ function renderVentes(){
 function toggleVente(id){
   const v=VENTES.find(x=>x.id===id);
   const idx=ventesSelectionnees.findIndex(x=>x.id===id);
-  if(idx>=0) ventesSelectionnees.splice(idx,1);
-  else ventesSelectionnees.push({...v, primeChoisie:v.primeMin});
+  if(idx>=0)ventesSelectionnees.splice(idx,1);
+  else ventesSelectionnees.push({...v,primeChoisie:v.primeMin});
   renderVentes();
 }
 
 function updatePrimeTotal(){
   const total=ventesSelectionnees.reduce((s,v)=>s+(v.primeChoisie||v.primeMin),0);
-  document.getElementById("primeTotal").textContent=total+" €";
-  const primeEnCours=document.getElementById("primeEnCours");
-  if(total>0){ primeEnCours.style.display="flex"; } else { primeEnCours.style.display="none"; }
-  // recap
-  const recap=document.getElementById("recapPrimes");
-  if(ventesSelectionnees.length>0){
+  const bar=document.getElementById("prime-bar");
+  bar.classList.toggle("hidden",total===0);
+  document.getElementById("prime-total").textContent=total+" €";
+  const recap=document.getElementById("recap-primes");
+  if(ventesSelectionnees.length){
     recap.classList.remove("hidden");
-    document.getElementById("recapListe").innerHTML=ventesSelectionnees.map(v=>`<div class="row"><span class="name">${v.icon} ${v.label}</span><span class="amount">${v.primeChoisie||v.primeMin} €</span></div>`).join("");
-    document.getElementById("recapTotal").textContent=total+" €";
-  } else { recap.classList.add("hidden"); }
+    document.getElementById("recap-liste").innerHTML=ventesSelectionnees.map(v=>`<div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:#aaa;font-size:13px;">${v.icon} ${v.label}</span><span style="color:#eab308;font-weight:700;">${v.primeChoisie||v.primeMin} €</span></div>`).join("");
+    document.getElementById("recap-total").textContent=total+" €";
+  }else recap.classList.add("hidden");
 }
 
-function checkBtnTerminer(){
-  const ok=photos[0]&&photos[1]&&document.getElementById("description")?.value?.trim();
-  const btn=document.getElementById("btnTerminer");
-  if(btn){ btn.disabled=!ok; btn.textContent=ok?"✅ Terminer & Envoyer":"⚠️ 2 photos + description requis"; }
-}
-
-document.addEventListener("input",e=>{ if(e.target.id==="description") checkBtnTerminer(); });
-
+// ─── SOUMETTRE ────────────────────────────────────────────────────────────────
 function soumettre(){
+  const desc=document.getElementById("description").value.trim();
+  if(!desc){showNotif("⚠️ Description obligatoire");return;}
+  if(chronoInterval)clearInterval(chronoInterval);
   const heureFin=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
   const totalPrimes=ventesSelectionnees.reduce((s,v)=>s+(v.primeChoisie||v.primeMin),0);
+  const canvas=document.getElementById("signatureCanvas");
+  const signature=canvas?canvas.toDataURL():null;
+  const checksDone=document.querySelectorAll(".check-box.checked").length;
   const rapport={
-    id:Date.now(), rdvId:currentRdv.id, clientNom:currentRdv.clientNom,
-    clientTel:currentRdv.clientTel, adresse:currentRdv.adresse,
-    type:currentRdv.type, technicien:currentRdv.nom||currentUser.nom,
-    heureDebut, heureFin, date:todayStr(),
-    description:document.getElementById("description").value,
-    montantFinal:Number(document.getElementById("montantFinal").value),
+    id:Date.now(),rdvId:currentRdv.id,clientNom:currentRdv.clientNom,
+    clientTel:currentRdv.clientTel,adresse:currentRdv.adresse,
+    type:currentRdv.type,technicien:currentUser.nom,
+    heureDebut,heureFin,date:todayStr(),statutRdv:statutRdvCurrent,
+    description:desc,montantFinal:Number(document.getElementById("montantFinal").value),
     prixInitial:currentRdv.prixVente,
-    ventes:ventesSelectionnees, totalPrimes,
-    photos:photos.filter(Boolean).map(p=>p.url),
-    soumisLe:new Date().toISOString(), statut:"En attente facturation"
+    photosAvant:photosAvant.filter(Boolean).map(p=>p.url),
+    photosApres:photosApres.filter(Boolean).map(p=>p.url),
+    ventes:ventesSelectionnees,totalPrimes,signature,
+    checklistScore:checksDone+"/6",
+    soumisLe:new Date().toISOString(),statut:"En attente facturation"
   };
-  // Sauvegarder rapport
-  const rapports=JSON.parse(localStorage.getItem("pl_rapports")||"[]");
-  rapports.push(rapport); localStorage.setItem("pl_rapports",JSON.stringify(rapports));
-  // Devis patron
-  const demandesDevis=ventesSelectionnees.filter(v=>v.type==="devis");
-  if(demandesDevis.length){
-    const devis=JSON.parse(localStorage.getItem("pl_devis")||"[]");
-    demandesDevis.forEach(d=>devis.push({id:Date.now()+Math.random(),type:d.label,clientNom:currentRdv.clientNom,clientTel:currentRdv.clientTel,adresse:currentRdv.adresse,technicien:currentUser.nom,date:todayStr(),statut:"Nouveau"}));
-    localStorage.setItem("pl_devis",JSON.stringify(devis));
+  const rapports=getRapports();rapports.push(rapport);saveRapports(rapports);
+  // Devis
+  const devis=ventesSelectionnees.filter(v=>v.type==="devis");
+  if(devis.length){
+    const d=JSON.parse(localStorage.getItem("pl_devis")||"[]");
+    devis.forEach(v=>d.push({id:Date.now()+Math.random(),type:v.label,clientNom:currentRdv.clientNom,clientTel:currentRdv.clientTel,adresse:currentRdv.adresse,technicien:currentUser.nom,date:todayStr(),statut:"Nouveau"}));
+    localStorage.setItem("pl_devis",JSON.stringify(d));
   }
   // Primes
-  const mois=new Date().toISOString().slice(0,7);
-  const primes=getPrimes();
-  if(!primes[currentUser.nom]) primes[currentUser.nom]={};
-  if(!primes[currentUser.nom][mois]) primes[currentUser.nom][mois]={total:0,ventes:0,ca:0};
+  const mois=moisStr(),primes=getPrimes();
+  if(!primes[currentUser.nom])primes[currentUser.nom]={};
+  if(!primes[currentUser.nom][mois])primes[currentUser.nom][mois]={total:0,ventes:0,ca:0};
   primes[currentUser.nom][mois].total+=totalPrimes;
   primes[currentUser.nom][mois].ventes+=ventesSelectionnees.length;
   primes[currentUser.nom][mois].ca+=Number(document.getElementById("montantFinal").value);
   savePrimes(primes);
   // Statut RDV
-  const rdvs=getRdvs().map(r=>r.id===currentRdv.id?{...r,statut:"Terminé",rapport}:r);
-  saveRdvs(rdvs);
+  saveRdvs(getRdvs().map(r=>r.id===currentRdv.id?{...r,statut:"Terminé",rapport}:r));
   // Succès
-  document.getElementById("rapport-form").classList.add("hidden");
-  document.getElementById("rapport-succes").classList.remove("hidden");
+  showEtape("succes");
   if(totalPrimes>0){
-    document.getElementById("primeWin").classList.remove("hidden");
-    document.getElementById("primeWinAmount").textContent=totalPrimes+" €";
+    document.getElementById("prime-win").classList.remove("hidden");
+    document.getElementById("prime-win-amount").textContent=totalPrimes+" €";
   }
-  renderRdv(); renderPerf();
+  renderRdv();renderHistorique();
 }
 
 // ─── MODALS ───────────────────────────────────────────────────────────────────
 function closeModal(id){
   document.getElementById(id).classList.add("hidden");
+  if(chronoInterval)clearInterval(chronoInterval);
+  if(isRecording&&recognition)recognition.stop();
   renderRdv();
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 window.onload=()=>{
+  document.querySelectorAll(".pin-input").forEach((el,i,arr)=>{
+    el.addEventListener("input",()=>{if(el.value&&i<arr.length-1)arr[i+1].focus();});
+    el.addEventListener("keydown",e=>{if(e.key==="Backspace"&&!el.value&&i>0)arr[i-1].focus();});
+  });
   const s=localStorage.getItem("pl_session");
-  if(s){ currentUser=JSON.parse(s); lancerApp(); }
+  if(s){currentUser=JSON.parse(s);lancerApp();}
 };
 </script>
 
