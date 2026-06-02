@@ -532,7 +532,7 @@ body.light #signatureCanvas{background:#f0f0f0;border-color:#ddd;}
 
   <div style="display:flex;gap:10px;padding-bottom:30px;">
     <button class="action-btn btn-gray" onclick="closeModal('modal-rapport')" style="flex:0 0 auto;">← Retour</button>
-    <button class="action-btn btn-green" id="btn-terminer" onclick="soumettre()" style="flex:1;">✅ Terminer & Envoyer</button>
+    <button class="action-btn btn-green" id="btn-terminer" onclick="soumettre()" style="flex:1;background:#22c55e25;color:#22c55e;border:1px solid #22c55e60;">✅ Terminer & Envoyer</button>
   </div>
 </div>
 
@@ -1023,8 +1023,7 @@ function updatePrimeTotal(){
 
 // ─── SOUMETTRE ────────────────────────────────────────────────────────────────
 function soumettre(){
-  const desc=document.getElementById("description").value.trim();
-  if(!desc){showNotif("⚠️ Description obligatoire");return;}
+  const desc=document.getElementById("description").value.trim()||"Intervention effectuée";
   if(chronoInterval)clearInterval(chronoInterval);
   const heureFin=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
   const totalPrimes=ventesSelectionnees.reduce((s,v)=>s+(v.primeChoisie||v.primeMin),0);
