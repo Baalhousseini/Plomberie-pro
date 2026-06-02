@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Patron - Plomberie Pro</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif;}
+body{background:#0a0a0a;color:#f1f1f1;min-height:100vh;}
+.hidden{display:none!important;}
+#login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+.login-box{background:#141414;border:1px solid #222;border-radius:20px;padding:40px 30px;width:100%;max-width:380px;text-align:center;}
+.field{margin-bottom:16px;text-align:left;}
+.field label{display:block;color:#666;font-size:11px;letter-spacing:1px;margin-bottom:6px;}
+.field input{width:100%;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:10px;padding:12px 16px;color:#f1f1f1;font-size:16px;outline:none;}
+.pin-row{display:flex;gap:10px;justify-content:center;margin:10px 0;}
+.pin-input{width:56px!important;height:56px;text-align:center;font-size:22px;font-weight:800;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:12px;color:#f97316;outline:none;}
+.btn-primary{width:100%;background:#f97316;color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px;}
+.error-msg{color:#ef4444;font-size:13px;margin-top:10px;}
+.header{background:#0f0f0f;border-bottom:1px solid #1a1a1a;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
+.avatar{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;background:#f9731625;border:2px solid #f97316;color:#f97316;}
+.btn-logout{background:#ef444418;border:1px solid #ef444430;color:#ef4444;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;}
+.nav{background:#0f0f0f;border-bottom:1px solid #1a1a1a;display:flex;overflow-x:auto;}
+.nav button{flex:1;min-width:75px;background:none;border:none;border-bottom:2px solid transparent;padding:11px 6px;color:#555;cursor:pointer;font-size:10px;font-weight:700;white-space:nowrap;transition:all 0.2s;}
+.nav button.active{color:#f97316;border-bottom-color:#f97316;}
+.content{max-width:700px;margin:0 auto;padding:16px;}
+.card{background:#141414;border:1px solid #222;border-radius:14px;padding:16px 18px;margin-bottom:12px;}
+.lbl{color:#555;font-size:10px;letter-spacing:1.5px;margin-bottom:8px;font-weight:700;}
+.badge{display:inline-block;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;}
+.badge-green{background:#22c55e20;color:#22c55e;border:1px solid #22c55e40;}
+.badge-orange{background:#f9731620;color:#f97316;border:1px solid #f9731640;}
+.badge-yellow{background:#eab30820;color:#eab308;border:1px solid #eab30840;}
+.badge-red{background:#ef444420;color:#ef4444;border:1px solid #ef444440;}
+.badge-purple{background:#8b5cf620;color:#8b5cf6;border:1px solid #8b5cf640;}
+.badge-blue{background:#3b82f620;color:#3b82f6;border:1px solid #3b82f640;}
+.btn{border:none;border-radius:10px;padding:10px 16px;cursor:pointer;font-size:12px;font-weight:700;}
+.btn-orange{background:#f9731618;color:#f97316;border:1px solid #f9731640!important;}
+.btn-green{background:#22c55e18;color:#22c55e;border:1px solid #22c55e40!important;}
+.btn-blue{background:#3b82f618;color:#3b82f6;border:1px solid #3b82f640!important;}
+.btn-gray{background:#1e1e1e;color:#ccc;border:1px solid #333!important;}
+.btn-red{background:#ef444418;color:#ef4444;border:1px solid #ef444440!important;}
+.btn-yellow{background:#eab30818;color:#eab308;border:1px solid #eab30840!important;}
+.btn-full{width:100%;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.stat-card{background:#141414;border:1px solid #222;border-radius:12px;padding:14px;text-align:center;}
+.stat-val{font-weight:800;font-size:20px;margin-top:4px;}
+.stat-sub{color:#555;font-size:11px;margin-top:2px;}
+.progress-bar{background:#1a1a1a;border-radius:6px;height:8px;margin-top:6px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:6px;transition:width 0.5s;}
+.tech-card{background:#141414;border:1px solid #222;border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+.statut-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;}
+.form-field{margin-bottom:14px;}
+.form-field label{display:block;color:#555;font-size:10px;letter-spacing:1px;margin-bottom:6px;}
+.form-input{width:100%;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:8px;padding:11px 14px;color:#f1f1f1;font-size:14px;outline:none;box-sizing:border-box;}
+.form-select{width:100%;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:8px;padding:11px 14px;color:#f1f1f1;font-size:14px;outline:none;box-sizing:border-box;}
+.rapport-card{background:#141414;border:1px solid #222;border-radius:14px;margin-bottom:10px;overflow:hidden;}
+.rapport-header{padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.rapport-body{padding:0 16px 16px;border-top:1px solid #1a1a1a;}
+.photos-row{display:flex;gap:8px;margin-top:8px;overflow-x:auto;}
+.photo-thumb{width:80px;height:80px;object-fit:cover;border-radius:8px;flex-shrink:0;cursor:pointer;border:1px solid #333;}
+.desc-box{background:#0f0f0f;border-radius:8px;padding:10px 12px;color:#ccc;font-size:13px;line-height:1.6;margin-top:4px;}
+.actions-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.ranking-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #1a1a1a;}
+.ranking-pos{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;}
+.bar-chart{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+.bar-row{display:flex;align-items:center;gap:10px;}
+.bar-label{color:#888;font-size:12px;min-width:120px;}
+.bar-track{flex:1;background:#1a1a1a;border-radius:6px;height:20px;overflow:hidden;position:relative;}
+.bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:700;transition:width 0.5s;}
+.alerte-card{background:#141414;border:1px solid #ef444440;border-left:3px solid #ef4444;border-radius:12px;padding:12px 14px;margin-bottom:8px;}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:100;overflow-y:auto;display:flex;align-items:flex-end;justify-content:center;}
+.modal-sheet{background:#0f0f0f;border:1px solid #2a2a2a;border-radius:20px 20px 0 0;width:100%;max-width:600px;padding:24px 20px 40px;}
+.modal-close{background:#222;border:none;color:#888;border-radius:8px;width:34px;height:34px;font-size:18px;cursor:pointer;}
+.photo-fs{position:fixed;inset:0;background:#000;z-index:200;display:flex;align-items:center;justify-content:center;}
+.photo-fs img{max-width:100%;max-height:100%;}
+.photo-fs-close{position:absolute;top:20px;right:20px;background:#333;border:none;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;}
+.notif{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#f97316;color:#000;border-radius:12px;padding:12px 20px;font-weight:700;font-size:14px;z-index:999;animation:slideIn 0.3s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.empty-state{text-align:center;padding:40px 0;color:#333;}
+.empty-icon{font-size:40px;margin-bottom:12px;}
+.periode-tabs{display:flex;gap:4px;background:#0f0f0f;border-radius:10px;padding:4px;margin-bottom:16px;}
+.periode-btn{flex:1;background:none;border:none;border-radius:8px;padding:8px 4px;color:#555;cursor:pointer;font-size:11px;font-weight:700;transition:all 0.2s;}
+.periode-btn.active{background:#f97316;color:#000;}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="login-box">
+    <div style="font-size:52px;margin-bottom:12px;">👔</div>
+    <div style="color:#f97316;font-size:11px;letter-spacing:3px;margin-bottom:6px;">PLOMBERIE PRO</div>
+    <div style="font-size:26px;font-weight:800;margin-bottom:8px;">Espace Patron</div>
+    <div style="color:#555;font-size:14px;margin-bottom:32px;">Tableau de bord direction</div>
+    <div class="field">
+      <label>IDENTIFIANT</label>
+      <input type="text" id="identifiant" placeholder="patron" autocomplete="off" autocapitalize="none">
+    </div>
+    <div class="field">
+      <label>CODE PIN</label>
+      <div class="pin-row">
+        <input type="password" maxlength="1" class="pin-input" id="p1" inputmode="numeric">
+        <input type="password" maxlength="1" class="pin-input" id="p2" inputmode="numeric">
+        <input type="password" maxlength="1" class="pin-input" id="p3" inputmode="numeric">
+        <input type="password" maxlength="1" class="pin-input" id="p4" inputmode="numeric">
+      </div>
+    </div>
+    <button class="btn-primary" onclick="seConnecter()">Se connecter</button>
+    <div class="error-msg hidden" id="loginError">Identifiant ou PIN incorrect</div>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <div class="header">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="avatar">PA</div>
+      <div>
+        <div style="font-weight:700;font-size:14px;">Patron</div>
+        <div style="color:#f97316;font-size:10px;letter-spacing:1px;">DIRECTION</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div style="text-align:right;">
+        <div style="color:#f97316;font-weight:800;font-size:16px;" id="hdr-ca">0 EUR</div>
+        <div style="color:#444;font-size:9px;letter-spacing:1px;">CA DU JOUR</div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Quitter</button>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="active" onclick="showPage('dashboard')">Dashboard</button>
+    <button onclick="showPage('equipe')">Equipe</button>
+    <button onclick="showPage('planning')">Planning</button>
+    <button onclick="showPage('rapports')">Rapports</button>
+    <button onclick="showPage('business')">Business</button>
+    <button onclick="showPage('primes')">Primes</button>
+    <button onclick="showPage('parametres')">Params</button>
+  </div>
+
+  <div class="content">
+
+```
+<!-- DASHBOARD -->
+<div id="page-dashboard">
+  <div class="periode-tabs">
+    <button class="periode-btn active" onclick="setPeriode('jour',this)">Aujourd'hui</button>
+    <button class="periode-btn" onclick="setPeriode('semaine',this)">Semaine</button>
+    <button class="periode-btn" onclick="setPeriode('mois',this)">Mois</button>
+    <button class="periode-btn" onclick="setPeriode('annee',this)">Annee</button>
+  </div>
+
+  <!-- Stats principales -->
+  <div class="grid-2" id="stats-principales" style="margin-bottom:12px;"></div>
+
+  <!-- Objectif annuel -->
+  <div class="card" style="border-left:3px solid #f97316;">
+    <div class="lbl">OBJECTIF ANNUEL — 1 000 000 EUR</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="color:#f97316;font-weight:800;font-size:24px;" id="obj-annuel-val">0 EUR</div>
+      <div style="text-align:right;">
+        <div style="color:#555;font-size:12px;" id="obj-annuel-pct">0%</div>
+        <div style="color:#444;font-size:11px;" id="obj-annuel-prev">Prev. fin de mois: 0 EUR</div>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="obj-bar" style="width:0%;background:#f97316;"></div></div>
+    <div style="display:flex;justify-content:space-between;margin-top:6px;">
+      <span style="color:#444;font-size:11px;">0</span>
+      <span style="color:#f97316;font-size:11px;font-weight:700;">1 000 000 EUR</span>
+    </div>
+  </div>
+
+  <!-- Dispos rapides -->
+  <div class="card">
+    <div class="lbl">TECHNICIENS EN CE MOMENT</div>
+    <div id="dispos-rapides"></div>
+  </div>
+
+  <!-- Alertes -->
+  <div id="section-alertes"></div>
+
+  <!-- CA par type -->
+  <div class="card">
+    <div class="lbl">CA PAR TYPE D'INTERVENTION</div>
+    <div class="bar-chart" id="ca-par-type"></div>
+  </div>
+</div>
+
+<!-- EQUIPE -->
+<div id="page-equipe" class="hidden">
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">DISPONIBILITE TEMPS REEL</div>
+    <div id="dispos-equipe"></div>
+  </div>
+
+  <!-- Classement -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">CLASSEMENT TECHNICIENS — CE MOIS</div>
+    <div id="classement-techs"></div>
+  </div>
+
+  <!-- Taux transformation -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">TAUX TRANSFORMATION VENTES ADDITIONNELLES</div>
+    <div id="taux-transformation"></div>
+  </div>
+
+  <!-- Conges -->
+  <div class="card">
+    <div class="lbl">CONGES ET ABSENCES</div>
+    <div id="liste-conges"></div>
+    <button class="btn btn-orange" style="margin-top:12px;" onclick="showModalConge()">+ Ajouter absence</button>
+  </div>
+</div>
+
+<!-- PLANNING -->
+<div id="page-planning" class="hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <div style="color:#f97316;font-size:11px;letter-spacing:2px;font-weight:700;">PLANNING GLOBAL</div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-gray" onclick="changerSemaine(-1)">Prev</button>
+      <button class="btn btn-gray" onclick="changerSemaine(1)">Suiv</button>
+    </div>
+  </div>
+  <div style="color:#f97316;font-size:12px;font-weight:700;margin-bottom:12px;" id="semaine-label"></div>
+  <div id="planning-grid"></div>
+</div>
+
+<!-- RAPPORTS -->
+<div id="page-rapports" class="hidden">
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+    <button class="btn btn-gray" onclick="filtrerRapports('tous',this)">Tous</button>
+    <button class="btn btn-gray" onclick="filtrerRapports('attente',this)">En attente</button>
+    <button class="btn btn-gray" onclick="filtrerRapports('ok',this)">Valides</button>
+  </div>
+  <div id="liste-rapports"></div>
+</div>
+
+<!-- BUSINESS -->
+<div id="page-business" class="hidden">
+  <!-- CA par zone -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">CA PAR ZONE GEOGRAPHIQUE</div>
+    <div class="bar-chart" id="ca-par-zone"></div>
+  </div>
+
+  <!-- Fidelisation -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">FIDELISATION CLIENTS</div>
+    <div class="grid-2" id="stats-fidelisation"></div>
+  </div>
+
+  <!-- Sources leads -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">SOURCES DES LEADS</div>
+    <div id="sources-leads"></div>
+  </div>
+
+  <!-- Devis -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">TABLEAU COMMERCIAL — DEVIS</div>
+    <div id="tableau-devis"></div>
+  </div>
+
+  <!-- Impayés -->
+  <div class="card">
+    <div class="lbl">SUIVI IMPAYES ET RELANCES</div>
+    <div id="liste-impayes"></div>
+  </div>
+</div>
+
+<!-- PRIMES -->
+<div id="page-primes" class="hidden">
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">PRIMES DU MOIS EN COURS</div>
+    <div id="primes-mois"></div>
+  </div>
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">BAREME DES PRIMES</div>
+    <div id="bareme-primes"></div>
+    <button class="btn btn-orange" style="margin-top:12px;" onclick="showModalBareme()">Modifier le bareme</button>
+  </div>
+  <div class="card">
+    <div class="lbl">HISTORIQUE PRIMES PAR TECHNICIEN</div>
+    <div id="hist-primes"></div>
+  </div>
+</div>
+
+<!-- PARAMETRES -->
+<div id="page-parametres" class="hidden">
+  <!-- Prix interventions -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">PRIX PAR TYPE D'INTERVENTION</div>
+    <div id="liste-prix"></div>
+    <button class="btn btn-orange" style="margin-top:12px;" onclick="sauvegarderPrix()">Sauvegarder les prix</button>
+  </div>
+
+  <!-- Techniciens -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">GESTION TECHNICIENS</div>
+    <div id="liste-techs-params"></div>
+    <button class="btn btn-orange" style="margin-top:12px;" onclick="showModalAddTech()">+ Ajouter technicien</button>
+  </div>
+
+  <!-- Objectif -->
+  <div class="card">
+    <div class="lbl">OBJECTIF ANNUEL</div>
+    <div class="form-field" style="margin-top:10px;">
+      <label>MONTANT OBJECTIF (EUR)</label>
+      <input type="number" class="form-input" id="objectif-annuel" value="1000000" style="color:#f97316;font-weight:800;font-size:20px;">
+    </div>
+    <button class="btn btn-orange btn-full" style="padding:12px;" onclick="sauvegarderObjectif()">Sauvegarder</button>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- MODAL CONGE -->
+
+<div class="modal-bg hidden" id="modal-conge">
+  <div class="modal-sheet">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div style="color:#f97316;font-size:11px;letter-spacing:2px;font-weight:700;">ABSENCE / CONGE</div>
+      <button class="modal-close" onclick="closeModal('modal-conge')">x</button>
+    </div>
+    <div class="form-field">
+      <label>TECHNICIEN</label>
+      <select class="form-select" id="conge-tech">
+        <option value="Technicien 1">Technicien 1</option>
+        <option value="Technicien 2">Technicien 2</option>
+      </select>
+    </div>
+    <div class="grid-2">
+      <div class="form-field">
+        <label>DATE DEBUT</label>
+        <input type="date" class="form-input" id="conge-debut">
+      </div>
+      <div class="form-field">
+        <label>DATE FIN</label>
+        <input type="date" class="form-input" id="conge-fin">
+      </div>
+    </div>
+    <div class="form-field">
+      <label>TYPE</label>
+      <select class="form-select" id="conge-type">
+        <option>Conge paye</option>
+        <option>Arret maladie</option>
+        <option>Formation</option>
+        <option>Absence</option>
+      </select>
+    </div>
+    <button class="btn btn-orange btn-full" style="padding:12px;" onclick="sauvegarderConge()">Sauvegarder</button>
+  </div>
+</div>
+
+<!-- MODAL ADD TECH -->
+
+<div class="modal-bg hidden" id="modal-add-tech">
+  <div class="modal-sheet">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div style="color:#f97316;font-size:11px;letter-spacing:2px;font-weight:700;">NOUVEAU TECHNICIEN</div>
+      <button class="modal-close" onclick="closeModal('modal-add-tech')">x</button>
+    </div>
+    <div class="form-field">
+      <label>NOM COMPLET</label>
+      <input type="text" class="form-input" id="tech-nom" placeholder="Prenom Nom">
+    </div>
+    <div class="form-field">
+      <label>TELEPHONE</label>
+      <input type="tel" class="form-input" id="tech-tel" placeholder="06 XX XX XX XX">
+    </div>
+    <div class="form-field">
+      <label>IDENTIFIANT CONNEXION</label>
+      <input type="text" class="form-input" id="tech-id" placeholder="tech3">
+    </div>
+    <div class="form-field">
+      <label>CODE PIN</label>
+      <input type="text" class="form-input" id="tech-pin" placeholder="4 chiffres" maxlength="4">
+    </div>
+    <div class="form-field">
+      <label>SPECIALITE</label>
+      <select class="form-select" id="tech-specialite">
+        <option>Plomberie generale</option>
+        <option>Chauffage</option>
+        <option>Sanitaire</option>
+        <option>Urgences</option>
+      </select>
+    </div>
+    <button class="btn btn-orange btn-full" style="padding:12px;" onclick="ajouterTechnicien()">Ajouter le technicien</button>
+  </div>
+</div>
+
+<!-- PHOTO FULLSCREEN -->
+
+<div class="photo-fs hidden" id="photo-fs" onclick="closePhotoFs()">
+  <img id="photo-fs-img" src="">
+  <button class="photo-fs-close">Fermer</button>
+</div>
+
+<script>
+const USERS={patron:{pin:"2580"}};
+const TECH_COULEURS={"Technicien 1":{color:"#3b82f6",avatar:"T1"},"Technicien 2":{color:"#8b5cf6",avatar:"T2"}};
+const STATUT_COLORS={"Disponible":"#22c55e","En intervention":"#f97316","Pause":"#eab308","Indisponible":"#ef4444"};
+const TYPES_INTERVENTION=["Fuite d'eau","Debouchage","Chaudiere","Ballon d'eau chaude","Robinetterie","Installation sanitaire","Urgent / Depannage","Autre"];
+const SOURCES_LEADS=["Bouche a oreille","Google","Leboncoin","Recommandation","Reseaux sociaux","Autre"];
+
+const todayStr=()=>new Date().toISOString().split("T")[0];
+const moisStr=()=>new Date().toISOString().slice(0,7);
+const anneeStr=()=>new Date().getFullYear().toString();
+
+let periode="jour",filtreRap="tous",semaineOffset=0;
+
+const getRdvs=()=>JSON.parse(localStorage.getItem("pl_rdvs")||"[]");
+const saveRdvs=r=>localStorage.setItem("pl_rdvs",JSON.stringify(r));
+const getRapports=()=>JSON.parse(localStorage.getItem("pl_rapports")||"[]");
+const getDispos=()=>JSON.parse(localStorage.getItem("pl_dispos")||"{}");
+const getDevis=()=>JSON.parse(localStorage.getItem("pl_devis")||"[]");
+const getPrimes=()=>JSON.parse(localStorage.getItem("pl_primes")||"{}");
+const getConges=()=>JSON.parse(localStorage.getItem("pl_conges")||"[]");
+const saveConges=c=>localStorage.setItem("pl_conges",JSON.stringify(c));
+const getTechs=()=>JSON.parse(localStorage.getItem("pl_techs")||JSON.stringify([{id:"tech1",nom:"Technicien 1",tel:"",specialite:"Plomberie generale",pin:"3691"},{id:"tech2",nom:"Technicien 2",tel:"",specialite:"Plomberie generale",pin:"8024"}]));
+const saveTechs=t=>localStorage.setItem("pl_techs",JSON.stringify(t));
+const getPrix=()=>JSON.parse(localStorage.getItem("pl_prix")||JSON.stringify({"Fuite d'eau":280,"Debouchage":150,"Chaudiere":450,"Ballon d'eau chaude":380,"Robinetterie":200,"Installation sanitaire":350,"Urgent / Depannage":320,"Autre":250}));
+const savePrixConfig=p=>localStorage.setItem("pl_prix",JSON.stringify(p));
+const getObjectif=()=>Number(localStorage.getItem("pl_objectif")||1000000);
+
+// AUTH
+document.querySelectorAll(".pin-input").forEach((el,i,arr)=>{
+  el.addEventListener("input",()=>{if(el.value&&i<arr.length-1)arr[i+1].focus();});
+  el.addEventListener("keydown",e=>{if(e.key==="Backspace"&&!el.value&&i>0)arr[i-1].focus();});
+});
+
+function seConnecter(){
+  const id=document.getElementById("identifiant").value.trim().toLowerCase();
+  const pin=["p1","p2","p3","p4"].map(i=>document.getElementById(i).value).join("");
+  if(id!=="patron"||pin!=="2580"){document.getElementById("loginError").classList.remove("hidden");return;}
+  localStorage.setItem("pl_patron_session","1");
+  lancerApp();
+}
+
+function lancerApp(){
+  document.getElementById("login").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  renderDashboard();
+  setInterval(()=>{if(document.getElementById("page-dashboard").offsetParent)renderDisposRapides();},10000);
+}
+
+function logout(){
+  localStorage.removeItem("pl_patron_session");
+  document.getElementById("login").classList.remove("hidden");
+  document.getElementById("app").classList.add("hidden");
+}
+
+function showPage(page){
+  ["dashboard","equipe","planning","rapports","business","primes","parametres"].forEach(p=>document.getElementById("page-"+p).classList.add("hidden"));
+  document.getElementById("page-"+page).classList.remove("hidden");
+  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["dashboard","equipe","planning","rapports","business","primes","parametres"][i]===page));
+  if(page==="dashboard")renderDashboard();
+  if(page==="equipe")renderEquipe();
+  if(page==="planning")renderPlanning();
+  if(page==="rapports")renderRapports();
+  if(page==="business")renderBusiness();
+  if(page==="primes")renderPrimes();
+  if(page==="parametres")renderParametres();
+}
+
+function setPeriode(p,btn){
+  periode=p;
+  document.querySelectorAll(".periode-btn").forEach(b=>{b.classList.remove("active");});
+  btn.classList.add("active");
+  renderDashboard();
+}
+
+// FILTRER RAPPORTS PAR PERIODE
+function getRapportsPeriode(){
+  const rapports=getRapports();
+  const today=todayStr(),mois=moisStr(),annee=anneeStr();
+  if(periode==="jour")return rapports.filter(r=>r.date===today);
+  if(periode==="semaine"){
+    const d=new Date();d.setDate(d.getDate()-d.getDay()+1);
+    const debut=d.toISOString().split("T")[0];
+    return rapports.filter(r=>r.date>=debut&&r.date<=today);
+  }
+  if(periode==="mois")return rapports.filter(r=>r.date?.startsWith(mois));
+  if(periode==="annee")return rapports.filter(r=>r.date?.startsWith(annee));
+  return rapports;
+}
+
+// DASHBOARD
+function renderDashboard(){
+  const raps=getRapportsPeriode();
+  const ca=raps.reduce((s,r)=>s+(r.montantFinal||0),0);
+  const caEncaisse=raps.filter(r=>r.statut==="Paye").reduce((s,r)=>s+(r.montantFinal||0),0);
+  const nbInterventions=raps.length;
+  const nbVentes=raps.reduce((s,r)=>s+(r.ventes?.length||0),0);
+
+  document.getElementById("hdr-ca").textContent=getRapports().filter(r=>r.date===todayStr()).reduce((s,r)=>s+(r.montantFinal||0),0)+" EUR";
+
+  document.getElementById("stats-principales").innerHTML=[
+    ["CA Periode",ca+" EUR","#f97316"],
+    ["Encaisse",caEncaisse+" EUR","#22c55e"],
+    ["Interventions",nbInterventions,"#3b82f6"],
+    ["Ventes add.",nbVentes,"#8b5cf6"],
+  ].map(([l,v,c])=>`<div class="stat-card" style="border-left:3px solid ${c}40;"><div class="lbl">${l.toUpperCase()}</div><div class="stat-val" style="color:${c};">${v}</div></div>`).join("");
+
+  // Objectif annuel
+  const obj=getObjectif();
+  const caAnnee=getRapports().filter(r=>r.date?.startsWith(anneeStr())).reduce((s,r)=>s+(r.montantFinal||0),0);
+  const pct=Math.min(100,Math.round(caAnnee/obj*100));
+  const moisEcoules=new Date().getMonth()+1;
+  const prevFin=Math.round(caAnnee/moisEcoules*12);
+  document.getElementById("obj-annuel-val").textContent=caAnnee.toLocaleString("fr-FR")+" EUR";
+  document.getElementById("obj-annuel-pct").textContent=pct+"% de l'objectif";
+  document.getElementById("obj-annuel-prev").textContent="Prev. annuelle: "+prevFin.toLocaleString("fr-FR")+" EUR";
+  document.getElementById("obj-bar").style.width=pct+"%";
+  document.getElementById("objectif-annuel").value=obj;
+
+  renderDisposRapides();
+  renderAlertes();
+  renderCaParType(raps);
+}
+
+function renderDisposRapides(){
+  const dispos=getDispos();
+  document.getElementById("dispos-rapides").innerHTML=["Technicien 1","Technicien 2"].map(nom=>{
+    const d=dispos[nom]||{statut:"Non connecte"};
+    const color=STATUT_COLORS[d.statut]||"#555";
+    const tc=TECH_COULEURS[nom];
+    return`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #1a1a1a;">
+      <div style="width:32px;height:32px;border-radius:8px;background:${tc.color}25;border:1px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;">${tc.avatar}</div>
+      <div style="flex:1;"><div style="font-weight:600;font-size:13px;">${nom}</div></div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:${color};"></div>
+        <span style="color:${color};font-size:12px;font-weight:700;">${d.statut}</span>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderAlertes(){
+  const rapports=getRapports();
+  const impayes=rapports.filter(r=>r.statut==="Facture");
+  const alertes=[];
+  if(impayes.length>0)alertes.push({type:"impaye",msg:`${impayes.length} facture(s) en attente de paiement — ${impayes.reduce((s,r)=>s+(r.montantFinal||0),0)} EUR`});
+  const rdvs=getRdvs().filter(r=>r.dateRdv===todayStr()&&r.statut!=="Termine");
+  if(rdvs.length>0)alertes.push({type:"rdv",msg:`${rdvs.length} RDV aujourd'hui en attente`});
+  const devis=getDevis().filter(d=>d.statut!=="Traite");
+  if(devis.length>0)alertes.push({type:"devis",msg:`${devis.length} demande(s) de devis a traiter`});
+  document.getElementById("section-alertes").innerHTML=alertes.length?`<div class="card" style="border-left:3px solid #ef4444;margin-bottom:12px;"><div class="lbl" style="color:#ef4444;">ALERTES</div>${alertes.map(a=>`<div class="alerte-card"><span style="color:#ef4444;font-size:13px;">! ${a.msg}</span></div>`).join("")}</div>`:"";
+}
+
+function renderCaParType(raps){
+  const byType={};
+  raps.forEach(r=>{byType[r.type]=(byType[r.type]||0)+(r.montantFinal||0);});
+  const max=Math.max(...Object.values(byType),1);
+  document.getElementById("ca-par-type").innerHTML=Object.entries(byType).sort((a,b)=>b[1]-a[1]).map(([type,ca])=>`
+    <div class="bar-row">
+      <div class="bar-label">${type.substring(0,16)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(ca/max*100)}%;background:#f9731640;color:#f97316;">${ca} EUR</div></div>
+    </div>`).join("")||`<div style="color:#444;font-size:13px;padding:12px 0;">Aucune donnee</div>`;
+}
+
+// EQUIPE
+function renderEquipe(){
+  const dispos=getDispos();
+  const rapports=getRapports();
+  const mois=moisStr();
+
+  document.getElementById("dispos-equipe").innerHTML=["Technicien 1","Technicien 2"].map(nom=>{
+    const d=dispos[nom]||{statut:"Non connecte"};
+    const color=STATUT_COLORS[d.statut]||"#555";
+    const tc=TECH_COULEURS[nom];
+    const rdvAuj=getRdvs().filter(r=>r.technicien===nom&&r.dateRdv===todayStr()).length;
+    const ago=d.updatedAt?Math.floor((Date.now()-new Date(d.updatedAt))/60000):null;
+    return`<div class="tech-card" style="border-left:3px solid ${color}40;">
+      <div style="width:44px;height:44px;border-radius:12px;background:${tc.color}25;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0;">${tc.avatar}</div>
+      <div style="flex:1;margin-left:12px;">
+        <div style="font-weight:700;font-size:15px;">${nom}</div>
+        <div style="font-size:12px;margin-top:2px;"><span class="statut-dot" style="background:${color};"></span><span style="color:${color};font-weight:700;">${d.statut}</span></div>
+        ${ago!==null?`<div style="color:#444;font-size:11px;">Mis a jour: ${ago<1?"<1min":ago+"min"}</div>`:""}
+      </div>
+      <div style="text-align:right;">
+        <div style="color:#555;font-size:11px;">${rdvAuj} RDV aujourd'hui</div>
+      </div>
+    </div>`;
+  }).join("");
+
+  // Classement
+  const techs=["Technicien 1","Technicien 2"];
+  const scores=techs.map(nom=>{
+    const mesRaps=rapports.filter(r=>r.technicien===nom&&r.date?.startsWith(mois));
+    const ca=mesRaps.reduce((s,r)=>s+(r.montantFinal||0),0);
+    const ventes=mesRaps.reduce((s,r)=>s+(r.ventes?.length||0),0);
+    const primes=getPrimes()[nom]?.[mois]?.total||0;
+    return{nom,ca,ventes,primes,interventions:mesRaps.length};
+  }).sort((a,b)=>b.ca-a.ca);
+
+  const medals=["🥇","🥈","🥉"];
+  const colors=["#f97316","#888","#cd7f32"];
+  document.getElementById("classement-techs").innerHTML=scores.map((s,i)=>`
+    <div class="ranking-item">
+      <div class="ranking-pos" style="background:${colors[i]||"#333"}25;color:${colors[i]||"#555"};">${medals[i]||i+1}</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:14px;">${s.nom}</div>
+        <div style="color:#888;font-size:12px;">${s.interventions} interventions - ${s.ventes} ventes add.</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="color:#f97316;font-weight:800;font-size:15px;">${s.ca} EUR</div>
+        <div style="color:#eab308;font-size:12px;">Prime: ${s.primes} EUR</div>
+      </div>
+    </div>`).join("")||`<div style="color:#444;font-size:13px;padding:12px 0;">Aucune donnee</div>`;
+
+  // Taux transformation
+  document.getElementById("taux-transformation").innerHTML=scores.map(s=>{
+    const taux=s.interventions>0?Math.round(s.ventes/s.interventions*100):0;
+    return`<div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+        <span style="color:#ccc;font-size:13px;">${s.nom}</span>
+        <span style="color:#22c55e;font-weight:700;">${taux}%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${taux}%;background:#22c55e;"></div></div>
+      <div style="color:#555;font-size:11px;margin-top:2px;">${s.ventes} ventes sur ${s.interventions} interventions</div>
+    </div>`;
+  }).join("")||`<div style="color:#444;font-size:13px;padding:12px 0;">Aucune donnee</div>`;
+
+  // Conges
+  const conges=getConges().filter(c=>c.fin>=todayStr());
+  document.getElementById("liste-conges").innerHTML=conges.length?conges.map((c,i)=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1a1a1a;">
+      <div>
+        <div style="font-weight:600;font-size:13px;">${c.technicien}</div>
+        <div style="color:#888;font-size:12px;">${c.type} - ${c.debut} au ${c.fin}</div>
+      </div>
+      <button class="btn btn-gray" style="padding:6px 10px;font-size:11px;" onclick="supprimerConge(${i})">Suppr.</button>
+    </div>`).join(""):`<div style="color:#444;font-size:13px;padding:12px 0;">Aucune absence planifiee</div>`;
+}
+
+// PLANNING
+function renderPlanning(){
+  const rdvs=getRdvs();
+  const debut=new Date();
+  debut.setDate(debut.getDate()-debut.getDay()+1+semaineOffset*7);
+  debut.setHours(0,0,0,0);
+  const jours=Array.from({length:7},(_,i)=>{const d=new Date(debut);d.setDate(d.getDate()+i);return d;});
+  const noms=["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
+  document.getElementById("semaine-label").textContent=
+    jours[0].toLocaleDateString("fr-FR",{day:"numeric",month:"short"})+" - "+
+    jours[6].toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"});
+
+  document.getElementById("planning-grid").innerHTML=jours.map((j,i)=>{
+    const iso=j.toISOString().split("T")[0];
+    const isToday=iso===todayStr();
+    const rdvsJour=rdvs.filter(r=>r.dateRdv===iso).sort((a,b)=>a.heureRdv.localeCompare(b.heureRdv));
+    return`<div style="background:#141414;border:1px solid ${isToday?"#f97316":"#222"};border-radius:10px;padding:8px;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+        <span style="color:${isToday?"#f97316":"#555"};font-size:11px;font-weight:700;">${noms[i]} ${j.getDate()}</span>
+        <span style="color:#444;font-size:10px;">${rdvsJour.length} RDV</span>
+      </div>
+      ${rdvsJour.map(r=>{
+        const tc=TECH_COULEURS[r.technicien]||{color:"#555",avatar:"??"};
+        return`<div style="background:#0f0f0f;border-radius:6px;padding:6px 8px;margin-bottom:4px;border-left:2px solid ${tc.color};">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="color:${tc.color};font-size:10px;font-weight:700;">${r.heureRdv} ${tc.avatar}</span>
+            <span style="color:#f97316;font-size:10px;font-weight:700;">${r.prixVente}EUR</span>
+          </div>
+          <div style="color:#ccc;font-size:11px;font-weight:600;">${r.clientNom}</div>
+          <div style="color:#666;font-size:10px;">${r.type}</div>
+        </div>`;
+      }).join("")}
+    </div>`;
+  }).join("");
+}
+
+function changerSemaine(d){semaineOffset+=d;renderPlanning();}
+
+// RAPPORTS
+function filtrerRapports(f,btn){
+  filtreRap=f;
+  document.querySelectorAll("#page-rapports .btn").forEach(b=>{b.style.background="#1e1e1e";b.style.color="#ccc";});
+  if(btn){btn.style.background="#f9731625";btn.style.color="#f97316";}
+  renderRapports();
+}
+
+function renderRapports(){
+  let raps=getRapports().sort((a,b)=>b.soumisLe?.localeCompare(a.soumisLe));
+  if(filtreRap==="attente")raps=raps.filter(r=>r.statut==="En attente facturation");
+  if(filtreRap==="ok")raps=raps.filter(r=>r.statut==="Valide"||r.statut==="Facture"||r.statut==="Paye");
+  const c=document.getElementById("liste-rapports");
+  if(!raps.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon">Rapports</div>Aucun rapport</div>`;return;}
+  c.innerHTML=raps.map((r,i)=>{
+    const tc=TECH_COULEURS[r.technicien]||{color:"#555",avatar:"??"};
+    const isExp=c.dataset.exp===String(i);
+    return`<div class="rapport-card">
+      <div class="rapport-header" onclick="toggleRap(${i})">
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;">
+            <div style="width:24px;height:24px;border-radius:6px;background:${tc.color}25;border:1px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;">${tc.avatar}</div>
+            <span style="font-weight:700;font-size:14px;">${r.clientNom}</span>
+            <span class="badge ${r.statut==='Paye'?'badge-green':r.statut==='Facture'||r.statut==='Valide'?'badge-yellow':'badge-purple'}">${r.statut}</span>
+          </div>
+          <div style="color:#666;font-size:12px;">${r.type} - ${r.date} - ${r.technicien}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="color:#f97316;font-weight:800;font-size:16px;">${r.montantFinal} EUR</div>
+        </div>
+      </div>
+      ${isExp?`<div class="rapport-body">
+        <div style="margin-top:12px;"><div class="lbl">CLIENT</div><div style="color:#ccc;font-size:13px;">${r.clientNom} - <a href="tel:${r.clientTel}" style="color:#3b82f6;">${r.clientTel}</a></div></div>
+        <div style="margin-top:12px;"><div class="lbl">ADRESSE</div><div style="color:#ccc;font-size:13px;">${r.adresse}</div></div>
+        <div style="margin-top:12px;"><div class="lbl">DUREE</div><div style="color:#ccc;font-size:13px;">${r.heureDebut} a ${r.heureFin}</div></div>
+        ${(r.photosAvant||[]).length?`<div style="margin-top:12px;"><div class="lbl">PHOTOS AVANT</div><div class="photos-row">${(r.photosAvant||[]).map(p=>`<img src="${p}" class="photo-thumb" onclick="openPhotoFs('${p}')">`).join("")}</div></div>`:""}
+        ${(r.photosApres||[]).length?`<div style="margin-top:12px;"><div class="lbl">PHOTOS APRES</div><div class="photos-row">${(r.photosApres||[]).map(p=>`<img src="${p}" class="photo-thumb" onclick="openPhotoFs('${p}')">`).join("")}</div></div>`:""}
+        ${r.description?`<div style="margin-top:12px;"><div class="lbl">DESCRIPTION</div><div class="desc-box">${r.description}</div></div>`:""}
+        ${r.totalPrimes>0?`<div style="margin-top:12px;"><div class="lbl">PRIME TECH</div><div style="color:#eab308;font-weight:700;">${r.totalPrimes} EUR</div></div>`:""}
+      </div>`:""}
+    </div>`;
+  }).join("");
+}
+
+function toggleRap(i){
+  const c=document.getElementById("liste-rapports");
+  c.dataset.exp=c.dataset.exp===String(i)?"":String(i);
+  renderRapports();
+}
+
+// BUSINESS
+function renderBusiness(){
+  const rapports=getRapports();
+
+  // CA par zone
+  const zones={};
+  rapports.forEach(r=>{
+    const ville=r.adresse?.split(",").pop()?.trim().replace(/\d/g,"").trim()||"Autre";
+    const cle=ville.length>2?ville.substring(0,15):"Autre";
+    zones[cle]=(zones[cle]||0)+(r.montantFinal||0);
+  });
+  const maxZ=Math.max(...Object.values(zones),1);
+  document.getElementById("ca-par-zone").innerHTML=Object.entries(zones).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([z,ca])=>`
+    <div class="bar-row">
+      <div class="bar-label">${z}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(ca/maxZ*100)}%;background:#3b82f640;color:#3b82f6;">${ca} EUR</div></div>
+    </div>`).join("")||`<div style="color:#444;font-size:13px;padding:12px 0;">Aucune donnee</div>`;
+
+  // Fidelisation
+  const clients={};
+  rapports.forEach(r=>{clients[r.clientNom]=(clients[r.clientNom]||0)+1;});
+  const nouveaux=Object.values(clients).filter(v=>v===1).length;
+  const recurrents=Object.values(clients).filter(v=>v>1).length;
+  const total=Object.keys(clients).length;
+  document.getElementById("stats-fidelisation").innerHTML=[
+    ["Clients total",total,"#f97316"],
+    ["Nouveaux",nouveaux,"#3b82f6"],
+    ["Recurrents",recurrents,"#22c55e"],
+    ["Taux fidel.",total>0?Math.round(recurrents/total*100)+"%":"0%","#8b5cf6"],
+  ].map(([l,v,c])=>`<div class="stat-card" style="border-left:2px solid ${c}40;"><div class="lbl">${l.toUpperCase()}</div><div class="stat-val" style="color:${c};font-size:18px;">${v}</div></div>`).join("");
+
+  // Sources leads
+  const sources=JSON.parse(localStorage.getItem("pl_sources")||"{}");
+  document.getElementById("sources-leads").innerHTML=`
+    <div style="margin-bottom:12px;">
+      ${SOURCES_LEADS.map(s=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1a1a1a;">
+          <span style="color:#ccc;font-size:13px;">${s}</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:#f97316;font-weight:700;">${sources[s]||0}</span>
+            <div style="display:flex;gap:4px;">
+              <button class="btn btn-gray" style="padding:4px 8px;font-size:11px;" onclick="updateSource('${s}',-1)">-</button>
+              <button class="btn btn-orange" style="padding:4px 8px;font-size:11px;" onclick="updateSource('${s}',1)">+</button>
+            </div>
+          </div>
+        </div>`).join("")}
+    </div>`;
+
+  // Tableau devis
+  const devis=getDevis();
+  const traites=devis.filter(d=>d.statut==="Traite").length;
+  const enAttente=devis.filter(d=>d.statut!=="Traite").length;
+  const tauxConv=devis.length>0?Math.round(traites/devis.length*100):0;
+  document.getElementById("tableau-devis").innerHTML=`
+    <div class="grid-3" style="margin-bottom:12px;">
+      <div class="stat-card"><div class="lbl">TOTAL</div><div class="stat-val" style="color:#3b82f6;">${devis.length}</div></div>
+      <div class="stat-card"><div class="lbl">TRAITES</div><div class="stat-val" style="color:#22c55e;">${traites}</div></div>
+      <div class="stat-card"><div class="lbl">TAUX CONV.</div><div class="stat-val" style="color:#f97316;">${tauxConv}%</div></div>
+    </div>
+    ${devis.filter(d=>d.statut!=="Traite").slice(0,3).map(d=>`
+      <div style="background:#0f0f0f;border-radius:8px;padding:10px 12px;margin-bottom:6px;">
+        <div style="font-weight:600;font-size:13px;">${d.type}</div>
+        <div style="color:#888;font-size:12px;">${d.clientNom} - ${d.date}</div>
+      </div>`).join("")}`;
+
+  // Impayes
+  const impayes=rapports.filter(r=>r.statut==="Facture");
+  document.getElementById("liste-impayes").innerHTML=impayes.length?impayes.map(r=>`
+    <div class="alerte-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-weight:700;font-size:13px;">${r.clientNom}</div>
+          <div style="color:#888;font-size:12px;">${r.type} - ${r.date}</div>
+          <div style="color:#666;font-size:11px;"><a href="tel:${r.clientTel}" style="color:#3b82f6;">${r.clientTel}</a></div>
+        </div>
+        <div style="text-align:right;">
+          <div style="color:#ef4444;font-weight:800;font-size:15px;">${r.montantFinal} EUR</div>
+          <button class="btn btn-red" style="margin-top:4px;padding:5px 10px;font-size:11px;" onclick="window.open('tel:${r.clientTel}')">Relancer</button>
+        </div>
+      </div>
+    </div>`).join(""):`<div style="color:#444;font-size:13px;padding:12px 0;">Aucun impaye !</div>`;
+}
+
+function updateSource(s,d){
+  const sources=JSON.parse(localStorage.getItem("pl_sources")||"{}");
+  sources[s]=Math.max(0,(sources[s]||0)+d);
+  localStorage.setItem("pl_sources",JSON.stringify(sources));
+  renderBusiness();
+}
+
+// PRIMES
+function renderPrimes(){
+  const mois=moisStr();
+  const rapports=getRapports().filter(r=>r.date?.startsWith(mois));
+  const primes=getPrimes();
+
+  document.getElementById("primes-mois").innerHTML=["Technicien 1","Technicien 2"].map(nom=>{
+    const p=primes[nom]?.[mois]||{total:0,ventes:0,ca:0};
+    const tc=TECH_COULEURS[nom];
+    return`<div class="tech-card" style="border-left:3px solid ${tc.color}40;margin-bottom:10px;">
+      <div style="width:40px;height:40px;border-radius:10px;background:${tc.color}25;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;">${tc.avatar}</div>
+      <div style="flex:1;margin-left:12px;">
+        <div style="font-weight:700;font-size:14px;">${nom}</div>
+        <div style="color:#888;font-size:12px;margin-top:2px;">${p.ventes} ventes additionnelles</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="color:#eab308;font-weight:800;font-size:18px;">${p.total} EUR</div>
+        <div style="color:#555;font-size:11px;">CA: ${p.ca} EUR</div>
+      </div>
+    </div>`;
+  }).join("");
+
+  // Bareme
+  const bareme=JSON.parse(localStorage.getItem("pl_bareme")||JSON.stringify([
+    {label:"Contrat entretien",min:10,max:20},
+    {label:"Ballon electrique",min:30,max:50},
+    {label:"Adoucisseur",min:100,max:150},
+    {label:"Chaudiere",min:100,max:300},
+    {label:"Gros chantier",min:20,max:150},
+    {label:"Refection joints",min:10,max:20},
+    {label:"Robinetterie",min:15,max:30},
+  ]));
+  document.getElementById("bareme-primes").innerHTML=bareme.map(b=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1a1a1a;">
+      <span style="color:#ccc;font-size:13px;">${b.label}</span>
+      <span style="color:#eab308;font-weight:700;">${b.min} - ${b.max} EUR</span>
+    </div>`).join("");
+
+  // Historique
+  document.getElementById("hist-primes").innerHTML=["Technicien 1","Technicien 2"].map(nom=>{
+    const p=primes[nom]||{};
+    const moisList=Object.entries(p).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,3);
+    if(!moisList.length)return`<div style="color:#444;font-size:13px;padding:8px 0;">${nom}: aucune prime</div>`;
+    return moisList.map(([m,data])=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1a1a1a;">
+        <div><div style="font-weight:600;font-size:13px;">${nom}</div><div style="color:#888;font-size:12px;">${m} - ${data.ventes} ventes</div></div>
+        <div style="color:#eab308;font-weight:800;">${data.total} EUR</div>
+      </div>`).join("");
+  }).join("");
+}
+
+// PARAMETRES
+function renderParametres(){
+  const prix=getPrix();
+  document.getElementById("liste-prix").innerHTML=Object.entries(prix).map(([type,p])=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1a1a1a;">
+      <span style="color:#ccc;font-size:13px;">${type}</span>
+      <input type="number" value="${p}" data-type="${type}" style="width:80px;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:6px;padding:6px 8px;color:#f97316;font-weight:700;text-align:center;outline:none;">
+    </div>`).join("");
+
+  const techs=getTechs();
+  document.getElementById("liste-techs-params").innerHTML=techs.map((t,i)=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1a1a1a;">
+      <div>
+        <div style="font-weight:600;font-size:13px;">${t.nom}</div>
+        <div style="color:#888;font-size:12px;">${t.specialite} - ID: ${t.id} - PIN: ${t.pin}</div>
+        ${t.tel?`<div style="color:#666;font-size:11px;">${t.tel}</div>`:""}
+      </div>
+      <button class="btn btn-red" style="padding:6px 10px;font-size:11px;" onclick="supprimerTech(${i})">Suppr.</button>
+    </div>`).join("");
+}
+
+function sauvegarderPrix(){
+  const prix={};
+  document.querySelectorAll("#liste-prix input").forEach(input=>{
+    prix[input.dataset.type]=Number(input.value);
+  });
+  savePrixConfig(prix);showNotif("Prix sauvegardes !");
+}
+
+function sauvegarderObjectif(){
+  const val=document.getElementById("objectif-annuel").value;
+  localStorage.setItem("pl_objectif",val);
+  showNotif("Objectif sauvegarde : "+Number(val).toLocaleString("fr-FR")+" EUR");
+  renderDashboard();
+}
+
+function supprimerTech(i){
+  const techs=getTechs();techs.splice(i,1);saveTechs(techs);renderParametres();
+  showNotif("Technicien supprime");
+}
+
+function ajouterTechnicien(){
+  const nom=document.getElementById("tech-nom").value.trim();
+  const id=document.getElementById("tech-id").value.trim();
+  const pin=document.getElementById("tech-pin").value.trim();
+  if(!nom||!id||pin.length!==4){showNotif("Remplis tous les champs (PIN: 4 chiffres)");return;}
+  const techs=getTechs();
+  techs.push({id,nom,tel:document.getElementById("tech-tel").value.trim(),specialite:document.getElementById("tech-specialite").value,pin});
+  saveTechs(techs);closeModal("modal-add-tech");renderParametres();
+  showNotif("Technicien "+nom+" ajoute !");
+}
+
+// CONGES
+function showModalConge(){document.getElementById("modal-conge").classList.remove("hidden");}
+function sauvegarderConge(){
+  const tech=document.getElementById("conge-tech").value;
+  const debut=document.getElementById("conge-debut").value;
+  const fin=document.getElementById("conge-fin").value;
+  if(!debut||!fin){showNotif("Dates requises");return;}
+  const conges=getConges();
+  conges.push({technicien:tech,debut,fin,type:document.getElementById("conge-type").value});
+  saveConges(conges);closeModal("modal-conge");renderEquipe();
+  showNotif("Absence enregistree !");
+}
+function supprimerConge(i){const c=getConges();c.splice(i,1);saveConges(c);renderEquipe();}
+
+// MODALS
+function showModalAddTech(){document.getElementById("modal-add-tech").classList.remove("hidden");}
+function showModalBareme(){showNotif("Modification bareme disponible dans la prochaine version");}
+function closeModal(id){document.getElementById(id).classList.add("hidden");}
+function openPhotoFs(src){document.getElementById("photo-fs-img").src=src;document.getElementById("photo-fs").classList.remove("hidden");}
+function closePhotoFs(){document.getElementById("photo-fs").classList.add("hidden");}
+function showNotif(msg){
+  const n=document.createElement("div");n.className="notif";n.textContent=msg;
+  document.body.appendChild(n);setTimeout(()=>n.remove(),3500);
+}
+
+window.onload=()=>{
+  document.querySelectorAll(".pin-input").forEach((el,i,arr)=>{
+    el.addEventListener("input",()=>{if(el.value&&i<arr.length-1)arr[i+1].focus();});
+    el.addEventListener("keydown",e=>{if(e.key==="Backspace"&&!el.value&&i>0)arr[i-1].focus();});
+  });
+  if(localStorage.getItem("pl_patron_session"))lancerApp();
+};
+</script>
+
+</body>
+</html>
