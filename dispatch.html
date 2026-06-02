@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Dispatch — Plomberie Pro</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif;}
+body{background:#0a0a0a;color:#f1f1f1;min-height:100vh;}
+.hidden{display:none!important;}
+
+/* LOGIN */
+#login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+.login-box{background:#141414;border:1px solid #222;border-radius:20px;padding:40px 30px;width:100%;max-width:380px;text-align:center;}
+.logo-icon{font-size:52px;margin-bottom:12px;}
+.logo-brand{color:#8b5cf6;font-size:11px;letter-spacing:3px;margin-bottom:6px;}
+.logo-title{font-size:26px;font-weight:800;margin-bottom:8px;}
+.logo-sub{color:#555;font-size:14px;margin-bottom:32px;}
+.field{margin-bottom:16px;text-align:left;}
+.field label{display:block;color:#666;font-size:11px;letter-spacing:1px;margin-bottom:6px;}
+.field input{width:100%;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:10px;padding:12px 16px;color:#f1f1f1;font-size:16px;outline:none;}
+.pin-row{display:flex;gap:10px;justify-content:center;margin:10px 0;}
+.pin-input{width:56px!important;height:56px;text-align:center;font-size:22px;font-weight:800;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:12px;color:#8b5cf6;outline:none;}
+.btn-primary{width:100%;background:#8b5cf6;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px;}
+.error-msg{color:#ef4444;font-size:13px;margin-top:10px;}
+
+/* HEADER */
+.header{background:#0f0f0f;border-bottom:1px solid #1a1a1a;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
+.header-left{display:flex;align-items:center;gap:10px;}
+.avatar{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;background:#8b5cf625;border:2px solid #8b5cf6;color:#8b5cf6;}
+.user-name{font-weight:700;font-size:14px;}
+.user-role{color:#555;font-size:10px;letter-spacing:1px;}
+.btn-logout{background:#ef444418;border:1px solid #ef444430;color:#ef4444;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;}
+
+/* NAV */
+.nav{background:#0f0f0f;border-bottom:1px solid #1a1a1a;display:flex;overflow-x:auto;}
+.nav button{flex:1;min-width:90px;background:none;border:none;border-bottom:2px solid transparent;padding:12px 8px;color:#555;cursor:pointer;font-size:11px;font-weight:700;white-space:nowrap;transition:all 0.2s;}
+.nav button.active{color:#8b5cf6;border-bottom-color:#8b5cf6;}
+
+/* CONTENT */
+.content{max-width:700px;margin:0 auto;padding:16px;}
+
+/* CARDS */
+.card{background:#141414;border:1px solid #222;border-radius:14px;padding:16px 18px;margin-bottom:12px;}
+.lbl{color:#555;font-size:10px;letter-spacing:1.5px;margin-bottom:8px;font-weight:700;}
+
+/* TECH DISPO */
+.tech-card{background:#141414;border:1px solid #222;border-radius:14px;padding:16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.tech-avatar{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex-shrink:0;}
+.tech-info{flex:1;}
+.tech-nom{font-weight:700;font-size:15px;}
+.tech-statut{font-size:13px;margin-top:2px;}
+.tech-updated{color:#444;font-size:11px;margin-top:2px;}
+.statut-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;}
+.badge{display:inline-block;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;}
+.badge-green{background:#22c55e20;color:#22c55e;border:1px solid #22c55e40;}
+.badge-orange{background:#f9731620;color:#f97316;border:1px solid #f9731640;}
+.badge-yellow{background:#eab30820;color:#eab308;border:1px solid #eab30840;}
+.badge-red{background:#ef444420;color:#ef4444;border:1px solid #ef444440;}
+.badge-purple{background:#8b5cf620;color:#8b5cf6;border:1px solid #8b5cf640;}
+.badge-blue{background:#3b82f620;color:#3b82f6;border:1px solid #3b82f640;}
+
+/* BOUTONS */
+.btn{border:none;border-radius:10px;padding:10px 16px;cursor:pointer;font-size:12px;font-weight:700;transition:all 0.2s;}
+.btn-purple{background:#8b5cf618;color:#8b5cf6;border:1px solid #8b5cf640!important;}
+.btn-green{background:#22c55e18;color:#22c55e;border:1px solid #22c55e40!important;}
+.btn-blue{background:#3b82f618;color:#3b82f6;border:1px solid #3b82f640!important;}
+.btn-orange{background:#f9731618;color:#f97316;border:1px solid #f9731640!important;}
+.btn-gray{background:#1e1e1e;color:#ccc;border:1px solid #333!important;}
+.btn-red{background:#ef444418;color:#ef4444;border:1px solid #ef444440!important;}
+.btn-full{width:100%;display:block;}
+
+/* RAPPORT CARD */
+.rapport-card{background:#141414;border:1px solid #222;border-radius:14px;margin-bottom:10px;overflow:hidden;}
+.rapport-header{padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.rapport-nom{font-weight:700;font-size:14px;}
+.rapport-sub{color:#666;font-size:12px;margin-top:2px;}
+.rapport-montant{color:#f97316;font-weight:800;font-size:16px;text-align:right;white-space:nowrap;}
+.rapport-body{padding:0 16px 16px;border-top:1px solid #1a1a1a;}
+.info-row{margin-top:12px;}
+.info-val{color:#ccc;font-size:13px;margin-top:3px;}
+.photos-row{display:flex;gap:8px;margin-top:8px;overflow-x:auto;}
+.photo-thumb{width:80px;height:80px;object-fit:cover;border-radius:8px;flex-shrink:0;cursor:pointer;border:1px solid #333;}
+.photo-section{margin-top:12px;}
+.desc-box{background:#0f0f0f;border-radius:8px;padding:10px 12px;color:#ccc;font-size:13px;line-height:1.6;margin-top:4px;}
+.actions-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+
+/* FORMULAIRE RDV */
+.form-field{margin-bottom:14px;}
+.form-field label{display:block;color:#555;font-size:10px;letter-spacing:1px;margin-bottom:6px;}
+.form-input{width:100%;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:8px;padding:11px 14px;color:#f1f1f1;font-size:14px;outline:none;box-sizing:border-box;}
+.form-select{width:100%;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:8px;padding:11px 14px;color:#f1f1f1;font-size:14px;outline:none;box-sizing:border-box;}
+.form-textarea{width:100%;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:8px;padding:11px 14px;color:#f1f1f1;font-size:14px;outline:none;resize:vertical;font-family:inherit;box-sizing:border-box;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+/* DEVIS */
+.devis-card{background:#141414;border:1px solid #3b82f630;border-left:3px solid #3b82f6;border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+.devis-type{color:#3b82f6;font-weight:700;font-size:14px;margin-bottom:4px;}
+.devis-info{color:#888;font-size:12px;}
+
+/* FACTURATION */
+.fact-card{background:#141414;border:1px solid #222;border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+.fact-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.fact-nom{font-weight:700;font-size:14px;}
+.fact-montant{color:#f97316;font-weight:800;font-size:16px;}
+.fact-detail{color:#666;font-size:12px;}
+.obat-box{background:#0a1628;border:1px solid #1e3a5f;border-radius:10px;padding:12px 14px;margin-top:10px;}
+.obat-text{color:#d1e8ff;font-size:12px;line-height:1.8;font-family:monospace;white-space:pre-wrap;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:#141414;border:1px solid #222;border-radius:12px;padding:14px;text-align:center;}
+.stat-val{font-weight:800;font-size:22px;margin-top:4px;}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:100;overflow-y:auto;display:flex;align-items:flex-end;justify-content:center;}
+.modal-sheet{background:#0f0f0f;border:1px solid #2a2a2a;border-radius:20px 20px 0 0;width:100%;max-width:600px;padding:24px 20px 40px;}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.modal-title{color:#8b5cf6;font-size:11px;letter-spacing:2px;font-weight:700;}
+.modal-subtitle{font-size:17px;font-weight:800;margin-top:2px;}
+.modal-close{background:#222;border:none;color:#888;border-radius:8px;width:34px;height:34px;font-size:18px;cursor:pointer;}
+
+/* PHOTO FULLSCREEN */
+.photo-fs{position:fixed;inset:0;background:#000;z-index:200;display:flex;align-items:center;justify-content:center;}
+.photo-fs img{max-width:100%;max-height:100%;}
+.photo-fs-close{position:absolute;top:20px;right:20px;background:#333;border:none;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:14px;}
+
+/* NOTIF */
+.notif{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#8b5cf6;color:#fff;border-radius:12px;padding:12px 20px;font-weight:700;font-size:14px;z-index:999;animation:slideIn 0.3s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:40px 0;color:#333;}
+.empty-icon{font-size:40px;margin-bottom:12px;}
+</style>
+
+</head>
+<body>
+
+<!-- LOGIN -->
+
+<div id="login">
+  <div class="login-box">
+    <div class="logo-icon">📋</div>
+    <div class="logo-brand">PLOMBERIE PRO</div>
+    <div class="logo-title">Dispatch</div>
+    <div class="logo-sub">Espace secrétariat & dispatch</div>
+    <div class="field">
+      <label>IDENTIFIANT</label>
+      <input type="text" id="identifiant" placeholder="dispatch" autocomplete="off" autocapitalize="none">
+    </div>
+    <div class="field">
+      <label>CODE PIN</label>
+      <div class="pin-row">
+        <input type="password" maxlength="1" class="pin-input" id="p1" inputmode="numeric">
+        <input type="password" maxlength="1" class="pin-input" id="p2" inputmode="numeric">
+        <input type="password" maxlength="1" class="pin-input" id="p3" inputmode="numeric">
+        <input type="password" maxlength="1" class="pin-input" id="p4" inputmode="numeric">
+      </div>
+    </div>
+    <button class="btn-primary" onclick="seConnecter()">Se connecter</button>
+    <div class="error-msg hidden" id="loginError">Identifiant ou PIN incorrect</div>
+  </div>
+</div>
+
+<!-- APP -->
+
+<div id="app" class="hidden">
+  <div class="header">
+    <div class="header-left">
+      <div class="avatar">DS</div>
+      <div>
+        <div class="user-name">Secrétariat</div>
+        <div class="user-role">DISPATCH</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div id="header-stats" style="text-align:right;">
+        <div style="color:#8b5cf6;font-weight:800;font-size:16px;" id="hdr-rapports">0</div>
+        <div style="color:#444;font-size:9px;letter-spacing:1px;">RAPPORTS</div>
+      </div>
+      <button class="btn-logout" onclick="logout()">🚪</button>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="active" onclick="showPage('dispos')">🟢 Dispos</button>
+    <button onclick="showPage('nouveau-rdv')">➕ Nouveau RDV</button>
+    <button onclick="showPage('rapports')">📋 Rapports</button>
+    <button onclick="showPage('devis')">📝 Devis</button>
+    <button onclick="showPage('facturation')">💶 Facturation</button>
+  </div>
+
+  <div class="content">
+
+```
+<!-- PAGE DISPOS -->
+<div id="page-dispos">
+  <div class="card" style="margin-bottom:16px;">
+    <div class="lbl">DISPONIBILITÉ EN TEMPS RÉEL</div>
+    <div style="color:#555;font-size:12px;margin-bottom:12px;">Mis à jour automatiquement</div>
+    <div id="liste-dispos"></div>
+  </div>
+  <!-- RDV du jour -->
+  <div class="card">
+    <div class="lbl">PLANNING DU JOUR</div>
+    <div id="planning-jour" style="margin-top:8px;"></div>
+  </div>
+</div>
+
+<!-- PAGE NOUVEAU RDV -->
+<div id="page-nouveau-rdv" class="hidden">
+  <div class="card">
+    <div class="lbl">CRÉER UN NOUVEAU RDV</div>
+    <div style="margin-top:12px;">
+      <div class="grid-2">
+        <div class="form-field">
+          <label>NOM CLIENT *</label>
+          <input type="text" class="form-input" id="rdv-nom" placeholder="Jean Dupont">
+        </div>
+        <div class="form-field">
+          <label>TÉLÉPHONE *</label>
+          <input type="tel" class="form-input" id="rdv-tel" placeholder="06 XX XX XX XX">
+        </div>
+      </div>
+      <div class="form-field">
+        <label>ADRESSE *</label>
+        <input type="text" class="form-input" id="rdv-adresse" placeholder="12 rue des Fleurs, Paris 75011">
+      </div>
+      <div class="form-field">
+        <label>TYPE D'INTERVENTION *</label>
+        <select class="form-select" id="rdv-type">
+          <option>Fuite d'eau</option>
+          <option>Débouchage</option>
+          <option>Chaudière</option>
+          <option>Ballon d'eau chaude</option>
+          <option>Robinetterie</option>
+          <option>Installation sanitaire</option>
+          <option>Urgent / Dépannage</option>
+          <option>Autre</option>
+        </select>
+      </div>
+      <div class="grid-2">
+        <div class="form-field">
+          <label>DATE RDV *</label>
+          <input type="date" class="form-input" id="rdv-date">
+        </div>
+        <div class="form-field">
+          <label>HEURE RDV *</label>
+          <input type="time" class="form-input" id="rdv-heure" value="09:00">
+        </div>
+      </div>
+      <div class="form-field">
+        <label>TECHNICIEN *</label>
+        <select class="form-select" id="rdv-tech">
+          <option value="Technicien 1">Technicien 1</option>
+          <option value="Technicien 2">Technicien 2</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>PRIX DE VENTE (€) *</label>
+        <input type="number" class="form-input" id="rdv-prix" placeholder="250" style="color:#f97316;font-weight:700;font-size:18px;">
+      </div>
+      <div class="form-field">
+        <label>📝 NOTE POUR LE TECHNICIEN</label>
+        <textarea class="form-textarea" id="rdv-notes" rows="3" placeholder="Infos importantes : accès difficile, chien méchant, client âgé, problème récurrent..."></textarea>
+      </div>
+      <button class="btn btn-purple btn-full" style="padding:14px;font-size:14px;" onclick="creerRdv()">✅ Créer le RDV & Notifier le technicien</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE RAPPORTS -->
+<div id="page-rapports" class="hidden">
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+    <button class="btn btn-gray" id="filtre-tous" onclick="filtrerRapports('tous',this)">Tous</button>
+    <button class="btn btn-gray" id="filtre-attente" onclick="filtrerRapports('attente',this)">En attente</button>
+    <button class="btn btn-gray" id="filtre-facture" onclick="filtrerRapports('facture',this)">Facturés</button>
+  </div>
+  <div id="liste-rapports"></div>
+</div>
+
+<!-- PAGE DEVIS -->
+<div id="page-devis" class="hidden">
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">DEMANDES DE DEVIS TECHNICIENS</div>
+    <div style="color:#555;font-size:12px;margin-bottom:12px;">Envoyées depuis le terrain</div>
+    <div id="liste-devis"></div>
+  </div>
+</div>
+
+<!-- PAGE FACTURATION -->
+<div id="page-facturation" class="hidden">
+  <div class="stats-grid" id="stats-fact"></div>
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">À FACTURER</div>
+    <div id="liste-a-facturer"></div>
+  </div>
+  <div class="card">
+    <div class="lbl">DÉJÀ FACTURÉS</div>
+    <div id="liste-factures"></div>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- MODAL RAPPORT DETAIL -->
+
+<div class="modal-bg hidden" id="modal-rapport">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">RAPPORT D'INTERVENTION</div>
+        <div class="modal-subtitle" id="modal-rapport-nom"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-rapport')">×</button>
+    </div>
+    <div id="modal-rapport-content"></div>
+  </div>
+</div>
+
+<!-- MODAL OBAT -->
+
+<div class="modal-bg hidden" id="modal-obat">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">EXPORT OBAT</div>
+        <div class="modal-subtitle" id="obat-client-nom"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-obat')">×</button>
+    </div>
+    <div style="color:#555;font-size:13px;margin-bottom:12px;">Copie ces infos dans Obat pour créer la facture</div>
+    <div class="obat-box">
+      <div class="obat-text" id="obat-text"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-purple btn-full" onclick="copierObat()">📋 Copier pour Obat</button>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-green" onclick="marquerFacture()">✅ Marquer comme facturé</button>
+      <button class="btn btn-gray" onclick="closeModal('modal-obat')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- PHOTO FULLSCREEN -->
+
+<div class="photo-fs hidden" id="photo-fs" onclick="closePhotoFs()">
+  <img id="photo-fs-img" src="">
+  <button class="photo-fs-close">✕ Fermer</button>
+</div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+const USERS = {
+  dispatch: { pin: "1470" },
+  patron:   { pin: "2580" },
+};
+
+const TECH_COULEURS = {
+  "Technicien 1": { color: "#3b82f6", avatar: "T1" },
+  "Technicien 2": { color: "#8b5cf6", avatar: "T2" },
+};
+
+const STATUT_COLORS = {
+  "Disponible": "#22c55e",
+  "En intervention": "#f97316",
+  "Pause": "#eab308",
+  "Indisponible": "#ef4444",
+};
+
+const todayStr = () => new Date().toISOString().split("T")[0];
+const formatDate = d => d ? new Date(d + "T12:00").toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" }) : "—";
+const formatDateTime = d => d ? new Date(d).toLocaleString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "—";
+
+let filtreRapport = "tous";
+let rapportEnCours = null;
+
+// ─── STORAGE ──────────────────────────────────────────────────────────────────
+const getRdvs = () => JSON.parse(localStorage.getItem("pl_rdvs") || "[]");
+const saveRdvs = r => localStorage.setItem("pl_rdvs", JSON.stringify(r));
+const getRapports = () => JSON.parse(localStorage.getItem("pl_rapports") || "[]");
+const saveRapports = r => localStorage.setItem("pl_rapports", JSON.stringify(r));
+const getDispos = () => JSON.parse(localStorage.getItem("pl_dispos") || "{}");
+const getDevis = () => JSON.parse(localStorage.getItem("pl_devis") || "[]");
+const saveDevis = d => localStorage.setItem("pl_devis", JSON.stringify(d));
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+document.querySelectorAll(".pin-input").forEach((el, i, arr) => {
+  el.addEventListener("input", () => { if (el.value && i < arr.length - 1) arr[i + 1].focus(); });
+  el.addEventListener("keydown", e => { if (e.key === "Backspace" && !el.value && i > 0) arr[i - 1].focus(); });
+});
+
+function seConnecter() {
+  const id = document.getElementById("identifiant").value.trim().toLowerCase();
+  const pin = ["p1","p2","p3","p4"].map(i => document.getElementById(i).value).join("");
+  const user = USERS[id];
+  if (!user || user.pin !== pin) { document.getElementById("loginError").classList.remove("hidden"); return; }
+  localStorage.setItem("pl_dispatch_session", id);
+  lancerApp();
+}
+
+function lancerApp() {
+  document.getElementById("login").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  document.getElementById("rdv-date").value = todayStr();
+  actualiserTout();
+  setInterval(actualiserDispos, 10000); // refresh toutes les 10s
+}
+
+function logout() {
+  localStorage.removeItem("pl_dispatch_session");
+  document.getElementById("login").classList.remove("hidden");
+  document.getElementById("app").classList.add("hidden");
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+function showPage(page) {
+  ["dispos","nouveau-rdv","rapports","devis","facturation"].forEach(p => {
+    document.getElementById("page-" + p).classList.add("hidden");
+  });
+  document.getElementById("page-" + page).classList.remove("hidden");
+  document.querySelectorAll(".nav button").forEach((b, i) => {
+    b.classList.toggle("active", ["dispos","nouveau-rdv","rapports","devis","facturation"][i] === page);
+  });
+  if (page === "dispos") { actualiserDispos(); renderPlanningJour(); }
+  if (page === "rapports") renderRapports();
+  if (page === "devis") renderDevis();
+  if (page === "facturation") renderFacturation();
+}
+
+// ─── ACTUALISER ───────────────────────────────────────────────────────────────
+function actualiserTout() {
+  actualiserDispos();
+  renderPlanningJour();
+  const rapports = getRapports();
+  document.getElementById("hdr-rapports").textContent = rapports.length;
+}
+
+// ─── DISPOS ───────────────────────────────────────────────────────────────────
+function actualiserDispos() {
+  const dispos = getDispos();
+  const techs = ["Technicien 1", "Technicien 2"];
+  const rdvs = getRdvs();
+
+  document.getElementById("liste-dispos").innerHTML = techs.map(nom => {
+    const d = dispos[nom] || { statut: "Inconnu" };
+    const color = STATUT_COLORS[d.statut] || "#555";
+    const tc = TECH_COULEURS[nom];
+    const rdvAuj = rdvs.filter(r => r.technicien === nom && r.dateRdv === todayStr());
+    const enCours = rdvs.find(r => r.technicien === nom && r.rapport?.statut === "En cours");
+    const updatedAgo = d.updatedAt ? Math.floor((Date.now() - new Date(d.updatedAt)) / 60000) : null;
+
+    return `<div class="tech-card" style="border-left:3px solid ${color}40;">
+      <div class="tech-avatar" style="background:${tc.color}25;border:2px solid ${tc.color};color:${tc.color};">${tc.avatar}</div>
+      <div class="tech-info">
+        <div class="tech-nom">${nom}</div>
+        <div class="tech-statut"><span class="statut-dot" style="background:${color};"></span><span style="color:${color};font-weight:700;">${d.statut || "Non connecté"}</span></div>
+        ${enCours ? `<div style="color:#888;font-size:12px;margin-top:2px;">🔧 ${enCours.clientNom} — ${enCours.type}</div>` : ""}
+        ${updatedAgo !== null ? `<div class="tech-updated">Mis à jour il y a ${updatedAgo < 1 ? "moins d'1 min" : updatedAgo + " min"}</div>` : ""}
+      </div>
+      <div style="text-align:right;">
+        <div style="color:#555;font-size:11px;margin-bottom:4px;">${rdvAuj.length} RDV aujourd'hui</div>
+        <button class="btn btn-purple" onclick="showPage('nouveau-rdv');document.getElementById('rdv-tech').value='${nom}'">+ RDV</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// ─── PLANNING JOUR ────────────────────────────────────────────────────────────
+function renderPlanningJour() {
+  const rdvs = getRdvs().filter(r => r.dateRdv === todayStr()).sort((a, b) => a.heureRdv.localeCompare(b.heureRdv));
+  const container = document.getElementById("planning-jour");
+  if (!rdvs.length) { container.innerHTML = `<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">📭</div>Aucun RDV aujourd'hui</div>`; return; }
+  container.innerHTML = rdvs.map(r => {
+    const tc = TECH_COULEURS[r.technicien] || { color: "#555", avatar: "??" };
+    const isDone = r.statut === "Terminé";
+    return `<div style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #1a1a1a;">
+      <div style="color:#3b82f6;font-family:monospace;font-weight:700;font-size:14px;min-width:45px;">${r.heureRdv}</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:13px;">${r.clientNom}</div>
+        <div style="color:#666;font-size:11px;">${r.type}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+        <div style="width:28px;height:28px;border-radius:8px;background:${tc.color}25;border:1px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;">${tc.avatar}</div>
+        ${isDone ? `<span class="badge badge-green" style="font-size:9px;">✓ FAIT</span>` : `<span class="badge badge-blue" style="font-size:9px;">EN ATTENTE</span>`}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// ─── CRÉER RDV ────────────────────────────────────────────────────────────────
+function creerRdv() {
+  const nom = document.getElementById("rdv-nom").value.trim();
+  const tel = document.getElementById("rdv-tel").value.trim();
+  const adresse = document.getElementById("rdv-adresse").value.trim();
+  const type = document.getElementById("rdv-type").value;
+  const date = document.getElementById("rdv-date").value;
+  const heure = document.getElementById("rdv-heure").value;
+  const tech = document.getElementById("rdv-tech").value;
+  const prix = document.getElementById("rdv-prix").value;
+  const notes = document.getElementById("rdv-notes").value.trim();
+
+  if (!nom || !tel || !adresse || !date || !prix) { showNotif("⚠️ Remplis tous les champs obligatoires"); return; }
+
+  const rdv = {
+    id: Date.now(), clientNom: nom, clientTel: tel, adresse,
+    type, dateRdv: date, heureRdv: heure, technicien: tech,
+    prixVente: Number(prix), statut: "Confirmé", notes,
+    creePar: "dispatch", creeAt: new Date().toISOString(),
+  };
+
+  const rdvs = getRdvs();
+  rdvs.push(rdv);
+  saveRdvs(rdvs);
+
+  // Reset form
+  ["rdv-nom","rdv-tel","rdv-adresse","rdv-prix","rdv-notes"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("rdv-date").value = todayStr();
+
+  showNotif(`✅ RDV créé pour ${nom} — ${tech} notifié !`);
+  showPage("dispos");
+  actualiserTout();
+}
+
+// ─── RAPPORTS ─────────────────────────────────────────────────────────────────
+function filtrerRapports(filtre, btn) {
+  filtreRapport = filtre;
+  document.querySelectorAll("#page-rapports .btn").forEach(b => { b.style.background = "#1e1e1e"; b.style.color = "#ccc"; });
+  if (btn) { btn.style.background = "#8b5cf625"; btn.style.color = "#8b5cf6"; }
+  renderRapports();
+}
+
+function renderRapports() {
+  let rapports = getRapports().sort((a, b) => b.soumisLe?.localeCompare(a.soumisLe));
+  if (filtreRapport === "attente") rapports = rapports.filter(r => r.statut === "En attente facturation");
+  if (filtreRapport === "facture") rapports = rapports.filter(r => r.statut === "Facturé" || r.statut === "Payé");
+
+  const container = document.getElementById("liste-rapports");
+  if (!rapports.length) { container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div>Aucun rapport</div>`; return; }
+
+  container.innerHTML = rapports.map((r, idx) => {
+    const tc = TECH_COULEURS[r.technicien] || { color: "#555", avatar: "??" };
+    const isExpanded = container.dataset.expanded === String(idx);
+    return `<div class="rapport-card" id="rc-${idx}">
+      <div class="rapport-header" onclick="toggleRapport(${idx})">
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;">
+            <div style="width:24px;height:24px;border-radius:6px;background:${tc.color}25;border:1px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;">${tc.avatar}</div>
+            <span class="rapport-nom">${r.clientNom}</span>
+            <span class="badge ${r.statut === 'Payé' ? 'badge-green' : r.statut === 'Facturé' ? 'badge-orange' : 'badge-purple'}">${r.statut}</span>
+          </div>
+          <div class="rapport-sub">${r.type} · ${r.date} · ${r.heureDebut}→${r.heureFin}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div class="rapport-montant">${r.montantFinal} €</div>
+          <div style="color:#333;font-size:14px;margin-top:2px;">${isExpanded ? "▲" : "▼"}</div>
+        </div>
+      </div>
+      ${isExpanded ? rapportBodyHtml(r, idx) : ""}
+    </div>`;
+  }).join("");
+}
+
+function toggleRapport(idx) {
+  const container = document.getElementById("liste-rapports");
+  container.dataset.expanded = container.dataset.expanded === String(idx) ? "" : String(idx);
+  renderRapports();
+}
+
+function rapportBodyHtml(r, idx) {
+  const photosAvant = r.photosAvant || [];
+  const photosApres = r.photosApres || [];
+  const ventes = r.ventes || [];
+
+  return `<div class="rapport-body">
+    <div class="info-row"><div class="lbl">CLIENT</div><div class="info-val">${r.clientNom} — <a href="tel:${r.clientTel}" style="color:#3b82f6;">${r.clientTel}</a></div></div>
+    <div class="info-row"><div class="lbl">ADRESSE</div><div class="info-val">${r.adresse}</div></div>
+    <div class="info-row"><div class="lbl">TECHNICIEN</div><div class="info-val">${r.technicien} · Statut terrain: ${r.statutRdv || "—"}</div></div>
+    <div class="info-row"><div class="lbl">DURÉE</div><div class="info-val">${r.heureDebut} → ${r.heureFin}</div></div>
+    ${photosAvant.length ? `<div class="photo-section"><div class="lbl">PHOTOS AVANT</div><div class="photos-row">${photosAvant.map(p => `<img src="${p}" class="photo-thumb" onclick="openPhotoFs('${p}')">`).join("")}</div></div>` : ""}
+    ${photosApres.length ? `<div class="photo-section"><div class="lbl">PHOTOS APRÈS</div><div class="photos-row">${photosApres.map(p => `<img src="${p}" class="photo-thumb" onclick="openPhotoFs('${p}')">`).join("")}</div></div>` : ""}
+    <div class="info-row"><div class="lbl">DESCRIPTION</div><div class="desc-box">${r.description}</div></div>
+    ${r.checklistScore ? `<div class="info-row"><div class="lbl">CHECKLIST QUALITÉ</div><div class="info-val">${r.checklistScore}</div></div>` : ""}
+    ${ventes.length ? `<div class="info-row"><div class="lbl">VENTES ADDITIONNELLES</div><div class="info-val">${ventes.map(v => `${v.icon || ""} ${v.label}`).join(", ")}</div></div>` : ""}
+    ${r.totalPrimes > 0 ? `<div class="info-row"><div class="lbl">PRIME TECHNICIEN</div><div class="info-val" style="color:#eab308;font-weight:700;">${r.totalPrimes} €</div></div>` : ""}
+    <div class="actions-row">
+      <button class="btn btn-purple" onclick="ouvrirObat(${idx})">📄 Préparer facture Obat</button>
+      ${r.statut !== "Payé" ? `<button class="btn btn-green" onclick="changerStatutRapport(${idx},'Payé')">✅ Payé</button>` : ""}
+      ${r.statut === "En attente facturation" ? `<button class="btn btn-orange" onclick="changerStatutRapport(${idx},'Facturé')">💶 Facturé</button>` : ""}
+    </div>
+  </div>`;
+}
+
+function changerStatutRapport(idx, statut) {
+  const rapports = getRapports().sort((a, b) => b.soumisLe?.localeCompare(a.soumisLe));
+  rapports[idx].statut = statut;
+  saveRapports(rapports);
+  renderRapports();
+  showNotif("Statut mis à jour : " + statut);
+}
+
+// ─── OBAT ─────────────────────────────────────────────────────────────────────
+let obatIdx = null;
+
+function ouvrirObat(idx) {
+  obatIdx = idx;
+  const rapports = getRapports().sort((a, b) => b.soumisLe?.localeCompare(a.soumisLe));
+  const r = rapports[idx];
+  document.getElementById("obat-client-nom").textContent = r.clientNom;
+  const ventes = (r.ventes || []).map(v => v.label).join(", ") || "Aucune";
+  document.getElementById("obat-text").textContent =
+`CLIENT
+-------
+Nom : ${r.clientNom}
+Tél : ${r.clientTel}
+Adresse : ${r.adresse}
+
+INTERVENTION
+-------
+Type : ${r.type}
+Date : ${r.date}
+Technicien : ${r.technicien}
+Durée : ${r.heureDebut} → ${r.heureFin}
+
+FACTURATION
+-------
+Montant HT : ${Math.round(r.montantFinal / 1.2)} €
+TVA 20% : ${Math.round(r.montantFinal - r.montantFinal / 1.2)} €
+Montant TTC : ${r.montantFinal} €
+
+DÉTAIL TRAVAUX
+-------
+${r.description}
+
+VENTES ADDITIONNELLES
+-------
+${ventes}`;
+  document.getElementById("modal-obat").classList.remove("hidden");
+}
+
+function copierObat() {
+  navigator.clipboard.writeText(document.getElementById("obat-text").textContent);
+  showNotif("✅ Copié ! Colle dans Obat");
+}
+
+function marquerFacture() {
+  if (obatIdx === null) return;
+  const rapports = getRapports().sort((a, b) => b.soumisLe?.localeCompare(a.soumisLe));
+  rapports[obatIdx].statut = "Facturé";
+  saveRapports(rapports);
+  closeModal("modal-obat");
+  renderRapports();
+  showNotif("✅ Marqué comme facturé");
+}
+
+// ─── DEVIS ────────────────────────────────────────────────────────────────────
+function renderDevis() {
+  const devis = getDevis().sort((a, b) => b.date?.localeCompare(a.date));
+  const container = document.getElementById("liste-devis");
+  if (!devis.length) { container.innerHTML = `<div class="empty-state"><div class="empty-icon">📝</div>Aucune demande de devis</div>`; return; }
+  container.innerHTML = devis.map((d, i) => `
+    <div class="devis-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+        <div>
+          <div class="devis-type">${d.type}</div>
+          <div class="devis-info">${d.clientNom} · ${d.clientTel}</div>
+          <div class="devis-info">${d.adresse}</div>
+          <div class="devis-info">Technicien : ${d.technicien} · ${d.date}</div>
+        </div>
+        <span class="badge ${d.statut === 'Traité' ? 'badge-green' : 'badge-blue'}">${d.statut}</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-purple" onclick="window.open('tel:${d.clientTel}')">📞 Appeler</button>
+        ${d.statut !== 'Traité' ? `<button class="btn btn-green" onclick="marquerDevisTraite(${i})">✅ Traité</button>` : ""}
+        <button class="btn btn-gray" onclick="supprimerDevis(${i})">🗑️</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function marquerDevisTraite(i) {
+  const devis = getDevis().sort((a, b) => b.date?.localeCompare(a.date));
+  devis[i].statut = "Traité";
+  saveDevis(devis);
+  renderDevis();
+  showNotif("Devis marqué comme traité");
+}
+
+function supprimerDevis(i) {
+  const devis = getDevis().sort((a, b) => b.date?.localeCompare(a.date));
+  devis.splice(i, 1);
+  saveDevis(devis);
+  renderDevis();
+}
+
+// ─── FACTURATION ──────────────────────────────────────────────────────────────
+function renderFacturation() {
+  const rapports = getRapports();
+  const aFacturer = rapports.filter(r => r.statut === "En attente facturation");
+  const factures = rapports.filter(r => r.statut === "Facturé");
+  const payes = rapports.filter(r => r.statut === "Payé");
+  const caTotal = rapports.reduce((s, r) => s + (r.montantFinal || 0), 0);
+  const caEncaisse = payes.reduce((s, r) => s + (r.montantFinal || 0), 0);
+  const caAttente = aFacturer.reduce((s, r) => s + (r.montantFinal || 0), 0);
+
+  document.getElementById("stats-fact").innerHTML = [
+    ["À facturer", aFacturer.length + " dossiers · " + caAttente + " €", "#f97316"],
+    ["Facturés", factures.length + " · " + factures.reduce((s,r)=>s+(r.montantFinal||0),0) + " €", "#eab308"],
+    ["Encaissé", payes.length + " · " + caEncaisse + " €", "#22c55e"],
+  ].map(([l, v, c]) => `<div class="stat-card" style="border-left:3px solid ${c}40;"><div class="lbl">${l.toUpperCase()}</div><div class="stat-val" style="color:${c};font-size:15px;">${v}</div></div>`).join("");
+
+  document.getElementById("liste-a-facturer").innerHTML = aFacturer.length
+    ? aFacturer.map((r, i) => factCardHtml(r, i, false)).join("")
+    : `<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">✅</div>Tout est à jour !</div>`;
+
+  document.getElementById("liste-factures").innerHTML = factures.length
+    ? factures.map((r, i) => factCardHtml(r, i, true)).join("")
+    : `<div style="color:#444;font-size:13px;padding:16px 0;">Aucune facture en attente de paiement</div>`;
+}
+
+function factCardHtml(r, i, isFacture) {
+  return `<div class="fact-card">
+    <div class="fact-header">
+      <div>
+        <div class="fact-nom">${r.clientNom}</div>
+        <div class="fact-detail">${r.type} · ${r.date} · ${r.technicien}</div>
+        <div class="fact-detail">${r.adresse}</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="fact-montant">${r.montantFinal} €</div>
+        <span class="badge ${isFacture ? 'badge-yellow' : 'badge-purple'}" style="font-size:10px;">${r.statut}</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+      <button class="btn btn-purple" onclick="ouvrirObatDirect('${r.clientNom}','${r.clientTel}','${r.adresse}','${r.type}','${r.date}','${r.technicien}','${r.heureDebut}','${r.heureFin}',${r.montantFinal},'${r.description?.substring(0,100)}')">📄 Obat</button>
+      ${!isFacture ? `<button class="btn btn-orange" onclick="changerStatutByClient('${r.clientNom}','${r.date}','Facturé')">💶 Marquer facturé</button>` : ""}
+      ${isFacture ? `<button class="btn btn-green" onclick="changerStatutByClient('${r.clientNom}','${r.date}','Payé')">✅ Payé</button>` : ""}
+    </div>
+  </div>`;
+}
+
+function ouvrirObatDirect(nom,tel,adresse,type,date,tech,debut,fin,montant,desc) {
+  document.getElementById("obat-client-nom").textContent = nom;
+  document.getElementById("obat-text").textContent =
+`CLIENT
+-------
+Nom : ${nom}
+Tél : ${tel}
+Adresse : ${adresse}
+
+INTERVENTION
+-------
+Type : ${type}
+Date : ${date}
+Technicien : ${tech}
+Durée : ${debut} → ${fin}
+
+FACTURATION
+-------
+Montant HT : ${Math.round(montant / 1.2)} €
+TVA 20% : ${Math.round(montant - montant / 1.2)} €
+Montant TTC : ${montant} €
+
+TRAVAUX
+-------
+${desc}`;
+  obatIdx = null;
+  document.getElementById("modal-obat").classList.remove("hidden");
+}
+
+function changerStatutByClient(nom, date, statut) {
+  const rapports = getRapports();
+  const idx = rapports.findIndex(r => r.clientNom === nom && r.date === date);
+  if (idx >= 0) { rapports[idx].statut = statut; saveRapports(rapports); }
+  renderFacturation();
+  showNotif("Statut mis à jour : " + statut);
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function openPhotoFs(src) {
+  document.getElementById("photo-fs-img").src = src;
+  document.getElementById("photo-fs").classList.remove("hidden");
+}
+function closePhotoFs() { document.getElementById("photo-fs").classList.add("hidden"); }
+
+function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
+
+function showNotif(msg) {
+  const n = document.createElement("div"); n.className = "notif"; n.textContent = msg;
+  document.body.appendChild(n); setTimeout(() => n.remove(), 3500);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+window.onload = () => {
+  const s = localStorage.getItem("pl_dispatch_session");
+  if (s) lancerApp();
+};
+</script>
+
+</body>
+</html>
