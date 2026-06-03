@@ -6,149 +6,153 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>GreenFlow - Dispatch</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Poppins',sans-serif;}
-:root{--primary:#1a3a5c;--green:#4a9c3f;--gl:#7bc144;--accent:#2d6a9f;--bg:#f0f4f8;--border:#e2e8f0;--text:#1a2537;--tl:#64748b;--sh:0 2px 12px rgba(26,58,92,0.08);--red:#ef4444;--ora:#f97316;--yel:#eab308;}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif;}
+:root{--primary:#1a3a5c;--green:#4a9c3f;--gl:#7bc144;--accent:#2d6a9f;--bg:#f0f4f8;--border:#e2e8f0;--text:#1a2537;--tl:#64748b;--red:#ef4444;--ora:#f97316;--yel:#eab308;}
 body{background:var(--bg);color:var(--text);min-height:100vh;}
 .hidden{display:none!important;}
 
 /* LOGIN */
 #login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:linear-gradient(135deg,#1a3a5c 0%,#2d6a9f 50%,#4a9c3f 100%);}
 .login-box{background:#fff;border-radius:24px;padding:40px 32px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.2);text-align:center;}
+.login-logo{width:70px;height:70px;border-radius:20px;background:linear-gradient(135deg,#1a3a5c,#4a9c3f);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:32px;}
+.login-brand{color:#1a3a5c;font-size:11px;letter-spacing:3px;font-weight:700;margin-bottom:4px;}
+.login-title{font-size:26px;font-weight:800;color:#1a2537;margin-bottom:6px;}
+.login-sub{color:#64748b;font-size:14px;margin-bottom:32px;}
 .field{margin-bottom:16px;text-align:left;}
-.field label{display:block;color:var(–tl);font-size:11px;letter-spacing:1px;font-weight:600;margin-bottom:6px;}
-.field input{width:100%;background:#f8fafc;border:2px solid var(–border);border-radius:12px;padding:12px 16px;color:var(–text);font-size:15px;outline:none;transition:border-color 0.2s;}
-.field input:focus{border-color:var(–green);}
+.field label{display:block;color:#64748b;font-size:11px;letter-spacing:1px;font-weight:600;margin-bottom:6px;}
+.field input{width:100%;background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;padding:12px 16px;color:#1a2537;font-size:15px;outline:none;transition:border-color 0.2s;font-family:inherit;}
+.field input:focus{border-color:#4a9c3f;}
 .pin-row{display:flex;gap:10px;justify-content:center;margin:10px 0;}
-.pin-input{width:56px!important;height:56px;text-align:center;font-size:22px;font-weight:800;background:#f8fafc;border:2px solid var(–border);border-radius:12px;color:var(–green);outline:none;}
-.btn-login{width:100%;background:linear-gradient(135deg,var(–primary),var(–green));color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;}
+.pin-input{width:56px!important;height:56px;text-align:center;font-size:22px;font-weight:800;background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;color:#4a9c3f;outline:none;font-family:inherit;}
+.pin-input:focus{border-color:#4a9c3f;}
+.btn-login{width:100%;background:linear-gradient(135deg,#1a3a5c,#4a9c3f);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;font-family:inherit;}
 .error-msg{color:#ef4444;font-size:13px;margin-top:10px;}
 
 /* HEADER */
-.header{background:linear-gradient(135deg,var(–primary),var(–accent));padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(26,58,92,0.2);}
+.header{background:linear-gradient(135deg,#1a3a5c,#2d6a9f);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(26,58,92,0.2);}
+.header-avatar{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.4);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;}
+.header-name{color:#fff;font-weight:700;font-size:14px;}
+.header-role{color:rgba(255,255,255,0.6);font-size:10px;letter-spacing:1px;}
 .btn-logout{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;}
 
 /* NAV */
-.nav{background:#fff;border-bottom:2px solid var(–border);display:flex;overflow-x:auto;box-shadow:var(–sh);}
-.nav button{flex:1;min-width:75px;background:none;border:none;border-bottom:3px solid transparent;padding:11px 6px;color:var(–tl);cursor:pointer;font-size:10px;font-weight:600;white-space:nowrap;transition:all 0.2s;font-family:‘Poppins’,sans-serif;}
-.nav button.active{color:var(–green);border-bottom-color:var(–green);}
-.nav button.has-urgence{color:var(–red);}
+.nav{background:#fff;border-bottom:2px solid #e2e8f0;display:flex;overflow-x:auto;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.nav-btn{flex:1;min-width:80px;background:none;border:none;border-bottom:3px solid transparent;padding:12px 6px;color:#64748b;cursor:pointer;font-size:10px;font-weight:700;white-space:nowrap;transition:all 0.2s;font-family:inherit;}
+.nav-btn.active{color:#1a3a5c;border-bottom-color:#4a9c3f;}
 
 /* CONTENT */
 .content{max-width:700px;margin:0 auto;padding:16px;}
-.card{background:#fff;border:1px solid var(–border);border-radius:16px;padding:16px 18px;margin-bottom:12px;box-shadow:var(–sh);}
-.card.g{border-left:4px solid var(–green);}
-.card.b{border-left:4px solid var(–accent);}
-.card.o{border-left:4px solid var(–ora);}
-.card.r{border-left:4px solid var(–red);}
-.card.y{border-left:4px solid var(–yel);}
-.lbl{color:var(–tl);font-size:10px;letter-spacing:1.5px;margin-bottom:8px;font-weight:700;}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+
+/* CARDS */
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px 18px;margin-bottom:12px;box-shadow:0 2px 8px rgba(26,58,92,0.06);}
+.card-green{border-left:4px solid #4a9c3f;}
+.card-blue{border-left:4px solid #1a3a5c;}
+.card-red{border-left:4px solid #ef4444;}
+.card-yellow{border-left:4px solid #eab308;}
+.lbl{color:#64748b;font-size:10px;letter-spacing:1.5px;margin-bottom:8px;font-weight:700;}
 
 /* BADGES */
-.badge{display:inline-block;border-radius:8px;padding:3px 10px;font-size:10px;font-weight:700;}
-.badge-g{background:#dcfce7;color:#15803d;}
-.badge-b{background:#dbeafe;color:#1d4ed8;}
-.badge-o{background:#ffedd5;color:#c2410c;}
-.badge-y{background:#fef9c3;color:#854d0e;}
-.badge-r{background:#fee2e2;color:#b91c1c;}
-.badge-p{background:#f3e8ff;color:#7c3aed;}
+.badge{display:inline-block;border-radius:8px;padding:3px 10px;font-size:11px;font-weight:700;}
+.badge-green{background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;}
+.badge-blue{background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe;}
+.badge-yellow{background:#fef9c3;color:#a16207;border:1px solid #fde68a;}
+.badge-red{background:#fee2e2;color:#dc2626;border:1px solid #fecaca;}
+.badge-purple{background:#f3e8ff;color:#7c3aed;border:1px solid #e9d5ff;}
+.badge-orange{background:#ffedd5;color:#c2410c;border:1px solid #fed7aa;}
 
 /* BOUTONS */
-.btn{border:none;border-radius:10px;padding:10px 16px;cursor:pointer;font-size:12px;font-weight:600;font-family:‘Poppins’,sans-serif;transition:all 0.2s;}
-.btn-g{background:#dcfce7;color:#15803d;}
-.btn-b{background:#dbeafe;color:#1d4ed8;}
-.btn-o{background:#ffedd5;color:#c2410c;}
-.btn-gray{background:#f1f5f9;color:#475569;}
-.btn-r{background:#fee2e2;color:#b91c1c;}
-.btn-primary{background:linear-gradient(135deg,var(–primary),var(–green));color:#fff;font-weight:700;}
-.btn-full{width:100%;display:block;padding:13px;font-size:14px;}
+.btn{border:none;border-radius:10px;padding:10px 16px;cursor:pointer;font-size:12px;font-weight:700;transition:all 0.2s;font-family:inherit;}
+.btn-primary{background:linear-gradient(135deg,#1a3a5c,#4a9c3f);color:#fff;}
+.btn-green{background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0!important;}
+.btn-blue{background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe!important;}
+.btn-red{background:#fee2e2;color:#dc2626;border:1px solid #fecaca!important;}
+.btn-orange{background:#ffedd5;color:#c2410c;border:1px solid #fed7aa!important;}
+.btn-gray{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0!important;}
+.btn-full{width:100%;}
 
-/* FORMULAIRES */
+/* FORM */
 .form-field{margin-bottom:14px;}
-.form-field label{display:block;color:var(–tl);font-size:10px;letter-spacing:1px;font-weight:600;margin-bottom:6px;}
-.form-input{width:100%;background:#f8fafc;border:2px solid var(–border);border-radius:10px;padding:11px 14px;color:var(–text);font-size:14px;outline:none;box-sizing:border-box;transition:border-color 0.2s;font-family:‘Poppins’,sans-serif;}
-.form-input:focus{border-color:var(–green);}
-.form-select{width:100%;background:#f8fafc;border:2px solid var(–border);border-radius:10px;padding:11px 14px;color:var(–text);font-size:14px;outline:none;box-sizing:border-box;font-family:‘Poppins’,sans-serif;}
-.form-textarea{width:100%;background:#f8fafc;border:2px solid var(–border);border-radius:10px;padding:11px 14px;color:var(–text);font-size:14px;outline:none;resize:vertical;font-family:‘Poppins’,sans-serif;box-sizing:border-box;}
+.form-field label{display:block;color:#64748b;font-size:10px;letter-spacing:1px;font-weight:600;margin-bottom:6px;}
+.form-input{width:100%;background:#f8fafc;border:2px solid #e2e8f0;border-radius:10px;padding:11px 14px;color:#1a2537;font-size:14px;outline:none;box-sizing:border-box;font-family:inherit;transition:border-color 0.2s;}
+.form-input:focus{border-color:#4a9c3f;}
+.form-select{width:100%;background:#f8fafc;border:2px solid #e2e8f0;border-radius:10px;padding:11px 14px;color:#1a2537;font-size:14px;outline:none;box-sizing:border-box;font-family:inherit;}
+.form-textarea{width:100%;background:#f8fafc;border:2px solid #e2e8f0;border-radius:10px;padding:11px 14px;color:#1a2537;font-size:14px;outline:none;resize:vertical;font-family:inherit;box-sizing:border-box;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 
 /* TECH CARD */
-.tech-card{background:#fff;border:1px solid var(–border);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:var(–sh);}
+.tech-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;box-shadow:0 2px 6px rgba(0,0,0,0.04);}
+.statut-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;}
 
 /* RAPPORT */
-.rapport-card{background:#fff;border:1px solid var(–border);border-radius:14px;margin-bottom:10px;overflow:hidden;box-shadow:var(–sh);}
+.rapport-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;margin-bottom:10px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.04);}
 .rapport-header{padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;}
-.rapport-body{padding:0 16px 16px;border-top:1px solid var(–border);}
+.rapport-body{padding:0 16px 16px;border-top:2px solid #f1f5f9;}
 .photos-row{display:flex;gap:8px;margin-top:8px;overflow-x:auto;}
-.photo-thumb{width:80px;height:80px;object-fit:cover;border-radius:8px;flex-shrink:0;cursor:pointer;border:1px solid var(–border);}
-.desc-box{background:#f8fafc;border-radius:10px;padding:10px 12px;color:var(–text);font-size:13px;line-height:1.6;margin-top:4px;border-left:3px solid var(–green);}
-
-/* URGENCE */
-.urgence-card{background:#fff;border:2px solid #fee2e2;border-left:4px solid var(–red);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:var(–sh);}
-.urgence-active{animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{box-shadow:var(–sh);}50%{box-shadow:0 0 16px rgba(239,68,68,0.3);}}
-
-/* VALIDATION */
-.valid-card{background:#fff;border:2px solid #fef9c3;border-left:4px solid var(–yel);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:var(–sh);}
-.comment-input{width:100%;background:#f8fafc;border:2px solid var(–border);border-radius:8px;padding:10px 14px;color:var(–text);font-size:13px;outline:none;resize:vertical;font-family:‘Poppins’,sans-serif;box-sizing:border-box;margin:8px 0;}
-
-/* SAV */
-.sav-card{background:#fff;border:2px solid #dbeafe;border-left:4px solid var(–accent);border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+.photo-thumb{width:80px;height:80px;object-fit:cover;border-radius:10px;flex-shrink:0;cursor:pointer;border:2px solid #e2e8f0;}
+.desc-box{background:#f8fafc;border-radius:10px;padding:10px 12px;color:#475569;font-size:13px;line-height:1.6;margin-top:4px;border:1px solid #e2e8f0;}
+.actions-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
 
 /* DEVIS */
-.devis-card{background:#fff;border:2px solid #dbeafe;border-left:4px solid var(–accent);border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+.devis-card{background:#fff;border:1px solid #bfdbfe;border-left:4px solid #1d4ed8;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 6px rgba(0,0,0,0.04);}
 
-/* FACTURATION */
-.fact-card{background:#fff;border:1px solid var(–border);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:var(–sh);}
-.stat-card{background:#fff;border:1px solid var(–border);border-radius:12px;padding:14px;box-shadow:var(–sh);}
-.stat-val{font-weight:800;font-size:18px;margin-top:4px;}
+/* FACT */
+.fact-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 6px rgba(0,0,0,0.04);}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.04);}
+.stat-val{font-weight:800;font-size:16px;margin-top:4px;}
 
 /* OBAT */
-.obat-box{background:#f0f9f0;border:1px solid #c3e6c3;border-radius:12px;padding:14px;}
-.obat-text{color:var(–text);font-size:12px;line-height:1.9;font-family:monospace;white-space:pre-wrap;}
+.obat-box{background:#f0f4f8;border:2px solid #bfdbfe;border-radius:12px;padding:14px;margin-top:10px;}
+.obat-text{color:#1a2537;font-size:12px;line-height:1.8;font-family:monospace;white-space:pre-wrap;}
+
+/* URGENCE */
+.urgence-card{background:#fff;border:2px solid #fecaca;border-left:4px solid #ef4444;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(239,68,68,0.1);}
+.urgence-nouvelle{animation:pulse-red 2s infinite;}
+@keyframes pulse-red{0%,100%{box-shadow:0 2px 8px rgba(239,68,68,0.1);}50%{box-shadow:0 4px 20px rgba(239,68,68,0.3);}}
+
+/* VALIDATION */
+.valid-card{background:#fff;border:2px solid #fde68a;border-left:4px solid #eab308;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(234,179,8,0.1);}
+.comment-input{width:100%;background:#f8fafc;border:2px solid #e2e8f0;border-radius:10px;padding:10px 14px;color:#1a2537;font-size:13px;outline:none;resize:vertical;font-family:inherit;box-sizing:border-box;margin:8px 0;}
+
+/* SAV */
+.sav-card{background:#fff;border:2px solid #bfdbfe;border-left:4px solid #1d4ed8;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 6px rgba(0,0,0,0.04);}
 
 /* MODAL */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;overflow-y:auto;display:flex;align-items:flex-end;justify-content:center;}
-.modal-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:600px;padding:24px 20px 40px;box-shadow:0 -8px 40px rgba(0,0,0,0.15);}
-.modal-close{background:#f1f5f9;border:none;color:var(–tl);border-radius:8px;width:34px;height:34px;font-size:18px;cursor:pointer;}
+.modal-bg{position:fixed;inset:0;background:rgba(26,58,92,0.7);z-index:100;overflow-y:auto;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
+.modal-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:600px;padding:24px 20px 40px;box-shadow:0 -10px 40px rgba(0,0,0,0.15);}
+.modal-close{background:#f1f5f9;border:none;color:#64748b;border-radius:8px;width:34px;height:34px;font-size:18px;cursor:pointer;}
 
 /* PHOTO FS */
-.photo-fs{position:fixed;inset:0;background:#000;z-index:200;display:flex;align-items:center;justify-content:center;}
-.photo-fs img{max-width:100%;max-height:100%;}
-.photo-fs-close{position:absolute;top:20px;right:20px;background:#fff;border:none;color:#000;border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:600;}
+.photo-fs{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:200;display:flex;align-items:center;justify-content:center;}
+.photo-fs img{max-width:100%;max-height:100%;border-radius:12px;}
+.photo-fs-close{position:absolute;top:20px;right:20px;background:#fff;border:none;color:#1a2537;border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:700;}
 
 /* NOTIF */
-.notif{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(–green);color:#fff;border-radius:12px;padding:12px 20px;font-weight:700;font-size:14px;z-index:999;animation:si 0.3s ease;box-shadow:0 4px 20px rgba(74,156,63,0.3);}
-@keyframes si{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-.empty-state{text-align:center;padding:40px 0;color:var(–tl);}
+.notif{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1a3a5c,#4a9c3f);color:#fff;border-radius:12px;padding:12px 20px;font-weight:700;font-size:14px;z-index:999;animation:slideIn 0.3s ease;box-shadow:0 4px 20px rgba(26,58,92,0.3);}
+@keyframes slideIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:40px 0;color:#94a3b8;}
 .empty-icon{font-size:40px;margin-bottom:12px;}
-.alerte-item{background:#fee2e2;border-left:4px solid var(–red);border-radius:10px;padding:12px 14px;margin-bottom:8px;}
+
+/* ALERTE */
+.alerte-card{background:#fee2e2;border:1px solid #fecaca;border-left:4px solid #ef4444;border-radius:12px;padding:12px 14px;margin-bottom:8px;}
 </style>
 
 </head>
 <body>
 
-<!-- LOGIN -->
-
 <div id="login">
   <div class="login-box">
-    <svg width="180" height="60" viewBox="0 0 200 70" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:16px;">
-      <defs>
-        <linearGradient id="gG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#7bc144"/><stop offset="100%" style="stop-color:#4a9c3f"/></linearGradient>
-        <linearGradient id="gB" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2d6a9f"/><stop offset="100%" style="stop-color:#1a3a5c"/></linearGradient>
-      </defs>
-      <ellipse cx="95" cy="18" rx="4" ry="8" fill="url(#gB)" transform="rotate(-20,95,18)"/>
-      <ellipse cx="105" cy="12" rx="4" ry="9" fill="url(#gG)" transform="rotate(5,105,12)"/>
-      <ellipse cx="115" cy="18" rx="4" ry="7" fill="url(#gG)" transform="rotate(25,115,18)"/>
-      <path d="M88,28 Q100,20 112,28" stroke="url(#gB)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <text x="10" y="52" font-family="Arial" font-size="22" font-weight="900" fill="url(#gB)">green</text>
-      <text x="75" y="52" font-family="Arial" font-size="22" font-weight="900" fill="url(#gG)">flow</text>
-      <text x="28" y="65" font-family="Arial" font-size="11" font-weight="600" fill="#94a3b8" letter-spacing="3">TECHNOLOGIES</text>
-    </svg>
-    <div style="color:var(--primary);font-size:20px;font-weight:700;margin-bottom:6px;">Espace Dispatch</div>
-    <div style="color:var(--tl);font-size:13px;margin-bottom:28px;">Secretariat & Coordination</div>
-    <div class="field"><label>IDENTIFIANT</label><input type="text" id="identifiant" placeholder="dispatch" autocomplete="off" autocapitalize="none"></div>
+    <div style="margin-bottom:16px;"><span style="font-size:30px;font-weight:800;color:#4a9c3f;">Green</span><span style="font-size:30px;font-weight:800;color:#1a3a5c;">Flow</span><div style="background:#1a3a5c;color:#fff;font-size:10px;letter-spacing:3px;font-weight:700;padding:3px 12px;border-radius:6px;display:inline-block;margin-top:4px;">TECHNOLOGIES</div></div>
+    <div class="login-title">Dispatch</div>
+    <div class="login-sub">Espace secretariat & dispatch</div>
+    <div class="field">
+      <label>IDENTIFIANT</label>
+      <input type="text" id="identifiant" placeholder="dispatch" autocomplete="off" autocapitalize="none" spellcheck="false">
+    </div>
     <div class="field">
       <label>CODE PIN</label>
       <div class="pin-row">
@@ -158,172 +162,175 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
         <input type="password" maxlength="1" class="pin-input" id="p4" inputmode="numeric">
       </div>
     </div>
-    <button onclick="seConnecter()" style="width:100%;background:linear-gradient(135deg,#1a3a5c,#4a9c3f);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;">Se connecter</button>
+    <button class="btn-login" onclick="seConnecter()">Se connecter</button>
     <div class="error-msg hidden" id="loginError">Identifiant ou PIN incorrect</div>
+    <div style="color:#94a3b8;font-size:11px;margin-top:20px;">dispatch / 1470 &nbsp;|&nbsp; patron / 2580</div>
   </div>
 </div>
 
-<!-- APP -->
-
 <div id="app" class="hidden">
   <div class="header">
-    <div>
-      <svg width="110" height="32" viewBox="0 0 200 70" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="95" cy="18" rx="4" ry="8" fill="#7bc144" transform="rotate(-20,95,18)"/>
-        <ellipse cx="105" cy="12" rx="4" ry="9" fill="#a8d878" transform="rotate(5,105,12)"/>
-        <ellipse cx="115" cy="18" rx="4" ry="7" fill="#7bc144" transform="rotate(25,115,18)"/>
-        <path d="M88,28 Q100,20 112,28" stroke="#7bc144" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <text x="10" y="52" font-family="Arial" font-size="22" font-weight="900" fill="#ffffff">green</text>
-        <text x="75" y="52" font-family="Arial" font-size="22" font-weight="900" fill="#7bc144">flow</text>
-      </svg>
-    </div>
     <div style="display:flex;align-items:center;gap:10px;">
+      <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:6px 12px;">
+        <span style="font-size:17px;font-weight:800;color:#7bc144;">Green</span><span style="font-size:17px;font-weight:800;color:#fff;">Flow</span>
+        <div style="color:rgba(255,255,255,0.6);font-size:8px;letter-spacing:2px;font-weight:700;">DISPATCH</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
       <div style="text-align:right;">
         <div style="color:#7bc144;font-weight:800;font-size:16px;" id="hdr-count">0</div>
-        <div style="color:rgba(255,255,255,0.6);font-size:9px;letter-spacing:1px;">RAPPORTS</div>
+        <div style="color:rgba(255,255,255,0.5);font-size:9px;letter-spacing:1px;">RAPPORTS</div>
       </div>
       <button class="btn-logout" onclick="logout()">Quitter</button>
     </div>
   </div>
 
   <div class="nav">
-    <button class="active" onclick="showPage('dispos')">Dispos</button>
-    <button onclick="showPage('urgences')" id="nav-urgences">Urgences</button>
-    <button onclick="showPage('nouveau-rdv')">+ RDV</button>
-    <button onclick="showPage('validation')">Validation</button>
-    <button onclick="showPage('rapports')">Rapports</button>
-    <button onclick="showPage('sav')">SAV</button>
-    <button onclick="showPage('devis')">Devis</button>
-    <button onclick="showPage('facturation')">Facturation</button>
+    <button class="nav-btn active" onclick="showPage('dashboard',this)">Tableau</button>
+    <button class="nav-btn" onclick="showPage('dispos',this)">Dispos</button>
+    <button class="nav-btn" onclick="showPage('urgences',this)" id="nav-urgences">Urgences</button>
+    <button class="nav-btn" onclick="showPage('nouveau-rdv',this)">+ RDV</button>
+    <button class="nav-btn" onclick="showPage('validation',this)">Validation</button>
+    <button class="nav-btn" onclick="showPage('rapports',this)">Rapports</button>
+    <button class="nav-btn" onclick="showPage('sav',this)">SAV</button>
+    <button class="nav-btn" onclick="showPage('devis',this)">Devis</button>
+    <button class="nav-btn" onclick="showPage('facturation',this)">Facturation</button>
+    <button class="nav-btn" onclick="showPage('procedures',this)">Procedures</button>
+    <button class="nav-btn" onclick="showPage('infos',this)">Infos</button>
   </div>
 
   <div class="content">
 
 ```
-<!-- DISPOS -->
-<div id="page-dispos">
-  <div class="card b">
+<!-- TABLEAU DE BORD -->
+<div id="page-dashboard">
+  <div style="margin-bottom:16px;">
+    <div style="color:#1a3a5c;font-size:11px;letter-spacing:2px;font-weight:700;">TABLEAU DE BORD</div>
+    <div style="color:#64748b;font-size:12px;margin-top:2px;" id="dash-date"></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;" id="dash-stats"></div>
+  <div class="card card-blue">
+    <div class="lbl">ETAT DES TECHNICIENS</div>
+    <div id="dash-techs" style="margin-top:8px;"></div>
+  </div>
+  <div class="card card-red" id="dash-urgences-card" style="display:none;">
+    <div class="lbl" style="color:#dc2626;">URGENCES ACTIVES</div>
+    <div id="dash-urgences" style="margin-top:8px;"></div>
+  </div>
+  <div class="card card-yellow">
+    <div class="lbl">A TRAITER</div>
+    <div id="dash-todo" style="margin-top:8px;"></div>
+  </div>
+</div>
+
+<div id="page-dispos" class="hidden">
+  <div class="card card-green">
     <div class="lbl">DISPONIBILITE EN TEMPS REEL</div>
-    <div style="color:var(--tl);font-size:12px;margin-bottom:12px;">Actualisation automatique toutes les 10s</div>
+    <div style="color:#64748b;font-size:12px;margin-bottom:12px;">Actualisation auto toutes les 10s</div>
     <div id="liste-dispos"></div>
   </div>
-  <div class="card">
+  <div class="card card-blue">
     <div class="lbl">PLANNING DU JOUR</div>
     <div id="planning-jour" style="margin-top:8px;"></div>
   </div>
 </div>
 
-<!-- URGENCES -->
 <div id="page-urgences" class="hidden">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
     <div>
-      <div style="color:var(--red);font-size:11px;letter-spacing:2px;font-weight:700;">URGENCES ACTIVES</div>
-      <div style="color:var(--tl);font-size:12px;margin-top:2px;" id="urgences-count">0 urgence(s)</div>
+      <div style="color:#dc2626;font-size:11px;letter-spacing:2px;font-weight:700;">URGENCES ACTIVES</div>
+      <div style="color:#64748b;font-size:12px;margin-top:2px;" id="urgences-count">0 urgence(s)</div>
     </div>
-    <button class="btn btn-r" onclick="showFormUrgence()">+ Nouvelle urgence</button>
+    <button class="btn btn-red" onclick="toggleFormUrgence()">+ Nouvelle urgence</button>
   </div>
-  <div id="liste-urgences"></div>
   <div id="form-urgence" class="hidden">
-    <div class="card r">
-      <div class="lbl" style="color:var(--red);">NOUVELLE URGENCE</div>
-      <div class="g2">
-        <div class="form-field"><label>NOM CLIENT</label><input type="text" class="form-input" id="urg-nom" placeholder="Jean Dupont"></div>
-        <div class="form-field"><label>TELEPHONE</label><input type="tel" class="form-input" id="urg-tel" placeholder="06 XX XX XX XX"></div>
-      </div>
-      <div class="form-field"><label>ADRESSE</label><input type="text" class="form-input" id="urg-adresse" placeholder="12 rue des Fleurs"></div>
-      <div class="form-field"><label>TYPE D'URGENCE</label>
+    <div class="card card-red">
+      <div class="lbl" style="color:#dc2626;">NOUVELLE URGENCE</div>
+      <div class="form-field"><label>NOM CLIENT</label><input type="text" class="form-input" id="urg-nom" placeholder="Jean Dupont"></div>
+      <div class="form-field"><label>TELEPHONE</label><input type="tel" class="form-input" id="urg-tel" placeholder="06 XX XX XX XX"></div>
+      <div class="form-field"><label>ADRESSE</label><input type="text" class="form-input" id="urg-adresse" placeholder="12 rue des Fleurs, Paris"></div>
+      <div class="form-field"><label>TYPE</label>
         <select class="form-select" id="urg-type">
           <option>Inondation</option><option>Fuite importante</option><option>Pas d'eau chaude</option>
           <option>Chaudiere en panne</option><option>Canalisation bouchee</option><option>Autre urgence</option>
         </select>
       </div>
-      <div class="g2">
-        <div class="form-field"><label>TECHNICIEN</label>
-          <select class="form-select" id="urg-tech">
-            <option value="Technicien 1">Technicien 1</option>
-            <option value="Technicien 2">Technicien 2</option>
-          </select>
-        </div>
-        <div class="form-field"><label>NOTE</label><input type="text" class="form-input" id="urg-note" placeholder="Details..."></div>
+      <div class="form-field"><label>TECHNICIEN</label>
+        <select class="form-select" id="urg-tech"><option>Technicien 1</option><option>Technicien 2</option></select>
       </div>
+      <div class="form-field"><label>NOTE</label><textarea class="form-textarea" id="urg-note" rows="2" placeholder="Details..."></textarea></div>
       <div style="display:flex;gap:10px;">
-        <button class="btn btn-gray" onclick="document.getElementById('form-urgence').classList.add('hidden')">Annuler</button>
-        <button class="btn btn-r" style="flex:1;" onclick="sauvegarderUrgence()">Creer l'urgence</button>
+        <button class="btn btn-gray" onclick="toggleFormUrgence()">Annuler</button>
+        <button class="btn btn-red" style="flex:1;" onclick="sauvegarderUrgence()">Creer l'urgence</button>
       </div>
     </div>
   </div>
+  <div id="liste-urgences"></div>
 </div>
 
-<!-- NOUVEAU RDV -->
 <div id="page-nouveau-rdv" class="hidden">
-  <div class="card g">
+  <div class="card card-green">
     <div class="lbl">CREER UN NOUVEAU RDV</div>
     <div style="margin-top:12px;">
-      <div class="g2">
-        <div class="form-field"><label>NOM CLIENT *</label><input type="text" class="form-input" id="rdv-nom" placeholder="Jean Dupont"></div>
-        <div class="form-field"><label>TELEPHONE *</label><input type="tel" class="form-input" id="rdv-tel" placeholder="06 XX XX XX XX"></div>
+      <div class="grid-2">
+        <div class="form-field"><label>NOM CLIENT</label><input type="text" class="form-input" id="rdv-nom" placeholder="Jean Dupont"></div>
+        <div class="form-field"><label>TELEPHONE</label><input type="tel" class="form-input" id="rdv-tel" placeholder="06 XX XX XX XX"></div>
       </div>
-      <div class="form-field"><label>ADRESSE *</label><input type="text" class="form-input" id="rdv-adresse" placeholder="12 rue des Fleurs, Paris"></div>
-      <div class="form-field"><label>TYPE D'INTERVENTION *</label>
+      <div class="form-field"><label>ADRESSE</label><input type="text" class="form-input" id="rdv-adresse" placeholder="12 rue des Fleurs, Paris"></div>
+      <div class="form-field"><label>TYPE D'INTERVENTION</label>
         <select class="form-select" id="rdv-type">
           <option>Fuite d'eau</option><option>Debouchage</option><option>Chaudiere</option>
           <option>Ballon d'eau chaude</option><option>Robinetterie</option>
           <option>Installation sanitaire</option><option>Urgent / Depannage</option><option>Autre</option>
         </select>
       </div>
-      <div class="g2">
-        <div class="form-field"><label>DATE RDV *</label><input type="date" class="form-input" id="rdv-date"></div>
-        <div class="form-field"><label>HEURE RDV *</label><input type="time" class="form-input" id="rdv-heure" value="09:00"></div>
+      <div class="grid-2">
+        <div class="form-field"><label>DATE RDV</label><input type="date" class="form-input" id="rdv-date"></div>
+        <div class="form-field"><label>HEURE RDV</label><input type="time" class="form-input" id="rdv-heure" value="09:00"></div>
       </div>
-      <div class="form-field"><label>TECHNICIEN *</label>
-        <select class="form-select" id="rdv-tech">
-          <option value="Technicien 1">Technicien 1</option>
-          <option value="Technicien 2">Technicien 2</option>
-        </select>
+      <div class="form-field"><label>TECHNICIEN</label>
+        <select class="form-select" id="rdv-tech"><option>Technicien 1</option><option>Technicien 2</option></select>
       </div>
-      <div class="form-field"><label>PRIX DE VENTE (EUR) *</label><input type="number" class="form-input" id="rdv-prix" placeholder="250" style="color:var(--green);font-weight:700;font-size:18px;"></div>
-      <div class="form-field"><label>NOTE POUR LE TECHNICIEN</label><textarea class="form-textarea" id="rdv-notes" rows="3" placeholder="Infos importantes, acces difficile, probleme recurrent..."></textarea></div>
-      <button class="btn btn-primary btn-full" onclick="creerRdv()">Creer le RDV et notifier le technicien</button>
+      <div class="form-field"><label>PRIX DE VENTE (EUR)</label>
+        <input type="number" class="form-input" id="rdv-prix" placeholder="250" style="color:#1a3a5c;font-weight:800;font-size:18px;">
+      </div>
+      <div class="form-field"><label>NOTE POUR LE TECHNICIEN</label>
+        <textarea class="form-textarea" id="rdv-notes" rows="3" placeholder="Infos importantes : acces difficile, probleme recurrent..."></textarea>
+      </div>
+      <button class="btn btn-primary btn-full" style="padding:14px;font-size:14px;" onclick="creerRdv()">Creer le RDV et notifier le technicien</button>
     </div>
   </div>
 </div>
 
-<!-- VALIDATION -->
 <div id="page-validation" class="hidden">
   <div style="margin-bottom:16px;">
-    <div style="color:var(--yel);font-size:11px;letter-spacing:2px;font-weight:700;">INTERVENTIONS A VALIDER</div>
-    <div style="color:var(--tl);font-size:12px;margin-top:2px;">Verifier avant de facturer</div>
+    <div style="color:#a16207;font-size:11px;letter-spacing:2px;font-weight:700;">INTERVENTIONS A VALIDER</div>
+    <div style="color:#64748b;font-size:12px;margin-top:2px;">Verifier avant de facturer</div>
   </div>
   <div id="liste-validation"></div>
-  <div style="margin-top:24px;">
-    <div class="lbl">HISTORIQUE DES VALIDATIONS</div>
-    <div id="hist-validation"></div>
-  </div>
+  <div style="margin-top:24px;"><div class="lbl">HISTORIQUE DES VALIDATIONS</div><div id="hist-validation"></div></div>
 </div>
 
-<!-- RAPPORTS -->
 <div id="page-rapports" class="hidden">
   <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-    <button class="btn btn-gray" onclick="filtrerRapports('tous',this)">Tous</button>
-    <button class="btn btn-gray" onclick="filtrerRapports('attente',this)">En attente</button>
-    <button class="btn btn-gray" onclick="filtrerRapports('facture',this)">Factures</button>
+    <button class="btn btn-primary" id="f-tous" onclick="filtrerRapports('tous',this)">Tous</button>
+    <button class="btn btn-gray" id="f-attente" onclick="filtrerRapports('attente',this)">En attente</button>
+    <button class="btn btn-gray" id="f-facture" onclick="filtrerRapports('facture',this)">Factures</button>
   </div>
   <div id="liste-rapports"></div>
 </div>
 
-<!-- SAV -->
 <div id="page-sav" class="hidden">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
     <div>
-      <div style="color:var(--accent);font-size:11px;letter-spacing:2px;font-weight:700;">SUIVI APRES VENTE</div>
-      <div style="color:var(--tl);font-size:12px;margin-top:2px;">Problemes recurrents et garanties</div>
+      <div style="color:#1d4ed8;font-size:11px;letter-spacing:2px;font-weight:700;">SUIVI APRES VENTE</div>
+      <div style="color:#64748b;font-size:12px;margin-top:2px;">Problemes recurrents et garanties</div>
     </div>
-    <button class="btn btn-b" onclick="showFormSav()">+ Nouveau SAV</button>
+    <button class="btn btn-blue" onclick="toggleFormSav()">+ Nouveau SAV</button>
   </div>
-  <div id="liste-sav"></div>
   <div id="form-sav" class="hidden">
-    <div class="card b">
-      <div class="lbl" style="color:var(--accent);">NOUVEAU DOSSIER SAV</div>
+    <div class="card card-blue">
+      <div class="lbl" style="color:#1d4ed8;">NOUVEAU DOSSIER SAV</div>
       <div class="form-field"><label>CLIENT</label><input type="text" class="form-input" id="sav-client" placeholder="Nom du client"></div>
       <div class="form-field"><label>TELEPHONE</label><input type="tel" class="form-input" id="sav-tel" placeholder="06 XX XX XX XX"></div>
       <div class="form-field"><label>TYPE DE PROBLEME</label>
@@ -334,46 +341,51 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
       </div>
       <div class="form-field"><label>DESCRIPTION</label><textarea class="form-textarea" id="sav-desc" rows="3" placeholder="Decrire le probleme..."></textarea></div>
       <div class="form-field"><label>TECHNICIEN CONCERNE</label>
-        <select class="form-select" id="sav-tech">
-          <option value="Technicien 1">Technicien 1</option>
-          <option value="Technicien 2">Technicien 2</option>
-        </select>
+        <select class="form-select" id="sav-tech"><option>Technicien 1</option><option>Technicien 2</option></select>
       </div>
-      <div class="form-field"><label>SOUS GARANTIE ?</label>
+      <div class="form-field"><label>SOUS GARANTIE</label>
         <select class="form-select" id="sav-garantie">
-          <option value="oui">Oui - sous garantie</option>
-          <option value="non">Non - hors garantie</option>
-          <option value="verif">A verifier</option>
+          <option value="oui">Oui - sous garantie</option><option value="non">Non - hors garantie</option><option value="verif">A verifier</option>
         </select>
       </div>
       <div style="display:flex;gap:10px;">
-        <button class="btn btn-gray" onclick="document.getElementById('form-sav').classList.add('hidden')">Annuler</button>
-        <button class="btn btn-b" style="flex:1;" onclick="sauvegarderSav()">Creer le dossier SAV</button>
+        <button class="btn btn-gray" onclick="toggleFormSav()">Annuler</button>
+        <button class="btn btn-blue" style="flex:1;" onclick="sauvegarderSav()">Creer le dossier SAV</button>
       </div>
     </div>
   </div>
+  <div id="liste-sav"></div>
 </div>
 
-<!-- DEVIS -->
 <div id="page-devis" class="hidden">
-  <div class="card b">
+  <div class="card card-blue">
     <div class="lbl">DEMANDES DE DEVIS TECHNICIENS</div>
-    <div style="color:var(--tl);font-size:12px;margin-bottom:12px;">Envoyees depuis le terrain</div>
     <div id="liste-devis"></div>
   </div>
 </div>
 
-<!-- FACTURATION -->
 <div id="page-facturation" class="hidden">
-  <div class="g3" id="stats-fact" style="margin-bottom:16px;"></div>
-  <div class="card" style="margin-bottom:12px;">
-    <div class="lbl">A FACTURER</div>
-    <div id="liste-a-facturer"></div>
+  <div class="stats-grid" id="stats-fact"></div>
+  <div class="card card-yellow" style="margin-bottom:12px;"><div class="lbl">A FACTURER</div><div id="liste-a-facturer"></div></div>
+  <div class="card card-green"><div class="lbl">DEJA FACTURES</div><div id="liste-factures"></div></div>
+</div>
+
+<!-- PROCEDURES -->
+<div id="page-procedures" class="hidden">
+  <div style="margin-bottom:16px;">
+    <div style="color:#1a3a5c;font-size:11px;letter-spacing:2px;font-weight:700;">PROCEDURES INTERNES</div>
+    <div style="color:#64748b;font-size:12px;margin-top:2px;">Cahier des charges du poste dispatch</div>
   </div>
-  <div class="card">
-    <div class="lbl">DEJA FACTURES</div>
-    <div id="liste-factures"></div>
+  <div id="liste-procedures"></div>
+</div>
+
+<!-- INFOS -->
+<div id="page-infos" class="hidden">
+  <div style="margin-bottom:16px;">
+    <div style="color:#4a9c3f;font-size:11px;letter-spacing:2px;font-weight:700;">CONSEILS & INFOS</div>
+    <div style="color:#64748b;font-size:12px;margin-top:2px;">Tarifs, contacts et infos utiles</div>
   </div>
+  <div id="liste-infos"></div>
 </div>
 ```
 
@@ -386,57 +398,62 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div class="modal-sheet">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <div>
-        <div style="color:var(--green);font-size:11px;letter-spacing:2px;font-weight:700;">EXPORT OBAT</div>
-        <div style="font-size:17px;font-weight:800;margin-top:2px;color:var(--text);" id="obat-client-nom"></div>
+        <div style="color:#1a3a5c;font-size:11px;letter-spacing:2px;font-weight:700;">EXPORT OBAT</div>
+        <div style="font-size:17px;font-weight:800;margin-top:2px;color:#1a2537;" id="obat-nom"></div>
       </div>
       <button class="modal-close" onclick="closeModal('modal-obat')">x</button>
     </div>
-    <div style="color:var(--tl);font-size:13px;margin-bottom:12px;">Copie ces infos dans Obat pour creer la facture</div>
+    <div style="color:#64748b;font-size:13px;margin-bottom:12px;">Copie ces infos dans Obat pour creer la facture</div>
     <div class="obat-box"><div class="obat-text" id="obat-text"></div></div>
     <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
       <button class="btn btn-primary btn-full" onclick="copierObat()">Copier pour Obat</button>
-      <button class="btn btn-g" onclick="marquerFacture()" id="btn-marquer">Marquer comme facture</button>
+      <button class="btn btn-green" onclick="marquerFacture()">Marquer facture</button>
       <button class="btn btn-gray" onclick="closeModal('modal-obat')">Fermer</button>
     </div>
   </div>
 </div>
 
-<!-- PHOTO FULLSCREEN -->
-
 <div class="photo-fs hidden" id="photo-fs" onclick="closePhotoFs()">
-  <img id="photo-fs-img" src=""><button class="photo-fs-close">Fermer</button>
+  <img id="photo-fs-img" src="">
+  <button class="photo-fs-close">Fermer</button>
 </div>
 
 <script>
-const USERS={dispatch:{pin:"1470"},patron:{pin:"2580"}};
-const TC={"Technicien 1":{color:"#2d6a9f",avatar:"T1"},"Technicien 2":{color:"#4a9c3f",avatar:"T2"}};
-const SC={"Disponible":"#4a9c3f","En intervention":"#f97316","Pause":"#eab308","Indisponible":"#ef4444"};
-const todayStr=()=>new Date().toISOString().split("T")[0];
-const fmt=n=>Number(n).toLocaleString("fr-FR");
-let filtreRap="tous",obatIdx=null;
+var CREDS = {dispatch:"1470", patron:"2580"};
+var TECH_C = {"Technicien 1":{c:"#2d6a9f",a:"T1",bg:"#dbeafe"}, "Technicien 2":{c:"#4a9c3f",a:"T2",bg:"#dcfce7"}};
+var STATUT_C = {"Disponible":"#16a34a","En intervention":"#c2410c","Pause":"#a16207","Indisponible":"#dc2626"};
+var filtreRap = "tous";
+var expandedRap = null;
 
-const getRdvs=()=>JSON.parse(localStorage.getItem("pl_rdvs")||"[]");
-const saveRdvs=r=>localStorage.setItem("pl_rdvs",JSON.stringify(r));
-const getRapports=()=>JSON.parse(localStorage.getItem("pl_rapports")||"[]");
-const saveRapports=r=>localStorage.setItem("pl_rapports",JSON.stringify(r));
-const getDispos=()=>JSON.parse(localStorage.getItem("pl_dispos")||"{}");
-const getDevis=()=>JSON.parse(localStorage.getItem("pl_devis")||"[]");
-const saveDevis=d=>localStorage.setItem("pl_devis",JSON.stringify(d));
-const getUrgences=()=>JSON.parse(localStorage.getItem("pl_urgences")||"[]");
-const saveUrgences=u=>localStorage.setItem("pl_urgences",JSON.stringify(u));
-const getSavs=()=>JSON.parse(localStorage.getItem("pl_savs")||"[]");
-const saveSavs=s=>localStorage.setItem("pl_savs",JSON.stringify(s));
+function todayStr(){return new Date().toISOString().split("T")[0];}
+function getRdvs(){return JSON.parse(localStorage.getItem("pl_rdvs")||"[]");}
+function saveRdvs(r){localStorage.setItem("pl_rdvs",JSON.stringify(r));}
+function getRapports(){return JSON.parse(localStorage.getItem("pl_rapports")||"[]");}
+function saveRapports(r){localStorage.setItem("pl_rapports",JSON.stringify(r));}
+function getDispos(){return JSON.parse(localStorage.getItem("pl_dispos")||"{}");}
+function getDevis(){return JSON.parse(localStorage.getItem("pl_devis")||"[]");}
+function saveDevis(d){localStorage.setItem("pl_devis",JSON.stringify(d));}
+function getUrgences(){return JSON.parse(localStorage.getItem("pl_urgences")||"[]");}
+function saveUrgences(u){localStorage.setItem("pl_urgences",JSON.stringify(u));}
+function getSavs(){return JSON.parse(localStorage.getItem("pl_savs")||"[]");}
+function saveSavs(s){localStorage.setItem("pl_savs",JSON.stringify(s));}
 
-// AUTH
-document.querySelectorAll(".pin-input").forEach((el,i,arr)=>{
-  el.addEventListener("input",()=>{if(el.value&&i<arr.length-1)arr[i+1].focus();});
-  el.addEventListener("keydown",e=>{if(e.key==="Backspace"&&!el.value&&i>0)arr[i-1].focus();});
-});
+function initPins(){
+  var pins = document.querySelectorAll(".pin-input");
+  for(var i=0;i<pins.length;i++){
+    (function(idx){
+      pins[idx].addEventListener("input",function(){if(this.value&&idx<pins.length-1)pins[idx+1].focus();});
+      pins[idx].addEventListener("keydown",function(e){if(e.key==="Backspace"&&!this.value&&idx>0)pins[idx-1].focus();});
+    })(i);
+  }
+}
 
 function seConnecter(){
-  const id=document.getElementById("identifiant").value.trim().toLowerCase();
-  const pin=["p1","p2","p3","p4"].map(i=>document.getElementById(i).value).join("");
-  if(!USERS[id]||USERS[id].pin!==pin){document.getElementById("loginError").classList.remove("hidden");return;}
+  var id = document.getElementById("identifiant").value.trim().toLowerCase();
+  var pin = "";
+  var pins = document.querySelectorAll(".pin-input");
+  for(var i=0;i<pins.length;i++) pin += pins[i].value;
+  if(!CREDS[id]||CREDS[id]!==pin){document.getElementById("loginError").classList.remove("hidden");return;}
   localStorage.setItem("pl_dispatch_session",id);
   lancerApp();
 }
@@ -444,9 +461,10 @@ function seConnecter(){
 function lancerApp(){
   document.getElementById("login").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
-  document.getElementById("rdv-date").value=todayStr();
+  document.getElementById("rdv-date").value = todayStr();
   actualiserTout();
-  setInterval(actualiserDispos,10000);
+  renderDashboard();
+  setInterval(function(){actualiserDispos();if(!document.getElementById("page-dashboard").classList.contains("hidden"))renderDashboard();},10000);
   setInterval(updateChronos,1000);
 }
 
@@ -458,336 +476,528 @@ function logout(){
 
 function actualiserTout(){
   actualiserDispos();renderPlanningJour();updateNavBadges();
-  document.getElementById("hdr-count").textContent=getRapports().length;
+  document.getElementById("hdr-count").textContent = getRapports().length;
 }
 
 function updateNavBadges(){
-  const u=getUrgences().filter(x=>x.statut!=="Resolu").length;
-  const btn=document.getElementById("nav-urgences");
-  btn.textContent=u>0?"Urgences ("+u+")":"Urgences";
-  btn.style.color=u>0?"#ef4444":"";
+  var u = getUrgences().filter(function(x){return x.statut!=="Resolu";});
+  var btn = document.getElementById("nav-urgences");
+  btn.textContent = u.length>0 ? "Urgences ("+u.length+")" : "Urgences";
+  btn.style.color = u.length>0 ? "#dc2626" : "";
 }
 
-function showPage(p){
-  ["dispos","urgences","nouveau-rdv","validation","rapports","sav","devis","facturation"].forEach(x=>document.getElementById("page-"+x).classList.add("hidden"));
-  document.getElementById("page-"+p).classList.remove("hidden");
-  document.querySelectorAll(".nav button").forEach((b,i)=>{
-    b.classList.toggle("active",["dispos","urgences","nouveau-rdv","validation","rapports","sav","devis","facturation"][i]===p);
-  });
-  if(p==="dispos"){actualiserDispos();renderPlanningJour();}
-  if(p==="urgences")renderUrgences();
-  if(p==="validation")renderValidation();
-  if(p==="rapports")renderRapports();
-  if(p==="sav")renderSavs();
-  if(p==="devis")renderDevis();
-  if(p==="facturation")renderFacturation();
+function showPage(page,btn){
+  var pages=["dashboard","dispos","urgences","nouveau-rdv","validation","rapports","sav","devis","facturation","procedures","infos"];
+  for(var i=0;i<pages.length;i++) document.getElementById("page-"+pages[i]).classList.add("hidden");
+  document.getElementById("page-"+page).classList.remove("hidden");
+  document.querySelectorAll(".nav-btn").forEach(function(b){b.classList.remove("active");});
+  if(btn) btn.classList.add("active");
+  if(page==="dashboard")renderDashboard();
+  if(page==="dispos"){actualiserDispos();renderPlanningJour();}
+  if(page==="urgences")renderUrgences();
+  if(page==="validation")renderValidation();
+  if(page==="rapports")renderRapports();
+  if(page==="sav")renderSavs();
+  if(page==="devis")renderDevis();
+  if(page==="facturation")renderFacturation();
+  if(page==="procedures")renderProcedures();
+  if(page==="infos")renderInfos();
 }
 
-// DISPOS
+function getHeureNow(){var n=new Date();return ("0"+n.getHours()).slice(-2)+":"+("0"+n.getMinutes()).slice(-2);}
+
 function actualiserDispos(){
-  const dispos=getDispos();
-  document.getElementById("liste-dispos").innerHTML=["Technicien 1","Technicien 2"].map(nom=>{
-    const d=dispos[nom]||{statut:"Non connecte"};
-    const color=SC[d.statut]||"#94a3b8";
-    const tc=TC[nom];
-    const rdvAuj=getRdvs().filter(r=>r.technicien===nom&&r.dateRdv===todayStr()).length;
-    const ago=d.updatedAt?Math.floor((Date.now()-new Date(d.updatedAt))/60000):null;
-    return`<div class="tech-card" style="border-left:3px solid ${color}40;display:flex;justify-content:space-between;align-items:center;gap:12px;">
-      <div style="width:44px;height:44px;border-radius:12px;background:${tc.color}20;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0;">${tc.avatar}</div>
-      <div style="flex:1;">
-        <div style="font-weight:700;font-size:14px;">${nom}</div>
-        <div style="font-size:12px;margin-top:2px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};margin-right:4px;"></span><span style="color:${color};font-weight:700;">${d.statut}</span></div>
-        ${ago!==null?`<div style="color:var(--tl);font-size:11px;">Mis a jour: ${ago<1?"<1min":ago+"min"}</div>`:""}
-      </div>
-      <div style="text-align:right;">
-        <div style="color:var(--tl);font-size:11px;margin-bottom:6px;">${rdvAuj} RDV auj.</div>
-        <button class="btn btn-g" style="padding:6px 10px;font-size:11px;" onclick="showPage('nouveau-rdv');document.getElementById('rdv-tech').value='${nom}'">+ RDV</button>
-      </div>
-    </div>`;
-  }).join("");
+  var dispos=getDispos(),rdvs=getRdvs(),html="";
+  var techs=["Technicien 1","Technicien 2"];
+  var heureNow=getHeureNow();
+  for(var i=0;i<techs.length;i++){
+    var nom=techs[i];
+    var d=dispos[nom]||{statut:"Non connecte"};
+    var color=STATUT_C[d.statut]||"#64748b";
+    var tc=TECH_C[nom];
+    var rdvsAuj=rdvs.filter(function(r){return r.technicien===nom&&r.dateRdv===todayStr();}).sort(function(a,b){return a.heureRdv.localeCompare(b.heureRdv);});
+    var ago=d.updatedAt?Math.floor((Date.now()-new Date(d.updatedAt))/60000):null;
+    var enCours=null;
+    for(var j=0;j<rdvsAuj.length;j++){if(rdvsAuj[j].heureRdv<=heureNow&&rdvsAuj[j].statut!=="Termine"){enCours=rdvsAuj[j];break;}}
+    var prochain=null;
+    for(var k=0;k<rdvsAuj.length;k++){if(rdvsAuj[k].heureRdv>heureNow){prochain=rdvsAuj[k];break;}}
+    html+="<div style=\"background:#fff;border:1px solid #e2e8f0;border-left:4px solid "+color+";border-radius:16px;padding:14px 16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(26,58,92,0.06);\">";
+    html+="<div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;\">";
+    html+="<div style=\"display:flex;align-items:center;gap:10px;\">";
+    html+="<div style=\"width:44px;height:44px;border-radius:12px;background:"+tc.bg+";border:2px solid "+tc.c+";color:"+tc.c+";display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;\">" +tc.a+"</div>";
+    html+="<div>";
+    html+="<div style=\"font-weight:700;font-size:15px;color:#1a2537;\">" +nom+"</div>";
+    html+="<div style=\"display:flex;align-items:center;margin-top:2px;\"><span style=\"width:8px;height:8px;border-radius:50%;background:"+color+";display:inline-block;margin-right:5px;\"></span><span style=\"color:"+color+";font-weight:700;font-size:12px;\">" +d.statut+"</span></div>";
+    if(ago!==null) html+="<div style=\"color:#94a3b8;font-size:10px;\">" +(ago<1?"maintenant":ago+"min")+" </div>";
+    html+="</div></div>";
+    html+="<button class=\"btn btn-primary\" style=\"font-size:11px;padding:7px 12px;\" onclick=\"showPage('nouveau-rdv',null);document.getElementById('rdv-tech').value='"+nom+"'\" >+ RDV</button>";
+    html+="</div>";
+    if(rdvsAuj.length>0){
+      html+="<div style=\"background:#f8fafc;border-radius:10px;padding:10px 12px;border:1px solid #e2e8f0;\">";
+      html+="<div style=\"color:#64748b;font-size:10px;letter-spacing:1px;font-weight:700;margin-bottom:8px;\">PLANNING AUJOURD\'HUI ("+rdvsAuj.length+" RDV)</div>";
+      for(var m=0;m<rdvsAuj.length;m++){
+        var r=rdvsAuj[m];
+        var isNow=r.heureRdv<=heureNow&&r.statut!=="Termine";
+        var isDone=r.statut==="Termine";
+        var bgRow=isNow?"#dcfce7":isDone?"#f1f5f9":"#fff";
+        html+="<div style=\"display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:8px;background:"+bgRow+";border:1px solid #e2e8f0;margin-bottom:4px;\">";
+        html+="<div style=\"font-family:monospace;font-weight:800;font-size:13px;color:"+(isNow?"#16a34a":isDone?"#94a3b8":"#1d4ed8")+";min-width:42px;\">" +r.heureRdv+"</div>";
+        html+="<div style=\"flex:1;\">";
+        html+="<div style=\"font-weight:700;font-size:12px;color:"+(isDone?"#94a3b8":"#1a2537")+";\">"+r.clientNom+"</div>";
+        html+="<div style=\"color:#94a3b8;font-size:10px;\">" +r.type+"</div>";
+        html+="</div>";
+        html+="<div style=\"color:#1a3a5c;font-size:11px;font-weight:700;\">" +r.prixVente+"EUR</div>";
+        if(isNow) html+="<span style=\"background:#dcfce7;color:#16a34a;border-radius:4px;padding:1px 6px;font-size:9px;font-weight:800;\">EN COURS</span>";
+        if(isDone) html+="<span style=\"background:#f1f5f9;color:#94a3b8;border-radius:4px;padding:1px 6px;font-size:9px;font-weight:800;\">FAIT</span>";
+        html+="</div>";
+      }
+      if(prochain&&!enCours){
+        html+="<div style=\"margin-top:8px;padding:6px 8px;background:#dbeafe;border-radius:8px;border:1px solid #bfdbfe;\">";
+        html+="<div style=\"color:#1d4ed8;font-size:11px;font-weight:700;\">Prochain : "+prochain.heureRdv+" - "+prochain.clientNom+"</div>";
+        html+="</div>";
+      }
+      html+="</div>";
+    } else {
+      html+="<div style=\"background:#f8fafc;border-radius:10px;padding:10px 12px;border:1px solid #e2e8f0;text-align:center;color:#94a3b8;font-size:12px;\">Aucun RDV aujourd\'hui</div>";
+    }
+    html+="</div>";
+  }
+  document.getElementById("liste-dispos").innerHTML=html;
 }
 
 function renderPlanningJour(){
-  const rdvs=getRdvs().filter(r=>r.dateRdv===todayStr()).sort((a,b)=>a.heureRdv.localeCompare(b.heureRdv));
-  const c=document.getElementById("planning-jour");
-  if(!rdvs.length){c.innerHTML=`<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">📅</div>Aucun RDV aujourd'hui</div>`;return;}
-  c.innerHTML=rdvs.map(r=>{
-    const tc=TC[r.technicien]||{color:"#94a3b8",avatar:"??"};
-    return`<div style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
-      <div style="color:var(--accent);font-weight:700;font-size:14px;min-width:45px;">${r.heureRdv}</div>
-      <div style="flex:1;"><div style="font-weight:700;font-size:13px;">${r.clientNom}</div><div style="color:var(--tl);font-size:11px;">${r.type}</div></div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-        <div style="width:28px;height:28px;border-radius:8px;background:${tc.color}20;border:1px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;">${tc.avatar}</div>
-        <span class="badge ${r.statut==='Termine'?'badge-g':'badge-b'}" style="font-size:9px;">${r.statut==='Termine'?'FAIT':'ATTENTE'}</span>
-      </div>
-    </div>`;
-  }).join("");
+  var rdvs=getRdvs().filter(function(r){return r.dateRdv===todayStr();}).sort(function(a,b){return a.heureRdv.localeCompare(b.heureRdv);});
+  if(!rdvs.length){document.getElementById("planning-jour").innerHTML='<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">📭</div>Aucun RDV aujourd\'hui</div>';return;}
+  var html="";
+  for(var i=0;i<rdvs.length;i++){
+    var r=rdvs[i],tc=TECH_C[r.technicien]||{c:"#64748b",a:"??"};
+    html+='<div style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9;">';
+    html+='<div style="color:#1d4ed8;font-family:monospace;font-weight:700;font-size:14px;min-width:45px;">'+r.heureRdv+'</div>';
+    html+='<div style="flex:1;"><div style="font-weight:700;font-size:13px;color:#1a2537;">'+r.clientNom+'</div><div style="color:#64748b;font-size:11px;">'+r.type+'</div></div>';
+    html+='<div style="width:28px;height:28px;border-radius:8px;background:'+tc.bg||'#f1f5f9'+';border:1px solid '+tc.c+';color:'+tc.c+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;">'+tc.a+'</div>';
+    html+='</div>';
+  }
+  document.getElementById("planning-jour").innerHTML=html;
 }
 
 function creerRdv(){
-  const nom=document.getElementById("rdv-nom").value.trim();
-  const tel=document.getElementById("rdv-tel").value.trim();
-  const adresse=document.getElementById("rdv-adresse").value.trim();
-  const prix=document.getElementById("rdv-prix").value;
-  if(!nom||!tel||!adresse||!prix){showNotif("Remplis tous les champs obligatoires");return;}
-  const rdv={id:Date.now(),clientNom:nom,clientTel:tel,adresse,type:document.getElementById("rdv-type").value,dateRdv:document.getElementById("rdv-date").value,heureRdv:document.getElementById("rdv-heure").value,technicien:document.getElementById("rdv-tech").value,prixVente:Number(prix),statut:"Confirme",notes:document.getElementById("rdv-notes").value.trim(),creePar:"dispatch",creeAt:new Date().toISOString()};
-  const rdvs=getRdvs();rdvs.push(rdv);saveRdvs(rdvs);
-  ["rdv-nom","rdv-tel","rdv-adresse","rdv-prix","rdv-notes"].forEach(id=>document.getElementById(id).value="");
+  var nom=document.getElementById("rdv-nom").value.trim();
+  var tel=document.getElementById("rdv-tel").value.trim();
+  var adresse=document.getElementById("rdv-adresse").value.trim();
+  var prix=document.getElementById("rdv-prix").value;
+  if(!nom||!tel||!adresse||!prix){showNotif("Remplis tous les champs");return;}
+  var rdv={id:Date.now(),clientNom:nom,clientTel:tel,adresse:adresse,type:document.getElementById("rdv-type").value,dateRdv:document.getElementById("rdv-date").value,heureRdv:document.getElementById("rdv-heure").value,technicien:document.getElementById("rdv-tech").value,prixVente:Number(prix),statut:"Confirme",notes:document.getElementById("rdv-notes").value.trim(),creePar:"dispatch",creeAt:new Date().toISOString()};
+  var rdvs=getRdvs();rdvs.push(rdv);saveRdvs(rdvs);
+  ["rdv-nom","rdv-tel","rdv-adresse","rdv-prix","rdv-notes"].forEach(function(id){document.getElementById(id).value="";});
   document.getElementById("rdv-date").value=todayStr();
-  showNotif("RDV cree pour "+nom+" — "+rdv.technicien+" notifie !");
-  showPage("dispos");actualiserTout();
+  showNotif("RDV cree pour "+nom+" !");actualiserTout();
 }
 
-// URGENCES
-function showFormUrgence(){document.getElementById("form-urgence").classList.remove("hidden");}
+function toggleFormUrgence(){document.getElementById("form-urgence").classList.toggle("hidden");}
+
 function sauvegarderUrgence(){
-  const nom=document.getElementById("urg-nom").value.trim();
-  const tel=document.getElementById("urg-tel").value.trim();
+  var nom=document.getElementById("urg-nom").value.trim(),tel=document.getElementById("urg-tel").value.trim();
   if(!nom||!tel){showNotif("Nom et telephone requis");return;}
-  const urgences=getUrgences();
-  urgences.unshift({id:Date.now(),clientNom:nom,clientTel:tel,adresse:document.getElementById("urg-adresse").value.trim(),type:document.getElementById("urg-type").value,technicien:document.getElementById("urg-tech").value,note:document.getElementById("urg-note").value.trim(),creeeAt:new Date().toISOString(),statut:"Active"});
-  saveUrgences(urgences);
-  ["urg-nom","urg-tel","urg-adresse","urg-note"].forEach(id=>document.getElementById(id).value="");
+  var u=getUrgences();
+  u.unshift({id:Date.now(),clientNom:nom,clientTel:tel,adresse:document.getElementById("urg-adresse").value.trim(),type:document.getElementById("urg-type").value,technicien:document.getElementById("urg-tech").value,note:document.getElementById("urg-note").value.trim(),creeeAt:new Date().toISOString(),statut:"Active"});
+  saveUrgences(u);
+  ["urg-nom","urg-tel","urg-adresse","urg-note"].forEach(function(id){document.getElementById(id).value="";});
   document.getElementById("form-urgence").classList.add("hidden");
   renderUrgences();updateNavBadges();showNotif("Urgence creee !");
 }
 
 function renderUrgences(){
-  const urgences=getUrgences();
-  const actives=urgences.filter(u=>u.statut!=="Resolu").length;
-  document.getElementById("urgences-count").textContent=actives+" urgence(s) active(s)";
-  document.getElementById("liste-urgences").innerHTML=urgences.length?urgences.map((u,i)=>{
-    const isActive=u.statut!=="Resolu";
-    const tc=TC[u.technicien]||{color:"#94a3b8",avatar:"??"};
-    const mins=Math.floor((Date.now()-new Date(u.creeeAt))/60000);
-    const duree=mins<60?mins+"min":Math.floor(mins/60)+"h"+("0"+(mins%60)).slice(-2);
-    return`<div class="urgence-card${isActive?" urgence-active":""}" style="${!isActive?"opacity:0.5;":""}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-        <div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-            <span class="badge badge-r">URGENCE</span>
-            <span style="color:var(--red);font-weight:800;font-family:monospace;" id="chrono-${i}">${duree}</span>
-          </div>
-          <div style="font-weight:700;font-size:15px;">${u.clientNom}</div>
-          <div style="color:var(--tl);font-size:12px;">${u.type}</div>
-          ${u.adresse?`<div style="color:var(--tl);font-size:11px;">${u.adresse}</div>`:""}
-          ${u.note?`<div style="color:var(--tl);font-size:12px;font-style:italic;margin-top:4px;">${u.note}</div>`:""}
-        </div>
-        <div style="width:34px;height:34px;border-radius:8px;background:${tc.color}20;border:1px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;">${tc.avatar}</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-r" onclick="window.open('tel:${u.clientTel}')">Appeler</button>
-        <button class="btn btn-o" onclick="convertirUrgence(${i})">Convertir RDV</button>
-        ${isActive?`<button class="btn btn-g" onclick="resoudreUrgence(${i})">Resolu</button>`:""}
-        <button class="btn btn-gray" onclick="supprimerUrgence(${i})">Supprimer</button>
-      </div>
-    </div>`;
-  }).join(""):`<div class="empty-state"><div class="empty-icon">✅</div>Aucune urgence active</div>`;
+  var urgences=getUrgences();
+  var actives=urgences.filter(function(u){return u.statut!=="Resolu";});
+  document.getElementById("urgences-count").textContent=actives.length+" urgence(s) active(s)";
+  if(!urgences.length){document.getElementById("liste-urgences").innerHTML='<div class="empty-state"><div class="empty-icon">✅</div>Aucune urgence</div>';return;}
+  var html="";
+  for(var i=0;i<urgences.length;i++){
+    var u=urgences[i],isActive=u.statut!=="Resolu";
+    var tc=TECH_C[u.technicien]||{c:"#64748b",a:"??"};
+    var mins=Math.floor((Date.now()-new Date(u.creeeAt))/60000);
+    var duree=mins<60?mins+"min":Math.floor(mins/60)+"h"+("0"+(mins%60)).slice(-2);
+    html+='<div class="urgence-card '+(isActive?"urgence-nouvelle":"")+'" style="'+(isActive?"":"opacity:0.5;")+'" id="urg-'+i+'">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">';
+    html+='<div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">';
+    html+='<span style="background:#ef4444;color:#fff;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:800;">URGENCE</span>';
+    html+='<span style="color:#dc2626;font-family:monospace;font-weight:800;" id="chrono-'+i+'">'+duree+'</span></div>';
+    html+='<div style="font-weight:700;font-size:15px;color:#1a2537;">'+u.clientNom+'</div>';
+    html+='<div style="color:#64748b;font-size:12px;">'+u.type+'</div>';
+    if(u.adresse) html+='<div style="color:#94a3b8;font-size:11px;margin-top:2px;">'+u.adresse+'</div>';
+    if(u.note) html+='<div style="color:#475569;font-size:12px;margin-top:4px;font-style:italic;">'+u.note+'</div>';
+    html+='</div>';
+    html+='<div style="width:32px;height:32px;border-radius:8px;background:'+(tc.bg||"#f1f5f9")+';border:1px solid '+tc.c+';color:'+tc.c+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;">'+tc.a+'</div>';
+    html+='</div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+    html+='<button class="btn btn-red" onclick="window.open(\'tel:'+u.clientTel+'\')">Appeler</button>';
+    if(isActive) html+='<button class="btn btn-green" onclick="resoudreUrgence('+i+')">Resolu</button>';
+    html+='<button class="btn btn-gray" onclick="supprimerUrgence('+i+')">Supprimer</button>';
+    html+='</div></div>';
+  }
+  document.getElementById("liste-urgences").innerHTML=html;
 }
 
 function updateChronos(){
-  getUrgences().forEach((u,i)=>{
-    const el=document.getElementById("chrono-"+i);
-    if(el){const m=Math.floor((Date.now()-new Date(u.creeeAt))/60000);el.textContent=m<60?m+"min":Math.floor(m/60)+"h"+("0"+(m%60)).slice(-2);}
-  });
+  var u=getUrgences();
+  for(var i=0;i<u.length;i++){
+    var el=document.getElementById("chrono-"+i);
+    if(el){var m=Math.floor((Date.now()-new Date(u[i].creeeAt))/60000);el.textContent=m<60?m+"min":Math.floor(m/60)+"h"+("0"+(m%60)).slice(-2);}
+  }
 }
 
-function resoudreUrgence(i){const u=getUrgences();u[i].statut="Resolu";u[i].resoluAt=new Date().toISOString();saveUrgences(u);renderUrgences();updateNavBadges();showNotif("Urgence resolue !");}
-function supprimerUrgence(i){const u=getUrgences();u.splice(i,1);saveUrgences(u);renderUrgences();updateNavBadges();}
-function convertirUrgence(i){
-  const u=getUrgences()[i];
-  showPage("nouveau-rdv");
-  document.getElementById("rdv-nom").value=u.clientNom;
-  document.getElementById("rdv-tel").value=u.clientTel;
-  document.getElementById("rdv-adresse").value=u.adresse||"";
-  document.getElementById("rdv-tech").value=u.technicien;
-  document.getElementById("rdv-notes").value="URGENCE: "+u.type+(u.note?" - "+u.note:"");
-  showNotif("Infos copiees dans le formulaire RDV");
-}
+function resoudreUrgence(i){var u=getUrgences();u[i].statut="Resolu";u[i].resoluAt=new Date().toISOString();saveUrgences(u);renderUrgences();updateNavBadges();showNotif("Urgence resolue !");}
+function supprimerUrgence(i){var u=getUrgences();u.splice(i,1);saveUrgences(u);renderUrgences();updateNavBadges();}
 
-// VALIDATION
 function renderValidation(){
-  const rapports=getRapports().filter(r=>r.statut==="En attente facturation");
-  const valides=getRapports().filter(r=>["Valide","Facture","Paye"].includes(r.statut));
-  document.getElementById("liste-validation").innerHTML=rapports.length?rapports.map((r,i)=>{
-    const tc=TC[r.technicien]||{color:"#94a3b8",avatar:"??"};
-    return`<div class="valid-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-        <div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-            <div style="width:24px;height:24px;border-radius:6px;background:${tc.color}20;border:1px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;">${tc.avatar}</div>
-            <span style="font-weight:700;font-size:14px;">${r.clientNom}</span>
-          </div>
-          <div style="color:var(--tl);font-size:12px;">${r.type} — ${r.date} — ${r.heureDebut} a ${r.heureFin}</div>
-          ${r.description?`<div class="desc-box" style="margin-top:6px;">${r.description.substring(0,100)}${r.description.length>100?"...":""}</div>`:""}
-        </div>
-        <div style="text-align:right;"><div style="color:var(--green);font-weight:800;font-size:15px;">${r.montantFinal} EUR</div><div style="color:var(--tl);font-size:11px;">${r.checklistScore||"N/A"}</div></div>
-      </div>
-      <textarea class="comment-input" id="comment-${i}" placeholder="Commentaire avant validation..."></textarea>
+  var rapports=getRapports().filter(function(r){return r.statut==="En attente facturation";});
+  var valides=getRapports().filter(function(r){return r.statut==="Valide"||r.statut==="Facture"||r.statut==="Paye";});
+  var html="";
+  if(!rapports.length){html='<div class="empty-state"><div class="empty-icon">✅</div>Tout est valide !</div>';}
+  else{
+    for(var i=0;i<rapports.length;i++){
+      var r=rapports[i];
+      html+='<div class="valid-card">';
+      html+='<div style="display:flex;justify-content:space-between;margin-bottom:10px;">';
+      html+='<div><div style="font-weight:700;font-size:14px;color:#1a2537;">'+r.clientNom+'</div>';
+      html+='<div style="color:#64748b;font-size:12px;">'+r.type+' - '+r.date+'</div>';
+      html+='<div style="color:#94a3b8;font-size:11px;">'+r.adresse+'</div></div>';
+      html+='<div style="text-align:right;"><div style="color:#1a3a5c;font-weight:800;font-size:16px;">'+r.montantFinal+' EUR</div></div></div>';
+      if(r.description) html+='<div class="desc-box" style="margin-bottom:10px;">'+r.description.substring(0,120)+(r.description.length>120?"...":"")+'</div>';
+      html+='<textarea class="comment-input" id="cv-'+i+'" placeholder="Commentaire avant validation..."></textarea>';
 
 ```
-  <div style="display:flex;gap:8px;flex-wrap:wrap;">
-    <button class="btn btn-g" onclick="validerRap(${i})">Valider et facturer</button>
-    <button class="btn btn-o" onclick="ouvrirObat(${i})">Preparer Obat</button>
-    <button class="btn btn-r" onclick="refuserRap(${i})">Refuser</button>
-  </div>
-</div>`;
+  html+='<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  html+='<button class="btn btn-green" onclick="validerRapport(\''+r.clientNom+'\',\''+r.date+'\','+i+')">Valider</button>';
+  html+='<button class="btn btn-orange" onclick="ouvrirObat(\''+r.clientNom+'\',\''+r.clientTel+'\',\''+r.adresse+'\',\''+r.type+'\',\''+r.date+'\',\''+r.technicien+'\',\''+r.heureDebut+'\',\''+r.heureFin+'\','+r.montantFinal+',\''+(r.description||"").substring(0,80).replace(/'/g," ")+'\')">Obat</button>';
+  html+='<button class="btn btn-red" onclick="refuserRapport(\''+r.clientNom+'\',\''+r.date+'\','+i+')">Refuser</button>';
+  html+='</div></div>';
+}
 ```
 
-}).join(””):`<div style="color:var(--tl);font-size:13px;padding:12px 0;">Tout est valide !</div>`;
-document.getElementById(“hist-validation”).innerHTML=valides.slice(-5).reverse().map(r=>`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);"><div><div style="font-weight:600;font-size:13px;">${r.clientNom}</div><div style="color:var(--tl);font-size:11px;">${r.date} — ${r.technicien}</div></div><span class="badge badge-g">${r.statut}</span></div>`).join(””)||`<div style="color:var(--tl);font-size:13px;padding:12px 0;">Aucun historique</div>`;
+}
+document.getElementById(“liste-validation”).innerHTML=html;
+var hh=””;
+var rec=valides.slice(-5).reverse();
+for(var j=0;j<rec.length;j++){
+var v=rec[j];
+hh+=’<div style="padding:10px 0;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;">’;
+hh+=’<div><div style="font-weight:600;font-size:13px;color:#1a2537;">’+v.clientNom+’</div><div style="color:#64748b;font-size:11px;">’+v.date+’ - ‘+v.technicien+’</div></div>’;
+hh+=’<span class="badge badge-green">’+v.statut+’</span></div>’;
+}
+document.getElementById(“hist-validation”).innerHTML=hh||’<div style="color:#94a3b8;font-size:13px;padding:12px 0;">Aucun historique</div>’;
 }
 
-function validerRap(i){
-const all=getRapports(),aV=all.filter(r=>r.statut===“En attente facturation”);
-const idx=all.findIndex(r=>r.clientNom===aV[i].clientNom&&r.date===aV[i].date);
-all[idx].statut=“Valide”;all[idx].commentaire=document.getElementById(“comment-”+i)?.value||””;
-all[idx].valideAt=new Date().toISOString();saveRapports(all);renderValidation();showNotif(“Rapport valide !”);
+function validerRapport(nom,date,idx){
+var r=getRapports(),i=r.findIndex(function(x){return x.clientNom===nom&&x.date===date;});
+if(i>=0){r[i].statut=“Valide”;var el=document.getElementById(“cv-”+idx);r[i].commentaire=el?el.value:””;r[i].valideAt=new Date().toISOString();saveRapports(r);}
+renderValidation();showNotif(“Rapport valide !”);
 }
 
-function refuserRap(i){
-const all=getRapports(),aV=all.filter(r=>r.statut===“En attente facturation”);
-const idx=all.findIndex(r=>r.clientNom===aV[i].clientNom&&r.date===aV[i].date);
-all[idx].statut=“Refuse”;saveRapports(all);renderValidation();showNotif(“Rapport refuse”);
+function refuserRapport(nom,date,idx){
+var r=getRapports(),i=r.findIndex(function(x){return x.clientNom===nom&&x.date===date;});
+if(i>=0){r[i].statut=“Refuse”;var el=document.getElementById(“cv-”+idx);r[i].commentaire=el?el.value:””;saveRapports(r);}
+renderValidation();showNotif(“Rapport refuse”);
 }
 
-// RAPPORTS
 function filtrerRapports(f,btn){
 filtreRap=f;
-document.querySelectorAll(”#page-rapports .btn”).forEach(b=>{b.style.background=”#f1f5f9”;b.style.color=”#475569”;});
-if(btn){btn.style.background=”#dcfce7”;btn.style.color=”#15803d”;}
+document.querySelectorAll(”#page-rapports .btn”).forEach(function(b){b.className=“btn btn-gray”;});
+if(btn){btn.className=“btn btn-primary”;}
 renderRapports();
 }
 
 function renderRapports(){
-let raps=getRapports().sort((a,b)=>b.soumisLe?.localeCompare(a.soumisLe));
-if(filtreRap===“attente”)raps=raps.filter(r=>r.statut===“En attente facturation”);
-if(filtreRap===“facture”)raps=raps.filter(r=>[“Facture”,“Paye”].includes(r.statut));
-const c=document.getElementById(“liste-rapports”);
-if(!raps.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div>Aucun rapport</div>`;return;}
-c.innerHTML=raps.map((r,i)=>{
-const tc=TC[r.technicien]||{color:”#94a3b8”,avatar:”??”};
-const isExp=c.dataset.exp===String(i);
-return`<div class="rapport-card"> <div class="rapport-header" onclick="toggleRap(${i})"> <div style="flex:1;"> <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;"> <div style="width:24px;height:24px;border-radius:6px;background:${tc.color}20;border:1px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;">${tc.avatar}</div> <span style="font-weight:700;font-size:14px;">${r.clientNom}</span> <span class="badge ${r.statut==='Paye'?'badge-g':r.statut==='Facture'||r.statut==='Valide'?'badge-o':'badge-p'}">${r.statut}</span> </div> <div style="color:var(--tl);font-size:12px;">${r.type} — ${r.date} — ${r.heureDebut||""} a ${r.heureFin||""}</div> </div> <div style="text-align:right;flex-shrink:0;"><div style="color:var(--green);font-weight:800;font-size:16px;">${r.montantFinal} EUR</div></div> </div> ${isExp?`<div class="rapport-body">
-<div style="margin-top:12px;"><div class="lbl">CLIENT</div><div style="color:var(--text);font-size:13px;">${r.clientNom} — <a href="tel:${r.clientTel}" style="color:var(--accent);">${r.clientTel}</a></div></div>
-<div style="margin-top:12px;"><div class="lbl">ADRESSE</div><div style="color:var(--text);font-size:13px;">${r.adresse}</div></div>
-<div style="margin-top:12px;"><div class="lbl">TECHNICIEN</div><div style="color:var(--text);font-size:13px;">${r.technicien}</div></div>
-${(r.photosAvant||[]).length?`<div style="margin-top:12px;"><div class="lbl">PHOTOS AVANT</div><div class="photos-row">${(r.photosAvant||[]).map(p=>`<img src="${p}" class="photo-thumb" onclick="openPhotoFs('${p}')">`).join("")}</div></div>`:””}
-${(r.photosApres||[]).length?`<div style="margin-top:12px;"><div class="lbl">PHOTOS APRES</div><div class="photos-row">${(r.photosApres||[]).map(p=>`<img src="${p}" class="photo-thumb" onclick="openPhotoFs('${p}')">`).join("")}</div></div>`:””}
-${r.description?`<div style="margin-top:12px;"><div class="lbl">DESCRIPTION</div><div class="desc-box">${r.description}</div></div>`:””}
-${r.totalPrimes>0?`<div style="margin-top:12px;"><div class="lbl">PRIME TECHNICIEN</div><div style="color:#eab308;font-weight:800;">${r.totalPrimes} EUR</div></div>`:””}
-<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
-<button class="btn btn-primary" onclick="ouvrirObatRapport(${i})">Preparer Obat</button>
-${r.statut!==“Paye”?`<button class="btn btn-g" onclick="changerStatut(${i},'Paye')">Paye</button>`:””}
-${r.statut===“En attente facturation”||r.statut===“Valide”?`<button class="btn btn-o" onclick="changerStatut(${i},'Facture')">Facture</button>`:””}
-</div>
-</div>`:""} </div>`;
-}).join(””);
+var all=getRapports().sort(function(a,b){return b.soumisLe?b.soumisLe.localeCompare(a.soumisLe):0;});
+var raps=all;
+if(filtreRap===“attente”)raps=all.filter(function(r){return r.statut===“En attente facturation”;});
+if(filtreRap===“facture”)raps=all.filter(function(r){return r.statut===“Facture”||r.statut===“Paye”;});
+if(!raps.length){document.getElementById(“liste-rapports”).innerHTML=’<div class="empty-state"><div class="empty-icon">📋</div>Aucun rapport</div>’;return;}
+var html=””;
+for(var i=0;i<raps.length;i++){
+var r=raps[i],tc=TECH_C[r.technicien]||{c:”#64748b”,a:”??”};
+var isExp=expandedRap===i;
+var bc=r.statut===“Paye”?“badge-green”:r.statut===“Facture”||r.statut===“Valide”?“badge-yellow”:“badge-purple”;
+html+=’<div class="rapport-card"><div class="rapport-header" onclick="toggleRap('+i+')">’;
+html+=’<div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;">’;
+html+=’<div style=“width:24px;height:24px;border-radius:6px;background:’+(tc.bg||”#f1f5f9”)+’;border:1px solid ‘+tc.c+’;color:’+tc.c+’;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;”>’+tc.a+’</div>’;
+html+=’<span style="font-weight:700;font-size:14px;color:#1a2537;">’+r.clientNom+’</span>’;
+html+=’<span class="badge '+bc+'">’+r.statut+’</span></div>’;
+html+=’<div style="color:#64748b;font-size:12px;">’+r.type+’ - ‘+r.date+’</div></div>’;
+html+=’<div style="text-align:right;flex-shrink:0;"><div style="color:#1a3a5c;font-weight:800;font-size:16px;">’+r.montantFinal+’ EUR</div></div>’;
+html+=’</div>’;
+if(isExp){
+html+=’<div class="rapport-body">’;
+html+=’<div style="margin-top:12px;"><div class="lbl">CLIENT</div><div style="color:#475569;font-size:13px;">’+r.clientNom+’ - <a href="tel:'+r.clientTel+'" style="color:#1d4ed8;">’+r.clientTel+’</a></div></div>’;
+html+=’<div style="margin-top:12px;"><div class="lbl">TECHNICIEN</div><div style="color:#475569;font-size:13px;">’+r.technicien+’ - ‘+r.heureDebut+’ a ‘+r.heureFin+’</div></div>’;
+var av=r.photosAvant||[],ap=r.photosApres||[];
+if(av.length){html+=’<div style="margin-top:12px;"><div class="lbl">AVANT</div><div class="photos-row">’;for(var j=0;j<av.length;j++)html+=’<img src="'+av[j]+'" class="photo-thumb" onclick="openPhotoFs(\''+av[j]+'\')">’;html+=’</div></div>’;}
+if(ap.length){html+=’<div style="margin-top:12px;"><div class="lbl">APRES</div><div class="photos-row">’;for(var k=0;k<ap.length;k++)html+=’<img src="'+ap[k]+'" class="photo-thumb" onclick="openPhotoFs(\''+ap[k]+'\')">’;html+=’</div></div>’;}
+if(r.description) html+=’<div style="margin-top:12px;"><div class="lbl">DESCRIPTION</div><div class="desc-box">’+r.description+’</div></div>’;
+if(r.totalPrimes>0) html+=’<div style="margin-top:12px;"><div class="lbl">PRIME TECH</div><div style="color:#a16207;font-weight:700;">’+r.totalPrimes+’ EUR</div></div>’;
+html+=’<div class="actions-row">’;
+html+=’<button class=“btn btn-primary” onclick=“ouvrirObat('’+r.clientNom+’','’+r.clientTel+’','’+r.adresse+’','’+r.type+’','’+r.date+’','’+r.technicien+’','’+r.heureDebut+’','’+r.heureFin+’',’+r.montantFinal+’,'’+(r.description||””).substring(0,80).replace(/’/g,” “)+’')”>Preparer Obat</button>’;
+if(r.statut!==“Paye”) html+=’<button class="btn btn-green" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Paye\')">Paye</button>’;
+if(r.statut===“En attente facturation”||r.statut===“Valide”) html+=’<button class="btn btn-orange" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Facture\')">Facture</button>’;
+html+=’</div></div>’;
+}
+html+=’</div>’;
+}
+document.getElementById(“liste-rapports”).innerHTML=html;
 }
 
-function toggleRap(i){const c=document.getElementById(“liste-rapports”);c.dataset.exp=c.dataset.exp===String(i)?””:String(i);renderRapports();}
-function changerStatut(i,s){const r=getRapports().sort((a,b)=>b.soumisLe?.localeCompare(a.soumisLe));r[i].statut=s;saveRapports(r);renderRapports();showNotif(“Statut: “+s);}
+function toggleRap(i){expandedRap=expandedRap===i?null:i;renderRapports();}
 
-// SAV
-function showFormSav(){document.getElementById(“form-sav”).classList.remove(“hidden”);}
-function sauvegarderSav(){
-const client=document.getElementById(“sav-client”).value.trim();
-if(!client){showNotif(“Nom client requis”);return;}
-const savs=getSavs();
-savs.unshift({id:Date.now(),client,tel:document.getElementById(“sav-tel”).value.trim(),type:document.getElementById(“sav-type”).value,description:document.getElementById(“sav-desc”).value.trim(),technicien:document.getElementById(“sav-tech”).value,garantie:document.getElementById(“sav-garantie”).value,creeeAt:new Date().toISOString(),statut:“Ouvert”});
-saveSavs(savs);[“sav-client”,“sav-tel”,“sav-desc”].forEach(id=>document.getElementById(id).value=””);
-document.getElementById(“form-sav”).classList.add(“hidden”);renderSavs();showNotif(“Dossier SAV cree !”);
+function changerStatut(nom,date,statut){
+var r=getRapports(),i=r.findIndex(function(x){return x.clientNom===nom&&x.date===date;});
+if(i>=0){r[i].statut=statut;saveRapports(r);}
+renderRapports();showNotif(“Statut: “+statut);
 }
 
-function renderSavs(){
-const savs=getSavs();
-document.getElementById(“liste-sav”).innerHTML=savs.length?savs.map((s,i)=>{
-const tc=TC[s.technicien]||{color:”#94a3b8”,avatar:”??”};
-const gc=s.garantie===“oui”?”#4a9c3f”:s.garantie===“non”?”#ef4444”:”#eab308”;
-return`<div class="sav-card"> <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;"> <div> <div style="font-weight:700;font-size:14px;margin-bottom:4px;">${s.client}</div> <div style="color:var(--accent);font-size:12px;font-weight:700;">${s.type}</div> ${s.description?`<div style="color:var(--tl);font-size:12px;margin-top:4px;">${s.description}</div>`:""} <div style="color:var(--tl);font-size:11px;margin-top:4px;">${s.technicien} — ${new Date(s.creeeAt).toLocaleDateString("fr-FR")}</div> </div> <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;"> <div style="width:28px;height:28px;border-radius:8px;background:${tc.color}20;border:1px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;">${tc.avatar}</div> <span style="background:${gc}20;color:${gc};border:1px solid ${gc}40;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;">${s.garantie==="oui"?"GARANTIE":s.garantie==="non"?"HORS GAR.":"A VERIF."}</span> <span class="badge ${s.statut==='Resolu'?'badge-g':'badge-b'}">${s.statut}</span> </div> </div> <div style="display:flex;gap:8px;flex-wrap:wrap;"> ${s.tel?`<button class="btn btn-b" onclick="window.open('tel:${s.tel}')">Appeler</button>`:""} ${s.statut!=="Resolu"?`<button class="btn btn-g" onclick="resoudreSav(${i})">Resolu</button>`:""} <button class="btn btn-gray" onclick="supprimerSav(${i})">Supprimer</button> </div> </div>`;
-}).join(””):`<div class="empty-state"><div class="empty-icon">🔧</div>Aucun dossier SAV</div>`;
-}
-
-function resoudreSav(i){const s=getSavs();s[i].statut=“Resolu”;s[i].resoluAt=new Date().toISOString();saveSavs(s);renderSavs();showNotif(“SAV resolu !”);}
-function supprimerSav(i){const s=getSavs();s.splice(i,1);saveSavs(s);renderSavs();}
-
-// DEVIS
-function renderDevis(){
-const devis=getDevis().sort((a,b)=>b.date?.localeCompare(a.date));
-document.getElementById(“liste-devis”).innerHTML=devis.length?devis.map((d,i)=>` <div class="devis-card"> <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;"> <div> <div style="color:var(--accent);font-weight:700;font-size:14px;margin-bottom:4px;">${d.type}</div> <div style="color:var(--tl);font-size:12px;">${d.clientNom} — <a href="tel:${d.clientTel}" style="color:var(--accent);">${d.clientTel}</a></div> <div style="color:var(--tl);font-size:11px;">${d.adresse}</div> <div style="color:var(--tl);font-size:11px;">Par ${d.technicien} le ${d.date}</div> </div> <span class="badge ${d.statut==='Traite'?'badge-g':'badge-b'}">${d.statut}</span> </div> <div style="display:flex;gap:8px;flex-wrap:wrap;"> <button class="btn btn-b" onclick="window.open('tel:${d.clientTel}')">Appeler</button> ${d.statut!=="Traite"?`<button class="btn btn-g" onclick="marquerDevis(${i})">Traite</button>`:""} <button class="btn btn-gray" onclick="supprimerDevis(${i})">Supprimer</button> </div> </div>`).join(””):`<div class="empty-state"><div class="empty-icon">📝</div>Aucune demande de devis</div>`;
-}
-
-function marquerDevis(i){const d=getDevis().sort((a,b)=>b.date?.localeCompare(a.date));d[i].statut=“Traite”;saveDevis(d);renderDevis();showNotif(“Devis marque comme traite”);}
-function supprimerDevis(i){const d=getDevis().sort((a,b)=>b.date?.localeCompare(a.date));d.splice(i,1);saveDevis(d);renderDevis();}
-
-// FACTURATION
-function renderFacturation(){
-const raps=getRapports();
-const aFact=raps.filter(r=>r.statut===“Valide”||r.statut===“En attente facturation”);
-const factures=raps.filter(r=>r.statut===“Facture”);
-const payes=raps.filter(r=>r.statut===“Paye”);
-document.getElementById(“stats-fact”).innerHTML=[
-[“A facturer”,aFact.length+” — “+aFact.reduce((s,r)=>s+(r.montantFinal||0),0)+” EUR”,”#f97316”],
-[“Factures”,factures.length+” — “+factures.reduce((s,r)=>s+(r.montantFinal||0),0)+” EUR”,”#eab308”],
-[“Encaisse”,payes.length+” — “+payes.reduce((s,r)=>s+(r.montantFinal||0),0)+” EUR”,”#4a9c3f”],
-].map(([l,v,c])=>`<div class="stat-card" style="border-left:3px solid ${c}40;"><div class="lbl">${l.split(" ")[0].toUpperCase()}</div><div class="stat-val" style="color:${c};font-size:13px;">${v}</div></div>`).join(””);
-document.getElementById(“liste-a-facturer”).innerHTML=aFact.length?aFact.map((r,i)=>` <div class="fact-card"> <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;"> <div><div style="font-weight:700;font-size:14px;">${r.clientNom}</div><div style="color:var(--tl);font-size:12px;">${r.type} — ${r.date} — ${r.technicien}</div></div> <div style="text-align:right;"><div style="color:var(--green);font-weight:800;font-size:16px;">${r.montantFinal} EUR</div><span class="badge badge-p" style="font-size:10px;">${r.statut}</span></div> </div> <div style="display:flex;gap:8px;flex-wrap:wrap;"> <button class="btn btn-primary" onclick="ouvrirObatDirect('${r.clientNom}','${r.clientTel}','${r.adresse}','${r.type}','${r.date}','${r.technicien}','${r.heureDebut||""}','${r.heureFin||""}',${r.montantFinal},'${(r.description||"").substring(0,80)}')">Obat</button> <button class="btn btn-o" onclick="changerStatutClient('${r.clientNom}','${r.date}','Facture')">Facture</button> </div> </div>`).join(””):`<div style="color:var(--tl);font-size:13px;padding:12px 0;">Tout est facture !</div>`;
-document.getElementById(“liste-factures”).innerHTML=factures.length?factures.map(r=>` <div class="fact-card"> <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;"> <div><div style="font-weight:700;font-size:14px;">${r.clientNom}</div><div style="color:var(--tl);font-size:12px;">${r.type} — ${r.date}</div></div> <div style="text-align:right;"><div style="color:var(--green);font-weight:800;font-size:16px;">${r.montantFinal} EUR</div></div> </div> <button class="btn btn-g" onclick="changerStatutClient('${r.clientNom}','${r.date}','Paye')">Marquer paye</button> </div>`).join(””):`<div style="color:var(--tl);font-size:13px;padding:12px 0;">Aucune facture en attente</div>`;
-}
-
-function changerStatutClient(nom,date,statut){
-const raps=getRapports();const idx=raps.findIndex(r=>r.clientNom===nom&&r.date===date);
-if(idx>=0){raps[idx].statut=statut;saveRapports(raps);}renderFacturation();showNotif(“Statut: “+statut);
-}
-
-// OBAT
-function ouvrirObat(i){
-const r=getRapports().filter(x=>x.statut===“En attente facturation”)[i];
-if(!r)return;obatIdx=i;
-document.getElementById(“obat-client-nom”).textContent=r.clientNom;
-genObatText(r);
+function ouvrirObat(nom,tel,adresse,type,date,tech,debut,fin,montant,desc){
+document.getElementById(“obat-nom”).textContent=nom;
+document.getElementById(“obat-text”).textContent=
+“CLIENT\nNom : “+nom+”\nTel : “+tel+”\nAdresse : “+adresse+
+“\n\nINTERVENTION\nType : “+type+”\nDate : “+date+”\nTechnicien : “+tech+”\nDuree : “+debut+” a “+fin+
+“\n\nFACTURATION\nMontant HT : “+Math.round(montant/1.2)+” EUR\nTVA 20% : “+Math.round(montant-montant/1.2)+” EUR\nMontant TTC : “+montant+” EUR\n\nTRAVAUX\n”+desc;
 document.getElementById(“modal-obat”).classList.remove(“hidden”);
-}
-
-function ouvrirObatRapport(i){
-const r=getRapports().sort((a,b)=>b.soumisLe?.localeCompare(a.soumisLe))[i];
-if(!r)return;obatIdx=i;
-document.getElementById(“obat-client-nom”).textContent=r.clientNom;
-genObatText(r);
-document.getElementById(“modal-obat”).classList.remove(“hidden”);
-}
-
-function ouvrirObatDirect(nom,tel,adresse,type,date,tech,debut,fin,montant,desc){
-obatIdx=null;
-document.getElementById(“obat-client-nom”).textContent=nom;
-document.getElementById(“obat-text”).textContent=`CLIENT\nNom : ${nom}\nTel : ${tel}\nAdresse : ${adresse}\n\nINTERVENTION\nType : ${type}\nDate : ${date}\nTechnicien : ${tech}\nDuree : ${debut} a ${fin}\n\nFACTURATION\nMontant HT : ${Math.round(montant/1.2)} EUR\nTVA 20% : ${Math.round(montant-montant/1.2)} EUR\nMontant TTC : ${montant} EUR\n\nTRAVAUX\n${desc}`;
-document.getElementById(“modal-obat”).classList.remove(“hidden”);
-}
-
-function genObatText(r){
-document.getElementById(“obat-text”).textContent=`CLIENT\nNom : ${r.clientNom}\nTel : ${r.clientTel}\nAdresse : ${r.adresse}\n\nINTERVENTION\nType : ${r.type}\nDate : ${r.date}\nTechnicien : ${r.technicien}\nDuree : ${r.heureDebut||""} a ${r.heureFin||""}\n\nFACTURATION\nMontant HT : ${Math.round((r.montantFinal||0)/1.2)} EUR\nTVA 20% : ${Math.round((r.montantFinal||0)-(r.montantFinal||0)/1.2)} EUR\nMontant TTC : ${r.montantFinal} EUR\n\nTRAVAUX\n${r.description||"Voir rapport"}\n\nVENTES ADDITIONNELLES\n${(r.ventes||[]).map(v=>v.label).join(", ")||"Aucune"}`;
 }
 
 function copierObat(){navigator.clipboard.writeText(document.getElementById(“obat-text”).textContent);showNotif(“Copie ! Colle dans Obat”);}
-function marquerFacture(){
-if(obatIdx===null)return;
-const raps=getRapports().sort((a,b)=>b.soumisLe?.localeCompare(a.soumisLe));
-raps[obatIdx].statut=“Facture”;saveRapports(raps);closeModal(“modal-obat”);renderRapports();showNotif(“Marque comme facture !”);
+function marquerFacture(){closeModal(“modal-obat”);showNotif(“Marque comme facture !”);}
+
+function toggleFormSav(){document.getElementById(“form-sav”).classList.toggle(“hidden”);}
+
+function sauvegarderSav(){
+var client=document.getElementById(“sav-client”).value.trim();
+if(!client){showNotif(“Nom client requis”);return;}
+var s=getSavs();
+s.unshift({id:Date.now(),client:client,tel:document.getElementById(“sav-tel”).value.trim(),type:document.getElementById(“sav-type”).value,description:document.getElementById(“sav-desc”).value.trim(),technicien:document.getElementById(“sav-tech”).value,garantie:document.getElementById(“sav-garantie”).value,creeeAt:new Date().toISOString(),statut:“Ouvert”});
+saveSavs(s);
+[“sav-client”,“sav-tel”,“sav-desc”].forEach(function(id){document.getElementById(id).value=””;});
+document.getElementById(“form-sav”).classList.add(“hidden”);
+renderSavs();showNotif(“Dossier SAV cree !”);
 }
 
-// UTILS
+function renderSavs(){
+var savs=getSavs();
+if(!savs.length){document.getElementById(“liste-sav”).innerHTML=’<div class="empty-state"><div class="empty-icon">🔧</div>Aucun dossier SAV</div>’;return;}
+var html=””;
+for(var i=0;i<savs.length;i++){
+var s=savs[i],gc=s.garantie===“oui”?”#16a34a”:s.garantie===“non”?”#dc2626”:”#a16207”;
+var gl=s.garantie===“oui”?“GARANTIE”:s.garantie===“non”?“HORS GARANTIE”:“A VERIFIER”;
+html+=’<div class="sav-card"><div style="display:flex;justify-content:space-between;margin-bottom:8px;">’;
+html+=’<div><div style="font-weight:700;font-size:14px;color:#1a2537;margin-bottom:4px;">’+s.client+’</div>’;
+html+=’<div style="color:#1d4ed8;font-size:12px;font-weight:700;">’+s.type+’</div>’;
+if(s.description) html+=’<div style="color:#64748b;font-size:12px;margin-top:4px;">’+s.description+’</div>’;
+html+=’<div style="color:#94a3b8;font-size:11px;margin-top:4px;">’+s.technicien+’ - ‘+new Date(s.creeeAt).toLocaleDateString(“fr-FR”)+’</div></div>’;
+html+=’<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">’;
+html+=’<span style="background:'+gc+'20;color:'+gc+';border:1px solid '+gc+'40;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;">’+gl+’</span>’;
+html+=’<span class=“badge ‘+(s.statut===“Resolu”?“badge-green”:“badge-blue”)+’”>’+s.statut+’</span></div></div>’;
+html+=’<div style="display:flex;gap:8px;flex-wrap:wrap;">’;
+if(s.tel) html+=’<button class="btn btn-blue" onclick="window.open(\'tel:'+s.tel+'\')">Appeler</button>’;
+if(s.statut!==“Resolu”) html+=’<button class="btn btn-green" onclick="resoudreSav('+i+')">Resolu</button>’;
+html+=’<button class="btn btn-gray" onclick="supprimerSav('+i+')">Supprimer</button>’;
+html+=’</div></div>’;
+}
+document.getElementById(“liste-sav”).innerHTML=html;
+}
+
+function resoudreSav(i){var s=getSavs();s[i].statut=“Resolu”;s[i].resoluAt=new Date().toISOString();saveSavs(s);renderSavs();showNotif(“SAV resolu !”);}
+function supprimerSav(i){var s=getSavs();s.splice(i,1);saveSavs(s);renderSavs();}
+
+function renderDevis(){
+var devis=getDevis().sort(function(a,b){return b.date?b.date.localeCompare(a.date):0;});
+if(!devis.length){document.getElementById(“liste-devis”).innerHTML=’<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">📝</div>Aucune demande</div>’;return;}
+var html=””;
+for(var i=0;i<devis.length;i++){
+var d=devis[i];
+html+=’<div class="devis-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">’;
+html+=’<div><div style="color:#1d4ed8;font-weight:700;font-size:14px;margin-bottom:4px;">’+d.type+’</div>’;
+html+=’<div style="color:#64748b;font-size:12px;">’+d.clientNom+’ - ‘+d.clientTel+’</div>’;
+html+=’<div style="color:#94a3b8;font-size:11px;">’+d.adresse+’</div>’;
+html+=’<div style="color:#94a3b8;font-size:11px;">Par ‘+d.technicien+’ le ‘+d.date+’</div></div>’;
+html+=’<span class=“badge ‘+(d.statut===“Traite”?“badge-green”:“badge-blue”)+’”>’+d.statut+’</span></div>’;
+html+=’<div style="display:flex;gap:8px;flex-wrap:wrap;">’;
+html+=’<button class="btn btn-blue" onclick="window.open(\'tel:'+d.clientTel+'\')">Appeler</button>’;
+if(d.statut!==“Traite”) html+=’<button class="btn btn-green" onclick="marquerDevisTraite('+i+')">Traite</button>’;
+html+=’<button class="btn btn-gray" onclick="supprimerDevis('+i+')">Supprimer</button>’;
+html+=’</div></div>’;
+}
+document.getElementById(“liste-devis”).innerHTML=html;
+}
+
+function marquerDevisTraite(i){var d=getDevis().sort(function(a,b){return b.date?b.date.localeCompare(a.date):0;});d[i].statut=“Traite”;saveDevis(d);renderDevis();showNotif(“Devis traite”);}
+function supprimerDevis(i){var d=getDevis().sort(function(a,b){return b.date?b.date.localeCompare(a.date):0;});d.splice(i,1);saveDevis(d);renderDevis();}
+
+function renderFacturation(){
+var r=getRapports();
+var aF=r.filter(function(x){return x.statut===“Valide”||x.statut===“En attente facturation”;});
+var f=r.filter(function(x){return x.statut===“Facture”;});
+var p=r.filter(function(x){return x.statut===“Paye”;});
+document.getElementById(“stats-fact”).innerHTML=[
+[“A facturer”,aF.length+” - “+aF.reduce(function(s,x){return s+(x.montantFinal||0);},0)+” EUR”,”#c2410c”,”#ffedd5”,”#fed7aa”],
+[“Factures”,f.length+” - “+f.reduce(function(s,x){return s+(x.montantFinal||0);},0)+” EUR”,”#a16207”,”#fef9c3”,”#fde68a”],
+[“Encaisse”,p.length+” - “+p.reduce(function(s,x){return s+(x.montantFinal||0);},0)+” EUR”,”#16a34a”,”#dcfce7”,”#bbf7d0”]
+].map(function(x){return ‘<div class="stat-card" style="border-left:4px solid '+x[2]+';background:'+x[3]+';border-color:'+x[4]+'"><div class="lbl" style="color:'+x[2]+';">’+x[0].toUpperCase()+’</div><div class="stat-val" style="color:'+x[2]+';font-size:12px;">’+x[1]+’</div></div>’;}).join(””);
+
+var hAF=aF.length?aF.map(function(r){
+return ‘<div class="fact-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;"><div><div style="font-weight:700;font-size:14px;color:#1a2537;">’+r.clientNom+’</div><div style="color:#64748b;font-size:12px;">’+r.type+’ - ‘+r.date+’</div></div><div style="color:#1a3a5c;font-weight:800;font-size:16px;">’+r.montantFinal+’ EUR</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;"><button class=“btn btn-primary” onclick=“ouvrirObat('’+r.clientNom+’','’+r.clientTel+’','’+r.adresse+’','’+r.type+’','’+r.date+’','’+r.technicien+’','’+r.heureDebut+’','’+r.heureFin+’',’+r.montantFinal+’,'’+(r.description||””).substring(0,80).replace(/’/g,” “)+’')”>Obat</button><button class="btn btn-orange" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Facture\')">Marquer facture</button></div></div>’;
+}).join(””):’<div style="color:#94a3b8;font-size:13px;padding:16px 0;">Tout est facture !</div>’;
+document.getElementById(“liste-a-facturer”).innerHTML=hAF;
+
+var hF=f.length?f.map(function(r){
+return ‘<div class="fact-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;"><div><div style="font-weight:700;font-size:14px;color:#1a2537;">’+r.clientNom+’</div><div style="color:#64748b;font-size:12px;">’+r.type+’ - ‘+r.date+’</div></div><div style="color:#1a3a5c;font-weight:800;font-size:16px;">’+r.montantFinal+’ EUR</div></div><button class="btn btn-green" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Paye\')">Paye</button></div>’;
+}).join(””):’<div style="color:#94a3b8;font-size:13px;padding:16px 0;">Aucune facture en attente</div>’;
+document.getElementById(“liste-factures”).innerHTML=hF;
+}
+
+function renderDashboard(){
+var rdvs=getRdvs(),rapports=getRapports(),dispos=getDispos();
+var urgences=getUrgences().filter(function(u){return u.statut!==“Resolu”;});
+var devis=getDevis().filter(function(d){return d.statut!==“Traite”;});
+var savs=getSavs().filter(function(s){return s.statut!==“Resolu”;});
+var aValider=rapports.filter(function(r){return r.statut===“En attente facturation”;});
+var rdvsAuj=rdvs.filter(function(r){return r.dateRdv===todayStr();});
+var rdvFaits=rdvsAuj.filter(function(r){return r.statut===“Termine”;}).length;
+var caJour=rapports.filter(function(r){return r.date===todayStr();}).reduce(function(s,r){return s+(r.montantFinal||0);},0);
+
+var now=new Date();
+document.getElementById(“dash-date”).textContent=now.toLocaleDateString(“fr-FR”,{weekday:“long”,day:“numeric”,month:“long”});
+
+// Stats cards
+var stats=[
+[“INTERVENTIONS DU JOUR”,rdvFaits+” / “+rdvsAuj.length,”#1a3a5c”,”#dbeafe”],
+[“CA DU JOUR”,caJour+” EUR”,”#4a9c3f”,”#dcfce7”],
+[“URGENCES ACTIVES”,urgences.length,”#dc2626”,”#fee2e2”],
+[“A VALIDER”,aValider.length,”#a16207”,”#fef9c3”]
+];
+document.getElementById(“dash-stats”).innerHTML=stats.map(function(x){
+return ‘<div style="background:'+x[3]+';border-radius:14px;padding:16px;text-align:center;border:1px solid '+x[2]+'30;"><div style="color:'+x[2]+';font-size:9px;letter-spacing:1px;font-weight:700;">’+x[0]+’</div><div style="color:'+x[2]+';font-weight:800;font-size:24px;margin-top:6px;">’+x[1]+’</div></div>’;
+}).join(””);
+
+// Techniciens dispo vs occupe
+var techs=[“Technicien 1”,“Technicien 2”];
+var html=””;
+for(var i=0;i<techs.length;i++){
+var nom=techs[i],d=dispos[nom]||{statut:“Non connecte”};
+var color=STATUT_C[d.statut]||”#64748b”,tc=TECH_C[nom];
+html+=’<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;">’;
+html+=’<div style="width:34px;height:34px;border-radius:9px;background:'+tc.bg+';border:1px solid '+tc.c+';color:'+tc.c+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;">’+tc.a+’</div>’;
+html+=’<div style="flex:1;font-weight:600;font-size:13px;color:#1a2537;">’+nom+’</div>’;
+html+=’<div style="display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:'+color+';"></span><span style="color:'+color+';font-size:12px;font-weight:700;">’+d.statut+’</span></div>’;
+html+=’</div>’;
+}
+document.getElementById(“dash-techs”).innerHTML=html;
+
+// Urgences actives
+var uCard=document.getElementById(“dash-urgences-card”);
+if(urgences.length>0){
+uCard.style.display=“block”;
+document.getElementById(“dash-urgences”).innerHTML=urgences.map(function(u){
+return ‘<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #fecaca;"><div><div style="font-weight:700;font-size:13px;color:#1a2537;">’+u.clientNom+’</div><div style="color:#dc2626;font-size:11px;">’+u.type+’</div></div><button class="btn btn-red" style="padding:5px 10px;font-size:11px;" onclick="window.open(\'tel:'+u.clientTel+'\')">Appeler</button></div>’;
+}).join(””);
+} else { uCard.style.display=“none”; }
+
+// A traiter
+var todo=[];
+if(devis.length>0) todo.push([devis.length+” demande(s) de devis”,”#1d4ed8”,“showPage(‘devis’,document.querySelectorAll(’.nav-btn’)[7])”]);
+if(savs.length>0) todo.push([savs.length+” dossier(s) SAV ouvert(s)”,”#1d4ed8”,“showPage(‘sav’,document.querySelectorAll(’.nav-btn’)[6])”]);
+if(aValider.length>0) todo.push([aValider.length+” rapport(s) a valider”,”#a16207”,“showPage(‘validation’,document.querySelectorAll(’.nav-btn’)[4])”]);
+if(todo.length===0){
+document.getElementById(“dash-todo”).innerHTML=’<div style="color:#94a3b8;font-size:13px;padding:8px 0;text-align:center;">Rien a traiter, tout est a jour !</div>’;
+} else {
+document.getElementById(“dash-todo”).innerHTML=todo.map(function(t){
+return ‘<div onclick="'+t[2]+'" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:6px;cursor:pointer;"><span style="color:'+t[1]+';font-size:13px;font-weight:600;">’+t[0]+’</span><span style="color:'+t[1]+';font-size:16px;">›</span></div>’;
+}).join(””);
+}
+}
+
+var PROCEDURES=[
+{titre:“Creer un nouveau RDV”,etapes:[“Verifier la dispo du technicien dans l’onglet Dispos ou Tableau”,“Aller dans + RDV”,“Remplir nom, telephone, adresse, type d’intervention”,“Choisir date, heure et technicien disponible”,“Indiquer le prix de vente”,“Ajouter une note si infos importantes (acces, etage, code…)”,“Valider : le technicien est notifie automatiquement”]},
+{titre:“Assigner selon la disponibilite”,etapes:[“Toujours verifier le statut du technicien avant d’assigner”,“Vert = Disponible : on peut assigner”,“Orange = En intervention : verifier son planning, assigner apres son RDV en cours”,“Rouge = Indisponible : assigner a l’autre technicien”,“Regarder le planning du jour pour eviter les chevauchements”]},
+{titre:“Gerer une urgence”,etapes:[“Aller dans l’onglet Urgences”,“Cliquer + Nouvelle urgence”,“Remplir les infos client et le type d’urgence”,“Assigner au technicien le plus proche / disponible”,“Le chrono demarre automatiquement”,“Une fois l’intervention faite, cliquer Resolu”,“Si besoin, convertir l’urgence en RDV planifie”]},
+{titre:“Valider un rapport d’intervention”,etapes:[“Aller dans l’onglet Validation”,“Verifier les photos avant / apres”,“Lire la description des travaux”,“Verifier le montant”,“Si tout est bon : cliquer Valider”,“Si probleme : ajouter un commentaire et cliquer Refuser”,“Le rapport valide passe en facturation”]},
+{titre:“Gerer un dossier SAV”,etapes:[“Aller dans l’onglet SAV”,“Cliquer + Nouveau SAV”,“Remplir client, type de probleme et description”,“Indiquer si c’est sous garantie ou non”,“Assigner le technicien concerne”,“Suivre le dossier jusqu’a resolution”,“Cliquer Resolu une fois le probleme regle”]},
+{titre:“Decaler un RDV et prevenir le client”,etapes:[“Identifier le RDV a decaler dans le planning”,“Appeler le client pour proposer un nouveau creneau”,“Verifier la dispo du technicien sur le nouveau creneau”,“Modifier la date/heure du RDV”,“Confirmer le nouveau creneau au client par telephone”,“Prevenir le technicien du changement”]},
+{titre:“Preparer une facture (Obat)”,etapes:[“Aller dans Facturation ou Rapports”,“Cliquer sur Preparer Obat / Obat”,“Copier les infos generees”,“Ouvrir le logiciel Obat”,“Coller et creer la facture”,“Revenir et marquer le rapport comme Facture”]}
+];
+
+function renderProcedures(){
+var html=””;
+for(var i=0;i<PROCEDURES.length;i++){
+var p=PROCEDURES[i];
+html+=’<div class="card" style="border-left:4px solid #1a3a5c;">’;
+html+=’<div onclick="toggleProc('+i+')" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">’;
+html+=’<div style="font-weight:700;font-size:14px;color:#1a3a5c;">’+(i+1)+’. ‘+p.titre+’</div>’;
+html+=’<span id="proc-arrow-'+i+'" style="color:#94a3b8;font-size:18px;">+</span></div>’;
+html+=’<div id="proc-body-'+i+'" class="hidden" style="margin-top:12px;">’;
+for(var j=0;j<p.etapes.length;j++){
+html+=’<div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #f1f5f9;">’;
+html+=’<div style="width:22px;height:22px;border-radius:50%;background:#dcfce7;color:#4a9c3f;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;flex-shrink:0;">’+(j+1)+’</div>’;
+html+=’<div style="color:#475569;font-size:13px;line-height:1.5;">’+p.etapes[j]+’</div></div>’;
+}
+html+=’</div></div>’;
+}
+document.getElementById(“liste-procedures”).innerHTML=html;
+}
+
+function toggleProc(i){
+var b=document.getElementById(“proc-body-”+i);
+var a=document.getElementById(“proc-arrow-”+i);
+b.classList.toggle(“hidden”);
+a.textContent=b.classList.contains(“hidden”)?”+”:”-”;
+}
+
+function renderInfos(){
+var prix=JSON.parse(localStorage.getItem(“pl_prix”)||’{“Fuite d'eau”:280,“Debouchage”:150,“Chaudiere”:450,“Ballon d'eau chaude”:380,“Robinetterie”:200,“Installation sanitaire”:350,“Urgent / Depannage”:320,“Autre”:250}’);
+var html=””;
+// Tarifs
+html+=’<div class="card" style="border-left:4px solid #4a9c3f;margin-bottom:12px;">’;
+html+=’<div class="lbl">TARIFS INDICATIFS PAR INTERVENTION</div>’;
+var keys=Object.keys(prix);
+for(var i=0;i<keys.length;i++){
+html+=’<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#475569;font-size:13px;">’+keys[i]+’</span><span style="color:#1a3a5c;font-weight:700;">’+prix[keys[i]]+’ EUR</span></div>’;
+}
+html+=’</div>’;
+// Infos produits
+html+=’<div class="card" style="border-left:4px solid #1a3a5c;margin-bottom:12px;">’;
+html+=’<div class="lbl">INFOS PRODUITS GREENFLOW</div>’;
+var produits=[
+[“Climatisation”,“Systemes performants pour un confort optimal toute l’annee”],
+[“Pompe a chaleur”,“Economique et ecologique, reduit la consommation d’energie”],
+[“Chaudiere”,“Gaz a condensation ou hybride, chauffage fiable et economique”],
+[“Ballon d’eau chaude”,“Confort sanitaire optimal au quotidien”],
+[“Ballon thermodynamique”,“Production d’eau chaude ecologique, jusqu’a -70% d’energie”],
+[“Adoucisseur”,“Protege les installations contre le calcaire”]
+];
+for(var k=0;k<produits.length;k++){
+html+=’<div style="padding:8px 0;border-bottom:1px solid #f1f5f9;"><div style="font-weight:700;font-size:13px;color:#1a3a5c;">’+produits[k][0]+’</div><div style="color:#64748b;font-size:12px;margin-top:2px;">’+produits[k][1]+’</div></div>’;
+}
+html+=’</div>’;
+// Contacts
+html+=’<div class="card" style="border-left:4px solid #7bc144;">’;
+html+=’<div class="lbl">CONTACTS IMPORTANTS</div>’;
+var contacts=JSON.parse(localStorage.getItem(“pl_contacts”)||’[{“nom”:“Patron”,“tel”:“06 12 34 56 78”}]’);
+for(var m=0;m<contacts.length;m++){
+html+=’<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#475569;font-size:13px;font-weight:600;">’+contacts[m].nom+’</span><a href="tel:'+contacts[m].tel+'" style="color:#1d4ed8;font-size:13px;font-weight:700;">’+contacts[m].tel+’</a></div>’;
+}
+html+=’<div style="color:#94a3b8;font-size:11px;margin-top:10px;">En cas d'urgence grave (degat des eaux important, fuite de gaz) : prevenir immediatement le patron et orienter le client vers les services d'urgence si danger.</div>’;
+html+=’</div>’;
+document.getElementById(“liste-infos”).innerHTML=html;
+}
+
+function closeModal(id){document.getElementById(id).classList.add(“hidden”);}
 function openPhotoFs(src){document.getElementById(“photo-fs-img”).src=src;document.getElementById(“photo-fs”).classList.remove(“hidden”);}
 function closePhotoFs(){document.getElementById(“photo-fs”).classList.add(“hidden”);}
-function closeModal(id){document.getElementById(id).classList.add(“hidden”);}
-function showNotif(msg){const n=document.createElement(“div”);n.className=“notif”;n.textContent=msg;document.body.appendChild(n);setTimeout(()=>n.remove(),3500);}
+function showNotif(msg){
+var n=document.createElement(“div”);n.className=“notif”;n.textContent=msg;
+document.body.appendChild(n);setTimeout(function(){n.remove();},3500);
+}
 
-window.onload=()=>{
-document.querySelectorAll(”.pin-input”).forEach((el,i,arr)=>{
-el.addEventListener(“input”,()=>{if(el.value&&i<arr.length-1)arr[i+1].focus();});
-el.addEventListener(“keydown”,e=>{if(e.key===“Backspace”&&!el.value&&i>0)arr[i-1].focus();});
-});
-const s=localStorage.getItem(“pl_dispatch_session”);
-if(s)lancerApp();
+window.onload=function(){
+initPins();
+var s=localStorage.getItem(“pl_dispatch_session”);
+if(s) lancerApp();
 };
 </script>
 
