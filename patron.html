@@ -4,99 +4,163 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Patron - Plomberie Pro</title>
+<title>GreenFlow - Espace Patron</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif;}
-body{background:#0a0a0a;color:#f1f1f1;min-height:100vh;}
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Poppins',sans-serif;}
+:root{
+  --primary:#1a3a5c;
+  --green:#4a9c3f;
+  --green-light:#7bc144;
+  --accent:#2d6a9f;
+  --bg:#f0f4f8;
+  --card:#ffffff;
+  --border:#e2e8f0;
+  --text:#1a2537;
+  --text-light:#64748b;
+  --shadow:0 2px 12px rgba(26,58,92,0.08);
+  --red:#ef4444;
+  --orange:#f97316;
+  --yellow:#eab308;
+}
+body{background:var(--bg);color:var(--text);min-height:100vh;}
 .hidden{display:none!important;}
-#login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
-.login-box{background:#141414;border:1px solid #222;border-radius:20px;padding:40px 30px;width:100%;max-width:380px;text-align:center;}
-.field{margin-bottom:16px;text-align:left;}
-.field label{display:block;color:#666;font-size:11px;letter-spacing:1px;margin-bottom:6px;}
-.field input{width:100%;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:10px;padding:12px 16px;color:#f1f1f1;font-size:16px;outline:none;}
+
+#login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:linear-gradient(135deg,#1a3a5c 0%,#2d6a9f 50%,#4a9c3f 100%);}
+.login-box{background:#fff;border-radius:24px;padding:40px 32px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
+.logo-svg{display:block;margin:0 auto 16px;}
+.login-title{color:var(–primary);font-size:20px;font-weight:700;text-align:center;margin-bottom:6px;}
+.login-sub{color:var(–text-light);font-size:13px;text-align:center;margin-bottom:28px;}
+.field{margin-bottom:16px;}
+.field label{display:block;color:var(–text-light);font-size:11px;letter-spacing:1px;font-weight:600;margin-bottom:6px;}
+.field input{width:100%;background:#f8fafc;border:2px solid var(–border);border-radius:12px;padding:12px 16px;color:var(–text);font-size:15px;outline:none;transition:border-color 0.2s;}
+.field input:focus{border-color:var(–green);}
 .pin-row{display:flex;gap:10px;justify-content:center;margin:10px 0;}
-.pin-input{width:56px!important;height:56px;text-align:center;font-size:22px;font-weight:800;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:12px;color:#f97316;outline:none;}
-.btn-primary{width:100%;background:#f97316;color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px;}
-.error-msg{color:#ef4444;font-size:13px;margin-top:10px;}
-.header{background:#0f0f0f;border-bottom:1px solid #1a1a1a;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
-.avatar{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;background:#f9731625;border:2px solid #f97316;color:#f97316;}
-.btn-logout{background:#ef444418;border:1px solid #ef444430;color:#ef4444;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;}
-.nav{background:#0f0f0f;border-bottom:1px solid #1a1a1a;display:flex;overflow-x:auto;}
-.nav button{flex:1;min-width:75px;background:none;border:none;border-bottom:2px solid transparent;padding:11px 6px;color:#555;cursor:pointer;font-size:10px;font-weight:700;white-space:nowrap;transition:all 0.2s;}
-.nav button.active{color:#f97316;border-bottom-color:#f97316;}
+.pin-input{width:56px!important;height:56px;text-align:center;font-size:22px;font-weight:800;background:#f8fafc;border:2px solid var(–border);border-radius:12px;color:var(–green);outline:none;}
+.btn-login{width:100%;background:linear-gradient(135deg,var(–primary),var(–green));color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;}
+.error-msg{color:#ef4444;font-size:13px;text-align:center;margin-top:10px;}
+
+.header{background:linear-gradient(135deg,var(–primary),var(–accent));padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(26,58,92,0.2);}
+.btn-logout{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;}
+.header-ca{color:#7bc144;font-weight:800;font-size:16px;}
+.header-ca-label{color:rgba(255,255,255,0.6);font-size:9px;letter-spacing:1px;}
+
+.nav{background:#fff;border-bottom:2px solid var(–border);display:flex;overflow-x:auto;box-shadow:var(–shadow);}
+.nav button{flex:1;min-width:70px;background:none;border:none;border-bottom:3px solid transparent;padding:11px 6px;color:var(–text-light);cursor:pointer;font-size:10px;font-weight:600;white-space:nowrap;transition:all 0.2s;font-family:‘Poppins’,sans-serif;}
+.nav button.active{color:var(–green);border-bottom-color:var(–green);}
+.nav button.urgence-active{color:var(–red);}
+
 .content{max-width:700px;margin:0 auto;padding:16px;}
-.card{background:#141414;border:1px solid #222;border-radius:14px;padding:16px 18px;margin-bottom:12px;}
-.lbl{color:#555;font-size:10px;letter-spacing:1.5px;margin-bottom:8px;font-weight:700;}
-.badge{display:inline-block;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;}
-.badge-green{background:#22c55e20;color:#22c55e;border:1px solid #22c55e40;}
-.badge-orange{background:#f9731620;color:#f97316;border:1px solid #f9731640;}
-.badge-yellow{background:#eab30820;color:#eab308;border:1px solid #eab30840;}
-.badge-red{background:#ef444420;color:#ef4444;border:1px solid #ef444440;}
-.badge-purple{background:#8b5cf620;color:#8b5cf6;border:1px solid #8b5cf640;}
-.badge-blue{background:#3b82f620;color:#3b82f6;border:1px solid #3b82f640;}
-.btn{border:none;border-radius:10px;padding:10px 16px;cursor:pointer;font-size:12px;font-weight:700;}
-.btn-orange{background:#f9731618;color:#f97316;border:1px solid #f9731640!important;}
-.btn-green{background:#22c55e18;color:#22c55e;border:1px solid #22c55e40!important;}
-.btn-blue{background:#3b82f618;color:#3b82f6;border:1px solid #3b82f640!important;}
-.btn-gray{background:#1e1e1e;color:#ccc;border:1px solid #333!important;}
-.btn-red{background:#ef444418;color:#ef4444;border:1px solid #ef444440!important;}
-.btn-yellow{background:#eab30818;color:#eab308;border:1px solid #eab30840!important;}
-.btn-full{width:100%;}
+.card{background:#fff;border:1px solid var(–border);border-radius:16px;padding:16px 18px;margin-bottom:12px;box-shadow:var(–shadow);}
+.card.green{border-left:4px solid var(–green);}
+.card.blue{border-left:4px solid var(–accent);}
+.card.orange{border-left:4px solid var(–orange);}
+.card.red{border-left:4px solid var(–red);}
+.card.yellow{border-left:4px solid var(–yellow);}
+.lbl{color:var(–text-light);font-size:10px;letter-spacing:1.5px;margin-bottom:8px;font-weight:700;}
+
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
-.stat-card{background:#141414;border:1px solid #222;border-radius:12px;padding:14px;text-align:center;}
-.stat-val{font-weight:800;font-size:20px;margin-top:4px;}
-.stat-sub{color:#555;font-size:11px;margin-top:2px;}
-.progress-bar{background:#1a1a1a;border-radius:6px;height:8px;margin-top:6px;overflow:hidden;}
+.stat-card{background:#fff;border:1px solid var(–border);border-radius:12px;padding:14px;text-align:center;box-shadow:var(–shadow);}
+.stat-val{font-weight:800;font-size:18px;margin-top:4px;}
+.progress-bar{background:#e2e8f0;border-radius:6px;height:8px;margin-top:6px;overflow:hidden;}
 .progress-fill{height:100%;border-radius:6px;transition:width 0.5s;}
-.tech-card{background:#141414;border:1px solid #222;border-radius:14px;padding:14px 16px;margin-bottom:10px;}
-.statut-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;}
+
+.badge{display:inline-block;border-radius:8px;padding:3px 10px;font-size:10px;font-weight:700;}
+.badge-green{background:#dcfce7;color:#15803d;}
+.badge-blue{background:#dbeafe;color:#1d4ed8;}
+.badge-orange{background:#ffedd5;color:#c2410c;}
+.badge-yellow{background:#fef9c3;color:#854d0e;}
+.badge-red{background:#fee2e2;color:#b91c1c;}
+.badge-purple{background:#f3e8ff;color:#7c3aed;}
+
+.btn{border:none;border-radius:10px;padding:10px 16px;cursor:pointer;font-size:12px;font-weight:600;font-family:‘Poppins’,sans-serif;transition:all 0.2s;}
+.btn-green{background:#dcfce7;color:#15803d;}
+.btn-blue{background:#dbeafe;color:#1d4ed8;}
+.btn-orange{background:#ffedd5;color:#c2410c;}
+.btn-gray{background:#f1f5f9;color:#475569;}
+.btn-red{background:#fee2e2;color:#b91c1c;}
+.btn-primary{background:linear-gradient(135deg,var(–primary),var(–green));color:#fff;font-weight:700;}
+.btn-full{width:100%;display:block;padding:13px;font-size:14px;}
+
 .form-field{margin-bottom:14px;}
-.form-field label{display:block;color:#555;font-size:10px;letter-spacing:1px;margin-bottom:6px;}
-.form-input{width:100%;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:8px;padding:11px 14px;color:#f1f1f1;font-size:14px;outline:none;box-sizing:border-box;}
-.form-select{width:100%;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:8px;padding:11px 14px;color:#f1f1f1;font-size:14px;outline:none;box-sizing:border-box;}
-.rapport-card{background:#141414;border:1px solid #222;border-radius:14px;margin-bottom:10px;overflow:hidden;}
+.form-field label{display:block;color:var(–text-light);font-size:10px;letter-spacing:1px;font-weight:600;margin-bottom:6px;}
+.form-input{width:100%;background:#f8fafc;border:2px solid var(–border);border-radius:10px;padding:11px 14px;color:var(–text);font-size:14px;outline:none;box-sizing:border-box;transition:border-color 0.2s;font-family:‘Poppins’,sans-serif;}
+.form-input:focus{border-color:var(–green);}
+.form-select{width:100%;background:#f8fafc;border:2px solid var(–border);border-radius:10px;padding:11px 14px;color:var(–text);font-size:14px;outline:none;box-sizing:border-box;font-family:‘Poppins’,sans-serif;}
+.form-textarea{width:100%;background:#f8fafc;border:2px solid var(–border);border-radius:10px;padding:11px 14px;color:var(–text);font-size:14px;outline:none;resize:vertical;font-family:‘Poppins’,sans-serif;box-sizing:border-box;}
+
+.tech-card{background:#fff;border:1px solid var(–border);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:var(–shadow);}
+.statut-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;}
+
+.rapport-card{background:#fff;border:1px solid var(–border);border-radius:14px;margin-bottom:10px;overflow:hidden;box-shadow:var(–shadow);}
 .rapport-header{padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;}
-.rapport-body{padding:0 16px 16px;border-top:1px solid #1a1a1a;}
+.rapport-body{padding:0 16px 16px;border-top:1px solid var(–border);}
 .photos-row{display:flex;gap:8px;margin-top:8px;overflow-x:auto;}
-.photo-thumb{width:80px;height:80px;object-fit:cover;border-radius:8px;flex-shrink:0;cursor:pointer;border:1px solid #333;}
-.desc-box{background:#0f0f0f;border-radius:8px;padding:10px 12px;color:#ccc;font-size:13px;line-height:1.6;margin-top:4px;}
-.actions-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
-.ranking-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #1a1a1a;}
-.ranking-pos{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;}
-.bar-chart{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
-.bar-row{display:flex;align-items:center;gap:10px;}
-.bar-label{color:#888;font-size:12px;min-width:120px;}
-.bar-track{flex:1;background:#1a1a1a;border-radius:6px;height:20px;overflow:hidden;position:relative;}
-.bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:700;transition:width 0.5s;}
-.alerte-card{background:#141414;border:1px solid #ef444440;border-left:3px solid #ef4444;border-radius:12px;padding:12px 14px;margin-bottom:8px;}
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:100;overflow-y:auto;display:flex;align-items:flex-end;justify-content:center;}
-.modal-sheet{background:#0f0f0f;border:1px solid #2a2a2a;border-radius:20px 20px 0 0;width:100%;max-width:600px;padding:24px 20px 40px;}
-.modal-close{background:#222;border:none;color:#888;border-radius:8px;width:34px;height:34px;font-size:18px;cursor:pointer;}
+.photo-thumb{width:80px;height:80px;object-fit:cover;border-radius:8px;flex-shrink:0;cursor:pointer;border:1px solid var(–border);}
+.desc-box{background:#f8fafc;border-radius:10px;padding:10px 12px;color:var(–text);font-size:13px;line-height:1.6;margin-top:4px;border-left:3px solid var(–green);}
+
+.urgence-card{background:#fff;border:2px solid #fee2e2;border-left:4px solid var(–red);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:var(–shadow);}
+.urgence-active{animation:pulse-red 2s infinite;}
+@keyframes pulse-red{0%,100%{box-shadow:var(–shadow);}50%{box-shadow:0 0 16px rgba(239,68,68,0.3);}}
+
+.valid-card{background:#fff;border:2px solid #fef9c3;border-left:4px solid var(–yellow);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:var(–shadow);}
+.sav-card{background:#fff;border:2px solid #dbeafe;border-left:4px solid var(–accent);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:var(–shadow);}
+.devis-card{background:#fff;border:2px solid #dbeafe;border-left:4px solid var(–accent);border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+.fact-card{background:#fff;border:1px solid var(–border);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:var(–shadow);}
+.alerte-card{background:#fee2e2;border-left:4px solid var(–red);border-radius:10px;padding:12px 14px;margin-bottom:8px;}
+
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.bar-label{color:var(–text-light);font-size:12px;min-width:120px;}
+.bar-track{flex:1;background:#e2e8f0;border-radius:6px;height:22px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:600;transition:width 0.5s;}
+
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;overflow-y:auto;display:flex;align-items:flex-end;justify-content:center;}
+.modal-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:600px;padding:24px 20px 40px;box-shadow:0 -8px 40px rgba(0,0,0,0.15);}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.modal-title{color:var(–green);font-size:11px;letter-spacing:2px;font-weight:700;}
+.modal-subtitle{font-size:17px;font-weight:800;margin-top:2px;color:var(–text);}
+.modal-close{background:#f1f5f9;border:none;color:var(–text-light);border-radius:8px;width:34px;height:34px;font-size:18px;cursor:pointer;}
+
+.obat-box{background:#f0f9f0;border:1px solid #c3e6c3;border-radius:12px;padding:14px;}
+.obat-text{color:var(–text);font-size:12px;line-height:1.9;font-family:monospace;white-space:pre-wrap;}
+
 .photo-fs{position:fixed;inset:0;background:#000;z-index:200;display:flex;align-items:center;justify-content:center;}
 .photo-fs img{max-width:100%;max-height:100%;}
-.photo-fs-close{position:absolute;top:20px;right:20px;background:#333;border:none;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;}
-.notif{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#f97316;color:#000;border-radius:12px;padding:12px 20px;font-weight:700;font-size:14px;z-index:999;animation:slideIn 0.3s ease;}
+.photo-fs-close{position:absolute;top:20px;right:20px;background:#fff;border:none;color:#000;border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:600;}
+
+.notif{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(–green);color:#fff;border-radius:12px;padding:12px 20px;font-weight:700;font-size:14px;z-index:999;animation:slideIn 0.3s ease;box-shadow:0 4px 20px rgba(74,156,63,0.3);}
 @keyframes slideIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-.empty-state{text-align:center;padding:40px 0;color:#333;}
+.empty-state{text-align:center;padding:40px 0;color:var(–text-light);}
 .empty-icon{font-size:40px;margin-bottom:12px;}
-.periode-tabs{display:flex;gap:4px;background:#0f0f0f;border-radius:10px;padding:4px;margin-bottom:16px;}
-.periode-btn{flex:1;background:none;border:none;border-radius:8px;padding:8px 4px;color:#555;cursor:pointer;font-size:11px;font-weight:700;transition:all 0.2s;}
-.periode-btn.active{background:#f97316;color:#000;}
+.periode-tabs{display:flex;gap:4px;background:#e2e8f0;border-radius:12px;padding:4px;margin-bottom:16px;}
+.periode-btn{flex:1;background:none;border:none;border-radius:10px;padding:8px 4px;color:var(–text-light);cursor:pointer;font-size:11px;font-weight:600;transition:all 0.2s;font-family:‘Poppins’,sans-serif;}
+.periode-btn.active{background:#fff;color:var(–green);box-shadow:var(–shadow);}
+.ranking-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(–border);}
+.comment-input{width:100%;background:#f8fafc;border:2px solid var(–border);border-radius:8px;padding:10px 14px;color:var(–text);font-size:13px;outline:none;resize:vertical;font-family:‘Poppins’,sans-serif;box-sizing:border-box;margin:8px 0;}
 </style>
+
 </head>
 <body>
 
 <div id="login">
   <div class="login-box">
-    <div style="font-size:52px;margin-bottom:12px;">👔</div>
-    <div style="color:#f97316;font-size:11px;letter-spacing:3px;margin-bottom:6px;">PLOMBERIE PRO</div>
-    <div style="font-size:26px;font-weight:800;margin-bottom:8px;">Espace Patron</div>
-    <div style="color:#555;font-size:14px;margin-bottom:32px;">Tableau de bord direction</div>
-    <div class="field">
-      <label>IDENTIFIANT</label>
-      <input type="text" id="identifiant" placeholder="patron" autocomplete="off" autocapitalize="none">
-    </div>
+    <svg class="logo-svg" width="200" height="70" viewBox="0 0 200 70" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="gG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#7bc144"/><stop offset="100%" style="stop-color:#4a9c3f"/></linearGradient>
+        <linearGradient id="gB" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2d6a9f"/><stop offset="100%" style="stop-color:#1a3a5c"/></linearGradient>
+      </defs>
+      <ellipse cx="95" cy="18" rx="4" ry="8" fill="url(#gB)" transform="rotate(-20,95,18)"/>
+      <ellipse cx="105" cy="12" rx="4" ry="9" fill="url(#gG)" transform="rotate(5,105,12)"/>
+      <ellipse cx="115" cy="18" rx="4" ry="7" fill="url(#gG)" transform="rotate(25,115,18)"/>
+      <path d="M88,28 Q100,20 112,28" stroke="url(#gB)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <text x="10" y="52" font-family="Arial" font-size="22" font-weight="900" fill="url(#gB)">green</text>
+      <text x="75" y="52" font-family="Arial" font-size="22" font-weight="900" fill="url(#gG)">flow</text>
+      <text x="28" y="65" font-family="Arial" font-size="11" font-weight="600" fill="#94a3b8" letter-spacing="3">TECHNOLOGIES</text>
+    </svg>
+    <div class="login-title">Espace Patron</div>
+    <div class="login-sub">Direction & Dispatch</div>
+    <div class="field"><label>IDENTIFIANT</label><input type="text" id="identifiant" placeholder="patron" autocomplete="off" autocapitalize="none"></div>
     <div class="field">
       <label>CODE PIN</label>
       <div class="pin-row">
@@ -106,24 +170,25 @@ body{background:#0a0a0a;color:#f1f1f1;min-height:100vh;}
         <input type="password" maxlength="1" class="pin-input" id="p4" inputmode="numeric">
       </div>
     </div>
-    <button class="btn-primary" onclick="seConnecter()">Se connecter</button>
+    <button class="btn-login" onclick="seConnecter()">Se connecter</button>
     <div class="error-msg hidden" id="loginError">Identifiant ou PIN incorrect</div>
   </div>
 </div>
 
 <div id="app" class="hidden">
   <div class="header">
+    <svg width="110" height="32" viewBox="0 0 200 70" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="95" cy="18" rx="4" ry="8" fill="#7bc144" transform="rotate(-20,95,18)"/>
+      <ellipse cx="105" cy="12" rx="4" ry="9" fill="#a8d878" transform="rotate(5,105,12)"/>
+      <ellipse cx="115" cy="18" rx="4" ry="7" fill="#7bc144" transform="rotate(25,115,18)"/>
+      <path d="M88,28 Q100,20 112,28" stroke="#7bc144" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <text x="10" y="52" font-family="Arial" font-size="22" font-weight="900" fill="#ffffff">green</text>
+      <text x="75" y="52" font-family="Arial" font-size="22" font-weight="900" fill="#7bc144">flow</text>
+    </svg>
     <div style="display:flex;align-items:center;gap:10px;">
-      <div class="avatar">PA</div>
-      <div>
-        <div style="font-weight:700;font-size:14px;">Patron</div>
-        <div style="color:#f97316;font-size:10px;letter-spacing:1px;">DIRECTION</div>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;">
       <div style="text-align:right;">
-        <div style="color:#f97316;font-weight:800;font-size:16px;" id="hdr-ca">0 EUR</div>
-        <div style="color:#444;font-size:9px;letter-spacing:1px;">CA DU JOUR</div>
+        <div class="header-ca" id="hdr-ca">0 EUR</div>
+        <div class="header-ca-label">CA DU JOUR</div>
       </div>
       <button class="btn-logout" onclick="logout()">Quitter</button>
     </div>
@@ -131,12 +196,13 @@ body{background:#0a0a0a;color:#f1f1f1;min-height:100vh;}
 
   <div class="nav">
     <button class="active" onclick="showPage('dashboard')">Dashboard</button>
+    <button onclick="showPage('dispatch')" id="nav-dispatch">Dispatch</button>
+    <button onclick="showPage('urgences')" id="nav-urgences">Urgences</button>
     <button onclick="showPage('equipe')">Equipe</button>
-    <button onclick="showPage('planning')">Planning</button>
     <button onclick="showPage('rapports')">Rapports</button>
     <button onclick="showPage('business')">Business</button>
     <button onclick="showPage('primes')">Primes</button>
-    <button onclick="showPage('parametres')">Params</button>
+    <button onclick="showPage('params')">Params</button>
   </div>
 
   <div class="content">
@@ -150,63 +216,131 @@ body{background:#0a0a0a;color:#f1f1f1;min-height:100vh;}
     <button class="periode-btn" onclick="setPeriode('mois',this)">Mois</button>
     <button class="periode-btn" onclick="setPeriode('annee',this)">Annee</button>
   </div>
-
-  <!-- Stats principales -->
-  <div class="grid-2" id="stats-principales" style="margin-bottom:12px;"></div>
-
-  <!-- Objectif annuel -->
-  <div class="card" style="border-left:3px solid #f97316;">
-    <div class="lbl">OBJECTIF ANNUEL — 1 000 000 EUR</div>
+  <div class="grid-2" id="stats-dash" style="margin-bottom:12px;"></div>
+  <div class="card green">
+    <div class="lbl">OBJECTIF ANNUEL</div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div style="color:#f97316;font-weight:800;font-size:24px;" id="obj-annuel-val">0 EUR</div>
+      <div style="color:var(--green);font-weight:800;font-size:22px;" id="obj-val">0 EUR</div>
       <div style="text-align:right;">
-        <div style="color:#555;font-size:12px;" id="obj-annuel-pct">0%</div>
-        <div style="color:#444;font-size:11px;" id="obj-annuel-prev">Prev. fin de mois: 0 EUR</div>
+        <div style="color:var(--text-light);font-size:12px;" id="obj-pct">0%</div>
+        <div style="color:var(--text-light);font-size:11px;" id="obj-prev"></div>
       </div>
     </div>
-    <div class="progress-bar"><div class="progress-fill" id="obj-bar" style="width:0%;background:#f97316;"></div></div>
+    <div class="progress-bar"><div class="progress-fill" id="obj-bar" style="width:0%;background:var(--green);"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:6px;">
-      <span style="color:#444;font-size:11px;">0</span>
-      <span style="color:#f97316;font-size:11px;font-weight:700;">1 000 000 EUR</span>
+      <span style="color:var(--text-light);font-size:11px;">0</span>
+      <span style="color:var(--green);font-size:11px;font-weight:700;" id="obj-target">1 000 000 EUR</span>
     </div>
   </div>
-
-  <!-- Dispos rapides -->
-  <div class="card">
+  <div class="card blue">
     <div class="lbl">TECHNICIENS EN CE MOMENT</div>
-    <div id="dispos-rapides"></div>
+    <div id="dispos-dash"></div>
   </div>
-
-  <!-- Alertes -->
   <div id="section-alertes"></div>
-
-  <!-- CA par type -->
   <div class="card">
     <div class="lbl">CA PAR TYPE D'INTERVENTION</div>
-    <div class="bar-chart" id="ca-par-type"></div>
+    <div id="ca-par-type" style="margin-top:8px;"></div>
+  </div>
+</div>
+
+<!-- DISPATCH -->
+<div id="page-dispatch" class="hidden">
+  <div class="card blue" style="margin-bottom:12px;">
+    <div class="lbl">DISPONIBILITE TECHNICIENS</div>
+    <div style="color:var(--text-light);font-size:12px;margin-bottom:12px;">Actualisation auto toutes les 10s</div>
+    <div id="dispos-dispatch"></div>
+  </div>
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">PLANNING DU JOUR</div>
+    <div id="planning-jour"></div>
+  </div>
+  <div class="card green">
+    <div class="lbl">CREER UN NOUVEAU RDV</div>
+    <div style="margin-top:12px;">
+      <div class="grid-2">
+        <div class="form-field"><label>NOM CLIENT *</label><input type="text" class="form-input" id="rdv-nom" placeholder="Jean Dupont"></div>
+        <div class="form-field"><label>TELEPHONE *</label><input type="tel" class="form-input" id="rdv-tel" placeholder="06 XX XX XX XX"></div>
+      </div>
+      <div class="form-field"><label>ADRESSE *</label><input type="text" class="form-input" id="rdv-adresse" placeholder="12 rue des Fleurs, Paris"></div>
+      <div class="form-field"><label>TYPE D'INTERVENTION *</label>
+        <select class="form-select" id="rdv-type">
+          <option>Fuite d'eau</option><option>Debouchage</option><option>Chaudiere</option>
+          <option>Ballon d'eau chaude</option><option>Robinetterie</option>
+          <option>Installation sanitaire</option><option>Urgent / Depannage</option><option>Autre</option>
+        </select>
+      </div>
+      <div class="grid-2">
+        <div class="form-field"><label>DATE RDV *</label><input type="date" class="form-input" id="rdv-date"></div>
+        <div class="form-field"><label>HEURE RDV *</label><input type="time" class="form-input" id="rdv-heure" value="09:00"></div>
+      </div>
+      <div class="form-field"><label>TECHNICIEN *</label>
+        <select class="form-select" id="rdv-tech">
+          <option value="Technicien 1">Technicien 1</option>
+          <option value="Technicien 2">Technicien 2</option>
+        </select>
+      </div>
+      <div class="form-field"><label>PRIX DE VENTE (EUR) *</label><input type="number" class="form-input" id="rdv-prix" placeholder="250" style="color:var(--green);font-weight:700;font-size:18px;"></div>
+      <div class="form-field"><label>NOTE POUR LE TECHNICIEN</label><textarea class="form-textarea" id="rdv-notes" rows="3" placeholder="Infos importantes, acces, probleme recurrent..."></textarea></div>
+      <button class="btn btn-primary btn-full" onclick="creerRdv()">Creer le RDV et notifier le technicien</button>
+    </div>
+  </div>
+</div>
+
+<!-- URGENCES -->
+<div id="page-urgences" class="hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <div>
+      <div style="color:var(--red);font-size:11px;letter-spacing:2px;font-weight:700;">URGENCES ACTIVES</div>
+      <div style="color:var(--text-light);font-size:12px;margin-top:2px;" id="urgences-count">0 urgence(s)</div>
+    </div>
+    <button class="btn btn-red" onclick="showFormUrgence()">+ Nouvelle urgence</button>
+  </div>
+  <div id="liste-urgences"></div>
+  <div id="form-urgence" class="hidden">
+    <div class="card red">
+      <div class="lbl" style="color:var(--red);">NOUVELLE URGENCE</div>
+      <div class="grid-2">
+        <div class="form-field"><label>NOM CLIENT</label><input type="text" class="form-input" id="urg-nom" placeholder="Jean Dupont"></div>
+        <div class="form-field"><label>TELEPHONE</label><input type="tel" class="form-input" id="urg-tel" placeholder="06 XX XX XX XX"></div>
+      </div>
+      <div class="form-field"><label>ADRESSE</label><input type="text" class="form-input" id="urg-adresse" placeholder="12 rue des Fleurs"></div>
+      <div class="form-field"><label>TYPE D'URGENCE</label>
+        <select class="form-select" id="urg-type">
+          <option>Inondation</option><option>Fuite importante</option><option>Pas d'eau chaude</option>
+          <option>Chaudiere en panne</option><option>Canalisation bouchee</option><option>Autre urgence</option>
+        </select>
+      </div>
+      <div class="grid-2">
+        <div class="form-field"><label>TECHNICIEN</label>
+          <select class="form-select" id="urg-tech">
+            <option value="Technicien 1">Technicien 1</option>
+            <option value="Technicien 2">Technicien 2</option>
+          </select>
+        </div>
+        <div class="form-field"><label>NOTE</label><input type="text" class="form-input" id="urg-note" placeholder="Details..."></div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-gray" onclick="document.getElementById('form-urgence').classList.add('hidden')">Annuler</button>
+        <button class="btn btn-red" style="flex:1;" onclick="sauvegarderUrgence()">Creer l'urgence</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- EQUIPE -->
 <div id="page-equipe" class="hidden">
-  <div class="card" style="margin-bottom:12px;">
+  <div class="card blue" style="margin-bottom:12px;">
     <div class="lbl">DISPONIBILITE TEMPS REEL</div>
     <div id="dispos-equipe"></div>
   </div>
-
-  <!-- Classement -->
   <div class="card" style="margin-bottom:12px;">
-    <div class="lbl">CLASSEMENT TECHNICIENS — CE MOIS</div>
-    <div id="classement-techs"></div>
+    <div class="lbl">CLASSEMENT CE MOIS</div>
+    <div id="classement"></div>
   </div>
-
-  <!-- Taux transformation -->
   <div class="card" style="margin-bottom:12px;">
-    <div class="lbl">TAUX TRANSFORMATION VENTES ADDITIONNELLES</div>
-    <div id="taux-transformation"></div>
+    <div class="lbl">TAUX TRANSFORMATION VENTES ADD.</div>
+    <div id="taux-transfo"></div>
   </div>
-
-  <!-- Conges -->
   <div class="card">
     <div class="lbl">CONGES ET ABSENCES</div>
     <div id="liste-conges"></div>
@@ -214,103 +348,80 @@ body{background:#0a0a0a;color:#f1f1f1;min-height:100vh;}
   </div>
 </div>
 
-<!-- PLANNING -->
-<div id="page-planning" class="hidden">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-    <div style="color:#f97316;font-size:11px;letter-spacing:2px;font-weight:700;">PLANNING GLOBAL</div>
-    <div style="display:flex;gap:8px;">
-      <button class="btn btn-gray" onclick="changerSemaine(-1)">Prev</button>
-      <button class="btn btn-gray" onclick="changerSemaine(1)">Suiv</button>
-    </div>
-  </div>
-  <div style="color:#f97316;font-size:12px;font-weight:700;margin-bottom:12px;" id="semaine-label"></div>
-  <div id="planning-grid"></div>
-</div>
-
 <!-- RAPPORTS -->
 <div id="page-rapports" class="hidden">
   <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-    <button class="btn btn-gray" onclick="filtrerRapports('tous',this)">Tous</button>
-    <button class="btn btn-gray" onclick="filtrerRapports('attente',this)">En attente</button>
-    <button class="btn btn-gray" onclick="filtrerRapports('ok',this)">Valides</button>
+    <button class="btn btn-gray" onclick="filtrerRap('tous',this)">Tous</button>
+    <button class="btn btn-gray" onclick="filtrerRap('attente',this)">En attente</button>
+    <button class="btn btn-gray" onclick="filtrerRap('ok',this)">Valides</button>
   </div>
+  <!-- VALIDATION -->
+  <div id="section-validation" style="margin-bottom:16px;">
+    <div class="lbl" style="color:var(--yellow);">A VALIDER AVANT FACTURATION</div>
+    <div id="liste-validation"></div>
+  </div>
+  <div class="lbl">TOUS LES RAPPORTS</div>
   <div id="liste-rapports"></div>
 </div>
 
 <!-- BUSINESS -->
 <div id="page-business" class="hidden">
-  <!-- CA par zone -->
   <div class="card" style="margin-bottom:12px;">
     <div class="lbl">CA PAR ZONE GEOGRAPHIQUE</div>
-    <div class="bar-chart" id="ca-par-zone"></div>
+    <div id="ca-zone"></div>
   </div>
-
-  <!-- Fidelisation -->
   <div class="card" style="margin-bottom:12px;">
     <div class="lbl">FIDELISATION CLIENTS</div>
-    <div class="grid-2" id="stats-fidelisation"></div>
+    <div class="grid-2" id="stats-fidel"></div>
   </div>
-
-  <!-- Sources leads -->
   <div class="card" style="margin-bottom:12px;">
     <div class="lbl">SOURCES DES LEADS</div>
     <div id="sources-leads"></div>
   </div>
-
-  <!-- Devis -->
   <div class="card" style="margin-bottom:12px;">
     <div class="lbl">TABLEAU COMMERCIAL — DEVIS</div>
     <div id="tableau-devis"></div>
   </div>
-
-  <!-- Impayés -->
-  <div class="card">
-    <div class="lbl">SUIVI IMPAYES ET RELANCES</div>
+  <div class="card red">
+    <div class="lbl">IMPAYES ET RELANCES</div>
     <div id="liste-impayes"></div>
   </div>
 </div>
 
 <!-- PRIMES -->
 <div id="page-primes" class="hidden">
-  <div class="card" style="margin-bottom:12px;">
+  <div class="card green" style="margin-bottom:12px;">
     <div class="lbl">PRIMES DU MOIS EN COURS</div>
     <div id="primes-mois"></div>
   </div>
   <div class="card" style="margin-bottom:12px;">
     <div class="lbl">BAREME DES PRIMES</div>
-    <div id="bareme-primes"></div>
-    <button class="btn btn-orange" style="margin-top:12px;" onclick="showModalBareme()">Modifier le bareme</button>
+    <div id="bareme"></div>
   </div>
   <div class="card">
-    <div class="lbl">HISTORIQUE PRIMES PAR TECHNICIEN</div>
+    <div class="lbl">HISTORIQUE PRIMES</div>
     <div id="hist-primes"></div>
   </div>
 </div>
 
-<!-- PARAMETRES -->
-<div id="page-parametres" class="hidden">
-  <!-- Prix interventions -->
+<!-- PARAMS -->
+<div id="page-params" class="hidden">
   <div class="card" style="margin-bottom:12px;">
     <div class="lbl">PRIX PAR TYPE D'INTERVENTION</div>
     <div id="liste-prix"></div>
-    <button class="btn btn-orange" style="margin-top:12px;" onclick="sauvegarderPrix()">Sauvegarder les prix</button>
+    <button class="btn btn-primary btn-full" style="margin-top:12px;" onclick="sauvegarderPrix()">Sauvegarder les prix</button>
   </div>
-
-  <!-- Techniciens -->
   <div class="card" style="margin-bottom:12px;">
     <div class="lbl">GESTION TECHNICIENS</div>
-    <div id="liste-techs-params"></div>
-    <button class="btn btn-orange" style="margin-top:12px;" onclick="showModalAddTech()">+ Ajouter technicien</button>
+    <div id="liste-techs"></div>
+    <button class="btn btn-green" style="margin-top:12px;" onclick="showModalTech()">+ Ajouter technicien</button>
   </div>
-
-  <!-- Objectif -->
   <div class="card">
-    <div class="lbl">OBJECTIF ANNUEL</div>
+    <div class="lbl">OBJECTIF ANNUEL (EUR)</div>
     <div class="form-field" style="margin-top:10px;">
-      <label>MONTANT OBJECTIF (EUR)</label>
-      <input type="number" class="form-input" id="objectif-annuel" value="1000000" style="color:#f97316;font-weight:800;font-size:20px;">
+      <input type="number" class="form-input" id="objectif-input" value="1000000" style="color:var(--green);font-weight:800;font-size:20px;">
     </div>
-    <button class="btn btn-orange btn-full" style="padding:12px;" onclick="sauvegarderObjectif()">Sauvegarder</button>
+    <button class="btn btn-primary btn-full" onclick="sauvegarderObjectif()">Sauvegarder</button>
   </div>
 </div>
 ```
@@ -318,113 +429,91 @@ body{background:#0a0a0a;color:#f1f1f1;min-height:100vh;}
   </div>
 </div>
 
+<!-- MODAL OBAT -->
+
+<div class="modal-bg hidden" id="modal-obat">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <div><div class="modal-title">EXPORT OBAT</div><div class="modal-subtitle" id="obat-nom"></div></div>
+      <button class="modal-close" onclick="closeModal('modal-obat')">x</button>
+    </div>
+    <div style="color:var(--text-light);font-size:13px;margin-bottom:12px;">Copie ces infos dans Obat pour creer la facture</div>
+    <div class="obat-box"><div class="obat-text" id="obat-text"></div></div>
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+      <button class="btn btn-primary btn-full" onclick="copierObat()">Copier pour Obat</button>
+      <button class="btn btn-green" onclick="marquerFacture()">Marquer facture</button>
+      <button class="btn btn-gray" onclick="closeModal('modal-obat')">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL CONGE -->
 
 <div class="modal-bg hidden" id="modal-conge">
   <div class="modal-sheet">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-      <div style="color:#f97316;font-size:11px;letter-spacing:2px;font-weight:700;">ABSENCE / CONGE</div>
+    <div class="modal-header">
+      <div><div class="modal-title">ABSENCE / CONGE</div></div>
       <button class="modal-close" onclick="closeModal('modal-conge')">x</button>
     </div>
-    <div class="form-field">
-      <label>TECHNICIEN</label>
-      <select class="form-select" id="conge-tech">
-        <option value="Technicien 1">Technicien 1</option>
-        <option value="Technicien 2">Technicien 2</option>
-      </select>
-    </div>
+    <div class="form-field"><label>TECHNICIEN</label><select class="form-select" id="conge-tech"><option value="Technicien 1">Technicien 1</option><option value="Technicien 2">Technicien 2</option></select></div>
     <div class="grid-2">
-      <div class="form-field">
-        <label>DATE DEBUT</label>
-        <input type="date" class="form-input" id="conge-debut">
-      </div>
-      <div class="form-field">
-        <label>DATE FIN</label>
-        <input type="date" class="form-input" id="conge-fin">
-      </div>
+      <div class="form-field"><label>DATE DEBUT</label><input type="date" class="form-input" id="conge-debut"></div>
+      <div class="form-field"><label>DATE FIN</label><input type="date" class="form-input" id="conge-fin"></div>
     </div>
-    <div class="form-field">
-      <label>TYPE</label>
-      <select class="form-select" id="conge-type">
-        <option>Conge paye</option>
-        <option>Arret maladie</option>
-        <option>Formation</option>
-        <option>Absence</option>
-      </select>
-    </div>
-    <button class="btn btn-orange btn-full" style="padding:12px;" onclick="sauvegarderConge()">Sauvegarder</button>
+    <div class="form-field"><label>TYPE</label><select class="form-select" id="conge-type"><option>Conge paye</option><option>Arret maladie</option><option>Formation</option><option>Absence</option></select></div>
+    <button class="btn btn-primary btn-full" onclick="sauvegarderConge()">Sauvegarder</button>
   </div>
 </div>
 
-<!-- MODAL ADD TECH -->
+<!-- MODAL TECH -->
 
-<div class="modal-bg hidden" id="modal-add-tech">
+<div class="modal-bg hidden" id="modal-tech">
   <div class="modal-sheet">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-      <div style="color:#f97316;font-size:11px;letter-spacing:2px;font-weight:700;">NOUVEAU TECHNICIEN</div>
-      <button class="modal-close" onclick="closeModal('modal-add-tech')">x</button>
+    <div class="modal-header">
+      <div><div class="modal-title">NOUVEAU TECHNICIEN</div></div>
+      <button class="modal-close" onclick="closeModal('modal-tech')">x</button>
     </div>
-    <div class="form-field">
-      <label>NOM COMPLET</label>
-      <input type="text" class="form-input" id="tech-nom" placeholder="Prenom Nom">
-    </div>
-    <div class="form-field">
-      <label>TELEPHONE</label>
-      <input type="tel" class="form-input" id="tech-tel" placeholder="06 XX XX XX XX">
-    </div>
-    <div class="form-field">
-      <label>IDENTIFIANT CONNEXION</label>
-      <input type="text" class="form-input" id="tech-id" placeholder="tech3">
-    </div>
-    <div class="form-field">
-      <label>CODE PIN</label>
-      <input type="text" class="form-input" id="tech-pin" placeholder="4 chiffres" maxlength="4">
-    </div>
-    <div class="form-field">
-      <label>SPECIALITE</label>
-      <select class="form-select" id="tech-specialite">
-        <option>Plomberie generale</option>
-        <option>Chauffage</option>
-        <option>Sanitaire</option>
-        <option>Urgences</option>
-      </select>
-    </div>
-    <button class="btn btn-orange btn-full" style="padding:12px;" onclick="ajouterTechnicien()">Ajouter le technicien</button>
+    <div class="form-field"><label>NOM COMPLET</label><input type="text" class="form-input" id="tech-nom" placeholder="Prenom Nom"></div>
+    <div class="form-field"><label>TELEPHONE</label><input type="tel" class="form-input" id="tech-tel"></div>
+    <div class="form-field"><label>IDENTIFIANT CONNEXION</label><input type="text" class="form-input" id="tech-id" placeholder="tech3"></div>
+    <div class="form-field"><label>CODE PIN (4 chiffres)</label><input type="text" class="form-input" id="tech-pin" maxlength="4" placeholder="0000"></div>
+    <div class="form-field"><label>SPECIALITE</label><select class="form-select" id="tech-spec"><option>Plomberie generale</option><option>Chauffage</option><option>Sanitaire</option><option>Urgences</option></select></div>
+    <button class="btn btn-primary btn-full" onclick="ajouterTech()">Ajouter le technicien</button>
   </div>
 </div>
 
 <!-- PHOTO FULLSCREEN -->
 
 <div class="photo-fs hidden" id="photo-fs" onclick="closePhotoFs()">
-  <img id="photo-fs-img" src="">
-  <button class="photo-fs-close">Fermer</button>
+  <img id="photo-fs-img" src=""><button class="photo-fs-close">Fermer</button>
 </div>
 
 <script>
-const USERS={patron:{pin:"2580"}};
-const TECH_COULEURS={"Technicien 1":{color:"#3b82f6",avatar:"T1"},"Technicien 2":{color:"#8b5cf6",avatar:"T2"}};
-const STATUT_COLORS={"Disponible":"#22c55e","En intervention":"#f97316","Pause":"#eab308","Indisponible":"#ef4444"};
-const TYPES_INTERVENTION=["Fuite d'eau","Debouchage","Chaudiere","Ballon d'eau chaude","Robinetterie","Installation sanitaire","Urgent / Depannage","Autre"];
-const SOURCES_LEADS=["Bouche a oreille","Google","Leboncoin","Recommandation","Reseaux sociaux","Autre"];
-
+// CONFIG
+const USERS={patron:{pin:"2580"},dispatch:{pin:"1470"}};
+const TECH_C={"Technicien 1":{color:"#2d6a9f",avatar:"T1"},"Technicien 2":{color:"#4a9c3f",avatar:"T2"}};
+const STATUT_C={"Disponible":"#4a9c3f","En intervention":"#f97316","Pause":"#eab308","Indisponible":"#ef4444"};
+const SOURCES=["Bouche a oreille","Google","Leboncoin","Recommandation","Reseaux sociaux","Autre"];
 const todayStr=()=>new Date().toISOString().split("T")[0];
 const moisStr=()=>new Date().toISOString().slice(0,7);
 const anneeStr=()=>new Date().getFullYear().toString();
-
-let periode="jour",filtreRap="tous",semaineOffset=0;
+let periode="jour",filtreRapport="tous",obatIdx=null,semaineOffset=0;
 
 const getRdvs=()=>JSON.parse(localStorage.getItem("pl_rdvs")||"[]");
 const saveRdvs=r=>localStorage.setItem("pl_rdvs",JSON.stringify(r));
 const getRapports=()=>JSON.parse(localStorage.getItem("pl_rapports")||"[]");
+const saveRapports=r=>localStorage.setItem("pl_rapports",JSON.stringify(r));
 const getDispos=()=>JSON.parse(localStorage.getItem("pl_dispos")||"{}");
 const getDevis=()=>JSON.parse(localStorage.getItem("pl_devis")||"[]");
+const saveDevis=d=>localStorage.setItem("pl_devis",JSON.stringify(d));
 const getPrimes=()=>JSON.parse(localStorage.getItem("pl_primes")||"{}");
+const getUrgences=()=>JSON.parse(localStorage.getItem("pl_urgences")||"[]");
+const saveUrgences=u=>localStorage.setItem("pl_urgences",JSON.stringify(u));
 const getConges=()=>JSON.parse(localStorage.getItem("pl_conges")||"[]");
 const saveConges=c=>localStorage.setItem("pl_conges",JSON.stringify(c));
 const getTechs=()=>JSON.parse(localStorage.getItem("pl_techs")||JSON.stringify([{id:"tech1",nom:"Technicien 1",tel:"",specialite:"Plomberie generale",pin:"3691"},{id:"tech2",nom:"Technicien 2",tel:"",specialite:"Plomberie generale",pin:"8024"}]));
 const saveTechs=t=>localStorage.setItem("pl_techs",JSON.stringify(t));
 const getPrix=()=>JSON.parse(localStorage.getItem("pl_prix")||JSON.stringify({"Fuite d'eau":280,"Debouchage":150,"Chaudiere":450,"Ballon d'eau chaude":380,"Robinetterie":200,"Installation sanitaire":350,"Urgent / Depannage":320,"Autre":250}));
-const savePrixConfig=p=>localStorage.setItem("pl_prix",JSON.stringify(p));
 const getObjectif=()=>Number(localStorage.getItem("pl_objectif")||1000000);
 
 // AUTH
@@ -436,16 +525,19 @@ document.querySelectorAll(".pin-input").forEach((el,i,arr)=>{
 function seConnecter(){
   const id=document.getElementById("identifiant").value.trim().toLowerCase();
   const pin=["p1","p2","p3","p4"].map(i=>document.getElementById(i).value).join("");
-  if(id!=="patron"||pin!=="2580"){document.getElementById("loginError").classList.remove("hidden");return;}
-  localStorage.setItem("pl_patron_session","1");
+  if(!USERS[id]||USERS[id].pin!==pin){document.getElementById("loginError").classList.remove("hidden");return;}
+  localStorage.setItem("pl_patron_session",id);
   lancerApp();
 }
 
 function lancerApp(){
   document.getElementById("login").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
+  document.getElementById("rdv-date").value=todayStr();
+  document.getElementById("objectif-input").value=getObjectif();
   renderDashboard();
-  setInterval(()=>{if(document.getElementById("page-dashboard").offsetParent)renderDisposRapides();},10000);
+  setInterval(()=>{renderDisposDash();updateNavBadges();},10000);
+  setInterval(updateChronosUrgences,1000);
 }
 
 function logout(){
@@ -454,84 +546,80 @@ function logout(){
   document.getElementById("app").classList.add("hidden");
 }
 
-function showPage(page){
-  ["dashboard","equipe","planning","rapports","business","primes","parametres"].forEach(p=>document.getElementById("page-"+p).classList.add("hidden"));
-  document.getElementById("page-"+page).classList.remove("hidden");
-  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["dashboard","equipe","planning","rapports","business","primes","parametres"][i]===page));
-  if(page==="dashboard")renderDashboard();
-  if(page==="equipe")renderEquipe();
-  if(page==="planning")renderPlanning();
-  if(page==="rapports")renderRapports();
-  if(page==="business")renderBusiness();
-  if(page==="primes")renderPrimes();
-  if(page==="parametres")renderParametres();
+function showPage(p){
+  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params"].forEach(x=>document.getElementById("page-"+x).classList.add("hidden"));
+  document.getElementById("page-"+p).classList.remove("hidden");
+  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["dashboard","dispatch","urgences","equipe","rapports","business","primes","params"][i]===p));
+  if(p==="dashboard")renderDashboard();
+  if(p==="dispatch"){renderDisposDispatch();renderPlanningJour();}
+  if(p==="urgences")renderUrgences();
+  if(p==="equipe")renderEquipe();
+  if(p==="rapports")renderRapports();
+  if(p==="business")renderBusiness();
+  if(p==="primes")renderPrimes();
+  if(p==="params")renderParams();
+}
+
+function updateNavBadges(){
+  const u=getUrgences().filter(x=>x.statut!=="Resolu").length;
+  const btn=document.getElementById("nav-urgences");
+  btn.textContent=u>0?`Urgences (${u})`:"Urgences";
+  btn.style.color=u>0?"#ef4444":"";
 }
 
 function setPeriode(p,btn){
   periode=p;
-  document.querySelectorAll(".periode-btn").forEach(b=>{b.classList.remove("active");});
+  document.querySelectorAll(".periode-btn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");
   renderDashboard();
 }
 
-// FILTRER RAPPORTS PAR PERIODE
-function getRapportsPeriode(){
-  const rapports=getRapports();
-  const today=todayStr(),mois=moisStr(),annee=anneeStr();
-  if(periode==="jour")return rapports.filter(r=>r.date===today);
-  if(periode==="semaine"){
-    const d=new Date();d.setDate(d.getDate()-d.getDay()+1);
-    const debut=d.toISOString().split("T")[0];
-    return rapports.filter(r=>r.date>=debut&&r.date<=today);
-  }
-  if(periode==="mois")return rapports.filter(r=>r.date?.startsWith(mois));
-  if(periode==="annee")return rapports.filter(r=>r.date?.startsWith(annee));
-  return rapports;
+function getRapsPeriode(){
+  const r=getRapports(),t=todayStr(),m=moisStr(),a=anneeStr();
+  if(periode==="jour")return r.filter(x=>x.date===t);
+  if(periode==="semaine"){const d=new Date();d.setDate(d.getDate()-d.getDay()+1);return r.filter(x=>x.date>=d.toISOString().split("T")[0]&&x.date<=t);}
+  if(periode==="mois")return r.filter(x=>x.date?.startsWith(m));
+  return r.filter(x=>x.date?.startsWith(a));
 }
 
 // DASHBOARD
 function renderDashboard(){
-  const raps=getRapportsPeriode();
+  const raps=getRapsPeriode();
   const ca=raps.reduce((s,r)=>s+(r.montantFinal||0),0);
-  const caEncaisse=raps.filter(r=>r.statut==="Paye").reduce((s,r)=>s+(r.montantFinal||0),0);
-  const nbInterventions=raps.length;
-  const nbVentes=raps.reduce((s,r)=>s+(r.ventes?.length||0),0);
-
-  document.getElementById("hdr-ca").textContent=getRapports().filter(r=>r.date===todayStr()).reduce((s,r)=>s+(r.montantFinal||0),0)+" EUR";
-
-  document.getElementById("stats-principales").innerHTML=[
-    ["CA Periode",ca+" EUR","#f97316"],
-    ["Encaisse",caEncaisse+" EUR","#22c55e"],
-    ["Interventions",nbInterventions,"#3b82f6"],
-    ["Ventes add.",nbVentes,"#8b5cf6"],
-  ].map(([l,v,c])=>`<div class="stat-card" style="border-left:3px solid ${c}40;"><div class="lbl">${l.toUpperCase()}</div><div class="stat-val" style="color:${c};">${v}</div></div>`).join("");
-
-  // Objectif annuel
+  const enc=raps.filter(r=>r.statut==="Paye").reduce((s,r)=>s+(r.montantFinal||0),0);
+  const rdvAuj=getRdvs().filter(r=>r.dateRdv===todayStr()).reduce((s,r)=>s+(r.prixVente||0),0);
+  document.getElementById("hdr-ca").textContent=rdvAuj+" EUR";
+  document.getElementById("stats-dash").innerHTML=[
+    ["CA Periode",ca+" EUR","#4a9c3f"],
+    ["Encaisse",enc+" EUR","#7bc144"],
+    ["Interventions",raps.length,"#2d6a9f"],
+    ["Ventes add.",raps.reduce((s,r)=>s+(r.ventes?.length||0),0),"#1a3a5c"],
+  ].map(([l,v,c])=>`<div class="stat-card" style="border-left:3px solid ${c}40;"><div class="lbl">${l}</div><div class="stat-val" style="color:${c};">${v}</div></div>`).join("");
   const obj=getObjectif();
-  const caAnnee=getRapports().filter(r=>r.date?.startsWith(anneeStr())).reduce((s,r)=>s+(r.montantFinal||0),0);
-  const pct=Math.min(100,Math.round(caAnnee/obj*100));
-  const moisEcoules=new Date().getMonth()+1;
-  const prevFin=Math.round(caAnnee/moisEcoules*12);
-  document.getElementById("obj-annuel-val").textContent=caAnnee.toLocaleString("fr-FR")+" EUR";
-  document.getElementById("obj-annuel-pct").textContent=pct+"% de l'objectif";
-  document.getElementById("obj-annuel-prev").textContent="Prev. annuelle: "+prevFin.toLocaleString("fr-FR")+" EUR";
+  const caA=getRapports().filter(r=>r.date?.startsWith(anneeStr())).reduce((s,r)=>s+(r.montantFinal||0),0);
+  const pct=Math.min(100,Math.round(caA/obj*100));
+  const moisE=new Date().getMonth()+1;
+  document.getElementById("obj-val").textContent=caA.toLocaleString("fr-FR")+" EUR";
+  document.getElementById("obj-pct").textContent=pct+"% de l'objectif";
+  document.getElementById("obj-prev").textContent="Prev. annuelle: "+(Math.round(caA/moisE*12)).toLocaleString("fr-FR")+" EUR";
   document.getElementById("obj-bar").style.width=pct+"%";
-  document.getElementById("objectif-annuel").value=obj;
-
-  renderDisposRapides();
+  document.getElementById("obj-target").textContent=obj.toLocaleString("fr-FR")+" EUR";
+  renderDisposDash();
   renderAlertes();
-  renderCaParType(raps);
+  const byType={};raps.forEach(r=>{byType[r.type]=(byType[r.type]||0)+(r.montantFinal||0);});
+  const maxT=Math.max(...Object.values(byType),1);
+  document.getElementById("ca-par-type").innerHTML=Object.entries(byType).sort((a,b)=>b[1]-a[1]).map(([t,c])=>`<div class="bar-row"><div class="bar-label">${t.substring(0,16)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/maxT*100)}%;background:#dcfce7;color:#15803d;">${c} EUR</div></div></div>`).join("")||`<div style="color:var(--text-light);font-size:13px;padding:12px 0;">Aucune donnee</div>`;
 }
 
-function renderDisposRapides(){
+function renderDisposDash(){
   const dispos=getDispos();
-  document.getElementById("dispos-rapides").innerHTML=["Technicien 1","Technicien 2"].map(nom=>{
+  document.getElementById("dispos-dash").innerHTML=["Technicien 1","Technicien 2"].map(nom=>{
     const d=dispos[nom]||{statut:"Non connecte"};
-    const color=STATUT_COLORS[d.statut]||"#555";
-    const tc=TECH_COULEURS[nom];
-    return`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #1a1a1a;">
-      <div style="width:32px;height:32px;border-radius:8px;background:${tc.color}25;border:1px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;">${tc.avatar}</div>
-      <div style="flex:1;"><div style="font-weight:600;font-size:13px;">${nom}</div></div>
+    const color=STATUT_C[d.statut]||"#94a3b8";
+    const tc=TECH_C[nom];
+    return`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="width:34px;height:34px;border-radius:10px;background:${tc.color}20;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;">${tc.avatar}</div>
+      <div style="flex:1;font-weight:600;font-size:13px;">${nom}</div>
       <div style="display:flex;align-items:center;gap:6px;">
         <div style="width:8px;height:8px;border-radius:50%;background:${color};"></div>
         <span style="color:${color};font-size:12px;font-weight:700;">${d.statut}</span>
@@ -541,415 +629,413 @@ function renderDisposRapides(){
 }
 
 function renderAlertes(){
-  const rapports=getRapports();
-  const impayes=rapports.filter(r=>r.statut==="Facture");
   const alertes=[];
-  if(impayes.length>0)alertes.push({type:"impaye",msg:`${impayes.length} facture(s) en attente de paiement — ${impayes.reduce((s,r)=>s+(r.montantFinal||0),0)} EUR`});
-  const rdvs=getRdvs().filter(r=>r.dateRdv===todayStr()&&r.statut!=="Termine");
-  if(rdvs.length>0)alertes.push({type:"rdv",msg:`${rdvs.length} RDV aujourd'hui en attente`});
-  const devis=getDevis().filter(d=>d.statut!=="Traite");
-  if(devis.length>0)alertes.push({type:"devis",msg:`${devis.length} demande(s) de devis a traiter`});
-  document.getElementById("section-alertes").innerHTML=alertes.length?`<div class="card" style="border-left:3px solid #ef4444;margin-bottom:12px;"><div class="lbl" style="color:#ef4444;">ALERTES</div>${alertes.map(a=>`<div class="alerte-card"><span style="color:#ef4444;font-size:13px;">! ${a.msg}</span></div>`).join("")}</div>`:"";
+  const impayes=getRapports().filter(r=>r.statut==="Facture");
+  if(impayes.length)alertes.push(`${impayes.length} facture(s) impayee(s) — ${impayes.reduce((s,r)=>s+(r.montantFinal||0),0)} EUR`);
+  const devisEnAttente=getDevis().filter(d=>d.statut!=="Traite");
+  if(devisEnAttente.length)alertes.push(`${devisEnAttente.length} demande(s) de devis a traiter`);
+  const urgences=getUrgences().filter(u=>u.statut!=="Resolu");
+  if(urgences.length)alertes.push(`${urgences.length} urgence(s) active(s) !`);
+  document.getElementById("section-alertes").innerHTML=alertes.length?`<div class="card red" style="margin-bottom:12px;"><div class="lbl" style="color:var(--red);">ALERTES</div>${alertes.map(a=>`<div class="alerte-card"><span style="color:#b91c1c;font-size:13px;font-weight:600;">! ${a}</span></div>`).join("")}</div>`:"";
 }
 
-function renderCaParType(raps){
-  const byType={};
-  raps.forEach(r=>{byType[r.type]=(byType[r.type]||0)+(r.montantFinal||0);});
-  const max=Math.max(...Object.values(byType),1);
-  document.getElementById("ca-par-type").innerHTML=Object.entries(byType).sort((a,b)=>b[1]-a[1]).map(([type,ca])=>`
-    <div class="bar-row">
-      <div class="bar-label">${type.substring(0,16)}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(ca/max*100)}%;background:#f9731640;color:#f97316;">${ca} EUR</div></div>
-    </div>`).join("")||`<div style="color:#444;font-size:13px;padding:12px 0;">Aucune donnee</div>`;
+// DISPATCH
+function renderDisposDispatch(){
+  const dispos=getDispos();
+  document.getElementById("dispos-dispatch").innerHTML=["Technicien 1","Technicien 2"].map(nom=>{
+    const d=dispos[nom]||{statut:"Non connecte"};
+    const color=STATUT_C[d.statut]||"#94a3b8";
+    const tc=TECH_C[nom];
+    const rdvAuj=getRdvs().filter(r=>r.technicien===nom&&r.dateRdv===todayStr()).length;
+    const ago=d.updatedAt?Math.floor((Date.now()-new Date(d.updatedAt))/60000):null;
+    return`<div class="tech-card" style="border-left:3px solid ${color}40;">
+      <div style="width:44px;height:44px;border-radius:12px;background:${tc.color}20;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0;">${tc.avatar}</div>
+      <div style="flex:1;margin-left:12px;">
+        <div style="font-weight:700;font-size:14px;">${nom}</div>
+        <div style="font-size:12px;margin-top:2px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};margin-right:4px;"></span><span style="color:${color};font-weight:700;">${d.statut}</span></div>
+        ${ago!==null?`<div style="color:var(--text-light);font-size:11px;">Mis a jour: ${ago<1?"<1min":ago+"min"}</div>`:""}
+      </div>
+      <div style="text-align:right;">
+        <div style="color:var(--text-light);font-size:11px;margin-bottom:6px;">${rdvAuj} RDV auj.</div>
+        <button class="btn btn-green" style="padding:6px 12px;" onclick="document.getElementById('rdv-tech').value='${nom}';document.querySelector('[id=page-dispatch] .card.green').scrollIntoView({behavior:'smooth'})">+ RDV</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderPlanningJour(){
+  const rdvs=getRdvs().filter(r=>r.dateRdv===todayStr()).sort((a,b)=>a.heureRdv.localeCompare(b.heureRdv));
+  const c=document.getElementById("planning-jour");
+  if(!rdvs.length){c.innerHTML=`<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">📅</div>Aucun RDV aujourd'hui</div>`;return;}
+  c.innerHTML=rdvs.map(r=>{
+    const tc=TECH_C[r.technicien]||{color:"#94a3b8",avatar:"??"};
+    return`<div style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="color:var(--accent);font-weight:700;font-size:14px;min-width:45px;">${r.heureRdv}</div>
+      <div style="flex:1;"><div style="font-weight:700;font-size:13px;">${r.clientNom}</div><div style="color:var(--text-light);font-size:11px;">${r.type}</div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+        <div style="width:28px;height:28px;border-radius:8px;background:${tc.color}20;border:1px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;">${tc.avatar}</div>
+        <span class="badge ${r.statut==='Termine'?'badge-green':'badge-blue'}" style="font-size:9px;">${r.statut==='Termine'?'FAIT':'ATTENTE'}</span>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function creerRdv(){
+  const nom=document.getElementById("rdv-nom").value.trim();
+  const tel=document.getElementById("rdv-tel").value.trim();
+  const adresse=document.getElementById("rdv-adresse").value.trim();
+  const prix=document.getElementById("rdv-prix").value;
+  if(!nom||!tel||!adresse||!prix){showNotif("Remplis tous les champs obligatoires");return;}
+  const rdv={id:Date.now(),clientNom:nom,clientTel:tel,adresse,type:document.getElementById("rdv-type").value,dateRdv:document.getElementById("rdv-date").value,heureRdv:document.getElementById("rdv-heure").value,technicien:document.getElementById("rdv-tech").value,prixVente:Number(prix),statut:"Confirme",notes:document.getElementById("rdv-notes").value.trim(),creePar:"patron",creeAt:new Date().toISOString()};
+  const rdvs=getRdvs();rdvs.push(rdv);saveRdvs(rdvs);
+  ["rdv-nom","rdv-tel","rdv-adresse","rdv-prix","rdv-notes"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("rdv-date").value=todayStr();
+  showNotif("RDV cree pour "+nom+" — "+rdv.technicien+" notifie !");
+  renderDisposDispatch();renderPlanningJour();
+}
+
+// URGENCES
+function showFormUrgence(){document.getElementById("form-urgence").classList.remove("hidden");}
+function sauvegarderUrgence(){
+  const nom=document.getElementById("urg-nom").value.trim();
+  const tel=document.getElementById("urg-tel").value.trim();
+  if(!nom||!tel){showNotif("Nom et telephone requis");return;}
+  const urgences=getUrgences();
+  urgences.unshift({id:Date.now(),clientNom:nom,clientTel:tel,adresse:document.getElementById("urg-adresse").value.trim(),type:document.getElementById("urg-type").value,technicien:document.getElementById("urg-tech").value,note:document.getElementById("urg-note").value.trim(),creeeAt:new Date().toISOString(),statut:"Active"});
+  saveUrgences(urgences);
+  ["urg-nom","urg-tel","urg-adresse","urg-note"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("form-urgence").classList.add("hidden");
+  renderUrgences();updateNavBadges();showNotif("Urgence creee !");
+}
+
+function renderUrgences(){
+  const urgences=getUrgences();
+  const actives=urgences.filter(u=>u.statut!=="Resolu").length;
+  document.getElementById("urgences-count").textContent=actives+" urgence(s) active(s)";
+  document.getElementById("liste-urgences").innerHTML=urgences.length?urgences.map((u,i)=>{
+    const isActive=u.statut!=="Resolu";
+    const tc=TECH_C[u.technicien]||{color:"#94a3b8",avatar:"??"};
+    const mins=Math.floor((Date.now()-new Date(u.creeeAt))/60000);
+    const duree=mins<60?mins+"min":Math.floor(mins/60)+"h"+("0"+(mins%60)).slice(-2);
+    return`<div class="urgence-card${isActive?" urgence-active":""}" style="${!isActive?"opacity:0.5;":""}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <span class="badge badge-red">URGENCE</span>
+            <span style="color:var(--red);font-weight:800;font-family:monospace;" id="chrono-u-${i}">${duree}</span>
+          </div>
+          <div style="font-weight:700;font-size:15px;">${u.clientNom}</div>
+          <div style="color:var(--text-light);font-size:12px;">${u.type}</div>
+          ${u.adresse?`<div style="color:var(--text-light);font-size:11px;">${u.adresse}</div>`:""}
+          ${u.note?`<div style="color:var(--text-light);font-size:12px;font-style:italic;margin-top:4px;">${u.note}</div>`:""}
+        </div>
+        <div style="width:34px;height:34px;border-radius:8px;background:${tc.color}20;border:1px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;">${tc.avatar}</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-red" onclick="window.open('tel:${u.clientTel}')">Appeler</button>
+        <button class="btn btn-orange" onclick="convertirUrgenceRdv(${i})">Convertir RDV</button>
+        ${isActive?`<button class="btn btn-green" onclick="resoudreUrgence(${i})">Resolu</button>`:""}
+        <button class="btn btn-gray" onclick="supprimerUrgence(${i})">Supprimer</button>
+      </div>
+    </div>`;
+  }).join(""):`<div class="empty-state"><div class="empty-icon">✅</div>Aucune urgence active</div>`;
+}
+
+function updateChronosUrgences(){
+  getUrgences().forEach((u,i)=>{
+    const el=document.getElementById("chrono-u-"+i);
+    if(el){const m=Math.floor((Date.now()-new Date(u.creeeAt))/60000);el.textContent=m<60?m+"min":Math.floor(m/60)+"h"+("0"+(m%60)).slice(-2);}
+  });
+}
+
+function resoudreUrgence(i){const u=getUrgences();u[i].statut="Resolu";u[i].resoluAt=new Date().toISOString();saveUrgences(u);renderUrgences();updateNavBadges();showNotif("Urgence resolue !");}
+function supprimerUrgence(i){const u=getUrgences();u.splice(i,1);saveUrgences(u);renderUrgences();updateNavBadges();}
+function convertirUrgenceRdv(i){
+  const u=getUrgences()[i];
+  showPage("dispatch");
+  document.getElementById("rdv-nom").value=u.clientNom;
+  document.getElementById("rdv-tel").value=u.clientTel;
+  document.getElementById("rdv-adresse").value=u.adresse||"";
+  document.getElementById("rdv-tech").value=u.technicien;
+  document.getElementById("rdv-notes").value="URGENCE: "+u.type+(u.note?" - "+u.note:"");
+  showNotif("Infos copiees dans le formulaire RDV");
 }
 
 // EQUIPE
 function renderEquipe(){
-  const dispos=getDispos();
-  const rapports=getRapports();
-  const mois=moisStr();
-
+  const dispos=getDispos(),rapports=getRapports(),mois=moisStr();
   document.getElementById("dispos-equipe").innerHTML=["Technicien 1","Technicien 2"].map(nom=>{
     const d=dispos[nom]||{statut:"Non connecte"};
-    const color=STATUT_COLORS[d.statut]||"#555";
-    const tc=TECH_COULEURS[nom];
+    const color=STATUT_C[d.statut]||"#94a3b8";
+    const tc=TECH_C[nom];
     const rdvAuj=getRdvs().filter(r=>r.technicien===nom&&r.dateRdv===todayStr()).length;
-    const ago=d.updatedAt?Math.floor((Date.now()-new Date(d.updatedAt))/60000):null;
     return`<div class="tech-card" style="border-left:3px solid ${color}40;">
-      <div style="width:44px;height:44px;border-radius:12px;background:${tc.color}25;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0;">${tc.avatar}</div>
+      <div style="width:44px;height:44px;border-radius:12px;background:${tc.color}20;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0;">${tc.avatar}</div>
       <div style="flex:1;margin-left:12px;">
-        <div style="font-weight:700;font-size:15px;">${nom}</div>
-        <div style="font-size:12px;margin-top:2px;"><span class="statut-dot" style="background:${color};"></span><span style="color:${color};font-weight:700;">${d.statut}</span></div>
-        ${ago!==null?`<div style="color:#444;font-size:11px;">Mis a jour: ${ago<1?"<1min":ago+"min"}</div>`:""}
+        <div style="font-weight:700;">${nom}</div>
+        <div style="font-size:12px;margin-top:2px;color:${color};font-weight:700;">${d.statut}</div>
       </div>
-      <div style="text-align:right;">
-        <div style="color:#555;font-size:11px;">${rdvAuj} RDV aujourd'hui</div>
-      </div>
+      <div style="text-align:right;color:var(--text-light);font-size:11px;">${rdvAuj} RDV auj.</div>
     </div>`;
   }).join("");
 
-  // Classement
-  const techs=["Technicien 1","Technicien 2"];
-  const scores=techs.map(nom=>{
-    const mesRaps=rapports.filter(r=>r.technicien===nom&&r.date?.startsWith(mois));
-    const ca=mesRaps.reduce((s,r)=>s+(r.montantFinal||0),0);
-    const ventes=mesRaps.reduce((s,r)=>s+(r.ventes?.length||0),0);
-    const primes=getPrimes()[nom]?.[mois]?.total||0;
-    return{nom,ca,ventes,primes,interventions:mesRaps.length};
+  const scores=["Technicien 1","Technicien 2"].map(nom=>{
+    const mes=rapports.filter(r=>r.technicien===nom&&r.date?.startsWith(mois));
+    return{nom,ca:mes.reduce((s,r)=>s+(r.montantFinal||0),0),ventes:mes.reduce((s,r)=>s+(r.ventes?.length||0),0),primes:getPrimes()[nom]?.[mois]?.total||0,n:mes.length};
   }).sort((a,b)=>b.ca-a.ca);
 
-  const medals=["🥇","🥈","🥉"];
-  const colors=["#f97316","#888","#cd7f32"];
-  document.getElementById("classement-techs").innerHTML=scores.map((s,i)=>`
-    <div class="ranking-item">
-      <div class="ranking-pos" style="background:${colors[i]||"#333"}25;color:${colors[i]||"#555"};">${medals[i]||i+1}</div>
-      <div style="flex:1;">
-        <div style="font-weight:700;font-size:14px;">${s.nom}</div>
-        <div style="color:#888;font-size:12px;">${s.interventions} interventions - ${s.ventes} ventes add.</div>
-      </div>
-      <div style="text-align:right;">
-        <div style="color:#f97316;font-weight:800;font-size:15px;">${s.ca} EUR</div>
-        <div style="color:#eab308;font-size:12px;">Prime: ${s.primes} EUR</div>
-      </div>
-    </div>`).join("")||`<div style="color:#444;font-size:13px;padding:12px 0;">Aucune donnee</div>`;
+  document.getElementById("classement").innerHTML=scores.map((s,i)=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+      <div style="width:28px;height:28px;border-radius:8px;background:${["#fef9c3","#f1f5f9"][i]||"#f1f5f9"};display:flex;align-items:center;justify-content:center;font-size:16px;">${["🥇","🥈"][i]||i+1}</div>
+      <div style="flex:1;"><div style="font-weight:700;font-size:13px;">${s.nom}</div><div style="color:var(--text-light);font-size:11px;">${s.n} interventions — ${s.ventes} ventes add.</div></div>
+      <div style="text-align:right;"><div style="color:var(--green);font-weight:800;">${s.ca} EUR</div><div style="color:#eab308;font-size:12px;">Prime: ${s.primes} EUR</div></div>
+    </div>`).join("");
 
-  // Taux transformation
-  document.getElementById("taux-transformation").innerHTML=scores.map(s=>{
-    const taux=s.interventions>0?Math.round(s.ventes/s.interventions*100):0;
+  document.getElementById("taux-transfo").innerHTML=scores.map(s=>{
+    const t=s.n>0?Math.round(s.ventes/s.n*100):0;
     return`<div style="margin-bottom:12px;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-        <span style="color:#ccc;font-size:13px;">${s.nom}</span>
-        <span style="color:#22c55e;font-weight:700;">${taux}%</span>
-      </div>
-      <div class="progress-bar"><div class="progress-fill" style="width:${taux}%;background:#22c55e;"></div></div>
-      <div style="color:#555;font-size:11px;margin-top:2px;">${s.ventes} ventes sur ${s.interventions} interventions</div>
-    </div>`;
-  }).join("")||`<div style="color:#444;font-size:13px;padding:12px 0;">Aucune donnee</div>`;
-
-  // Conges
-  const conges=getConges().filter(c=>c.fin>=todayStr());
-  document.getElementById("liste-conges").innerHTML=conges.length?conges.map((c,i)=>`
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1a1a1a;">
-      <div>
-        <div style="font-weight:600;font-size:13px;">${c.technicien}</div>
-        <div style="color:#888;font-size:12px;">${c.type} - ${c.debut} au ${c.fin}</div>
-      </div>
-      <button class="btn btn-gray" style="padding:6px 10px;font-size:11px;" onclick="supprimerConge(${i})">Suppr.</button>
-    </div>`).join(""):`<div style="color:#444;font-size:13px;padding:12px 0;">Aucune absence planifiee</div>`;
-}
-
-// PLANNING
-function renderPlanning(){
-  const rdvs=getRdvs();
-  const debut=new Date();
-  debut.setDate(debut.getDate()-debut.getDay()+1+semaineOffset*7);
-  debut.setHours(0,0,0,0);
-  const jours=Array.from({length:7},(_,i)=>{const d=new Date(debut);d.setDate(d.getDate()+i);return d;});
-  const noms=["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
-  document.getElementById("semaine-label").textContent=
-    jours[0].toLocaleDateString("fr-FR",{day:"numeric",month:"short"})+" - "+
-    jours[6].toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"});
-
-  document.getElementById("planning-grid").innerHTML=jours.map((j,i)=>{
-    const iso=j.toISOString().split("T")[0];
-    const isToday=iso===todayStr();
-    const rdvsJour=rdvs.filter(r=>r.dateRdv===iso).sort((a,b)=>a.heureRdv.localeCompare(b.heureRdv));
-    return`<div style="background:#141414;border:1px solid ${isToday?"#f97316":"#222"};border-radius:10px;padding:8px;margin-bottom:8px;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-        <span style="color:${isToday?"#f97316":"#555"};font-size:11px;font-weight:700;">${noms[i]} ${j.getDate()}</span>
-        <span style="color:#444;font-size:10px;">${rdvsJour.length} RDV</span>
-      </div>
-      ${rdvsJour.map(r=>{
-        const tc=TECH_COULEURS[r.technicien]||{color:"#555",avatar:"??"};
-        return`<div style="background:#0f0f0f;border-radius:6px;padding:6px 8px;margin-bottom:4px;border-left:2px solid ${tc.color};">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="color:${tc.color};font-size:10px;font-weight:700;">${r.heureRdv} ${tc.avatar}</span>
-            <span style="color:#f97316;font-size:10px;font-weight:700;">${r.prixVente}EUR</span>
-          </div>
-          <div style="color:#ccc;font-size:11px;font-weight:600;">${r.clientNom}</div>
-          <div style="color:#666;font-size:10px;">${r.type}</div>
-        </div>`;
-      }).join("")}
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:var(--text);font-size:13px;">${s.nom}</span><span style="color:var(--green);font-weight:700;">${t}%</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${t}%;background:var(--green);"></div></div>
+      <div style="color:var(--text-light);font-size:11px;margin-top:2px;">${s.ventes} ventes / ${s.n} interventions</div>
     </div>`;
   }).join("");
+
+  const conges=getConges().filter(c=>c.fin>=todayStr());
+  document.getElementById("liste-conges").innerHTML=conges.length?conges.map((c,i)=>`
+    <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div><div style="font-weight:600;font-size:13px;">${c.technicien}</div><div style="color:var(--text-light);font-size:12px;">${c.type} — ${c.debut} au ${c.fin}</div></div>
+      <button class="btn btn-gray" style="padding:5px 10px;font-size:11px;" onclick="supprimerConge(${i})">Suppr.</button>
+    </div>`).join(""):`<div style="color:var(--text-light);font-size:13px;padding:12px 0;">Aucune absence planifiee</div>`;
 }
 
-function changerSemaine(d){semaineOffset+=d;renderPlanning();}
-
 // RAPPORTS
-function filtrerRapports(f,btn){
-  filtreRap=f;
-  document.querySelectorAll("#page-rapports .btn").forEach(b=>{b.style.background="#1e1e1e";b.style.color="#ccc";});
-  if(btn){btn.style.background="#f9731625";btn.style.color="#f97316";}
+function filtrerRap(f,btn){
+  filtreRapport=f;
+  document.querySelectorAll("#page-rapports .btn").forEach(b=>{b.style.background="#f1f5f9";b.style.color="#475569";});
+  if(btn){btn.style.background="#dcfce7";btn.style.color="#15803d";}
   renderRapports();
 }
 
 function renderRapports(){
-  let raps=getRapports().sort((a,b)=>b.soumisLe?.localeCompare(a.soumisLe));
-  if(filtreRap==="attente")raps=raps.filter(r=>r.statut==="En attente facturation");
-  if(filtreRap==="ok")raps=raps.filter(r=>r.statut==="Valide"||r.statut==="Facture"||r.statut==="Paye");
-  const c=document.getElementById("liste-rapports");
-  if(!raps.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon">Rapports</div>Aucun rapport</div>`;return;}
-  c.innerHTML=raps.map((r,i)=>{
-    const tc=TECH_COULEURS[r.technicien]||{color:"#555",avatar:"??"};
-    const isExp=c.dataset.exp===String(i);
-    return`<div class="rapport-card">
-      <div class="rapport-header" onclick="toggleRap(${i})">
-        <div style="flex:1;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;">
-            <div style="width:24px;height:24px;border-radius:6px;background:${tc.color}25;border:1px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;">${tc.avatar}</div>
+  // Validation
+  const aValider=getRapports().filter(r=>r.statut==="En attente facturation");
+  document.getElementById("liste-validation").innerHTML=aValider.length?aValider.map((r,i)=>{
+    const tc=TECH_C[r.technicien]||{color:"#94a3b8",avatar:"??"};
+    return`<div class="valid-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <div style="width:24px;height:24px;border-radius:6px;background:${tc.color}20;border:1px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;">${tc.avatar}</div>
             <span style="font-weight:700;font-size:14px;">${r.clientNom}</span>
-            <span class="badge ${r.statut==='Paye'?'badge-green':r.statut==='Facture'||r.statut==='Valide'?'badge-yellow':'badge-purple'}">${r.statut}</span>
           </div>
-          <div style="color:#666;font-size:12px;">${r.type} - ${r.date} - ${r.technicien}</div>
+          <div style="color:var(--text-light);font-size:12px;">${r.type} — ${r.date} — ${r.heureDebut} a ${r.heureFin}</div>
+          ${r.description?`<div class="desc-box" style="margin-top:6px;">${r.description.substring(0,100)}${r.description.length>100?"...":""}</div>`:""}
         </div>
-        <div style="text-align:right;flex-shrink:0;">
-          <div style="color:#f97316;font-weight:800;font-size:16px;">${r.montantFinal} EUR</div>
-        </div>
+        <div style="text-align:right;"><div style="color:var(--green);font-weight:800;font-size:15px;">${r.montantFinal} EUR</div><div style="color:var(--text-light);font-size:11px;">${r.checklistScore||"N/A"}</div></div>
       </div>
-      ${isExp?`<div class="rapport-body">
-        <div style="margin-top:12px;"><div class="lbl">CLIENT</div><div style="color:#ccc;font-size:13px;">${r.clientNom} - <a href="tel:${r.clientTel}" style="color:#3b82f6;">${r.clientTel}</a></div></div>
-        <div style="margin-top:12px;"><div class="lbl">ADRESSE</div><div style="color:#ccc;font-size:13px;">${r.adresse}</div></div>
-        <div style="margin-top:12px;"><div class="lbl">DUREE</div><div style="color:#ccc;font-size:13px;">${r.heureDebut} a ${r.heureFin}</div></div>
-        ${(r.photosAvant||[]).length?`<div style="margin-top:12px;"><div class="lbl">PHOTOS AVANT</div><div class="photos-row">${(r.photosAvant||[]).map(p=>`<img src="${p}" class="photo-thumb" onclick="openPhotoFs('${p}')">`).join("")}</div></div>`:""}
-        ${(r.photosApres||[]).length?`<div style="margin-top:12px;"><div class="lbl">PHOTOS APRES</div><div class="photos-row">${(r.photosApres||[]).map(p=>`<img src="${p}" class="photo-thumb" onclick="openPhotoFs('${p}')">`).join("")}</div></div>`:""}
-        ${r.description?`<div style="margin-top:12px;"><div class="lbl">DESCRIPTION</div><div class="desc-box">${r.description}</div></div>`:""}
-        ${r.totalPrimes>0?`<div style="margin-top:12px;"><div class="lbl">PRIME TECH</div><div style="color:#eab308;font-weight:700;">${r.totalPrimes} EUR</div></div>`:""}
-      </div>`:""}
-    </div>`;
-  }).join("");
+      <textarea class="comment-input" id="comment-${i}" placeholder="Commentaire avant validation..."></textarea>
+
+```
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="btn btn-green" onclick="validerRap(${i})">Valider et facturer</button>
+    <button class="btn btn-orange" onclick="ouvrirObat(getRapports().filter(r=>r.statut==='En attente facturation')[${i}],null)">Preparer Obat</button>
+    <button class="btn btn-red" onclick="refuserRap(${i})">Refuser</button>
+  </div>
+</div>`;
+```
+
+}).join(””):`<div style="color:var(--text-light);font-size:13px;padding:12px 0;">Tout est valide !</div>`;
+
+let raps=getRapports().sort((a,b)=>b.soumisLe?.localeCompare(a.soumisLe));
+if(filtreRapport===“attente”)raps=raps.filter(r=>r.statut===“En attente facturation”);
+if(filtreRapport===“ok”)raps=raps.filter(r=>[“Valide”,“Facture”,“Paye”].includes(r.statut));
+const c=document.getElementById(“liste-rapports”);
+if(!raps.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div>Aucun rapport</div>`;return;}
+c.innerHTML=raps.map((r,i)=>{
+const tc=TECH_C[r.technicien]||{color:”#94a3b8”,avatar:”??”};
+const isExp=c.dataset.exp===String(i);
+return`<div class="rapport-card"> <div class="rapport-header" onclick="toggleRap(${i})"> <div style="flex:1;"> <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;"> <div style="width:24px;height:24px;border-radius:6px;background:${tc.color}20;border:1px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;">${tc.avatar}</div> <span style="font-weight:700;font-size:14px;">${r.clientNom}</span> <span class="badge ${r.statut==='Paye'?'badge-green':r.statut==='Facture'||r.statut==='Valide'?'badge-orange':'badge-purple'}">${r.statut}</span> </div> <div style="color:var(--text-light);font-size:12px;">${r.type} — ${r.date} — ${r.technicien}</div> </div> <div style="text-align:right;flex-shrink:0;"><div style="color:var(--green);font-weight:800;font-size:15px;">${r.montantFinal} EUR</div></div> </div> ${isExp?`<div class="rapport-body">
+<div style="margin-top:12px;"><div class="lbl">CLIENT</div><div style="color:var(--text);font-size:13px;">${r.clientNom} — <a href="tel:${r.clientTel}" style="color:var(--accent);">${r.clientTel}</a></div></div>
+<div style="margin-top:12px;"><div class="lbl">ADRESSE</div><div style="color:var(--text);font-size:13px;">${r.adresse}</div></div>
+<div style="margin-top:12px;"><div class="lbl">DUREE</div><div style="color:var(--text);font-size:13px;">${r.heureDebut} a ${r.heureFin}</div></div>
+${(r.photosAvant||[]).length?`<div style="margin-top:12px;"><div class="lbl">PHOTOS AVANT</div><div class="photos-row">${(r.photosAvant||[]).map(p=>`<img src="${p}" class="photo-thumb" onclick="openPhotoFs('${p}')">`).join("")}</div></div>`:””}
+${(r.photosApres||[]).length?`<div style="margin-top:12px;"><div class="lbl">PHOTOS APRES</div><div class="photos-row">${(r.photosApres||[]).map(p=>`<img src="${p}" class="photo-thumb" onclick="openPhotoFs('${p}')">`).join("")}</div></div>`:””}
+${r.description?`<div style="margin-top:12px;"><div class="lbl">DESCRIPTION</div><div class="desc-box">${r.description}</div></div>`:””}
+${r.totalPrimes>0?`<div style="margin-top:12px;"><div class="lbl">PRIME TECHNICIEN</div><div style="color:#eab308;font-weight:800;">${r.totalPrimes} EUR</div></div>`:””}
+<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+<button class="btn btn-green" onclick="ouvrirObat(getRapports().sort((a,b)=>b.soumisLe?.localeCompare(a.soumisLe))[${i}],${i})">Preparer Obat</button>
+${r.statut!==‘Paye’?`<button class="btn btn-orange" onclick="changerStatutRap(${i},'Paye')">Marquer paye</button>`:””}
+</div>
+</div>`:""} </div>`;
+}).join(””);
 }
 
-function toggleRap(i){
-  const c=document.getElementById("liste-rapports");
-  c.dataset.exp=c.dataset.exp===String(i)?"":String(i);
-  renderRapports();
+function toggleRap(i){const c=document.getElementById(“liste-rapports”);c.dataset.exp=c.dataset.exp===String(i)?””:String(i);renderRapports();}
+
+function validerRap(i){
+const all=getRapports(),aV=all.filter(r=>r.statut===“En attente facturation”);
+const idx=all.findIndex(r=>r.clientNom===aV[i].clientNom&&r.date===aV[i].date);
+all[idx].statut=“Valide”;all[idx].commentaire=document.getElementById(“comment-”+i)?.value||””;
+all[idx].valideAt=new Date().toISOString();saveRapports(all);renderRapports();showNotif(“Rapport valide !”);
+}
+
+function refuserRap(i){
+const all=getRapports(),aV=all.filter(r=>r.statut===“En attente facturation”);
+const idx=all.findIndex(r=>r.clientNom===aV[i].clientNom&&r.date===aV[i].date);
+all[idx].statut=“Refuse”;saveRapports(all);renderRapports();showNotif(“Rapport refuse”);
+}
+
+function changerStatutRap(i,statut){
+const raps=getRapports().sort((a,b)=>b.soumisLe?.localeCompare(a.soumisLe));
+raps[i].statut=statut;saveRapports(raps);renderRapports();showNotif(“Statut: “+statut);
 }
 
 // BUSINESS
 function renderBusiness(){
-  const rapports=getRapports();
+const rapports=getRapports();
+const zones={};rapports.forEach(r=>{const v=r.adresse?.split(”,”).pop()?.trim().replace(/\d/g,””).trim()||“Autre”;const k=v.length>2?v.substring(0,15):“Autre”;zones[k]=(zones[k]||0)+(r.montantFinal||0);});
+const maxZ=Math.max(…Object.values(zones),1);
+document.getElementById(“ca-zone”).innerHTML=Object.entries(zones).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([z,ca])=>`<div class="bar-row"><div class="bar-label">${z}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(ca/maxZ*100)}%;background:#dbeafe;color:#1d4ed8;">${ca} EUR</div></div></div>`).join(””)||`<div style="color:var(--text-light);font-size:13px;padding:12px 0;">Aucune donnee</div>`;
 
-  // CA par zone
-  const zones={};
-  rapports.forEach(r=>{
-    const ville=r.adresse?.split(",").pop()?.trim().replace(/\d/g,"").trim()||"Autre";
-    const cle=ville.length>2?ville.substring(0,15):"Autre";
-    zones[cle]=(zones[cle]||0)+(r.montantFinal||0);
-  });
-  const maxZ=Math.max(...Object.values(zones),1);
-  document.getElementById("ca-par-zone").innerHTML=Object.entries(zones).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([z,ca])=>`
-    <div class="bar-row">
-      <div class="bar-label">${z}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(ca/maxZ*100)}%;background:#3b82f640;color:#3b82f6;">${ca} EUR</div></div>
-    </div>`).join("")||`<div style="color:#444;font-size:13px;padding:12px 0;">Aucune donnee</div>`;
+const clients={};rapports.forEach(r=>{clients[r.clientNom]=(clients[r.clientNom]||0)+1;});
+const nouveaux=Object.values(clients).filter(v=>v===1).length;
+const recurrents=Object.values(clients).filter(v=>v>1).length;
+const total=Object.keys(clients).length;
+document.getElementById(“stats-fidel”).innerHTML=[
+[“Total clients”,total,”#1a3a5c”],[“Nouveaux”,nouveaux,”#2d6a9f”],
+[“Recurrents”,recurrents,”#4a9c3f”],[“Taux fidel.”,total>0?Math.round(recurrents/total*100)+”%”:“0%”,”#7bc144”],
+].map(([l,v,c])=>`<div class="stat-card" style="border-left:2px solid ${c}40;"><div class="lbl">${l}</div><div class="stat-val" style="color:${c};font-size:16px;">${v}</div></div>`).join(””);
 
-  // Fidelisation
-  const clients={};
-  rapports.forEach(r=>{clients[r.clientNom]=(clients[r.clientNom]||0)+1;});
-  const nouveaux=Object.values(clients).filter(v=>v===1).length;
-  const recurrents=Object.values(clients).filter(v=>v>1).length;
-  const total=Object.keys(clients).length;
-  document.getElementById("stats-fidelisation").innerHTML=[
-    ["Clients total",total,"#f97316"],
-    ["Nouveaux",nouveaux,"#3b82f6"],
-    ["Recurrents",recurrents,"#22c55e"],
-    ["Taux fidel.",total>0?Math.round(recurrents/total*100)+"%":"0%","#8b5cf6"],
-  ].map(([l,v,c])=>`<div class="stat-card" style="border-left:2px solid ${c}40;"><div class="lbl">${l.toUpperCase()}</div><div class="stat-val" style="color:${c};font-size:18px;">${v}</div></div>`).join("");
+const sources=JSON.parse(localStorage.getItem(“pl_sources”)||”{}”);
+document.getElementById(“sources-leads”).innerHTML=SOURCES.map(s=>` <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);"> <span style="color:var(--text);font-size:13px;">${s}</span> <div style="display:flex;align-items:center;gap:8px;"> <span style="color:var(--green);font-weight:700;">${sources[s]||0}</span> <button class="btn btn-gray" style="padding:4px 8px;font-size:11px;" onclick="updateSource('${s}',-1)">-</button> <button class="btn btn-green" style="padding:4px 8px;font-size:11px;" onclick="updateSource('${s}',1)">+</button> </div> </div>`).join(””);
 
-  // Sources leads
-  const sources=JSON.parse(localStorage.getItem("pl_sources")||"{}");
-  document.getElementById("sources-leads").innerHTML=`
-    <div style="margin-bottom:12px;">
-      ${SOURCES_LEADS.map(s=>`
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1a1a1a;">
-          <span style="color:#ccc;font-size:13px;">${s}</span>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="color:#f97316;font-weight:700;">${sources[s]||0}</span>
-            <div style="display:flex;gap:4px;">
-              <button class="btn btn-gray" style="padding:4px 8px;font-size:11px;" onclick="updateSource('${s}',-1)">-</button>
-              <button class="btn btn-orange" style="padding:4px 8px;font-size:11px;" onclick="updateSource('${s}',1)">+</button>
-            </div>
-          </div>
-        </div>`).join("")}
-    </div>`;
+const devis=getDevis();
+const traites=devis.filter(d=>d.statut===“Traite”).length;
+const taux=devis.length>0?Math.round(traites/devis.length*100):0;
+document.getElementById(“tableau-devis”).innerHTML=` <div class="grid-3" style="margin-bottom:12px;"> <div class="stat-card"><div class="lbl">TOTAL</div><div class="stat-val" style="color:var(--accent);">${devis.length}</div></div> <div class="stat-card"><div class="lbl">TRAITES</div><div class="stat-val" style="color:var(--green);">${traites}</div></div> <div class="stat-card"><div class="lbl">CONVERSION</div><div class="stat-val" style="color:var(--orange);">${taux}%</div></div> </div> ${devis.filter(d=>d.statut!=="Traite").slice(0,3).map(d=>`<div style="background:#f8fafc;border-radius:8px;padding:10px 12px;margin-bottom:6px;border-left:3px solid var(--accent);"><div style="font-weight:600;font-size:13px;">${d.type}</div><div style="color:var(--text-light);font-size:12px;">${d.clientNom} — ${d.date}</div></div>`).join("")}`;
 
-  // Tableau devis
-  const devis=getDevis();
-  const traites=devis.filter(d=>d.statut==="Traite").length;
-  const enAttente=devis.filter(d=>d.statut!=="Traite").length;
-  const tauxConv=devis.length>0?Math.round(traites/devis.length*100):0;
-  document.getElementById("tableau-devis").innerHTML=`
-    <div class="grid-3" style="margin-bottom:12px;">
-      <div class="stat-card"><div class="lbl">TOTAL</div><div class="stat-val" style="color:#3b82f6;">${devis.length}</div></div>
-      <div class="stat-card"><div class="lbl">TRAITES</div><div class="stat-val" style="color:#22c55e;">${traites}</div></div>
-      <div class="stat-card"><div class="lbl">TAUX CONV.</div><div class="stat-val" style="color:#f97316;">${tauxConv}%</div></div>
-    </div>
-    ${devis.filter(d=>d.statut!=="Traite").slice(0,3).map(d=>`
-      <div style="background:#0f0f0f;border-radius:8px;padding:10px 12px;margin-bottom:6px;">
-        <div style="font-weight:600;font-size:13px;">${d.type}</div>
-        <div style="color:#888;font-size:12px;">${d.clientNom} - ${d.date}</div>
-      </div>`).join("")}`;
-
-  // Impayes
-  const impayes=rapports.filter(r=>r.statut==="Facture");
-  document.getElementById("liste-impayes").innerHTML=impayes.length?impayes.map(r=>`
-    <div class="alerte-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <div style="font-weight:700;font-size:13px;">${r.clientNom}</div>
-          <div style="color:#888;font-size:12px;">${r.type} - ${r.date}</div>
-          <div style="color:#666;font-size:11px;"><a href="tel:${r.clientTel}" style="color:#3b82f6;">${r.clientTel}</a></div>
-        </div>
-        <div style="text-align:right;">
-          <div style="color:#ef4444;font-weight:800;font-size:15px;">${r.montantFinal} EUR</div>
-          <button class="btn btn-red" style="margin-top:4px;padding:5px 10px;font-size:11px;" onclick="window.open('tel:${r.clientTel}')">Relancer</button>
-        </div>
-      </div>
-    </div>`).join(""):`<div style="color:#444;font-size:13px;padding:12px 0;">Aucun impaye !</div>`;
+const impayes=rapports.filter(r=>r.statut===“Facture”);
+document.getElementById(“liste-impayes”).innerHTML=impayes.length?impayes.map(r=>` <div class="alerte-card"> <div style="display:flex;justify-content:space-between;align-items:center;"> <div><div style="font-weight:700;font-size:13px;">${r.clientNom}</div><div style="color:#b91c1c;font-size:12px;">${r.type} — ${r.date}</div><a href="tel:${r.clientTel}" style="color:var(--accent);font-size:12px;">${r.clientTel}</a></div> <div style="text-align:right;"><div style="color:var(--red);font-weight:800;font-size:15px;">${r.montantFinal} EUR</div><button class="btn btn-red" style="margin-top:4px;padding:5px 10px;font-size:11px;" onclick="window.open('tel:${r.clientTel}')">Relancer</button></div> </div> </div>`).join(””):`<div style="color:var(--text-light);font-size:13px;padding:12px 0;">Aucun impaye !</div>`;
 }
 
-function updateSource(s,d){
-  const sources=JSON.parse(localStorage.getItem("pl_sources")||"{}");
-  sources[s]=Math.max(0,(sources[s]||0)+d);
-  localStorage.setItem("pl_sources",JSON.stringify(sources));
-  renderBusiness();
-}
+function updateSource(s,d){const src=JSON.parse(localStorage.getItem(“pl_sources”)||”{}”);src[s]=Math.max(0,(src[s]||0)+d);localStorage.setItem(“pl_sources”,JSON.stringify(src));renderBusiness();}
 
 // PRIMES
 function renderPrimes(){
-  const mois=moisStr();
-  const rapports=getRapports().filter(r=>r.date?.startsWith(mois));
-  const primes=getPrimes();
+const mois=moisStr(),primes=getPrimes();
+document.getElementById(“primes-mois”).innerHTML=[“Technicien 1”,“Technicien 2”].map(nom=>{
+const p=primes[nom]?.[mois]||{total:0,ventes:0,ca:0};
+const tc=TECH_C[nom];
+return`<div class="tech-card" style="border-left:3px solid ${tc.color}40;margin-bottom:10px;"> <div style="width:40px;height:40px;border-radius:10px;background:${tc.color}20;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;">${tc.avatar}</div> <div style="flex:1;margin-left:12px;"><div style="font-weight:700;font-size:14px;">${nom}</div><div style="color:var(--text-light);font-size:12px;">${p.ventes} ventes — CA: ${p.ca} EUR</div></div> <div style="text-align:right;"><div style="color:#eab308;font-weight:800;font-size:18px;">${p.total} EUR</div><div style="color:var(--text-light);font-size:11px;">prime</div></div> </div>`;
+}).join(””);
 
-  document.getElementById("primes-mois").innerHTML=["Technicien 1","Technicien 2"].map(nom=>{
-    const p=primes[nom]?.[mois]||{total:0,ventes:0,ca:0};
-    const tc=TECH_COULEURS[nom];
-    return`<div class="tech-card" style="border-left:3px solid ${tc.color}40;margin-bottom:10px;">
-      <div style="width:40px;height:40px;border-radius:10px;background:${tc.color}25;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;">${tc.avatar}</div>
-      <div style="flex:1;margin-left:12px;">
-        <div style="font-weight:700;font-size:14px;">${nom}</div>
-        <div style="color:#888;font-size:12px;margin-top:2px;">${p.ventes} ventes additionnelles</div>
-      </div>
-      <div style="text-align:right;">
-        <div style="color:#eab308;font-weight:800;font-size:18px;">${p.total} EUR</div>
-        <div style="color:#555;font-size:11px;">CA: ${p.ca} EUR</div>
-      </div>
-    </div>`;
-  }).join("");
+document.getElementById(“bareme”).innerHTML=[
+{label:“Contrat entretien”,min:10,max:20},{label:“Ballon electrique”,min:30,max:50},
+{label:“Adoucisseur”,min:100,max:150},{label:“Chaudiere”,min:100,max:300},
+{label:“Gros chantier”,min:20,max:150},{label:“Refection joints”,min:10,max:20},{label:“Robinetterie”,min:15,max:30},
+].map(b=>`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);"><span style="color:var(--text);font-size:13px;">${b.label}</span><span style="color:#eab308;font-weight:700;">${b.min} - ${b.max} EUR</span></div>`).join(””);
 
-  // Bareme
-  const bareme=JSON.parse(localStorage.getItem("pl_bareme")||JSON.stringify([
-    {label:"Contrat entretien",min:10,max:20},
-    {label:"Ballon electrique",min:30,max:50},
-    {label:"Adoucisseur",min:100,max:150},
-    {label:"Chaudiere",min:100,max:300},
-    {label:"Gros chantier",min:20,max:150},
-    {label:"Refection joints",min:10,max:20},
-    {label:"Robinetterie",min:15,max:30},
-  ]));
-  document.getElementById("bareme-primes").innerHTML=bareme.map(b=>`
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1a1a1a;">
-      <span style="color:#ccc;font-size:13px;">${b.label}</span>
-      <span style="color:#eab308;font-weight:700;">${b.min} - ${b.max} EUR</span>
-    </div>`).join("");
-
-  // Historique
-  document.getElementById("hist-primes").innerHTML=["Technicien 1","Technicien 2"].map(nom=>{
-    const p=primes[nom]||{};
-    const moisList=Object.entries(p).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,3);
-    if(!moisList.length)return`<div style="color:#444;font-size:13px;padding:8px 0;">${nom}: aucune prime</div>`;
-    return moisList.map(([m,data])=>`
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1a1a1a;">
-        <div><div style="font-weight:600;font-size:13px;">${nom}</div><div style="color:#888;font-size:12px;">${m} - ${data.ventes} ventes</div></div>
-        <div style="color:#eab308;font-weight:800;">${data.total} EUR</div>
-      </div>`).join("");
-  }).join("");
+document.getElementById(“hist-primes”).innerHTML=[“Technicien 1”,“Technicien 2”].map(nom=>{
+const p=primes[nom]||{};
+return Object.entries(p).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,3).map(([m,d])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);"><div><div style="font-weight:600;font-size:13px;">${nom}</div><div style="color:var(--text-light);font-size:11px;">${m} — ${d.ventes} ventes</div></div><div style="color:#eab308;font-weight:800;">${d.total} EUR</div></div>`).join(””)||`<div style="color:var(--text-light);font-size:12px;padding:8px 0;">${nom}: aucune prime</div>`;
+}).join(””);
 }
 
-// PARAMETRES
-function renderParametres(){
-  const prix=getPrix();
-  document.getElementById("liste-prix").innerHTML=Object.entries(prix).map(([type,p])=>`
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1a1a1a;">
-      <span style="color:#ccc;font-size:13px;">${type}</span>
-      <input type="number" value="${p}" data-type="${type}" style="width:80px;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:6px;padding:6px 8px;color:#f97316;font-weight:700;text-align:center;outline:none;">
-    </div>`).join("");
+// PARAMS
+function renderParams(){
+const prix=getPrix();
+document.getElementById(“liste-prix”).innerHTML=Object.entries(prix).map(([type,p])=>` <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);"> <span style="color:var(--text);font-size:13px;">${type}</span> <input type="number" value="${p}" data-type="${type}" style="width:80px;background:#f8fafc;border:2px solid var(--border);border-radius:8px;padding:6px 8px;color:var(--green);font-weight:700;text-align:center;outline:none;"> </div>`).join(””);
 
-  const techs=getTechs();
-  document.getElementById("liste-techs-params").innerHTML=techs.map((t,i)=>`
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1a1a1a;">
-      <div>
-        <div style="font-weight:600;font-size:13px;">${t.nom}</div>
-        <div style="color:#888;font-size:12px;">${t.specialite} - ID: ${t.id} - PIN: ${t.pin}</div>
-        ${t.tel?`<div style="color:#666;font-size:11px;">${t.tel}</div>`:""}
-      </div>
-      <button class="btn btn-red" style="padding:6px 10px;font-size:11px;" onclick="supprimerTech(${i})">Suppr.</button>
-    </div>`).join("");
+const techs=getTechs();
+document.getElementById(“liste-techs”).innerHTML=techs.map((t,i)=>` <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);"> <div><div style="font-weight:600;font-size:13px;">${t.nom}</div><div style="color:var(--text-light);font-size:12px;">${t.specialite} — ID: ${t.id} — PIN: ${t.pin}</div></div> <button class="btn btn-red" style="padding:6px 10px;font-size:11px;" onclick="supprimerTech(${i})">Suppr.</button> </div>`).join(””);
 }
 
 function sauvegarderPrix(){
-  const prix={};
-  document.querySelectorAll("#liste-prix input").forEach(input=>{
-    prix[input.dataset.type]=Number(input.value);
-  });
-  savePrixConfig(prix);showNotif("Prix sauvegardes !");
+const prix={};
+document.querySelectorAll(”#liste-prix input”).forEach(input=>{prix[input.dataset.type]=Number(input.value);});
+localStorage.setItem(“pl_prix”,JSON.stringify(prix));
+// Mettre a jour les selecteurs de prix dans le formulaire RDV
+showNotif(“Prix sauvegardes !”);
 }
 
 function sauvegarderObjectif(){
-  const val=document.getElementById("objectif-annuel").value;
-  localStorage.setItem("pl_objectif",val);
-  showNotif("Objectif sauvegarde : "+Number(val).toLocaleString("fr-FR")+" EUR");
-  renderDashboard();
+localStorage.setItem(“pl_objectif”,document.getElementById(“objectif-input”).value);
+showNotif(“Objectif sauvegarde !”);renderDashboard();
 }
 
-function supprimerTech(i){
-  const techs=getTechs();techs.splice(i,1);saveTechs(techs);renderParametres();
-  showNotif("Technicien supprime");
-}
-
-function ajouterTechnicien(){
-  const nom=document.getElementById("tech-nom").value.trim();
-  const id=document.getElementById("tech-id").value.trim();
-  const pin=document.getElementById("tech-pin").value.trim();
-  if(!nom||!id||pin.length!==4){showNotif("Remplis tous les champs (PIN: 4 chiffres)");return;}
-  const techs=getTechs();
-  techs.push({id,nom,tel:document.getElementById("tech-tel").value.trim(),specialite:document.getElementById("tech-specialite").value,pin});
-  saveTechs(techs);closeModal("modal-add-tech");renderParametres();
-  showNotif("Technicien "+nom+" ajoute !");
+function supprimerTech(i){const t=getTechs();t.splice(i,1);saveTechs(t);renderParams();showNotif(“Technicien supprime”);}
+function ajouterTech(){
+const nom=document.getElementById(“tech-nom”).value.trim();
+const id=document.getElementById(“tech-id”).value.trim();
+const pin=document.getElementById(“tech-pin”).value.trim();
+if(!nom||!id||pin.length!==4){showNotif(“Remplis tous les champs (PIN: 4 chiffres)”);return;}
+const techs=getTechs();
+techs.push({id,nom,tel:document.getElementById(“tech-tel”).value.trim(),specialite:document.getElementById(“tech-spec”).value,pin});
+saveTechs(techs);closeModal(“modal-tech”);renderParams();showNotif(“Technicien “+nom+” ajoute !”);
 }
 
 // CONGES
-function showModalConge(){document.getElementById("modal-conge").classList.remove("hidden");}
+function showModalConge(){document.getElementById(“modal-conge”).classList.remove(“hidden”);}
 function sauvegarderConge(){
-  const tech=document.getElementById("conge-tech").value;
-  const debut=document.getElementById("conge-debut").value;
-  const fin=document.getElementById("conge-fin").value;
-  if(!debut||!fin){showNotif("Dates requises");return;}
-  const conges=getConges();
-  conges.push({technicien:tech,debut,fin,type:document.getElementById("conge-type").value});
-  saveConges(conges);closeModal("modal-conge");renderEquipe();
-  showNotif("Absence enregistree !");
+const debut=document.getElementById(“conge-debut”).value;
+const fin=document.getElementById(“conge-fin”).value;
+if(!debut||!fin){showNotif(“Dates requises”);return;}
+const conges=getConges();
+conges.push({technicien:document.getElementById(“conge-tech”).value,debut,fin,type:document.getElementById(“conge-type”).value});
+saveConges(conges);closeModal(“modal-conge”);renderEquipe();showNotif(“Absence enregistree !”);
 }
 function supprimerConge(i){const c=getConges();c.splice(i,1);saveConges(c);renderEquipe();}
 
-// MODALS
-function showModalAddTech(){document.getElementById("modal-add-tech").classList.remove("hidden");}
-function showModalBareme(){showNotif("Modification bareme disponible dans la prochaine version");}
-function closeModal(id){document.getElementById(id).classList.add("hidden");}
-function openPhotoFs(src){document.getElementById("photo-fs-img").src=src;document.getElementById("photo-fs").classList.remove("hidden");}
-function closePhotoFs(){document.getElementById("photo-fs").classList.add("hidden");}
-function showNotif(msg){
-  const n=document.createElement("div");n.className="notif";n.textContent=msg;
-  document.body.appendChild(n);setTimeout(()=>n.remove(),3500);
+// OBAT
+function ouvrirObat(r,idx){
+if(!r||typeof r!==“object”)return;
+obatIdx=idx;
+document.getElementById(“obat-nom”).textContent=r.clientNom;
+document.getElementById(“obat-text”).textContent=
+`CLIENT
+Nom : ${r.clientNom}
+Tel : ${r.clientTel}
+Adresse : ${r.adresse}
+
+INTERVENTION
+Type : ${r.type}
+Date : ${r.date}
+Technicien : ${r.technicien}
+Duree : ${r.heureDebut} a ${r.heureFin}
+
+FACTURATION
+Montant HT : ${Math.round((r.montantFinal||0)/1.2)} EUR
+TVA 20% : ${Math.round((r.montantFinal||0)-(r.montantFinal||0)/1.2)} EUR
+Montant TTC : ${r.montantFinal} EUR
+
+TRAVAUX
+${r.description||“Voir rapport”}
+
+VENTES ADDITIONNELLES
+${(r.ventes||[]).map(v=>v.label).join(”, “)||“Aucune”}`;
+document.getElementById(“modal-obat”).classList.remove(“hidden”);
 }
 
+function copierObat(){navigator.clipboard.writeText(document.getElementById(“obat-text”).textContent);showNotif(“Copie ! Colle dans Obat”);}
+function marquerFacture(){
+if(obatIdx===null)return;
+const raps=getRapports().sort((a,b)=>b.soumisLe?.localeCompare(a.soumisLe));
+raps[obatIdx].statut=“Facture”;saveRapports(raps);closeModal(“modal-obat”);renderRapports();showNotif(“Marque comme facture !”);
+}
+
+// MODALS
+function showModalTech(){document.getElementById(“modal-tech”).classList.remove(“hidden”);}
+function closeModal(id){document.getElementById(id).classList.add(“hidden”);}
+function openPhotoFs(src){document.getElementById(“photo-fs-img”).src=src;document.getElementById(“photo-fs”).classList.remove(“hidden”);}
+function closePhotoFs(){document.getElementById(“photo-fs”).classList.add(“hidden”);}
+function showNotif(msg){const n=document.createElement(“div”);n.className=“notif”;n.textContent=msg;document.body.appendChild(n);setTimeout(()=>n.remove(),3500);}
+
 window.onload=()=>{
-  document.querySelectorAll(".pin-input").forEach((el,i,arr)=>{
-    el.addEventListener("input",()=>{if(el.value&&i<arr.length-1)arr[i+1].focus();});
-    el.addEventListener("keydown",e=>{if(e.key==="Backspace"&&!el.value&&i>0)arr[i-1].focus();});
-  });
-  if(localStorage.getItem("pl_patron_session"))lancerApp();
+document.querySelectorAll(”.pin-input”).forEach((el,i,arr)=>{
+el.addEventListener(“input”,()=>{if(el.value&&i<arr.length-1)arr[i+1].focus();});
+el.addEventListener(“keydown”,e=>{if(e.key===“Backspace”&&!el.value&&i>0)arr[i-1].focus();});
+});
+if(localStorage.getItem(“pl_patron_session”))lancerApp();
 };
 </script>
 
