@@ -1050,48 +1050,73 @@ function updatePrimeTotal(){
 }
 
 function soumettre(){
-  if(chronoInterval)clearInterval(chronoInterval);
-  const heureFin=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
-  const totalPrimes=ventesSelectionnees.reduce((s,v)=>s+(v.primeChoisie||v.primeMin),0);
-  const desc=document.getElementById("description").value.trim()||"Intervention effectuee";
-  const canvas=document.getElementById("signatureCanvas");
-  const signature=canvas?canvas.toDataURL():null;
-  const checksDone=document.querySelectorAll(".check-box.checked").length;
-  const rapport={
-    id:Date.now(),rdvId:currentRdv.id,clientNom:currentRdv.clientNom,
-    clientTel:currentRdv.clientTel,adresse:currentRdv.adresse,
-    type:currentRdv.type,technicien:currentUser.nom,
-    heureDebut,heureFin,date:todayStr(),statutRdv:statutRdvCurrent,
-    description:desc,montantFinal:Number(document.getElementById("montantFinal").value),
-    prixInitial:currentRdv.prixVente,
-    photosAvant:photosAvant.filter(Boolean).map(p=>p.url),
-    photosApres:photosApres.filter(Boolean).map(p=>p.url),
-    ventes:ventesSelectionnees,totalPrimes,signature,
-    pieces:piecesUtilisees,
-    checklistScore:checksDone+"/6",
-    soumisLe:new Date().toISOString(),statut:"En attente facturation"
-  };
-  const rapports=getRapports();rapports.push(rapport);saveRapports(rapports);
-  const devis=ventesSelectionnees.filter(v=>v.type==="devis");
-  if(devis.length){
-    const d=JSON.parse(localStorage.getItem("pl_devis")||"[]");
-    devis.forEach(v=>d.push({id:Date.now()+Math.random(),type:v.label,clientNom:currentRdv.clientNom,clientTel:currentRdv.clientTel,adresse:currentRdv.adresse,technicien:currentUser.nom,date:todayStr(),statut:"Nouveau"}));
-    localStorage.setItem("pl_devis",JSON.stringify(d));
+  try {
+    if(chronoInterval)clearInterval(chronoInterval);
+    const heureFin=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+    const totalPrimes=ventesSelectionnees.reduce((s,v)=>s+(v.primeChoisie||v.primeMin),0);
+    const desc=document.getElementById("description").value.trim()||"Intervention effectuee";
+    const checksDone=document.querySelectorAll(".check-box.checked").length;
+    const rapportId=Date.now();
+
+    let signature=null;
+    try {
+      const canvas=document.getElementById("signatureCanvas");
+      if(canvas&&signatureCtx){
+        const data=signatureCtx.getImageData(0,0,canvas.width||320,canvas.height||180).data;
+        const hasSig=Array.from(data).some((v,i)=>i%4!==3&&v!==255&&v!==0);
+        if(hasSig)signature=canvas.toDataURL("image/jpeg",0.5);
+      }
+    } catch(e){signature=null;}
+
+    const rapport={
+      id:rapportId,rdvId:currentRdv.id,clientNom:currentRdv.clientNom,
+      clientTel:currentRdv.clientTel,adresse:currentRdv.adresse,
+      type:currentRdv.type,technicien:currentUser.nom,
+      heureDebut,heureFin,date:todayStr(),statutRdv:statutRdvCurrent,
+      description:desc,montantFinal:Number(document.getElementById("montantFinal").value),
+      prixInitial:currentRdv.prixVente,
+      nbPhotosAvant:photosAvant.filter(Boolean).length,
+      nbPhotosApres:photosApres.filter(Boolean).length,
+      ventes:ventesSelectionnees,totalPrimes,
+      pieces:piecesUtilisees,signature,
+      checklistScore:checksDone+"/6",
+      soumisLe:new Date().toISOString(),statut:"En attente facturation"
+    };
+
+    const rapports=getRapports();rapports.push(rapport);
+    try { saveRapports(rapports); }
+    catch(e){
+      const light={...rapport,signature:null};
+      try { saveRapports([...rapports.slice(-4).map(r=>({...r,signature:null})),light]); }
+      catch(e2){ saveRapports([light]); }
+    }
+
+    const devis=ventesSelectionnees.filter(v=>v.type==="devis");
+    if(devis.length){
+      const d=JSON.parse(localStorage.getItem("pl_devis")||"[]");
+      devis.forEach(v=>d.push({id:Date.now()+Math.random(),type:v.label,clientNom:currentRdv.clientNom,clientTel:currentRdv.clientTel,adresse:currentRdv.adresse,technicien:currentUser.nom,date:todayStr(),statut:"Nouveau"}));
+      localStorage.setItem("pl_devis",JSON.stringify(d));
+    }
+    const mois=moisStr(),primes=getPrimes();
+    if(!primes[currentUser.nom])primes[currentUser.nom]={};
+    if(!primes[currentUser.nom][mois])primes[currentUser.nom][mois]={total:0,ventes:0,ca:0};
+    primes[currentUser.nom][mois].total+=totalPrimes;
+    primes[currentUser.nom][mois].ventes+=ventesSelectionnees.length;
+    primes[currentUser.nom][mois].ca+=Number(document.getElementById("montantFinal").value);
+    savePrimes(primes);
+
+    saveRdvs(getRdvs().map(r=>r.id===currentRdv.id?{...r,statut:"Termine",rapportId}:r));
+
+    showEtape("succes");
+    if(totalPrimes>0){
+      document.getElementById("prime-win").classList.remove("hidden");
+      document.getElementById("prime-win-amount").textContent=totalPrimes+" EUR";
+    }
+    renderRdv();renderHistorique();
+  } catch(err){
+    showNotif("Erreur: "+err.message);
+    console.error("soumettre:",err);
   }
-  const mois=moisStr(),primes=getPrimes();
-  if(!primes[currentUser.nom])primes[currentUser.nom]={};
-  if(!primes[currentUser.nom][mois])primes[currentUser.nom][mois]={total:0,ventes:0,ca:0};
-  primes[currentUser.nom][mois].total+=totalPrimes;
-  primes[currentUser.nom][mois].ventes+=ventesSelectionnees.length;
-  primes[currentUser.nom][mois].ca+=Number(document.getElementById("montantFinal").value);
-  savePrimes(primes);
-  saveRdvs(getRdvs().map(r=>r.id===currentRdv.id?{...r,statut:"Termine",rapport}:r));
-  showEtape("succes");
-  if(totalPrimes>0){
-    document.getElementById("prime-win").classList.remove("hidden");
-    document.getElementById("prime-win-amount").textContent=totalPrimes+" EUR";
-  }
-  renderRdv();renderHistorique();
 }
 
 function closeModal(id){
