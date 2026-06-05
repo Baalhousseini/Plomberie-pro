@@ -201,7 +201,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 
   <div class="content">
 
-```
 <!-- TABLEAU DE BORD -->
 <div id="page-dashboard">
   <div style="margin-bottom:16px;">
@@ -387,7 +386,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   </div>
   <div id="liste-infos"></div>
 </div>
-```
 
   </div>
 </div>
@@ -665,84 +663,82 @@ function renderValidation(){
       if(r.description) html+='<div class="desc-box" style="margin-bottom:10px;">'+r.description.substring(0,120)+(r.description.length>120?"...":"")+'</div>';
       html+='<textarea class="comment-input" id="cv-'+i+'" placeholder="Commentaire avant validation..."></textarea>';
 
-```
   html+='<div style="display:flex;gap:8px;flex-wrap:wrap;">';
   html+='<button class="btn btn-green" onclick="validerRapport(\''+r.clientNom+'\',\''+r.date+'\','+i+')">Valider</button>';
-  html+='<button class="btn btn-orange" onclick="ouvrirObat(\''+r.clientNom+'\',\''+r.clientTel+'\',\''+r.adresse+'\',\''+r.type+'\',\''+r.date+'\',\''+r.technicien+'\',\''+r.heureDebut+'\',\''+r.heureFin+'\','+r.montantFinal+',\''+(r.description||"").substring(0,80).replace(/'/g," ")+'\')">Obat</button>';
+  html+='<button class="btn btn-orange" onclick="ouvrirObat(\''+r.clientNom+'\',\''+r.clientTel+'\',\''+r.adresse+'\',\''+r.type+'\',\''+r.date+'\',\''+r.technicien+'\',\''+r.heureDebut+'\',\''+r.heureFin+'\','+r.montantFinal+',\''+(r.description||"").substring(0,80).replace(/\x27/g," ")+'\')">Obat</button>';
   html+='<button class="btn btn-red" onclick="refuserRapport(\''+r.clientNom+'\',\''+r.date+'\','+i+')">Refuser</button>';
   html+='</div></div>';
 }
-```
 
 }
-document.getElementById(“liste-validation”).innerHTML=html;
-var hh=””;
+document.getElementById("liste-validation").innerHTML=html;
+var hh="";
 var rec=valides.slice(-5).reverse();
 for(var j=0;j<rec.length;j++){
 var v=rec[j];
-hh+=’<div style="padding:10px 0;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;">’;
-hh+=’<div><div style="font-weight:600;font-size:13px;color:#1a2537;">’+v.clientNom+’</div><div style="color:#64748b;font-size:11px;">’+v.date+’ - ‘+v.technicien+’</div></div>’;
-hh+=’<span class="badge badge-green">’+v.statut+’</span></div>’;
+hh+='<div style="padding:10px 0;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;">';
+hh+='<div><div style="font-weight:600;font-size:13px;color:#1a2537;">'+v.clientNom+'</div><div style="color:#64748b;font-size:11px;">'+v.date+' - '+v.technicien+'</div></div>';
+hh+='<span class="badge badge-green">'+v.statut+'</span></div>';
 }
-document.getElementById(“hist-validation”).innerHTML=hh||’<div style="color:#94a3b8;font-size:13px;padding:12px 0;">Aucun historique</div>’;
+document.getElementById("hist-validation").innerHTML=hh||'<div style="color:#94a3b8;font-size:13px;padding:12px 0;">Aucun historique</div>';
 }
 
 function validerRapport(nom,date,idx){
 var r=getRapports(),i=r.findIndex(function(x){return x.clientNom===nom&&x.date===date;});
-if(i>=0){r[i].statut=“Valide”;var el=document.getElementById(“cv-”+idx);r[i].commentaire=el?el.value:””;r[i].valideAt=new Date().toISOString();saveRapports(r);}
-renderValidation();showNotif(“Rapport valide !”);
+if(i>=0){r[i].statut="Valide";var el=document.getElementById("cv-"+idx);r[i].commentaire=el?el.value:"";r[i].valideAt=new Date().toISOString();saveRapports(r);}
+renderValidation();showNotif("Rapport valide !");
 }
 
 function refuserRapport(nom,date,idx){
 var r=getRapports(),i=r.findIndex(function(x){return x.clientNom===nom&&x.date===date;});
-if(i>=0){r[i].statut=“Refuse”;var el=document.getElementById(“cv-”+idx);r[i].commentaire=el?el.value:””;saveRapports(r);}
-renderValidation();showNotif(“Rapport refuse”);
+if(i>=0){r[i].statut="Refuse";var el=document.getElementById("cv-"+idx);r[i].commentaire=el?el.value:"";saveRapports(r);}
+renderValidation();showNotif("Rapport refuse");
 }
 
 function filtrerRapports(f,btn){
 filtreRap=f;
-document.querySelectorAll(”#page-rapports .btn”).forEach(function(b){b.className=“btn btn-gray”;});
-if(btn){btn.className=“btn btn-primary”;}
+document.querySelectorAll("#page-rapports .btn").forEach(function(b){b.className="btn btn-gray";});
+if(btn){btn.className="btn btn-primary";}
 renderRapports();
 }
 
 function renderRapports(){
 var all=getRapports().sort(function(a,b){return b.soumisLe?b.soumisLe.localeCompare(a.soumisLe):0;});
 var raps=all;
-if(filtreRap===“attente”)raps=all.filter(function(r){return r.statut===“En attente facturation”;});
-if(filtreRap===“facture”)raps=all.filter(function(r){return r.statut===“Facture”||r.statut===“Paye”;});
-if(!raps.length){document.getElementById(“liste-rapports”).innerHTML=’<div class="empty-state"><div class="empty-icon">📋</div>Aucun rapport</div>’;return;}
-var html=””;
+if(filtreRap==="attente")raps=all.filter(function(r){return r.statut==="En attente facturation";});
+if(filtreRap==="facture")raps=all.filter(function(r){return r.statut==="Facture"||r.statut==="Paye";});
+if(!raps.length){document.getElementById("liste-rapports").innerHTML='<div class="empty-state"><div class="empty-icon">📋</div>Aucun rapport</div>';return;}
+var html="";
 for(var i=0;i<raps.length;i++){
-var r=raps[i],tc=TECH_C[r.technicien]||{c:”#64748b”,a:”??”};
+var r=raps[i],tc=TECH_C[r.technicien]||{c:"#64748b",a:"??"};
 var isExp=expandedRap===i;
-var bc=r.statut===“Paye”?“badge-green”:r.statut===“Facture”||r.statut===“Valide”?“badge-yellow”:“badge-purple”;
-html+=’<div class="rapport-card"><div class="rapport-header" onclick="toggleRap('+i+')">’;
-html+=’<div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;">’;
-html+=’<div style=“width:24px;height:24px;border-radius:6px;background:’+(tc.bg||”#f1f5f9”)+’;border:1px solid ‘+tc.c+’;color:’+tc.c+’;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;”>’+tc.a+’</div>’;
-html+=’<span style="font-weight:700;font-size:14px;color:#1a2537;">’+r.clientNom+’</span>’;
-html+=’<span class="badge '+bc+'">’+r.statut+’</span></div>’;
-html+=’<div style="color:#64748b;font-size:12px;">’+r.type+’ - ‘+r.date+’</div></div>’;
-html+=’<div style="text-align:right;flex-shrink:0;"><div style="color:#1a3a5c;font-weight:800;font-size:16px;">’+r.montantFinal+’ EUR</div></div>’;
-html+=’</div>’;
+var bc=r.statut==="Paye"?"badge-green":r.statut==="Facture"||r.statut==="Valide"?"badge-yellow":"badge-purple";
+html+='<div class="rapport-card"><div class="rapport-header" onclick="toggleRap('+i+')">';
+html+='<div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;">';
+html+='<div style="width:24px;height:24px;border-radius:6px;background:'+(tc.bg||"#f1f5f9")+';border:1px solid '+tc.c+';color:'+tc.c+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;">'+tc.a+'</div>';
+html+='<span style="font-weight:700;font-size:14px;color:#1a2537;">'+r.clientNom+'</span>';
+html+='<span class="badge '+bc+'">'+r.statut+'</span></div>';
+html+='<div style="color:#64748b;font-size:12px;">'+r.type+' - '+r.date+'</div></div>';
+html+='<div style="text-align:right;flex-shrink:0;"><div style="color:#1a3a5c;font-weight:800;font-size:16px;">'+r.montantFinal+' EUR</div></div>';
+html+='</div>';
 if(isExp){
-html+=’<div class="rapport-body">’;
-html+=’<div style="margin-top:12px;"><div class="lbl">CLIENT</div><div style="color:#475569;font-size:13px;">’+r.clientNom+’ - <a href="tel:'+r.clientTel+'" style="color:#1d4ed8;">’+r.clientTel+’</a></div></div>’;
-html+=’<div style="margin-top:12px;"><div class="lbl">TECHNICIEN</div><div style="color:#475569;font-size:13px;">’+r.technicien+’ - ‘+r.heureDebut+’ a ‘+r.heureFin+’</div></div>’;
+html+='<div class="rapport-body">';
+html+='<div style="margin-top:12px;"><div class="lbl">CLIENT</div><div style="color:#475569;font-size:13px;">'+r.clientNom+' - <a href="tel:'+r.clientTel+'" style="color:#1d4ed8;">'+r.clientTel+'</a></div></div>';
+html+='<div style="margin-top:12px;"><div class="lbl">TECHNICIEN</div><div style="color:#475569;font-size:13px;">'+r.technicien+' - '+r.heureDebut+' a '+r.heureFin+'</div></div>';
 var av=r.photosAvant||[],ap=r.photosApres||[];
-if(av.length){html+=’<div style="margin-top:12px;"><div class="lbl">AVANT</div><div class="photos-row">’;for(var j=0;j<av.length;j++)html+=’<img src="'+av[j]+'" class="photo-thumb" onclick="openPhotoFs(\''+av[j]+'\')">’;html+=’</div></div>’;}
-if(ap.length){html+=’<div style="margin-top:12px;"><div class="lbl">APRES</div><div class="photos-row">’;for(var k=0;k<ap.length;k++)html+=’<img src="'+ap[k]+'" class="photo-thumb" onclick="openPhotoFs(\''+ap[k]+'\')">’;html+=’</div></div>’;}
-if(r.description) html+=’<div style="margin-top:12px;"><div class="lbl">DESCRIPTION</div><div class="desc-box">’+r.description+’</div></div>’;
-if(r.totalPrimes>0) html+=’<div style="margin-top:12px;"><div class="lbl">PRIME TECH</div><div style="color:#a16207;font-weight:700;">’+r.totalPrimes+’ EUR</div></div>’;
-html+=’<div class="actions-row">’;
-html+=’<button class=“btn btn-primary” onclick=“ouvrirObat('’+r.clientNom+’','’+r.clientTel+’','’+r.adresse+’','’+r.type+’','’+r.date+’','’+r.technicien+’','’+r.heureDebut+’','’+r.heureFin+’',’+r.montantFinal+’,'’+(r.description||””).substring(0,80).replace(/’/g,” “)+’')”>Preparer Obat</button>’;
-if(r.statut!==“Paye”) html+=’<button class="btn btn-green" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Paye\')">Paye</button>’;
-if(r.statut===“En attente facturation”||r.statut===“Valide”) html+=’<button class="btn btn-orange" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Facture\')">Facture</button>’;
-html+=’</div></div>’;
+if(av.length){html+='<div style="margin-top:12px;"><div class="lbl">AVANT</div><div class="photos-row">';for(var j=0;j<av.length;j++)html+='<img src="'+av[j]+'" class="photo-thumb" onclick="openPhotoFs(\''+av[j]+'\')">';html+='</div></div>';}
+if(ap.length){html+='<div style="margin-top:12px;"><div class="lbl">APRES</div><div class="photos-row">';for(var k=0;k<ap.length;k++)html+='<img src="'+ap[k]+'" class="photo-thumb" onclick="openPhotoFs(\''+ap[k]+'\')">';html+='</div></div>';}
+if(r.description) html+='<div style="margin-top:12px;"><div class="lbl">DESCRIPTION</div><div class="desc-box">'+r.description+'</div></div>';
+if(r.totalPrimes>0) html+='<div style="margin-top:12px;"><div class="lbl">PRIME TECH</div><div style="color:#a16207;font-weight:700;">'+r.totalPrimes+' EUR</div></div>';
+html+='<div class="actions-row">';
+html+='<button class="btn btn-primary" onclick="ouvrirObat(\''+r.clientNom+'\',\''+r.clientTel+'\',\''+r.adresse+'\',\''+r.type+'\',\''+r.date+'\',\''+r.technicien+'\',\''+r.heureDebut+'\',\''+r.heureFin+'\','+r.montantFinal+',\''+(r.description||"").substring(0,80).replace(/\x27/g," ")+'\')">Preparer Obat</button>';
+if(r.statut!=="Paye") html+='<button class="btn btn-green" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Paye\')">Paye</button>';
+if(r.statut==="En attente facturation"||r.statut==="Valide") html+='<button class="btn btn-orange" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Facture\')">Facture</button>';
+html+='</div></div>';
 }
-html+=’</div>’;
+html+='</div>';
 }
-document.getElementById(“liste-rapports”).innerHTML=html;
+document.getElementById("liste-rapports").innerHTML=html;
 }
 
 function toggleRap(i){expandedRap=expandedRap===i?null:i;renderRapports();}
@@ -750,253 +746,253 @@ function toggleRap(i){expandedRap=expandedRap===i?null:i;renderRapports();}
 function changerStatut(nom,date,statut){
 var r=getRapports(),i=r.findIndex(function(x){return x.clientNom===nom&&x.date===date;});
 if(i>=0){r[i].statut=statut;saveRapports(r);}
-renderRapports();showNotif(“Statut: “+statut);
+renderRapports();showNotif("Statut: "+statut);
 }
 
 function ouvrirObat(nom,tel,adresse,type,date,tech,debut,fin,montant,desc){
-document.getElementById(“obat-nom”).textContent=nom;
-document.getElementById(“obat-text”).textContent=
-“CLIENT\nNom : “+nom+”\nTel : “+tel+”\nAdresse : “+adresse+
-“\n\nINTERVENTION\nType : “+type+”\nDate : “+date+”\nTechnicien : “+tech+”\nDuree : “+debut+” a “+fin+
-“\n\nFACTURATION\nMontant HT : “+Math.round(montant/1.2)+” EUR\nTVA 20% : “+Math.round(montant-montant/1.2)+” EUR\nMontant TTC : “+montant+” EUR\n\nTRAVAUX\n”+desc;
-document.getElementById(“modal-obat”).classList.remove(“hidden”);
+document.getElementById("obat-nom").textContent=nom;
+document.getElementById("obat-text").textContent=
+"CLIENT\nNom : "+nom+"\nTel : "+tel+"\nAdresse : "+adresse+
+"\n\nINTERVENTION\nType : "+type+"\nDate : "+date+"\nTechnicien : "+tech+"\nDuree : "+debut+" a "+fin+
+"\n\nFACTURATION\nMontant HT : "+Math.round(montant/1.2)+" EUR\nTVA 20% : "+Math.round(montant-montant/1.2)+" EUR\nMontant TTC : "+montant+" EUR\n\nTRAVAUX\n"+desc;
+document.getElementById("modal-obat").classList.remove("hidden");
 }
 
-function copierObat(){navigator.clipboard.writeText(document.getElementById(“obat-text”).textContent);showNotif(“Copie ! Colle dans Obat”);}
-function marquerFacture(){closeModal(“modal-obat”);showNotif(“Marque comme facture !”);}
+function copierObat(){navigator.clipboard.writeText(document.getElementById("obat-text").textContent);showNotif("Copie ! Colle dans Obat");}
+function marquerFacture(){closeModal("modal-obat");showNotif("Marque comme facture !");}
 
-function toggleFormSav(){document.getElementById(“form-sav”).classList.toggle(“hidden”);}
+function toggleFormSav(){document.getElementById("form-sav").classList.toggle("hidden");}
 
 function sauvegarderSav(){
-var client=document.getElementById(“sav-client”).value.trim();
-if(!client){showNotif(“Nom client requis”);return;}
+var client=document.getElementById("sav-client").value.trim();
+if(!client){showNotif("Nom client requis");return;}
 var s=getSavs();
-s.unshift({id:Date.now(),client:client,tel:document.getElementById(“sav-tel”).value.trim(),type:document.getElementById(“sav-type”).value,description:document.getElementById(“sav-desc”).value.trim(),technicien:document.getElementById(“sav-tech”).value,garantie:document.getElementById(“sav-garantie”).value,creeeAt:new Date().toISOString(),statut:“Ouvert”});
+s.unshift({id:Date.now(),client:client,tel:document.getElementById("sav-tel").value.trim(),type:document.getElementById("sav-type").value,description:document.getElementById("sav-desc").value.trim(),technicien:document.getElementById("sav-tech").value,garantie:document.getElementById("sav-garantie").value,creeeAt:new Date().toISOString(),statut:"Ouvert"});
 saveSavs(s);
-[“sav-client”,“sav-tel”,“sav-desc”].forEach(function(id){document.getElementById(id).value=””;});
-document.getElementById(“form-sav”).classList.add(“hidden”);
-renderSavs();showNotif(“Dossier SAV cree !”);
+["sav-client","sav-tel","sav-desc"].forEach(function(id){document.getElementById(id).value="";});
+document.getElementById("form-sav").classList.add("hidden");
+renderSavs();showNotif("Dossier SAV cree !");
 }
 
 function renderSavs(){
 var savs=getSavs();
-if(!savs.length){document.getElementById(“liste-sav”).innerHTML=’<div class="empty-state"><div class="empty-icon">🔧</div>Aucun dossier SAV</div>’;return;}
-var html=””;
+if(!savs.length){document.getElementById("liste-sav").innerHTML='<div class="empty-state"><div class="empty-icon">🔧</div>Aucun dossier SAV</div>';return;}
+var html="";
 for(var i=0;i<savs.length;i++){
-var s=savs[i],gc=s.garantie===“oui”?”#16a34a”:s.garantie===“non”?”#dc2626”:”#a16207”;
-var gl=s.garantie===“oui”?“GARANTIE”:s.garantie===“non”?“HORS GARANTIE”:“A VERIFIER”;
-html+=’<div class="sav-card"><div style="display:flex;justify-content:space-between;margin-bottom:8px;">’;
-html+=’<div><div style="font-weight:700;font-size:14px;color:#1a2537;margin-bottom:4px;">’+s.client+’</div>’;
-html+=’<div style="color:#1d4ed8;font-size:12px;font-weight:700;">’+s.type+’</div>’;
-if(s.description) html+=’<div style="color:#64748b;font-size:12px;margin-top:4px;">’+s.description+’</div>’;
-html+=’<div style="color:#94a3b8;font-size:11px;margin-top:4px;">’+s.technicien+’ - ‘+new Date(s.creeeAt).toLocaleDateString(“fr-FR”)+’</div></div>’;
-html+=’<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">’;
-html+=’<span style="background:'+gc+'20;color:'+gc+';border:1px solid '+gc+'40;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;">’+gl+’</span>’;
-html+=’<span class=“badge ‘+(s.statut===“Resolu”?“badge-green”:“badge-blue”)+’”>’+s.statut+’</span></div></div>’;
-html+=’<div style="display:flex;gap:8px;flex-wrap:wrap;">’;
-if(s.tel) html+=’<button class="btn btn-blue" onclick="window.open(\'tel:'+s.tel+'\')">Appeler</button>’;
-if(s.statut!==“Resolu”) html+=’<button class="btn btn-green" onclick="resoudreSav('+i+')">Resolu</button>’;
-html+=’<button class="btn btn-gray" onclick="supprimerSav('+i+')">Supprimer</button>’;
-html+=’</div></div>’;
+var s=savs[i],gc=s.garantie==="oui"?"#16a34a":s.garantie==="non"?"#dc2626":"#a16207";
+var gl=s.garantie==="oui"?"GARANTIE":s.garantie==="non"?"HORS GARANTIE":"A VERIFIER";
+html+='<div class="sav-card"><div style="display:flex;justify-content:space-between;margin-bottom:8px;">';
+html+='<div><div style="font-weight:700;font-size:14px;color:#1a2537;margin-bottom:4px;">'+s.client+'</div>';
+html+='<div style="color:#1d4ed8;font-size:12px;font-weight:700;">'+s.type+'</div>';
+if(s.description) html+='<div style="color:#64748b;font-size:12px;margin-top:4px;">'+s.description+'</div>';
+html+='<div style="color:#94a3b8;font-size:11px;margin-top:4px;">'+s.technicien+' - '+new Date(s.creeeAt).toLocaleDateString("fr-FR")+'</div></div>';
+html+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">';
+html+='<span style="background:'+gc+'20;color:'+gc+';border:1px solid '+gc+'40;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;">'+gl+'</span>';
+html+='<span class="badge '+(s.statut==="Resolu"?"badge-green":"badge-blue")+'">'+s.statut+'</span></div></div>';
+html+='<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+if(s.tel) html+='<button class="btn btn-blue" onclick="window.open(\'tel:'+s.tel+'\')">Appeler</button>';
+if(s.statut!=="Resolu") html+='<button class="btn btn-green" onclick="resoudreSav('+i+')">Resolu</button>';
+html+='<button class="btn btn-gray" onclick="supprimerSav('+i+')">Supprimer</button>';
+html+='</div></div>';
 }
-document.getElementById(“liste-sav”).innerHTML=html;
+document.getElementById("liste-sav").innerHTML=html;
 }
 
-function resoudreSav(i){var s=getSavs();s[i].statut=“Resolu”;s[i].resoluAt=new Date().toISOString();saveSavs(s);renderSavs();showNotif(“SAV resolu !”);}
+function resoudreSav(i){var s=getSavs();s[i].statut="Resolu";s[i].resoluAt=new Date().toISOString();saveSavs(s);renderSavs();showNotif("SAV resolu !");}
 function supprimerSav(i){var s=getSavs();s.splice(i,1);saveSavs(s);renderSavs();}
 
 function renderDevis(){
 var devis=getDevis().sort(function(a,b){return b.date?b.date.localeCompare(a.date):0;});
-if(!devis.length){document.getElementById(“liste-devis”).innerHTML=’<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">📝</div>Aucune demande</div>’;return;}
-var html=””;
+if(!devis.length){document.getElementById("liste-devis").innerHTML='<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">📝</div>Aucune demande</div>';return;}
+var html="";
 for(var i=0;i<devis.length;i++){
 var d=devis[i];
-html+=’<div class="devis-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">’;
-html+=’<div><div style="color:#1d4ed8;font-weight:700;font-size:14px;margin-bottom:4px;">’+d.type+’</div>’;
-html+=’<div style="color:#64748b;font-size:12px;">’+d.clientNom+’ - ‘+d.clientTel+’</div>’;
-html+=’<div style="color:#94a3b8;font-size:11px;">’+d.adresse+’</div>’;
-html+=’<div style="color:#94a3b8;font-size:11px;">Par ‘+d.technicien+’ le ‘+d.date+’</div></div>’;
-html+=’<span class=“badge ‘+(d.statut===“Traite”?“badge-green”:“badge-blue”)+’”>’+d.statut+’</span></div>’;
-html+=’<div style="display:flex;gap:8px;flex-wrap:wrap;">’;
-html+=’<button class="btn btn-blue" onclick="window.open(\'tel:'+d.clientTel+'\')">Appeler</button>’;
-if(d.statut!==“Traite”) html+=’<button class="btn btn-green" onclick="marquerDevisTraite('+i+')">Traite</button>’;
-html+=’<button class="btn btn-gray" onclick="supprimerDevis('+i+')">Supprimer</button>’;
-html+=’</div></div>’;
+html+='<div class="devis-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">';
+html+='<div><div style="color:#1d4ed8;font-weight:700;font-size:14px;margin-bottom:4px;">'+d.type+'</div>';
+html+='<div style="color:#64748b;font-size:12px;">'+d.clientNom+' - '+d.clientTel+'</div>';
+html+='<div style="color:#94a3b8;font-size:11px;">'+d.adresse+'</div>';
+html+='<div style="color:#94a3b8;font-size:11px;">Par '+d.technicien+' le '+d.date+'</div></div>';
+html+='<span class="badge '+(d.statut==="Traite"?"badge-green":"badge-blue")+'">'+d.statut+'</span></div>';
+html+='<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+html+='<button class="btn btn-blue" onclick="window.open(\'tel:'+d.clientTel+'\')">Appeler</button>';
+if(d.statut!=="Traite") html+='<button class="btn btn-green" onclick="marquerDevisTraite('+i+')">Traite</button>';
+html+='<button class="btn btn-gray" onclick="supprimerDevis('+i+')">Supprimer</button>';
+html+='</div></div>';
 }
-document.getElementById(“liste-devis”).innerHTML=html;
+document.getElementById("liste-devis").innerHTML=html;
 }
 
-function marquerDevisTraite(i){var d=getDevis().sort(function(a,b){return b.date?b.date.localeCompare(a.date):0;});d[i].statut=“Traite”;saveDevis(d);renderDevis();showNotif(“Devis traite”);}
+function marquerDevisTraite(i){var d=getDevis().sort(function(a,b){return b.date?b.date.localeCompare(a.date):0;});d[i].statut="Traite";saveDevis(d);renderDevis();showNotif("Devis traite");}
 function supprimerDevis(i){var d=getDevis().sort(function(a,b){return b.date?b.date.localeCompare(a.date):0;});d.splice(i,1);saveDevis(d);renderDevis();}
 
 function renderFacturation(){
 var r=getRapports();
-var aF=r.filter(function(x){return x.statut===“Valide”||x.statut===“En attente facturation”;});
-var f=r.filter(function(x){return x.statut===“Facture”;});
-var p=r.filter(function(x){return x.statut===“Paye”;});
-document.getElementById(“stats-fact”).innerHTML=[
-[“A facturer”,aF.length+” - “+aF.reduce(function(s,x){return s+(x.montantFinal||0);},0)+” EUR”,”#c2410c”,”#ffedd5”,”#fed7aa”],
-[“Factures”,f.length+” - “+f.reduce(function(s,x){return s+(x.montantFinal||0);},0)+” EUR”,”#a16207”,”#fef9c3”,”#fde68a”],
-[“Encaisse”,p.length+” - “+p.reduce(function(s,x){return s+(x.montantFinal||0);},0)+” EUR”,”#16a34a”,”#dcfce7”,”#bbf7d0”]
-].map(function(x){return ‘<div class="stat-card" style="border-left:4px solid '+x[2]+';background:'+x[3]+';border-color:'+x[4]+'"><div class="lbl" style="color:'+x[2]+';">’+x[0].toUpperCase()+’</div><div class="stat-val" style="color:'+x[2]+';font-size:12px;">’+x[1]+’</div></div>’;}).join(””);
+var aF=r.filter(function(x){return x.statut==="Valide"||x.statut==="En attente facturation";});
+var f=r.filter(function(x){return x.statut==="Facture";});
+var p=r.filter(function(x){return x.statut==="Paye";});
+document.getElementById("stats-fact").innerHTML=[
+["A facturer",aF.length+" - "+aF.reduce(function(s,x){return s+(x.montantFinal||0);},0)+" EUR","#c2410c","#ffedd5","#fed7aa"],
+["Factures",f.length+" - "+f.reduce(function(s,x){return s+(x.montantFinal||0);},0)+" EUR","#a16207","#fef9c3","#fde68a"],
+["Encaisse",p.length+" - "+p.reduce(function(s,x){return s+(x.montantFinal||0);},0)+" EUR","#16a34a","#dcfce7","#bbf7d0"]
+].map(function(x){return '<div class="stat-card" style="border-left:4px solid '+x[2]+';background:'+x[3]+';border-color:'+x[4]+'"><div class="lbl" style="color:'+x[2]+';">'+x[0].toUpperCase()+'</div><div class="stat-val" style="color:'+x[2]+';font-size:12px;">'+x[1]+'</div></div>';}).join("");
 
 var hAF=aF.length?aF.map(function(r){
-return ‘<div class="fact-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;"><div><div style="font-weight:700;font-size:14px;color:#1a2537;">’+r.clientNom+’</div><div style="color:#64748b;font-size:12px;">’+r.type+’ - ‘+r.date+’</div></div><div style="color:#1a3a5c;font-weight:800;font-size:16px;">’+r.montantFinal+’ EUR</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;"><button class=“btn btn-primary” onclick=“ouvrirObat('’+r.clientNom+’','’+r.clientTel+’','’+r.adresse+’','’+r.type+’','’+r.date+’','’+r.technicien+’','’+r.heureDebut+’','’+r.heureFin+’',’+r.montantFinal+’,'’+(r.description||””).substring(0,80).replace(/’/g,” “)+’')”>Obat</button><button class="btn btn-orange" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Facture\')">Marquer facture</button></div></div>’;
-}).join(””):’<div style="color:#94a3b8;font-size:13px;padding:16px 0;">Tout est facture !</div>’;
-document.getElementById(“liste-a-facturer”).innerHTML=hAF;
+return '<div class="fact-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;"><div><div style="font-weight:700;font-size:14px;color:#1a2537;">'+r.clientNom+'</div><div style="color:#64748b;font-size:12px;">'+r.type+' - '+r.date+'</div></div><div style="color:#1a3a5c;font-weight:800;font-size:16px;">'+r.montantFinal+' EUR</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-primary" onclick="ouvrirObat(\''+r.clientNom+'\',\''+r.clientTel+'\',\''+r.adresse+'\',\''+r.type+'\',\''+r.date+'\',\''+r.technicien+'\',\''+r.heureDebut+'\',\''+r.heureFin+'\','+r.montantFinal+',\''+(r.description||"").substring(0,80).replace(/\x27/g," ")+'\')">Obat</button><button class="btn btn-orange" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Facture\')">Marquer facture</button></div></div>';
+}).join(""):'<div style="color:#94a3b8;font-size:13px;padding:16px 0;">Tout est facture !</div>';
+document.getElementById("liste-a-facturer").innerHTML=hAF;
 
 var hF=f.length?f.map(function(r){
-return ‘<div class="fact-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;"><div><div style="font-weight:700;font-size:14px;color:#1a2537;">’+r.clientNom+’</div><div style="color:#64748b;font-size:12px;">’+r.type+’ - ‘+r.date+’</div></div><div style="color:#1a3a5c;font-weight:800;font-size:16px;">’+r.montantFinal+’ EUR</div></div><button class="btn btn-green" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Paye\')">Paye</button></div>’;
-}).join(””):’<div style="color:#94a3b8;font-size:13px;padding:16px 0;">Aucune facture en attente</div>’;
-document.getElementById(“liste-factures”).innerHTML=hF;
+return '<div class="fact-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;"><div><div style="font-weight:700;font-size:14px;color:#1a2537;">'+r.clientNom+'</div><div style="color:#64748b;font-size:12px;">'+r.type+' - '+r.date+'</div></div><div style="color:#1a3a5c;font-weight:800;font-size:16px;">'+r.montantFinal+' EUR</div></div><button class="btn btn-green" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Paye\')">Paye</button></div>';
+}).join(""):'<div style="color:#94a3b8;font-size:13px;padding:16px 0;">Aucune facture en attente</div>';
+document.getElementById("liste-factures").innerHTML=hF;
 }
 
 function renderDashboard(){
 var rdvs=getRdvs(),rapports=getRapports(),dispos=getDispos();
-var urgences=getUrgences().filter(function(u){return u.statut!==“Resolu”;});
-var devis=getDevis().filter(function(d){return d.statut!==“Traite”;});
-var savs=getSavs().filter(function(s){return s.statut!==“Resolu”;});
-var aValider=rapports.filter(function(r){return r.statut===“En attente facturation”;});
+var urgences=getUrgences().filter(function(u){return u.statut!=="Resolu";});
+var devis=getDevis().filter(function(d){return d.statut!=="Traite";});
+var savs=getSavs().filter(function(s){return s.statut!=="Resolu";});
+var aValider=rapports.filter(function(r){return r.statut==="En attente facturation";});
 var rdvsAuj=rdvs.filter(function(r){return r.dateRdv===todayStr();});
-var rdvFaits=rdvsAuj.filter(function(r){return r.statut===“Termine”;}).length;
+var rdvFaits=rdvsAuj.filter(function(r){return r.statut==="Termine";}).length;
 var caJour=rapports.filter(function(r){return r.date===todayStr();}).reduce(function(s,r){return s+(r.montantFinal||0);},0);
 
 var now=new Date();
-document.getElementById(“dash-date”).textContent=now.toLocaleDateString(“fr-FR”,{weekday:“long”,day:“numeric”,month:“long”});
+document.getElementById("dash-date").textContent=now.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
 
 // Stats cards
 var stats=[
-[“INTERVENTIONS DU JOUR”,rdvFaits+” / “+rdvsAuj.length,”#1a3a5c”,”#dbeafe”],
-[“CA DU JOUR”,caJour+” EUR”,”#4a9c3f”,”#dcfce7”],
-[“URGENCES ACTIVES”,urgences.length,”#dc2626”,”#fee2e2”],
-[“A VALIDER”,aValider.length,”#a16207”,”#fef9c3”]
+["INTERVENTIONS DU JOUR",rdvFaits+" / "+rdvsAuj.length,"#1a3a5c","#dbeafe"],
+["CA DU JOUR",caJour+" EUR","#4a9c3f","#dcfce7"],
+["URGENCES ACTIVES",urgences.length,"#dc2626","#fee2e2"],
+["A VALIDER",aValider.length,"#a16207","#fef9c3"]
 ];
-document.getElementById(“dash-stats”).innerHTML=stats.map(function(x){
-return ‘<div style="background:'+x[3]+';border-radius:14px;padding:16px;text-align:center;border:1px solid '+x[2]+'30;"><div style="color:'+x[2]+';font-size:9px;letter-spacing:1px;font-weight:700;">’+x[0]+’</div><div style="color:'+x[2]+';font-weight:800;font-size:24px;margin-top:6px;">’+x[1]+’</div></div>’;
-}).join(””);
+document.getElementById("dash-stats").innerHTML=stats.map(function(x){
+return '<div style="background:'+x[3]+';border-radius:14px;padding:16px;text-align:center;border:1px solid '+x[2]+'30;"><div style="color:'+x[2]+';font-size:9px;letter-spacing:1px;font-weight:700;">'+x[0]+'</div><div style="color:'+x[2]+';font-weight:800;font-size:24px;margin-top:6px;">'+x[1]+'</div></div>';
+}).join("");
 
 // Techniciens dispo vs occupe
-var techs=[“Technicien 1”,“Technicien 2”];
-var html=””;
+var techs=["Technicien 1","Technicien 2"];
+var html="";
 for(var i=0;i<techs.length;i++){
-var nom=techs[i],d=dispos[nom]||{statut:“Non connecte”};
-var color=STATUT_C[d.statut]||”#64748b”,tc=TECH_C[nom];
-html+=’<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;">’;
-html+=’<div style="width:34px;height:34px;border-radius:9px;background:'+tc.bg+';border:1px solid '+tc.c+';color:'+tc.c+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;">’+tc.a+’</div>’;
-html+=’<div style="flex:1;font-weight:600;font-size:13px;color:#1a2537;">’+nom+’</div>’;
-html+=’<div style="display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:'+color+';"></span><span style="color:'+color+';font-size:12px;font-weight:700;">’+d.statut+’</span></div>’;
-html+=’</div>’;
+var nom=techs[i],d=dispos[nom]||{statut:"Non connecte"};
+var color=STATUT_C[d.statut]||"#64748b",tc=TECH_C[nom];
+html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;">';
+html+='<div style="width:34px;height:34px;border-radius:9px;background:'+tc.bg+';border:1px solid '+tc.c+';color:'+tc.c+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;">'+tc.a+'</div>';
+html+='<div style="flex:1;font-weight:600;font-size:13px;color:#1a2537;">'+nom+'</div>';
+html+='<div style="display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:'+color+';"></span><span style="color:'+color+';font-size:12px;font-weight:700;">'+d.statut+'</span></div>';
+html+='</div>';
 }
-document.getElementById(“dash-techs”).innerHTML=html;
+document.getElementById("dash-techs").innerHTML=html;
 
 // Urgences actives
-var uCard=document.getElementById(“dash-urgences-card”);
+var uCard=document.getElementById("dash-urgences-card");
 if(urgences.length>0){
-uCard.style.display=“block”;
-document.getElementById(“dash-urgences”).innerHTML=urgences.map(function(u){
-return ‘<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #fecaca;"><div><div style="font-weight:700;font-size:13px;color:#1a2537;">’+u.clientNom+’</div><div style="color:#dc2626;font-size:11px;">’+u.type+’</div></div><button class="btn btn-red" style="padding:5px 10px;font-size:11px;" onclick="window.open(\'tel:'+u.clientTel+'\')">Appeler</button></div>’;
-}).join(””);
-} else { uCard.style.display=“none”; }
+uCard.style.display="block";
+document.getElementById("dash-urgences").innerHTML=urgences.map(function(u){
+return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #fecaca;"><div><div style="font-weight:700;font-size:13px;color:#1a2537;">'+u.clientNom+'</div><div style="color:#dc2626;font-size:11px;">'+u.type+'</div></div><button class="btn btn-red" style="padding:5px 10px;font-size:11px;" onclick="window.open(\'tel:'+u.clientTel+'\')">Appeler</button></div>';
+}).join("");
+} else { uCard.style.display="none"; }
 
 // A traiter
 var todo=[];
-if(devis.length>0) todo.push([devis.length+” demande(s) de devis”,”#1d4ed8”,“showPage(‘devis’,document.querySelectorAll(’.nav-btn’)[7])”]);
-if(savs.length>0) todo.push([savs.length+” dossier(s) SAV ouvert(s)”,”#1d4ed8”,“showPage(‘sav’,document.querySelectorAll(’.nav-btn’)[6])”]);
-if(aValider.length>0) todo.push([aValider.length+” rapport(s) a valider”,”#a16207”,“showPage(‘validation’,document.querySelectorAll(’.nav-btn’)[4])”]);
+if(devis.length>0) todo.push([devis.length+" demande(s) de devis","#1d4ed8","showPage('devis',document.querySelectorAll('.nav-btn')[7])"]);
+if(savs.length>0) todo.push([savs.length+" dossier(s) SAV ouvert(s)","#1d4ed8","showPage('sav',document.querySelectorAll('.nav-btn')[6])"]);
+if(aValider.length>0) todo.push([aValider.length+" rapport(s) a valider","#a16207","showPage('validation',document.querySelectorAll('.nav-btn')[4])"]);
 if(todo.length===0){
-document.getElementById(“dash-todo”).innerHTML=’<div style="color:#94a3b8;font-size:13px;padding:8px 0;text-align:center;">Rien a traiter, tout est a jour !</div>’;
+document.getElementById("dash-todo").innerHTML='<div style="color:#94a3b8;font-size:13px;padding:8px 0;text-align:center;">Rien a traiter, tout est a jour !</div>';
 } else {
-document.getElementById(“dash-todo”).innerHTML=todo.map(function(t){
-return ‘<div onclick="'+t[2]+'" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:6px;cursor:pointer;"><span style="color:'+t[1]+';font-size:13px;font-weight:600;">’+t[0]+’</span><span style="color:'+t[1]+';font-size:16px;">›</span></div>’;
-}).join(””);
+document.getElementById("dash-todo").innerHTML=todo.map(function(t){
+return '<div onclick="'+t[2]+'" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:6px;cursor:pointer;"><span style="color:'+t[1]+';font-size:13px;font-weight:600;">'+t[0]+'</span><span style="color:'+t[1]+';font-size:16px;">›</span></div>';
+}).join("");
 }
 }
 
 var PROCEDURES=[
-{titre:“Creer un nouveau RDV”,etapes:[“Verifier la dispo du technicien dans l’onglet Dispos ou Tableau”,“Aller dans + RDV”,“Remplir nom, telephone, adresse, type d’intervention”,“Choisir date, heure et technicien disponible”,“Indiquer le prix de vente”,“Ajouter une note si infos importantes (acces, etage, code…)”,“Valider : le technicien est notifie automatiquement”]},
-{titre:“Assigner selon la disponibilite”,etapes:[“Toujours verifier le statut du technicien avant d’assigner”,“Vert = Disponible : on peut assigner”,“Orange = En intervention : verifier son planning, assigner apres son RDV en cours”,“Rouge = Indisponible : assigner a l’autre technicien”,“Regarder le planning du jour pour eviter les chevauchements”]},
-{titre:“Gerer une urgence”,etapes:[“Aller dans l’onglet Urgences”,“Cliquer + Nouvelle urgence”,“Remplir les infos client et le type d’urgence”,“Assigner au technicien le plus proche / disponible”,“Le chrono demarre automatiquement”,“Une fois l’intervention faite, cliquer Resolu”,“Si besoin, convertir l’urgence en RDV planifie”]},
-{titre:“Valider un rapport d’intervention”,etapes:[“Aller dans l’onglet Validation”,“Verifier les photos avant / apres”,“Lire la description des travaux”,“Verifier le montant”,“Si tout est bon : cliquer Valider”,“Si probleme : ajouter un commentaire et cliquer Refuser”,“Le rapport valide passe en facturation”]},
-{titre:“Gerer un dossier SAV”,etapes:[“Aller dans l’onglet SAV”,“Cliquer + Nouveau SAV”,“Remplir client, type de probleme et description”,“Indiquer si c’est sous garantie ou non”,“Assigner le technicien concerne”,“Suivre le dossier jusqu’a resolution”,“Cliquer Resolu une fois le probleme regle”]},
-{titre:“Decaler un RDV et prevenir le client”,etapes:[“Identifier le RDV a decaler dans le planning”,“Appeler le client pour proposer un nouveau creneau”,“Verifier la dispo du technicien sur le nouveau creneau”,“Modifier la date/heure du RDV”,“Confirmer le nouveau creneau au client par telephone”,“Prevenir le technicien du changement”]},
-{titre:“Preparer une facture (Obat)”,etapes:[“Aller dans Facturation ou Rapports”,“Cliquer sur Preparer Obat / Obat”,“Copier les infos generees”,“Ouvrir le logiciel Obat”,“Coller et creer la facture”,“Revenir et marquer le rapport comme Facture”]}
+{titre:"Creer un nouveau RDV",etapes:["Verifier la dispo du technicien dans l'onglet Dispos ou Tableau","Aller dans + RDV","Remplir nom, telephone, adresse, type d'intervention","Choisir date, heure et technicien disponible","Indiquer le prix de vente","Ajouter une note si infos importantes (acces, etage, code…)","Valider : le technicien est notifie automatiquement"]},
+{titre:"Assigner selon la disponibilite",etapes:["Toujours verifier le statut du technicien avant d'assigner","Vert = Disponible : on peut assigner","Orange = En intervention : verifier son planning, assigner apres son RDV en cours","Rouge = Indisponible : assigner a l'autre technicien","Regarder le planning du jour pour eviter les chevauchements"]},
+{titre:"Gerer une urgence",etapes:["Aller dans l'onglet Urgences","Cliquer + Nouvelle urgence","Remplir les infos client et le type d'urgence","Assigner au technicien le plus proche / disponible","Le chrono demarre automatiquement","Une fois l'intervention faite, cliquer Resolu","Si besoin, convertir l'urgence en RDV planifie"]},
+{titre:"Valider un rapport d'intervention",etapes:["Aller dans l'onglet Validation","Verifier les photos avant / apres","Lire la description des travaux","Verifier le montant","Si tout est bon : cliquer Valider","Si probleme : ajouter un commentaire et cliquer Refuser","Le rapport valide passe en facturation"]},
+{titre:"Gerer un dossier SAV",etapes:["Aller dans l'onglet SAV","Cliquer + Nouveau SAV","Remplir client, type de probleme et description","Indiquer si c'est sous garantie ou non","Assigner le technicien concerne","Suivre le dossier jusqu'a resolution","Cliquer Resolu une fois le probleme regle"]},
+{titre:"Decaler un RDV et prevenir le client",etapes:["Identifier le RDV a decaler dans le planning","Appeler le client pour proposer un nouveau creneau","Verifier la dispo du technicien sur le nouveau creneau","Modifier la date/heure du RDV","Confirmer le nouveau creneau au client par telephone","Prevenir le technicien du changement"]},
+{titre:"Preparer une facture (Obat)",etapes:["Aller dans Facturation ou Rapports","Cliquer sur Preparer Obat / Obat","Copier les infos generees","Ouvrir le logiciel Obat","Coller et creer la facture","Revenir et marquer le rapport comme Facture"]}
 ];
 
 function renderProcedures(){
-var html=””;
+var html="";
 for(var i=0;i<PROCEDURES.length;i++){
 var p=PROCEDURES[i];
-html+=’<div class="card" style="border-left:4px solid #1a3a5c;">’;
-html+=’<div onclick="toggleProc('+i+')" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">’;
-html+=’<div style="font-weight:700;font-size:14px;color:#1a3a5c;">’+(i+1)+’. ‘+p.titre+’</div>’;
-html+=’<span id="proc-arrow-'+i+'" style="color:#94a3b8;font-size:18px;">+</span></div>’;
-html+=’<div id="proc-body-'+i+'" class="hidden" style="margin-top:12px;">’;
+html+='<div class="card" style="border-left:4px solid #1a3a5c;">';
+html+='<div onclick="toggleProc('+i+')" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">';
+html+='<div style="font-weight:700;font-size:14px;color:#1a3a5c;">'+(i+1)+'. '+p.titre+'</div>';
+html+='<span id="proc-arrow-'+i+'" style="color:#94a3b8;font-size:18px;">+</span></div>';
+html+='<div id="proc-body-'+i+'" class="hidden" style="margin-top:12px;">';
 for(var j=0;j<p.etapes.length;j++){
-html+=’<div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #f1f5f9;">’;
-html+=’<div style="width:22px;height:22px;border-radius:50%;background:#dcfce7;color:#4a9c3f;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;flex-shrink:0;">’+(j+1)+’</div>’;
-html+=’<div style="color:#475569;font-size:13px;line-height:1.5;">’+p.etapes[j]+’</div></div>’;
+html+='<div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #f1f5f9;">';
+html+='<div style="width:22px;height:22px;border-radius:50%;background:#dcfce7;color:#4a9c3f;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;flex-shrink:0;">'+(j+1)+'</div>';
+html+='<div style="color:#475569;font-size:13px;line-height:1.5;">'+p.etapes[j]+'</div></div>';
 }
-html+=’</div></div>’;
+html+='</div></div>';
 }
-document.getElementById(“liste-procedures”).innerHTML=html;
+document.getElementById("liste-procedures").innerHTML=html;
 }
 
 function toggleProc(i){
-var b=document.getElementById(“proc-body-”+i);
-var a=document.getElementById(“proc-arrow-”+i);
-b.classList.toggle(“hidden”);
-a.textContent=b.classList.contains(“hidden”)?”+”:”-”;
+var b=document.getElementById("proc-body-"+i);
+var a=document.getElementById("proc-arrow-"+i);
+b.classList.toggle("hidden");
+a.textContent=b.classList.contains("hidden")?"+":"-";
 }
 
 function renderInfos(){
-var prix=JSON.parse(localStorage.getItem(“pl_prix”)||’{“Fuite d'eau”:280,“Debouchage”:150,“Chaudiere”:450,“Ballon d'eau chaude”:380,“Robinetterie”:200,“Installation sanitaire”:350,“Urgent / Depannage”:320,“Autre”:250}’);
-var html=””;
+var prix=JSON.parse(localStorage.getItem("pl_prix")||"{\"Fuite d'eau\":280,\"Debouchage\":150,\"Chaudiere\":450,\"Ballon d'eau chaude\":380,\"Robinetterie\":200,\"Installation sanitaire\":350,\"Urgent / Depannage\":320,\"Autre\":250}");
+var html="";
 // Tarifs
-html+=’<div class="card" style="border-left:4px solid #4a9c3f;margin-bottom:12px;">’;
-html+=’<div class="lbl">TARIFS INDICATIFS PAR INTERVENTION</div>’;
+html+='<div class="card" style="border-left:4px solid #4a9c3f;margin-bottom:12px;">';
+html+='<div class="lbl">TARIFS INDICATIFS PAR INTERVENTION</div>';
 var keys=Object.keys(prix);
 for(var i=0;i<keys.length;i++){
-html+=’<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#475569;font-size:13px;">’+keys[i]+’</span><span style="color:#1a3a5c;font-weight:700;">’+prix[keys[i]]+’ EUR</span></div>’;
+html+='<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#475569;font-size:13px;">'+keys[i]+'</span><span style="color:#1a3a5c;font-weight:700;">'+prix[keys[i]]+' EUR</span></div>';
 }
-html+=’</div>’;
+html+='</div>';
 // Infos produits
-html+=’<div class="card" style="border-left:4px solid #1a3a5c;margin-bottom:12px;">’;
-html+=’<div class="lbl">INFOS PRODUITS GREENFLOW</div>’;
+html+='<div class="card" style="border-left:4px solid #1a3a5c;margin-bottom:12px;">';
+html+='<div class="lbl">INFOS PRODUITS GREENFLOW</div>';
 var produits=[
-[“Climatisation”,“Systemes performants pour un confort optimal toute l’annee”],
-[“Pompe a chaleur”,“Economique et ecologique, reduit la consommation d’energie”],
-[“Chaudiere”,“Gaz a condensation ou hybride, chauffage fiable et economique”],
-[“Ballon d’eau chaude”,“Confort sanitaire optimal au quotidien”],
-[“Ballon thermodynamique”,“Production d’eau chaude ecologique, jusqu’a -70% d’energie”],
-[“Adoucisseur”,“Protege les installations contre le calcaire”]
+["Climatisation","Systemes performants pour un confort optimal toute l'annee"],
+["Pompe a chaleur","Economique et ecologique, reduit la consommation d'energie"],
+["Chaudiere","Gaz a condensation ou hybride, chauffage fiable et economique"],
+["Ballon d'eau chaude","Confort sanitaire optimal au quotidien"],
+["Ballon thermodynamique","Production d'eau chaude ecologique, jusqu'a -70% d'energie"],
+["Adoucisseur","Protege les installations contre le calcaire"]
 ];
 for(var k=0;k<produits.length;k++){
-html+=’<div style="padding:8px 0;border-bottom:1px solid #f1f5f9;"><div style="font-weight:700;font-size:13px;color:#1a3a5c;">’+produits[k][0]+’</div><div style="color:#64748b;font-size:12px;margin-top:2px;">’+produits[k][1]+’</div></div>’;
+html+='<div style="padding:8px 0;border-bottom:1px solid #f1f5f9;"><div style="font-weight:700;font-size:13px;color:#1a3a5c;">'+produits[k][0]+'</div><div style="color:#64748b;font-size:12px;margin-top:2px;">'+produits[k][1]+'</div></div>';
 }
-html+=’</div>’;
+html+='</div>';
 // Contacts
-html+=’<div class="card" style="border-left:4px solid #7bc144;">’;
-html+=’<div class="lbl">CONTACTS IMPORTANTS</div>’;
-var contacts=JSON.parse(localStorage.getItem(“pl_contacts”)||’[{“nom”:“Patron”,“tel”:“06 12 34 56 78”}]’);
+html+='<div class="card" style="border-left:4px solid #7bc144;">';
+html+='<div class="lbl">CONTACTS IMPORTANTS</div>';
+var contacts=JSON.parse(localStorage.getItem("pl_contacts")||'[{"nom":"Patron","tel":"06 12 34 56 78"}]');
 for(var m=0;m<contacts.length;m++){
-html+=’<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#475569;font-size:13px;font-weight:600;">’+contacts[m].nom+’</span><a href="tel:'+contacts[m].tel+'" style="color:#1d4ed8;font-size:13px;font-weight:700;">’+contacts[m].tel+’</a></div>’;
+html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#475569;font-size:13px;font-weight:600;">'+contacts[m].nom+'</span><a href="tel:'+contacts[m].tel+'" style="color:#1d4ed8;font-size:13px;font-weight:700;">'+contacts[m].tel+'</a></div>';
 }
-html+=’<div style="color:#94a3b8;font-size:11px;margin-top:10px;">En cas d'urgence grave (degat des eaux important, fuite de gaz) : prevenir immediatement le patron et orienter le client vers les services d'urgence si danger.</div>’;
-html+=’</div>’;
-document.getElementById(“liste-infos”).innerHTML=html;
+html+='<div style="color:#94a3b8;font-size:11px;margin-top:10px;">En cas d\'urgence grave (degat des eaux important, fuite de gaz) : prevenir immediatement le patron et orienter le client vers les services d\'urgence si danger.</div>';
+html+='</div>';
+document.getElementById("liste-infos").innerHTML=html;
 }
 
-function closeModal(id){document.getElementById(id).classList.add(“hidden”);}
-function openPhotoFs(src){document.getElementById(“photo-fs-img”).src=src;document.getElementById(“photo-fs”).classList.remove(“hidden”);}
-function closePhotoFs(){document.getElementById(“photo-fs”).classList.add(“hidden”);}
+function closeModal(id){document.getElementById(id).classList.add("hidden");}
+function openPhotoFs(src){document.getElementById("photo-fs-img").src=src;document.getElementById("photo-fs").classList.remove("hidden");}
+function closePhotoFs(){document.getElementById("photo-fs").classList.add("hidden");}
 function showNotif(msg){
-var n=document.createElement(“div”);n.className=“notif”;n.textContent=msg;
+var n=document.createElement("div");n.className="notif";n.textContent=msg;
 document.body.appendChild(n);setTimeout(function(){n.remove();},3500);
 }
 
 window.onload=function(){
 initPins();
-var s=localStorage.getItem(“pl_dispatch_session”);
+var s=localStorage.getItem("pl_dispatch_session");
 if(s) lancerApp();
 };
 </script>
