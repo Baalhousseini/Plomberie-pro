@@ -543,13 +543,6 @@ input[type=number]{width:100%;background:#f8fafc;border:2px solid var(–border)
     <div id="liste-ventes"></div>
   </div>
 
-  <div class="card" style="margin-bottom:12px;border:2px solid #c3e6c3;">
-    <div class="lbl">SIGNATURE CLIENT</div>
-    <div style="color:var(--text-light);font-size:12px;margin-bottom:8px;">Faire signer le client sur l'ecran</div>
-    <canvas id="signatureCanvas"></canvas>
-    <button class="action-btn btn-gray" style="margin-top:8px;width:100%;" onclick="clearSignature()">Effacer la signature</button>
-  </div>
-
   <div class="card accent-yellow" style="margin-bottom:12px;">
     <div class="lbl">MONTANT FINAL (EUR)</div>
     <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
@@ -621,7 +614,7 @@ const DEMO=[
 let currentUser=null,currentVue="auj",currentRdv=null,expandedId=null;
 let photosAvant=[null,null,null],photosApres=[null,null,null];
 let ventesSelectionnees=[],heureDebut="",chronoInterval=null,chronoStart=null;
-let signatureCtx=null,isDrawing=false,statutRdvCurrent="En route";
+let statutRdvCurrent="En route";
 let recognition=null,isRecording=false,semaineOffset=0;
 let piecesUtilisees=[],trajetStart=null,trajetInterval=null;
 let chatInterval=null,lastChatCount=0,lastRdvCount=0,devisRdv=null;
@@ -655,7 +648,7 @@ function lancerApp(){
   av.textContent=currentUser.avatar;
   document.getElementById("headerNom").textContent=currentUser.nom;
   updateCA();renderRdv();renderPerf();renderSemaine();renderHistorique();
-  initSignature();verifierAlertes();
+  verifierAlertes();
   document.getElementById("chat-fab").classList.remove("hidden");
   lastRdvCount=getMesRdvs().length;
   lastChatCount=getMessages().length;
@@ -898,7 +891,6 @@ function showEtape(e){
     renderSlotsAvant();renderSlotsApres();renderVentes();startChrono();
     document.querySelectorAll(".check-item").forEach(i=>{i.querySelector(".check-box").classList.remove("checked");});
     updateCheckCount();
-    if(signatureCtx)signatureCtx.clearRect(0,0,signatureCtx.canvas.width,signatureCtx.canvas.height);
   }
 }
 
@@ -979,22 +971,6 @@ function updateCheckCount(){
   el.style.color=done===total?"var(--green)":"var(--text-light)";
 }
 
-function initSignature(){
-  const canvas=document.getElementById("signatureCanvas");
-  if(!canvas)return;
-  canvas.width=canvas.offsetWidth||320;canvas.height=180;
-  signatureCtx=canvas.getContext("2d");
-  signatureCtx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--green')||"#4a9c3f";
-  signatureCtx.lineWidth=2;signatureCtx.lineCap="round";
-  const getPos=e=>{const r=canvas.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};};
-  canvas.addEventListener("mousedown",e=>{isDrawing=true;const p=getPos(e);signatureCtx.beginPath();signatureCtx.moveTo(p.x,p.y);});
-  canvas.addEventListener("mousemove",e=>{if(!isDrawing)return;const p=getPos(e);signatureCtx.lineTo(p.x,p.y);signatureCtx.stroke();});
-  canvas.addEventListener("mouseup",()=>isDrawing=false);
-  canvas.addEventListener("touchstart",e=>{e.preventDefault();isDrawing=true;const p=getPos(e);signatureCtx.beginPath();signatureCtx.moveTo(p.x,p.y);},{passive:false});
-  canvas.addEventListener("touchmove",e=>{e.preventDefault();if(!isDrawing)return;const p=getPos(e);signatureCtx.lineTo(p.x,p.y);signatureCtx.stroke();},{passive:false});
-  canvas.addEventListener("touchend",()=>isDrawing=false);
-}
-function clearSignature(){if(signatureCtx)signatureCtx.clearRect(0,0,signatureCtx.canvas.width,signatureCtx.canvas.height);}
 
 function toggleVocal(){
   if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){showNotif("Reconnaissance vocale non supportee");return;}
@@ -1058,16 +1034,6 @@ function soumettre(){
     const checksDone=document.querySelectorAll(".check-box.checked").length;
     const rapportId=Date.now();
 
-    let signature=null;
-    try {
-      const canvas=document.getElementById("signatureCanvas");
-      if(canvas&&signatureCtx){
-        const data=signatureCtx.getImageData(0,0,canvas.width||320,canvas.height||180).data;
-        const hasSig=Array.from(data).some((v,i)=>i%4!==3&&v!==255&&v!==0);
-        if(hasSig)signature=canvas.toDataURL("image/jpeg",0.5);
-      }
-    } catch(e){signature=null;}
-
     const rapport={
       id:rapportId,rdvId:currentRdv.id,clientNom:currentRdv.clientNom,
       clientTel:currentRdv.clientTel,adresse:currentRdv.adresse,
@@ -1078,7 +1044,7 @@ function soumettre(){
       nbPhotosAvant:photosAvant.filter(Boolean).length,
       nbPhotosApres:photosApres.filter(Boolean).length,
       ventes:ventesSelectionnees,totalPrimes,
-      pieces:piecesUtilisees,signature,
+      pieces:piecesUtilisees,
       checklistScore:checksDone+"/6",
       soumisLe:new Date().toISOString(),statut:"En attente facturation"
     };
