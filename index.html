@@ -209,6 +209,31 @@ input[type=number]{width:100%;background:#f8fafc;border:2px solid var(–border)
 
 .empty-state{text-align:center;padding:40px 0;color:var(–text-light);}
 .empty-icon{font-size:40px;margin-bottom:12px;}
+
+/* TRAJET */
+.trajet-box{background:#fff3e0;border:1px solid #fed7aa;border-radius:12px;padding:10px 14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;}
+.trajet-time{font-size:18px;font-weight:800;color:#ea580c;}
+
+/* PIECES */
+.piece-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #e2e8f0;}
+.piece-item:last-child{border-bottom:none;}
+.piece-del{background:#fee2e2;border:none;color:#ef4444;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:14px;font-weight:700;flex-shrink:0;}
+
+/* HISTORIQUE CLIENT */
+.hist-client-item{background:#f8fafc;border-radius:8px;padding:8px 10px;margin-bottom:6px;border-left:3px solid #2d6a9f;}
+
+/* CHAT */
+.chat-fab{position:fixed;bottom:24px;right:20px;width:56px;height:56px;background:linear-gradient(135deg,#1a3a5c,#2d6a9f);color:#fff;border:none;border-radius:50%;font-size:22px;cursor:pointer;z-index:90;box-shadow:0 4px 20px rgba(26,58,92,0.3);transition:transform 0.2s;}
+.chat-fab:hover{transform:scale(1.1);}
+.chat-badge{position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.chat-msg{padding:10px 14px;border-radius:14px;margin-bottom:8px;max-width:82%;font-size:13px;line-height:1.5;}
+.chat-msg.me{background:linear-gradient(135deg,#1a3a5c,#2d6a9f);color:#fff;align-self:flex-end;margin-left:auto;}
+.chat-msg.other{background:#f1f5f9;color:#1a2537;}
+.chat-msg-meta{font-size:10px;margin-top:3px;opacity:0.65;}
+.chat-messages{display:flex;flex-direction:column;min-height:180px;max-height:48vh;overflow-y:auto;padding:4px 0;}
+.chat-input-row{display:flex;gap:8px;margin-top:12px;}
+.chat-input{flex:1;background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;padding:10px 14px;color:#1a2537;font-size:14px;outline:none;font-family:'Poppins',sans-serif;}
+.chat-input:focus{border-color:#4a9c3f;}
 </style>
 
 </head>
@@ -450,6 +475,10 @@ input[type=number]{width:100%;background:#f8fafc;border:2px solid var(–border)
       </div>
       <div style="color:var(--text-light);font-size:12px;text-align:right;">Debut<br><span style="color:var(--green);font-weight:700;" id="chrono-debut"></span></div>
     </div>
+    <div class="trajet-box hidden" id="trajet-box">
+      <div><div class="lbl" style="margin-bottom:2px;color:#ea580c;">TRAJET EN COURS</div><div class="trajet-time" id="trajet-display">00:00</div></div>
+      <div style="font-size:26px;">🚗</div>
+    </div>
   </div>
 
   <div class="card accent-orange" style="margin-bottom:12px;">
@@ -493,6 +522,16 @@ input[type=number]{width:100%;background:#f8fafc;border:2px solid var(–border)
       <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-text">Photo apres prise</span></div>
     </div>
     <div style="margin-top:8px;text-align:right;color:var(--text-light);font-size:12px;" id="check-count">0/6 points</div>
+  </div>
+
+  <div class="card accent-purple" style="margin-bottom:12px;">
+    <div class="lbl">PIECES ET MATERIAUX UTILISES</div>
+    <div id="liste-pieces" style="margin-top:8px;"></div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <input type="text" id="piece-nom" placeholder="Piece ou materiau..." style="flex:1;background:#f8fafc;border:2px solid #e2e8f0;border-radius:10px;padding:10px 12px;color:#1a2537;font-size:13px;outline:none;font-family:'Poppins',sans-serif;" onkeydown="if(event.key==='Enter'){addPiece();event.preventDefault();}">
+      <input type="number" id="piece-qte" min="1" value="1" style="width:65px;background:#f8fafc;border:2px solid #e2e8f0;border-radius:10px;padding:10px 8px;color:#1a2537;font-size:13px;outline:none;font-family:'Poppins',sans-serif;text-align:center;">
+      <button class="action-btn btn-green" onclick="addPiece()" style="flex:0 0 auto;padding:10px 18px;">+</button>
+    </div>
   </div>
 
   <div class="card accent-green" style="margin-bottom:12px;">
@@ -584,6 +623,8 @@ let photosAvant=[null,null,null],photosApres=[null,null,null];
 let ventesSelectionnees=[],heureDebut="",chronoInterval=null,chronoStart=null;
 let signatureCtx=null,isDrawing=false,statutRdvCurrent="En route";
 let recognition=null,isRecording=false,semaineOffset=0;
+let piecesUtilisees=[],trajetStart=null,trajetInterval=null;
+let chatInterval=null,lastChatCount=0,lastRdvCount=0,devisRdv=null;
 
 const getRdvs=()=>{const s=localStorage.getItem("pl_rdvs");if(s)return JSON.parse(s);localStorage.setItem("pl_rdvs",JSON.stringify(DEMO));return DEMO;};
 const saveRdvs=r=>localStorage.setItem("pl_rdvs",JSON.stringify(r));
@@ -615,6 +656,15 @@ function lancerApp(){
   document.getElementById("headerNom").textContent=currentUser.nom;
   updateCA();renderRdv();renderPerf();renderSemaine();renderHistorique();
   initSignature();verifierAlertes();
+  document.getElementById("chat-fab").classList.remove("hidden");
+  lastRdvCount=getMesRdvs().length;
+  lastChatCount=getMessages().length;
+  setInterval(()=>{
+    const n=getMesRdvs().length;
+    if(n>lastRdvCount){showNotif((n-lastRdvCount)+" nouveau(x) RDV !");renderRdv();}
+    lastRdvCount=n;
+  },30000);
+  chatInterval=setInterval(pollChat,8000);
 }
 
 function logout(){
@@ -694,10 +744,13 @@ function carteHtml(r){
 }
 
 function carteBodyHtml(r,isToday,isDone){
+  const histClient=getRapports().filter(rap=>rap.clientNom===r.clientNom).slice(-3).reverse();
+  const histHtml=histClient.length?`<div class="info-item"><div class="lbl">HISTORIQUE CLIENT (${histClient.length} visite(s))</div>${histClient.map(h=>`<div class="hist-client-item"><div style="display:flex;justify-content:space-between;"><span style="font-weight:600;font-size:12px;">${h.type}</span><span style="color:#4a9c3f;font-weight:700;font-size:12px;">${h.montantFinal||0} EUR</span></div><div style="color:#64748b;font-size:11px;">${h.date||""} · ${h.checklistScore||""}</div></div>`).join("")}</div>`:"";
   return`<div class="carte-body">
   <div class="info-item"><div class="lbl">ADRESSE</div><div class="info-val">${r.adresse}</div></div>
   <div class="info-item"><div class="lbl">TELEPHONE</div><div class="info-val"><a href="tel:${r.clientTel}">${r.clientTel}</a></div></div>
   ${r.notes?`<div class="info-item"><div class="lbl">NOTES PATRON</div><div class="notes-box">${r.notes}</div></div>`:""}
+  ${histHtml}
   <div class="prix-box">
     <div class="lbl">PRIX A FACTURER</div>
     <div class="prix-val">${r.prixVente} EUR</div>
@@ -708,6 +761,7 @@ function carteBodyHtml(r,isToday,isDone){
     ${isToday?`<button class="action-btn btn-green" onclick="ouvrirRapport(${r.id})">Demarrer</button>`:""}
     <button class="action-btn btn-gray" onclick="window.open('https://maps.google.com/?q=${encodeURIComponent(r.adresse)}','_blank')">GPS</button>
     <button class="action-btn btn-gray" onclick="window.open('tel:${r.clientTel}')">Appel</button>
+    ${isToday?`<button class="action-btn btn-orange" onclick="ouvrirDevisSurPlace(${r.id})">Devis</button>`:""}
   </div>`:""}
 </div>`;
 }
@@ -838,6 +892,9 @@ function showEtape(e){
     document.getElementById("montantFinal").value=currentRdv.prixVente;
     document.getElementById("description").value="";
     document.getElementById("chrono-debut").textContent=heureDebut;
+    piecesUtilisees=[];renderPieces();
+    document.getElementById("trajet-box").classList.add("hidden");
+    if(trajetInterval){clearInterval(trajetInterval);trajetInterval=null;}trajetStart=null;
     renderSlotsAvant();renderSlotsApres();renderVentes();startChrono();
     document.querySelectorAll(".check-item").forEach(i=>{i.querySelector(".check-box").classList.remove("checked");});
     updateCheckCount();
@@ -861,6 +918,23 @@ function setStatutRdv(s,color,btn){
   statutRdvCurrent=s;
   document.querySelectorAll(".statut-rdv-btn").forEach(b=>{b.style.background="#f8fafc";b.style.color="var(--text-light)";b.style.borderColor="var(--border)";});
   btn.style.background=color+"20";btn.style.color=color;btn.style.borderColor=color+"60";
+  if(s==="En route"){
+    trajetStart=Date.now();
+    document.getElementById("trajet-box").classList.remove("hidden");
+    document.getElementById("trajet-display").textContent="00:00";
+    if(trajetInterval)clearInterval(trajetInterval);
+    trajetInterval=setInterval(()=>{
+      const sec=Math.floor((Date.now()-trajetStart)/1000);
+      const m=Math.floor(sec/60),sc=sec%60;
+      document.getElementById("trajet-display").textContent=String(m).padStart(2,"0")+":"+String(sc).padStart(2,"0");
+    },1000);
+  } else if(s==="Arrive"&&trajetStart){
+    if(trajetInterval){clearInterval(trajetInterval);trajetInterval=null;}
+    const sec=Math.floor((Date.now()-trajetStart)/1000);
+    const m=Math.floor(sec/60),sc=sec%60;
+    document.getElementById("trajet-display").textContent=String(m).padStart(2,"0")+":"+String(sc).padStart(2,"0")+" ✓";
+    trajetStart=null;
+  }
   showNotif("Statut : "+s);
 }
 
@@ -993,6 +1067,7 @@ function soumettre(){
     photosAvant:photosAvant.filter(Boolean).map(p=>p.url),
     photosApres:photosApres.filter(Boolean).map(p=>p.url),
     ventes:ventesSelectionnees,totalPrimes,signature,
+    pieces:piecesUtilisees,
     checklistScore:checksDone+"/6",
     soumisLe:new Date().toISOString(),statut:"En attente facturation"
   };
@@ -1031,6 +1106,103 @@ function showNotif(msg){
   document.body.appendChild(n);setTimeout(()=>n.remove(),3500);
 }
 
+/* ---- PIECES ---- */
+function addPiece(){
+  const nom=document.getElementById("piece-nom").value.trim();
+  const qte=parseInt(document.getElementById("piece-qte").value)||1;
+  if(!nom)return;
+  piecesUtilisees.push({nom,qte});
+  document.getElementById("piece-nom").value="";
+  document.getElementById("piece-qte").value="1";
+  renderPieces();
+}
+function removePiece(i){piecesUtilisees.splice(i,1);renderPieces();}
+function renderPieces(){
+  const el=document.getElementById("liste-pieces");
+  if(!el)return;
+  el.innerHTML=piecesUtilisees.length
+    ?piecesUtilisees.map((p,i)=>`<div class="piece-item"><span style="flex:1;font-size:13px;font-weight:600;">${p.nom}</span><span style="color:#8b5cf6;font-weight:700;font-size:13px;">x${p.qte}</span><button class="piece-del" onclick="removePiece(${i})">x</button></div>`).join("")
+    :`<div style="color:#94a3b8;font-size:12px;padding:6px 0;">Aucune piece ajoutee</div>`;
+}
+
+/* ---- DEVIS SUR PLACE ---- */
+function ouvrirDevisSurPlace(id){
+  devisRdv=getRdvs().find(r=>r.id===id);
+  document.getElementById("devis-client-nom").textContent=devisRdv.clientNom+" · "+devisRdv.adresse.split(",")[0];
+  document.getElementById("devis-type").value=devisRdv.type||"";
+  document.getElementById("devis-desc").value="";
+  document.getElementById("devis-prix").value="";
+  document.getElementById("modal-devis").classList.remove("hidden");
+}
+function soumettreDevis(){
+  if(!devisRdv)return;
+  const type=document.getElementById("devis-type").value.trim()||devisRdv.type;
+  const desc=document.getElementById("devis-desc").value.trim();
+  const prix=Number(document.getElementById("devis-prix").value)||0;
+  const d=JSON.parse(localStorage.getItem("pl_devis")||"[]");
+  d.push({id:Date.now(),type,description:desc,clientNom:devisRdv.clientNom,clientTel:devisRdv.clientTel,adresse:devisRdv.adresse,technicien:currentUser?currentUser.nom:"",date:todayStr(),prixEstimatif:prix,statut:"Nouveau",source:"terrain"});
+  localStorage.setItem("pl_devis",JSON.stringify(d));
+  closeModal("modal-devis");
+  showNotif("Devis envoye au patron !");
+}
+
+/* ---- CHAT ---- */
+const getMessages=()=>JSON.parse(localStorage.getItem("pl_chat")||"[]");
+const saveMessages=m=>localStorage.setItem("pl_chat",JSON.stringify(m));
+
+function ouvrirChat(){
+  document.getElementById("modal-chat").classList.remove("hidden");
+  document.getElementById("chat-badge").classList.add("hidden");
+  renderChat();
+  setTimeout(()=>{const el=document.getElementById("chat-messages");if(el)el.scrollTop=el.scrollHeight;},100);
+}
+
+function envoyerMessage(){
+  const input=document.getElementById("chat-input");
+  const txt=input.value.trim();
+  if(!txt||!currentUser)return;
+  const msgs=getMessages();
+  msgs.push({id:Date.now(),from:currentUser.nom,role:currentUser.role,text:txt,ts:new Date().toISOString()});
+  saveMessages(msgs);
+  input.value="";
+  renderChat();
+  const el=document.getElementById("chat-messages");
+  if(el)el.scrollTop=el.scrollHeight;
+}
+
+function renderChat(){
+  const el=document.getElementById("chat-messages");
+  if(!el)return;
+  const msgs=getMessages();
+  if(!msgs.length){el.innerHTML=`<div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0;">Demarrez la conversation avec le dispatch...</div>`;return;}
+  el.innerHTML=msgs.map(m=>{
+    const isMe=currentUser&&m.from===currentUser.nom;
+    const heure=new Date(m.ts).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+    return`<div class="chat-msg ${isMe?"me":"other"}"><div>${m.text}</div><div class="chat-msg-meta">${isMe?"Moi":m.from} · ${heure}</div></div>`;
+  }).join("");
+  el.scrollTop=el.scrollHeight;
+}
+
+function pollChat(){
+  if(!currentUser)return;
+  const msgs=getMessages();
+  const modal=document.getElementById("modal-chat");
+  if(msgs.length>lastChatCount){
+    if(modal&&!modal.classList.contains("hidden")){
+      renderChat();
+    } else {
+      const nb=msgs.length-lastChatCount;
+      const last=msgs[msgs.length-1];
+      if(last.from!==currentUser.nom){
+        showNotif("Message de "+last.from+": "+last.text.slice(0,40));
+        const badge=document.getElementById("chat-badge");
+        badge.textContent=nb;badge.classList.remove("hidden");
+      }
+    }
+    lastChatCount=msgs.length;
+  }
+}
+
 window.onload=()=>{
   document.querySelectorAll(".pin-input").forEach((el,i,arr)=>{
     el.addEventListener("input",()=>{if(el.value&&i<arr.length-1)arr[i+1].focus();});
@@ -1040,6 +1212,59 @@ window.onload=()=>{
   if(s){currentUser=JSON.parse(s);lancerApp();}
 };
 </script>
+
+<!-- CHAT FAB -->
+<button class="chat-fab hidden" id="chat-fab" onclick="ouvrirChat()" title="Chat Dispatch">
+  💬
+  <span class="chat-badge hidden" id="chat-badge">0</span>
+</button>
+
+<!-- MODAL CHAT -->
+<div class="modal-bg hidden" id="modal-chat">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">MESSAGERIE</div>
+        <div class="modal-subtitle">Chat avec le Dispatch</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-chat')">x</button>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" class="chat-input" placeholder="Votre message..." onkeydown="if(event.key==='Enter')envoyerMessage()">
+      <button class="action-btn btn-green" onclick="envoyerMessage()" style="flex:0 0 auto;padding:10px 18px;">Envoyer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DEVIS SUR PLACE -->
+<div class="modal-bg hidden" id="modal-devis">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">DEVIS SUR PLACE</div>
+        <div class="modal-subtitle" id="devis-client-nom"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-devis')">x</button>
+    </div>
+    <div class="card accent-blue" style="margin-bottom:12px;">
+      <div class="lbl">TYPE DE TRAVAUX</div>
+      <input type="text" id="devis-type" placeholder="Remplacement chaudiere, installation..." style="width:100%;background:#f8fafc;border:2px solid #e2e8f0;border-radius:10px;padding:12px 14px;color:#1a2537;font-size:14px;outline:none;font-family:'Poppins',sans-serif;margin-top:8px;box-sizing:border-box;">
+    </div>
+    <div class="card accent-green" style="margin-bottom:12px;">
+      <div class="lbl">DESCRIPTION</div>
+      <textarea id="devis-desc" rows="3" placeholder="Travaux necessaires, observations..."></textarea>
+    </div>
+    <div class="card accent-yellow" style="margin-bottom:16px;">
+      <div class="lbl">MONTANT ESTIMATIF (EUR)</div>
+      <input type="number" id="devis-prix" placeholder="0" style="margin-top:8px;">
+    </div>
+    <div style="display:flex;gap:10px;padding-bottom:20px;">
+      <button class="action-btn btn-gray" onclick="closeModal('modal-devis')" style="flex:0 0 auto;">Annuler</button>
+      <button class="action-btn btn-green" onclick="soumettreDevis()" style="flex:1;background:linear-gradient(135deg,#4a9c3f,#7bc144);color:#fff;font-weight:700;">Envoyer au Patron</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
