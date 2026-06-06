@@ -138,6 +138,12 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 .periode-btn.active{background:#fff;color:var(–green);box-shadow:var(–shadow);}
 .ranking-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(–border);}
 .comment-input{width:100%;background:#f8fafc;border:2px solid var(–border);border-radius:8px;padding:10px 14px;color:var(–text);font-size:13px;outline:none;resize:vertical;font-family:'Poppins',sans-serif;box-sizing:border-box;margin:8px 0;}
+
+/* MODULE NAV */
+.module-nav{background:#0f2540;display:flex;gap:6px;padding:8px 16px;overflow-x:auto;scrollbar-width:none;}
+.module-nav::-webkit-scrollbar{display:none;}
+.mnav-btn{flex-shrink:0;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:all 0.2s;white-space:nowrap;}
+.mnav-btn:hover,.mnav-btn.active{background:rgba(74,156,63,0.3);border-color:#4a9c3f;color:#fff;}
 </style>
 
 </head>
@@ -194,6 +200,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
       <button class="btn-logout" onclick="logout()">Quitter</button>
     </div>
   </div>
+
+  <div class="module-nav hidden" id="module-nav"></div>
 
   <div class="nav">
     <button class="active" onclick="showPage('dashboard')">Dashboard</button>
@@ -535,6 +543,7 @@ function lancerApp(){
   document.getElementById("rdv-date").value=todayStr();
   document.getElementById("objectif-input").value=getObjectif();
   renderDashboard();
+  renderModuleNav();
   setInterval(()=>{renderDisposDash();updateNavBadges();},10000);
   setInterval(updateChronosUrgences,1000);
 }
@@ -1026,6 +1035,21 @@ function closeModal(id){document.getElementById(id).classList.add("hidden");}
 function openPhotoFs(src){document.getElementById("photo-fs-img").src=src;document.getElementById("photo-fs").classList.remove("hidden");}
 function closePhotoFs(){document.getElementById("photo-fs").classList.add("hidden");}
 function showNotif(msg){const n=document.createElement("div");n.className="notif";n.textContent=msg;document.body.appendChild(n);setTimeout(()=>n.remove(),3500);}
+
+const MODULE_CURRENT='patron.html';
+const MODULES_NAV=[
+  {file:'index.html',label:'Technicien',icon:'👷',roles:['TECHNICIEN','PATRON','DISPATCH']},
+  {file:'dispatch.html',label:'Dispatch',icon:'📋',roles:['DISPATCH','PATRON']},
+  {file:'patron.html',label:'Patron',icon:'👔',roles:['PATRON']},
+  {file:'patron-analytics.html',label:'Analytics',icon:'📊',roles:['PATRON']},
+];
+function naviguerVers(f){if(f===MODULE_CURRENT)return;const b=location.href.substring(0,location.href.lastIndexOf('/')+1);location.href=b+f;}
+function renderModuleNav(){
+  const nav=document.getElementById('module-nav');if(!nav)return;
+  const v=MODULES_NAV.filter(m=>m.roles.includes('PATRON'));
+  nav.classList.remove('hidden');
+  nav.innerHTML=v.map(m=>`<button class="mnav-btn${m.file===MODULE_CURRENT?' active':''}" onclick="naviguerVers('${m.file}')">${m.icon} ${m.label}</button>`).join('');
+}
 
 window.onload=()=>{
 document.querySelectorAll(".pin-input").forEach((el,i,arr)=>{

@@ -74,6 +74,12 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 .notif{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(–green);color:#fff;border-radius:12px;padding:12px 20px;font-weight:700;font-size:14px;z-index:999;animation:si 0.3s ease;}
 @keyframes si{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 .empty{text-align:center;padding:30px 0;color:var(–tl);}
+
+/* MODULE NAV */
+.module-nav{background:#0f2540;display:flex;gap:6px;padding:8px 16px;overflow-x:auto;scrollbar-width:none;}
+.module-nav::-webkit-scrollbar{display:none;}
+.mnav-btn{flex-shrink:0;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:all 0.2s;white-space:nowrap;}
+.mnav-btn:hover,.mnav-btn.active{background:rgba(74,156,63,0.3);border-color:#4a9c3f;color:#fff;}
 </style>
 
 </head>
@@ -129,6 +135,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
       <button class="btn-logout" onclick="logout()">Quitter</button>
     </div>
   </div>
+
+  <div class="module-nav hidden" id="module-nav"></div>
 
   <div class="nav">
     <button class="active" onclick="showPage('finances')">💰 Finances</button>
@@ -335,6 +343,7 @@ function lancerApp(){
   el("login").style.display="none";
   el("app").style.display="block";
   renderFinances();
+  renderModuleNav();
 }
 
 function logout(){
@@ -494,6 +503,23 @@ function saveConc(){const n=el("conc-nom")?.value.trim();if(!n){notif("Nom requi
 function delConc(i){const c=gConc();c.splice(i,1);sConc(c);renderStrategie();}
 function saveAlerte(){const s=el("ale-seuil")?.value;const c=el("ale-contact")?.value.trim();if(!s||!c){notif("Remplis seuil et contact");return;}const a=gAlertes();a.push({type:el("ale-type")?.value,seuil:s,contact:c});sAlertes(a);el("ale-seuil").value="";el("ale-contact").value="";renderStrategie();notif("Alerte activee !");}
 function delAlerte(i){const a=gAlertes();a.splice(i,1);sAlertes(a);renderStrategie();}
+
+var MODULE_CURRENT='patron-analytics.html';
+var MODULES_NAV=[
+  {file:'index.html',label:'Technicien',icon:'👷',roles:['TECHNICIEN','PATRON','DISPATCH']},
+  {file:'dispatch.html',label:'Dispatch',icon:'📋',roles:['DISPATCH','PATRON']},
+  {file:'patron.html',label:'Patron',icon:'👔',roles:['PATRON']},
+  {file:'patron-analytics.html',label:'Analytics',icon:'📊',roles:['PATRON']},
+];
+function naviguerVers(f){if(f===MODULE_CURRENT)return;var b=location.href.substring(0,location.href.lastIndexOf('/')+1);location.href=b+f;}
+function getCurrentRoleAnalytics(){var id=localStorage.getItem("pl_analytics_session");if(!id)return null;return id==="patron"?"PATRON":"DISPATCH";}
+function renderModuleNav(){
+  var nav=el('module-nav');if(!nav)return;
+  var role=getCurrentRoleAnalytics();if(!role)return;
+  var v=MODULES_NAV.filter(function(m){return m.roles.indexOf(role)>=0;});if(v.length<=1)return;
+  nav.classList.remove('hidden');
+  nav.innerHTML=v.map(function(m){return '<button class="mnav-btn'+(m.file===MODULE_CURRENT?' active':'')+'" onclick="naviguerVers(\''+m.file+'\')">'+(m.icon)+' '+(m.label)+'</button>';}).join('');
+}
 
 window.onload=()=>{
   document.querySelectorAll(".pin-input").forEach((e,i,arr)=>{

@@ -234,6 +234,12 @@ input[type=number]{width:100%;background:#f8fafc;border:2px solid var(–border)
 .chat-input-row{display:flex;gap:8px;margin-top:12px;}
 .chat-input{flex:1;background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;padding:10px 14px;color:#1a2537;font-size:14px;outline:none;font-family:'Poppins',sans-serif;}
 .chat-input:focus{border-color:#4a9c3f;}
+
+/* MODULE NAV */
+.module-nav{background:#0f2540;display:flex;gap:6px;padding:8px 16px;overflow-x:auto;scrollbar-width:none;}
+.module-nav::-webkit-scrollbar{display:none;}
+.mnav-btn{flex-shrink:0;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:all 0.2s;white-space:nowrap;}
+.mnav-btn:hover,.mnav-btn.active{background:rgba(74,156,63,0.3);border-color:#4a9c3f;color:#fff;}
 </style>
 
 </head>
@@ -317,6 +323,8 @@ input[type=number]{width:100%;background:#f8fafc;border:2px solid var(–border)
       <div class="user-role">TECHNICIEN PLOMBERIE</div>
     </div>
   </div>
+
+  <div class="module-nav hidden" id="module-nav"></div>
 
   <div class="nav">
     <button class="active" onclick="showPage('agenda')">Agenda</button>
@@ -650,6 +658,7 @@ function lancerApp(){
   updateCA();renderRdv();renderPerf();renderSemaine();renderHistorique();
   verifierAlertes();
   document.getElementById("chat-fab").classList.remove("hidden");
+  renderModuleNav();
   lastRdvCount=getMesRdvs().length;
   lastChatCount=getMessages().length;
   setInterval(()=>{
@@ -1192,6 +1201,22 @@ function pollChat(){
     }
     lastChatCount=msgs.length;
   }
+}
+
+const MODULE_CURRENT='index.html';
+const MODULES=[
+  {file:'index.html',label:'Technicien',icon:'👷',roles:['TECHNICIEN','PATRON','DISPATCH']},
+  {file:'dispatch.html',label:'Dispatch',icon:'📋',roles:['DISPATCH','PATRON']},
+  {file:'patron.html',label:'Patron',icon:'👔',roles:['PATRON']},
+  {file:'patron-analytics.html',label:'Analytics',icon:'📊',roles:['PATRON']},
+];
+function naviguerVers(f){if(f===MODULE_CURRENT)return;const b=location.href.substring(0,location.href.lastIndexOf('/')+1);location.href=b+f;}
+function renderModuleNav(){
+  const nav=document.getElementById('module-nav');if(!nav)return;
+  const role=currentUser?currentUser.role:null;if(!role)return;
+  const v=MODULES.filter(m=>m.roles.includes(role));if(v.length<=1)return;
+  nav.classList.remove('hidden');
+  nav.innerHTML=v.map(m=>`<button class="mnav-btn${m.file===MODULE_CURRENT?' active':''}" onclick="naviguerVers('${m.file}')">${m.icon} ${m.label}</button>`).join('');
 }
 
 window.onload=()=>{

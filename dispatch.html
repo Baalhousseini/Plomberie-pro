@@ -139,6 +139,12 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 
 /* ALERTE */
 .alerte-card{background:#fee2e2;border:1px solid #fecaca;border-left:4px solid #ef4444;border-radius:12px;padding:12px 14px;margin-bottom:8px;}
+
+/* MODULE NAV */
+.module-nav{background:#0f2540;display:flex;gap:6px;padding:8px 16px;overflow-x:auto;scrollbar-width:none;}
+.module-nav::-webkit-scrollbar{display:none;}
+.mnav-btn{flex-shrink:0;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:all 0.2s;white-space:nowrap;}
+.mnav-btn:hover,.mnav-btn.active{background:rgba(74,156,63,0.3);border-color:#4a9c3f;color:#fff;}
 </style>
 
 </head>
@@ -184,6 +190,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
       <button class="btn-logout" onclick="logout()">Quitter</button>
     </div>
   </div>
+
+  <div class="module-nav hidden" id="module-nav"></div>
 
   <div class="nav">
     <button class="nav-btn active" onclick="showPage('dashboard',this)">Tableau</button>
@@ -462,6 +470,7 @@ function lancerApp(){
   document.getElementById("rdv-date").value = todayStr();
   actualiserTout();
   renderDashboard();
+  renderModuleNav();
   setInterval(function(){actualiserDispos();if(!document.getElementById("page-dashboard").classList.contains("hidden"))renderDashboard();},10000);
   setInterval(updateChronos,1000);
 }
@@ -988,6 +997,23 @@ function closePhotoFs(){document.getElementById("photo-fs").classList.add("hidde
 function showNotif(msg){
 var n=document.createElement("div");n.className="notif";n.textContent=msg;
 document.body.appendChild(n);setTimeout(function(){n.remove();},3500);
+}
+
+var MODULE_CURRENT='dispatch.html';
+var MODULES=[
+  {file:'index.html',label:'Technicien',icon:'👷',roles:['TECHNICIEN','PATRON','DISPATCH']},
+  {file:'dispatch.html',label:'Dispatch',icon:'📋',roles:['DISPATCH','PATRON']},
+  {file:'patron.html',label:'Patron',icon:'👔',roles:['PATRON']},
+  {file:'patron-analytics.html',label:'Analytics',icon:'📊',roles:['PATRON']},
+];
+function naviguerVers(f){if(f===MODULE_CURRENT)return;var b=location.href.substring(0,location.href.lastIndexOf('/')+1);location.href=b+f;}
+function getCurrentRoleDispatch(){var id=localStorage.getItem("pl_dispatch_session");if(!id)return null;return id==="patron"?"PATRON":"DISPATCH";}
+function renderModuleNav(){
+  var nav=document.getElementById('module-nav');if(!nav)return;
+  var role=getCurrentRoleDispatch();if(!role)return;
+  var v=MODULES.filter(function(m){return m.roles.indexOf(role)>=0;});if(v.length<=1)return;
+  nav.classList.remove('hidden');
+  nav.innerHTML=v.map(function(m){return '<button class="mnav-btn'+(m.file===MODULE_CURRENT?' active':'')+'" onclick="naviguerVers(\''+m.file+'\')">'+(m.icon)+' '+(m.label)+'</button>';}).join('');
 }
 
 window.onload=function(){
