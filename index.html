@@ -346,9 +346,12 @@ input[type=number]{width:100%;background:#f8fafc;border:2px solid var(–border)
         </div>
       </div>
       <div class="tabs">
-        <button class="tab-btn active" onclick="showVue('auj',this)">Aujourd'hui</button>
-        <button class="tab-btn" onclick="showVue('venir',this)">A venir</button>
-        <button class="tab-btn" onclick="showVue('passes',this)">Passes</button>
+        <button class="tab-btn active" onclick="showVue('auj',this)" id="tab-auj">Aujourd'hui</button>
+        <button class="tab-btn" onclick="showVue('venir',this)" id="tab-venir">A venir</button>
+        <button class="tab-btn" onclick="showVue('passes',this)" id="tab-passes">Passes</button>
+      </div>
+      <div style="text-align:right;margin-bottom:8px;">
+        <button onclick="renderRdv();renderTabsBadges();showNotif('Agenda actualise');" style="background:none;border:none;color:#4a9c3f;font-size:12px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;">↻ Actualiser</button>
       </div>
       <div id="liste-rdv"></div>
     </div>
@@ -655,7 +658,7 @@ function lancerApp(){
   const av=document.getElementById("headerAvatar");
   av.textContent=currentUser.avatar;
   document.getElementById("headerNom").textContent=currentUser.nom;
-  updateCA();renderRdv();renderPerf();renderSemaine();renderHistorique();
+  updateCA();renderRdv();renderTabsBadges();renderPerf();renderSemaine();renderHistorique();
   verifierAlertes();
   document.getElementById("chat-fab").classList.remove("hidden");
   renderModuleNav();
@@ -671,12 +674,11 @@ function lancerApp(){
     if(!currentUser)return;
     if(e.key==='pl_rdvs'){
       const mes=getMesRdvs();
-      if(mes.length>lastRdvCount){
-        const nouveau=mes.filter(r=>r.dateRdv>=todayStr()).sort((a,b)=>b.id-a.id)[0];
-        showNotif(nouveau?'Nouveau RDV : '+nouveau.clientNom+' a '+nouveau.heureRdv:(mes.length-lastRdvCount)+' nouveau(x) RDV !');
-        renderRdv();
-      }
+      const nouveau=mes.filter(r=>r.dateRdv>=todayStr()&&r.dateRdv>=(todayStr())).sort((a,b)=>b.id-a.id)[0];
+      if(mes.length>lastRdvCount&&nouveau)showNotif('Nouveau RDV : '+nouveau.clientNom+' le '+nouveau.dateRdv+' a '+nouveau.heureRdv);
       lastRdvCount=mes.length;
+      renderRdv();
+      renderTabsBadges();
     }
     if(e.key==='pl_chat')pollChat();
   });
@@ -723,6 +725,19 @@ function getMesRdvs(){
   return rdvs.filter(r=>r.technicien===currentUser.nom);
 }
 
+function renderTabsBadges(){
+  const rdvs=getMesRdvs(),today=todayStr();
+  const nAuj=rdvs.filter(r=>r.dateRdv===today&&r.statut!=="Termine").length;
+  const nVenir=rdvs.filter(r=>r.dateRdv>today).length;
+  const nPasses=rdvs.filter(r=>r.dateRdv<today).length;
+  const tA=document.getElementById("tab-auj");
+  const tV=document.getElementById("tab-venir");
+  const tP=document.getElementById("tab-passes");
+  if(tA)tA.textContent=nAuj>0?"Aujourd'hui ("+nAuj+")":"Aujourd'hui";
+  if(tV){tV.textContent=nVenir>0?"A venir ("+nVenir+")":"A venir";tV.style.color=nVenir>0?"#f97316":"";}
+  if(tP)tP.textContent=nPasses>0?"Passes ("+nPasses+")":"Passes";
+}
+
 function renderRdv(){
   updateCA();
   const rdvs=getMesRdvs(),today=todayStr();
@@ -731,6 +746,7 @@ function renderRdv(){
   else if(currentVue==="venir")liste=rdvs.filter(r=>r.dateRdv>today).sort((a,b)=>a.dateRdv.localeCompare(b.dateRdv));
   else liste=rdvs.filter(r=>r.dateRdv<today).sort((a,b)=>b.dateRdv.localeCompare(a.dateRdv));
   const c=document.getElementById("liste-rdv");
+  renderTabsBadges();
   if(!liste.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div>Aucun RDV</div>`;return;}
   c.innerHTML=liste.map(r=>carteHtml(r)).join("");
 }
