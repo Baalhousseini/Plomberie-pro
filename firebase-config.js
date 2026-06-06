@@ -5,10 +5,10 @@
 // ============================================================
 
 const FIREBASE_CONFIG = {
-  apiKey:      "COLLE_TON_apiKey_ICI",
-  authDomain:  "COLLE_TON_authDomain_ICI",
-  databaseURL: "COLLE_TON_databaseURL_ICI",
-  projectId:   "COLLE_TON_projectId_ICI",
+  apiKey:      "AIzaSyC_AuyKpLaoTAdi5R5VNh8Jn-k_jN_541A",
+  authDomain:  "plomberie-pro-7a56a.firebaseapp.com",
+  databaseURL: "https://plomberie-pro-7a56a-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:   "plomberie-pro-7a56a",
 };
 
 // Clés partagées entre tous les modules
