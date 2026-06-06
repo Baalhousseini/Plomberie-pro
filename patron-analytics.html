@@ -344,6 +344,22 @@ function lancerApp(){
   el("app").style.display="block";
   renderFinances();
   renderModuleNav();
+  window.addEventListener('storage',function(e){
+    var pages={finances:'page-finances',rh:'page-rh',commercial:'page-commercial',strategie:'page-strategie'};
+    function pageActive(id){var p=el(id);return p&&p.style.display!=='none'&&!p.classList.contains('hidden');}
+    if(e.key==='pl_rapports'||e.key==='pl_rdvs'||e.key==='pl_primes'){
+      notif('Donnees mises a jour');
+      if(pageActive('page-finances'))renderFinances();
+      if(pageActive('page-commercial'))renderCommercial();
+      if(pageActive('page-rh'))renderRH();
+    }
+    if(e.key==='pl_devis'){
+      if(pageActive('page-commercial'))renderCommercial();
+    }
+    if(e.key==='pl_savs'||e.key==='pl_conges'){
+      if(pageActive('page-rh'))renderRH();
+    }
+  });
 }
 
 function logout(){

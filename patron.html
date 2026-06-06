@@ -208,8 +208,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <button onclick="showPage('dispatch')" id="nav-dispatch">Dispatch</button>
     <button onclick="showPage('urgences')" id="nav-urgences">Urgences</button>
     <button onclick="showPage('equipe')">Equipe</button>
-    <button onclick="showPage('rapports')">Rapports</button>
-    <button onclick="showPage('business')">Business</button>
+    <button onclick="showPage('rapports')" id="nav-rapports">Rapports</button>
+    <button onclick="showPage('business')" id="nav-business">Business</button>
     <button onclick="showPage('primes')">Primes</button>
     <button onclick="showPage('params')">Params</button>
   </div>
@@ -544,6 +544,28 @@ function lancerApp(){
   document.getElementById("objectif-input").value=getObjectif();
   renderDashboard();
   renderModuleNav();
+  updateNavBadges();
+  window.addEventListener('storage',e=>{
+    if(e.key==='pl_rapports'){
+      showNotif('Nouveau rapport recu !');
+      updateNavBadges();
+      renderDashboard();
+      if(!document.getElementById('page-rapports').classList.contains('hidden'))renderRapports();
+    }
+    if(e.key==='pl_devis'){
+      showNotif('Nouveau devis terrain !');
+      updateNavBadges();
+      if(!document.getElementById('page-business').classList.contains('hidden'))renderBusiness();
+    }
+    if(e.key==='pl_rdvs'){
+      renderDisposDispatch();renderPlanningJour();renderDashboard();
+    }
+    if(e.key==='pl_chat'){
+      const msgs=JSON.parse(localStorage.getItem('pl_chat')||'[]');
+      if(msgs.length){const last=msgs[msgs.length-1];if(last.role==='TECHNICIEN')showNotif('Message de '+last.from+' : '+last.text.slice(0,40));}
+    }
+    if(e.key==='pl_dispos'){renderDisposDash();}
+  });
   setInterval(()=>{renderDisposDash();updateNavBadges();},10000);
   setInterval(updateChronosUrgences,1000);
 }
@@ -570,9 +592,15 @@ function showPage(p){
 
 function updateNavBadges(){
   const u=getUrgences().filter(x=>x.statut!=="Resolu").length;
-  const btn=document.getElementById("nav-urgences");
-  btn.textContent=u>0?`Urgences (${u})`:"Urgences";
-  btn.style.color=u>0?"#ef4444":"";
+  const btnU=document.getElementById("nav-urgences");
+  btnU.textContent=u>0?`Urgences (${u})`:"Urgences";
+  btnU.style.color=u>0?"#ef4444":"";
+  const devisNew=getDevis().filter(d=>d.statut==="Nouveau").length;
+  const btnD=document.getElementById("nav-dispatch");
+  if(btnD){btnD.textContent=devisNew>0?`Dispatch (${devisNew})`:"Dispatch";btnD.style.color=devisNew>0?"#2563eb":"";}
+  const rapsNew=getRapports().filter(r=>r.statut==="En attente facturation").length;
+  const btnR=document.getElementById("nav-rapports");
+  if(btnR){btnR.textContent=rapsNew>0?`Rapports (${rapsNew})`:"Rapports";btnR.style.color=rapsNew>0?"#ea580c":"";}
 }
 
 function setPeriode(p,btn){
