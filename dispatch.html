@@ -201,7 +201,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <button class="nav-btn" onclick="showPage('validation',this)">Validation</button>
     <button class="nav-btn" onclick="showPage('rapports',this)">Rapports</button>
     <button class="nav-btn" onclick="showPage('sav',this)">SAV</button>
-    <button class="nav-btn" onclick="showPage('devis',this)">Devis</button>
+    <button class="nav-btn" id="nav-devis" onclick="showPage('devis',this)">Devis</button>
     <button class="nav-btn" onclick="showPage('facturation',this)">Facturation</button>
     <button class="nav-btn" onclick="showPage('procedures',this)">Procedures</button>
     <button class="nav-btn" onclick="showPage('infos',this)">Infos</button>
@@ -471,6 +471,26 @@ function lancerApp(){
   actualiserTout();
   renderDashboard();
   renderModuleNav();
+  window.addEventListener('storage',function(e){
+    if(e.key==='pl_devis'){
+      var devisNew=getDevis().filter(function(d){return d.statut==='Nouveau';}).length;
+      if(devisNew>0){showNotif('Nouveau devis terrain recu !');}
+      updateNavBadges();
+      if(!document.getElementById('page-devis').classList.contains('hidden'))renderDevis();
+    }
+    if(e.key==='pl_rapports'){
+      var nb=getRapports().length;
+      document.getElementById('hdr-count').textContent=nb;
+      showNotif('Rapport recu d\'un technicien !');
+      actualiserTout();
+      if(!document.getElementById('page-validation').classList.contains('hidden'))renderValidation();
+    }
+    if(e.key==='pl_rdvs'){actualiserTout();}
+    if(e.key==='pl_chat'){
+      var msgs=JSON.parse(localStorage.getItem('pl_chat')||'[]');
+      if(msgs.length>0){var last=msgs[msgs.length-1];if(last.role==='TECHNICIEN')showNotif('Message de '+last.from+' : '+last.text.slice(0,40));}
+    }
+  });
   setInterval(function(){actualiserDispos();if(!document.getElementById("page-dashboard").classList.contains("hidden"))renderDashboard();},10000);
   setInterval(updateChronos,1000);
 }
@@ -488,9 +508,12 @@ function actualiserTout(){
 
 function updateNavBadges(){
   var u = getUrgences().filter(function(x){return x.statut!=="Resolu";});
-  var btn = document.getElementById("nav-urgences");
-  btn.textContent = u.length>0 ? "Urgences ("+u.length+")" : "Urgences";
-  btn.style.color = u.length>0 ? "#dc2626" : "";
+  var btnU = document.getElementById("nav-urgences");
+  btnU.textContent = u.length>0 ? "Urgences ("+u.length+")" : "Urgences";
+  btnU.style.color = u.length>0 ? "#dc2626" : "";
+  var devisNew = getDevis().filter(function(d){return d.statut==="Nouveau";}).length;
+  var btnD = document.getElementById("nav-devis");
+  if(btnD){btnD.textContent=devisNew>0?"Devis ("+devisNew+")":"Devis";btnD.style.color=devisNew>0?"#2563eb":"";}
 }
 
 function showPage(page,btn){

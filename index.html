@@ -665,8 +665,21 @@ function lancerApp(){
     const n=getMesRdvs().length;
     if(n>lastRdvCount){showNotif((n-lastRdvCount)+" nouveau(x) RDV !");renderRdv();}
     lastRdvCount=n;
-  },30000);
+  },15000);
   chatInterval=setInterval(pollChat,8000);
+  window.addEventListener('storage',e=>{
+    if(!currentUser)return;
+    if(e.key==='pl_rdvs'){
+      const mes=getMesRdvs();
+      if(mes.length>lastRdvCount){
+        const nouveau=mes.filter(r=>r.dateRdv>=todayStr()).sort((a,b)=>b.id-a.id)[0];
+        showNotif(nouveau?'Nouveau RDV : '+nouveau.clientNom+' a '+nouveau.heureRdv:(mes.length-lastRdvCount)+' nouveau(x) RDV !');
+        renderRdv();
+      }
+      lastRdvCount=mes.length;
+    }
+    if(e.key==='pl_chat')pollChat();
+  });
 }
 
 function logout(){
