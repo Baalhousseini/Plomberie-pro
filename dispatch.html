@@ -436,12 +436,12 @@ var expandedRap = null;
 
 function todayStr(){return new Date().toISOString().split("T")[0];}
 function getRdvs(){return JSON.parse(localStorage.getItem("pl_rdvs")||"[]");}
-function saveRdvs(r){localStorage.setItem("pl_rdvs",JSON.stringify(r));}
+function saveRdvs(r){var v=JSON.stringify(r);localStorage.setItem("pl_rdvs",v);if(window.gfSync)gfSync("pl_rdvs",v);}
 function getRapports(){return JSON.parse(localStorage.getItem("pl_rapports")||"[]");}
-function saveRapports(r){localStorage.setItem("pl_rapports",JSON.stringify(r));}
+function saveRapports(r){var v=JSON.stringify(r);localStorage.setItem("pl_rapports",v);if(window.gfSync)gfSync("pl_rapports",v);}
 function getDispos(){return JSON.parse(localStorage.getItem("pl_dispos")||"{}");}
 function getDevis(){return JSON.parse(localStorage.getItem("pl_devis")||"[]");}
-function saveDevis(d){localStorage.setItem("pl_devis",JSON.stringify(d));}
+function saveDevis(d){var v=JSON.stringify(d);localStorage.setItem("pl_devis",v);if(window.gfSync)gfSync("pl_devis",v);}
 function getUrgences(){return JSON.parse(localStorage.getItem("pl_urgences")||"[]");}
 function saveUrgences(u){localStorage.setItem("pl_urgences",JSON.stringify(u));}
 function getSavs(){return JSON.parse(localStorage.getItem("pl_savs")||"[]");}
@@ -474,6 +474,9 @@ function lancerApp(){
   actualiserTout();
   renderDashboard();
   renderModuleNav();
+  if(window.gfListen)gfListen(function(key,val){
+    window.dispatchEvent(new StorageEvent('storage',{key:key,newValue:val,storageArea:localStorage}));
+  });
   window.addEventListener('storage',function(e){
     if(e.key==='pl_devis'){
       var devisNew=getDevis().filter(function(d){return d.statut==='Nouveau';}).length;

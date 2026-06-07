@@ -634,9 +634,9 @@ let piecesUtilisees=[],trajetStart=null,trajetInterval=null;
 let chatInterval=null,lastChatCount=0,lastRdvCount=0,devisRdv=null;
 
 const getRdvs=()=>{const s=localStorage.getItem("pl_rdvs");if(s)return JSON.parse(s);localStorage.setItem("pl_rdvs",JSON.stringify(DEMO));return DEMO;};
-const saveRdvs=r=>localStorage.setItem("pl_rdvs",JSON.stringify(r));
+const saveRdvs=r=>{const v=JSON.stringify(r);localStorage.setItem("pl_rdvs",v);if(window.gfSync)gfSync("pl_rdvs",v);};
 const getRapports=()=>JSON.parse(localStorage.getItem("pl_rapports")||"[]");
-const saveRapports=r=>localStorage.setItem("pl_rapports",JSON.stringify(r));
+const saveRapports=r=>{const v=JSON.stringify(r);localStorage.setItem("pl_rapports",v);if(window.gfSync)gfSync("pl_rapports",v);};
 const getPrimes=()=>JSON.parse(localStorage.getItem("pl_primes")||"{}");
 const savePrimes=p=>localStorage.setItem("pl_primes",JSON.stringify(p));
 
@@ -667,6 +667,9 @@ function lancerApp(){
   renderModuleNav();
   lastRdvCount=getMesRdvs().length;
   lastChatCount=getMessages().length;
+  if(window.gfListen)gfListen(function(key,val){
+    window.dispatchEvent(new StorageEvent('storage',{key:key,newValue:val,storageArea:localStorage}));
+  });
   setInterval(()=>{
     const n=getMesRdvs().length;
     if(n>lastRdvCount){showNotif((n-lastRdvCount)+" nouveau(x) RDV !");renderRdv();}
