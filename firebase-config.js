@@ -1,9 +1,3 @@
-// ============================================================
-//  GREENFLOW — Configuration Firebase
-//  Remplis les 4 valeurs ci-dessous avec ton projet Firebase :
-//  console.firebase.google.com → Paramètres ⚙️ → Vos applications → </>
-// ============================================================
-
 const FIREBASE_CONFIG = {
   apiKey:      "AIzaSyC_AuyKpLaoTAdi5R5VNh8Jn-k_jN_541A",
   authDomain:  "plomberie-pro-7a56a.firebaseapp.com",
@@ -11,7 +5,6 @@ const FIREBASE_CONFIG = {
   projectId:   "plomberie-pro-7a56a",
 };
 
-// Clés partagées entre tous les modules
 const SYNC_KEYS = [
   'pl_rdvs','pl_rapports','pl_devis','pl_dispos',
   'pl_chat','pl_urgences','pl_primes','pl_savs',
@@ -19,19 +12,28 @@ const SYNC_KEYS = [
   'pl_notes','pl_alertes','pl_conges','pl_session'
 ];
 
-// Vérifie que la config est remplie
 function _configOk(){
   return FIREBASE_CONFIG.databaseURL &&
          !FIREBASE_CONFIG.databaseURL.includes('COLLE');
+}
+
+function _showFbStatus(ok, msg){
+  document.addEventListener('DOMContentLoaded', function(){
+    var b = document.createElement('div');
+    b.style.cssText = 'position:fixed;bottom:10px;right:10px;z-index:9999;background:'+(ok?'#15803d':'#b91c1c')+';color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;font-family:sans-serif;opacity:0.9;';
+    b.textContent = ok ? '🔥 Firebase OK' : '⚠️ Mode local';
+    b.title = msg;
+    document.body.appendChild(b);
+    setTimeout(function(){ b.style.display='none'; }, 5000);
+  });
 }
 
 if(typeof firebase !== 'undefined' && _configOk()){
   try {
     if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     const _db = firebase.database();
-    const _ns  = 'greenflow/'; // namespace pour éviter les conflits
+    const _ns  = 'greenflow/';
 
-    // --- Intercepte localStorage.setItem → miroir Firebase ---
     const _origSet = localStorage.setItem.bind(localStorage);
     localStorage.setItem = function(key, value){
       _origSet(key, value);
@@ -40,14 +42,13 @@ if(typeof firebase !== 'undefined' && _configOk()){
       }
     };
 
-    // --- Écoute Firebase → met à jour localStorage + déclenche storage event ---
     SYNC_KEYS.forEach(function(key){
       _db.ref(_ns + key).on('value', function(snap){
         const val = snap.val();
         if(val === null) return;
         const json = JSON.stringify(val);
         const current = localStorage.getItem(key);
-        if(current === json) return; // pas de changement, évite boucle infinie
+        if(current === json) return;
         _origSet(key, json);
         try {
           window.dispatchEvent(new StorageEvent('storage', {
@@ -59,10 +60,10 @@ if(typeof firebase !== 'undefined' && _configOk()){
       });
     });
 
-    console.log('[GreenFlow] Firebase connecte — sync temps reel active');
+    _showFbStatus(true, 'Firebase connecte');
   } catch(e){
-    console.warn('[GreenFlow] Erreur Firebase, mode local uniquement :', e.message);
+    _showFbStatus(false, e.message);
   }
 } else {
-  console.info('[GreenFlow] Firebase non configure — mode local (1 seul appareil)');
+  _showFbStatus(false, 'Firebase SDK non charge');
 }
