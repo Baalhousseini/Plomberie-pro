@@ -24,7 +24,7 @@ function _showFbStatus(ok, msg){
     b.textContent = ok ? '🔥 Firebase OK' : '⚠️ Mode local';
     b.title = msg;
     document.body.appendChild(b);
-    setTimeout(function(){ b.style.display='none'; }, 5000);
+    // badge permanent
   });
 }
 
