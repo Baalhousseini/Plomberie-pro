@@ -236,6 +236,39 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
 .empty-state{text-align:center;padding:40px 0;color:var(--muted);}
 .empty-icon{font-size:40px;margin-bottom:12px;}
 #signatureCanvas{width:100%;height:180px;background:#f7f9fc;border:2px dashed var(--border);border-radius:10px;touch-action:none;cursor:crosshair;}
+
+/* ── BOTTOM NAV ── */
+.nav{display:none!important;}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1.5px solid var(--border);display:flex;z-index:80;box-shadow:0 -4px 20px rgba(13,45,82,0.10);}
+.bnav-btn{flex:1;background:none;border:none;padding:10px 4px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:9px;font-weight:700;font-family:'Inter',sans-serif;transition:color 0.15s;line-height:1;letter-spacing:0.3px;text-transform:uppercase;}
+.bnav-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+.bnav-btn.active{color:var(--blue);}
+.bnav-btn:active{opacity:0.6;}
+
+/* ── KPI DASHBOARD ── */
+.kpi-dashboard{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px 14px 12px;background:var(--blue);}
+.kpi-card{background:rgba(255,255,255,0.09);border-radius:10px;padding:10px 6px;text-align:center;border:1px solid rgba(255,255,255,0.07);}
+.kpi-icon{font-size:16px;margin-bottom:4px;}
+.kpi-val{font-size:20px;font-weight:800;color:#fff;line-height:1;letter-spacing:-0.5px;}
+.kpi-label{color:rgba(255,255,255,0.5);font-size:8px;font-weight:700;letter-spacing:0.8px;margin-top:3px;text-transform:uppercase;}
+.kpi-green{color:#5ab048!important;}
+.kpi-blue{color:#60a5fa!important;}
+.kpi-gold{color:#fbbf24!important;}
+
+/* ── URGENT BANNER ── */
+.urgent-banner{background:#dc2626;color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;position:sticky;top:56px;z-index:45;}
+.urgent-banner.pulse{animation:pulseRed 1.8s ease-in-out infinite;}
+@keyframes pulseRed{0%,100%{background:#dc2626}50%{background:#b91c1c}}
+.urgent-dot{width:9px;height:9px;border-radius:50%;background:#fff;animation:blinkDot 0.9s ease-in-out infinite;flex-shrink:0;}
+@keyframes blinkDot{0%,100%{opacity:1}50%{opacity:0.15}}
+.urgent-close{background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:5px;width:24px;height:24px;font-size:16px;cursor:pointer;margin-left:auto;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;}
+
+/* ── INT ID ── */
+.int-id{font-size:9px;color:var(--muted);font-weight:700;letter-spacing:0.8px;background:#f1f5f9;border-radius:4px;padding:2px 6px;font-variant-numeric:tabular-nums;}
+
+/* ── OVERRIDES ── */
+.content{padding-bottom:84px!important;}
+.chat-fab{bottom:86px!important;}
 </style>
 
 
@@ -319,6 +352,21 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
       <div class="user-name" id="headerNom">Technicien</div>
       <div class="user-role">TECHNICIEN PLOMBERIE</div>
     </div>
+  </div>
+
+  <!-- KPI DASHBOARD -->
+  <div class="kpi-dashboard" id="kpi-dashboard">
+    <div class="kpi-card"><div class="kpi-icon">📅</div><div class="kpi-val" id="kpi-total">—</div><div class="kpi-label">RDV jour</div></div>
+    <div class="kpi-card"><div class="kpi-icon">✅</div><div class="kpi-val kpi-green" id="kpi-done">—</div><div class="kpi-label">Terminés</div></div>
+    <div class="kpi-card"><div class="kpi-icon">💶</div><div class="kpi-val kpi-blue" id="kpi-ca">—</div><div class="kpi-label">CA € jour</div></div>
+    <div class="kpi-card"><div class="kpi-icon">🏆</div><div class="kpi-val kpi-gold" id="kpi-prime">—</div><div class="kpi-label">Primes €</div></div>
+  </div>
+
+  <!-- URGENT BANNER -->
+  <div id="urgent-banner" class="urgent-banner hidden pulse">
+    <div class="urgent-dot"></div>
+    <span id="urgent-text">INTERVENTION URGENTE</span>
+    <button class="urgent-close" onclick="fermerUrgent()">×</button>
   </div>
 
   <div class="module-nav hidden" id="module-nav"></div>
@@ -409,6 +457,26 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
 </div>
 
   </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="bnav-btn active" id="bnav-agenda" onclick="showPage('agenda')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Agenda</span>
+    </button>
+    <button class="bnav-btn" id="bnav-semaine" onclick="showPage('semaine')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Semaine</span>
+    </button>
+    <button class="bnav-btn" id="bnav-perf" onclick="showPage('perf')">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>Perfs</span>
+    </button>
+    <button class="bnav-btn" id="bnav-historique" onclick="showPage('historique')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span>Historique</span>
+    </button>
+  </nav>
 </div>
 
 <!-- MODAL SCRIPT IA -->
@@ -656,6 +724,7 @@ function lancerApp(){
   av.textContent=currentUser.avatar;
   document.getElementById("headerNom").textContent=currentUser.nom;
   updateCA();renderRdv();renderTabsBadges();renderPerf();renderSemaine();renderHistorique();
+  renderKPI();checkUrgences();
   verifierAlertes();
   document.getElementById("chat-fab").classList.remove("hidden");
   renderModuleNav();
@@ -694,6 +763,8 @@ function logout(){
 function showPage(page){
   ["agenda","semaine","perf","historique"].forEach(p=>document.getElementById("page-"+p).classList.add("hidden"));
   document.getElementById("page-"+page).classList.remove("hidden");
+  document.querySelectorAll(".bnav-btn").forEach(b=>b.classList.remove("active"));
+  const ab=document.getElementById("bnav-"+page);if(ab)ab.classList.add("active");
   document.querySelectorAll(".nav button").forEach((b,i)=>{
     b.classList.toggle("active",["agenda","semaine","perf","historique"][i]===page);
   });
@@ -739,7 +810,7 @@ function renderTabsBadges(){
 }
 
 function renderRdv(){
-  updateCA();
+  updateCA();renderKPI();checkUrgences();
   const rdvs=getMesRdvs(),today=todayStr();
   let liste;
   if(currentVue==="auj")liste=rdvs.filter(r=>r.dateRdv===today).sort((a,b)=>a.heureRdv.localeCompare(b.heureRdv));
@@ -753,16 +824,20 @@ function renderRdv(){
 
 function carteHtml(r){
   const isToday=r.dateRdv===todayStr(),isDone=r.statut==="Termine",isExp=expandedId===r.id;
+  const isUrgent=r.type&&/urgent|urgence|depannage/i.test(r.type);
   const cls=isDone?"done":isToday?"today":"";
-  const badge=isDone?`<span class="badge badge-green">TERMINE</span>`:isToday?`<span class="badge badge-blue">AUJOURD'HUI</span>`:"";
-  const dateLabel=r.dateRdv!==todayStr()?`<span style="color:var(--text-light);font-size:11px;margin-left:4px;">${new Date(r.dateRdv+"T12:00").toLocaleDateString("fr-FR",{day:"numeric",month:"short"})}</span>`:"";
+  const badge=isDone?`<span class="badge badge-green">TERMINÉ</span>`:isToday?`<span class="badge badge-blue">AUJOURD'HUI</span>`:"";
+  const urgBadge=isUrgent&&!isDone?`<span class="badge" style="background:#fee2e2;color:#dc2626;">⚡ URGENT</span>`:"";
+  const dateLabel=r.dateRdv!==todayStr()?`<span style="color:var(--muted);font-size:11px;margin-left:4px;">${new Date(r.dateRdv+"T12:00").toLocaleDateString("fr-FR",{day:"numeric",month:"short"})}</span>`:"";
   return`<div class="carte-rdv ${cls}">
   <div class="carte-header" onclick="toggleCarte(${r.id})">
     <div style="flex:1;">
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px;">
         <span class="carte-heure">${r.heureRdv}</span>${dateLabel}
-        <span class="carte-nom">${r.clientNom}</span>${badge}
+        <span class="int-id">${genIntId(r)}</span>
+        ${badge}${urgBadge}
       </div>
+      <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:2px;">${r.clientNom}</div>
       <div class="carte-sub">${r.type} · ${r.adresse.split(",")[0]}</div>
     </div>
     <div style="text-align:right;flex-shrink:0;">
@@ -1116,7 +1191,7 @@ function soumettre(){
       document.getElementById("prime-win").classList.remove("hidden");
       document.getElementById("prime-win-amount").textContent=totalPrimes+" EUR";
     }
-    renderRdv();renderHistorique();
+    renderRdv();renderHistorique();renderKPI();checkUrgences();
   } catch(err){
     showNotif("Erreur: "+err.message);
     console.error("soumettre:",err);
@@ -1247,6 +1322,41 @@ function renderModuleNav(){
   nav.classList.remove('hidden');
   nav.innerHTML=v.map(m=>`<button class="mnav-btn${m.file===MODULE_CURRENT?' active':''}" onclick="naviguerVers('${m.file}')">${m.icon} ${m.label}</button>`).join('');
 }
+
+/* ---- INT ID ---- */
+function genIntId(rdv){
+  const d=(rdv.dateRdv||todayStr()).replace(/-/g,'');
+  return 'INT-'+d+'-'+String(rdv.id).slice(-3).padStart(3,'0');
+}
+
+/* ---- KPI DASHBOARD ---- */
+function renderKPI(){
+  if(!currentUser)return;
+  const rdvs=getMesRdvs().filter(r=>r.dateRdv===todayStr());
+  const total=rdvs.length;
+  const done=rdvs.filter(r=>r.statut==='Termine').length;
+  const ca=rdvs.reduce((s,r)=>s+(r.prixVente||0),0);
+  const rapportsMois=getRapports().filter(r=>r.technicien===currentUser.nom&&r.date?.startsWith(moisStr()));
+  const prime=rapportsMois.reduce((s,r)=>s+(r.totalPrimes||0),0);
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('kpi-total',total);set('kpi-done',done);set('kpi-ca',ca+'€');set('kpi-prime',prime+'€');
+}
+
+/* ---- URGENCE BANNER ---- */
+function checkUrgences(){
+  const rdvs=getMesRdvs().filter(r=>r.dateRdv===todayStr()&&r.statut!=='Termine');
+  const u=rdvs.find(r=>r.type&&/urgent|urgence|depannage/i.test(r.type));
+  const b=document.getElementById('urgent-banner');
+  if(!b)return;
+  if(u){
+    b.classList.remove('hidden');
+    const t=document.getElementById('urgent-text');
+    if(t)t.textContent='⚡ URGENT — '+u.clientNom+' à '+u.heureRdv+' — '+u.type;
+  } else {
+    b.classList.add('hidden');
+  }
+}
+function fermerUrgent(){const b=document.getElementById('urgent-banner');if(b)b.classList.add('hidden');}
 
 window.onload=()=>{
   document.querySelectorAll(".pin-input").forEach((el,i,arr)=>{
