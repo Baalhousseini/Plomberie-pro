@@ -269,6 +269,31 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
 /* ── OVERRIDES ── */
 .content{padding-bottom:84px!important;}
 .chat-fab{bottom:86px!important;}
+
+/* ── STATUT BADGE USER-BAR ── */
+.statut-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;transition:all 0.3s;margin-left:auto;}
+.statut-dot-ani{width:7px;height:7px;border-radius:50%;animation:pulseDot 2s ease-in-out infinite;flex-shrink:0;}
+@keyframes pulseDot{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+
+/* ── RECAP JOURNEE ── */
+.recap-jour{background:linear-gradient(135deg,var(--blue),var(--blue2));border-radius:14px;padding:14px 16px;margin-bottom:12px;}
+.recap-jour-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+.recap-jour-item{text-align:center;}
+.recap-jour-val{font-size:22px;font-weight:800;color:#fff;line-height:1;letter-spacing:-0.5px;}
+.recap-jour-lbl{font-size:8px;color:rgba(255,255,255,0.5);font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-top:3px;}
+.next-rdv-bar{background:rgba(255,255,255,0.1);border-radius:10px;padding:10px 12px;margin-top:10px;display:flex;align-items:center;gap:12px;}
+.next-rdv-time{font-size:16px;font-weight:800;color:#fbbf24;flex-shrink:0;}
+.next-rdv-info{font-size:12px;font-weight:700;color:#fff;}
+.next-rdv-sub{font-size:11px;color:rgba(255,255,255,0.55);margin-top:2px;}
+
+
+/* ── SHARE RAPPORT ── */
+.share-btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.share-btn{flex:1;min-width:80px;border:none;border-radius:10px;padding:12px 8px;cursor:pointer;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:5px;transition:opacity 0.2s;}
+.share-btn:active{opacity:0.7;}
+.share-wa{background:#25d366;color:#fff;}
+.share-sms{background:var(--blue);color:#fff;}
+.share-copy{background:#f1f5f9;color:var(--text);}
 </style>
 
 
@@ -352,6 +377,10 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
       <div class="user-name" id="headerNom">Technicien</div>
       <div class="user-role">TECHNICIEN PLOMBERIE</div>
     </div>
+    <div class="statut-badge" id="statut-badge" style="background:rgba(90,176,72,0.15);color:#5ab048;">
+      <div class="statut-dot-ani" id="statut-dot" style="background:#5ab048;"></div>
+      <span id="statut-badge-text">Disponible</span>
+    </div>
   </div>
 
   <!-- KPI DASHBOARD -->
@@ -381,6 +410,27 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
   <div class="content">
     <!-- AGENDA -->
     <div id="page-agenda">
+
+      <!-- RECAP JOURNEE -->
+      <div class="recap-jour" id="recap-jour">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:rgba(255,255,255,0.6);text-transform:uppercase;">Ma journée</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);font-weight:600;" id="recap-date"></div>
+        </div>
+        <div class="recap-jour-grid">
+          <div class="recap-jour-item"><div class="recap-jour-val" id="rj-total">—</div><div class="recap-jour-lbl">RDV total</div></div>
+          <div class="recap-jour-item"><div class="recap-jour-val" style="color:#5ab048;" id="rj-done">—</div><div class="recap-jour-lbl">Terminés</div></div>
+          <div class="recap-jour-item"><div class="recap-jour-val" style="color:#fbbf24;" id="rj-ca">—</div><div class="recap-jour-lbl">CA € jour</div></div>
+        </div>
+        <div class="next-rdv-bar hidden" id="next-rdv-bar">
+          <div class="next-rdv-time" id="next-rdv-time">—</div>
+          <div>
+            <div class="next-rdv-info" id="next-rdv-info">—</div>
+            <div class="next-rdv-sub" id="next-rdv-sub">—</div>
+          </div>
+        </div>
+      </div>
+
       <div class="card accent-green">
         <div class="lbl">MON STATUT</div>
         <div class="statut-btns">
@@ -651,7 +701,15 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
       <div class="prime-win-label">PRIME GAGNEE CE RAPPORT</div>
       <div class="prime-win-amount" id="prime-win-amount"></div>
     </div>
-    <button class="btn-login" style="max-width:200px;margin:0 auto;" onclick="closeModal('modal-rapport')">Retour a l'agenda</button>
+    <div style="margin:12px 0 4px;">
+      <div style="color:var(--muted);font-size:11px;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">Envoyer le rapport au client</div>
+      <div class="share-btns">
+        <button class="share-btn share-wa" onclick="partagerWA()">💬 WhatsApp</button>
+        <button class="share-btn share-sms" onclick="partagerSMS()">📱 SMS</button>
+        <button class="share-btn share-copy" onclick="copierRapport()">📋 Copier</button>
+      </div>
+    </div>
+    <button class="btn-login" style="max-width:200px;margin:16px auto 0;" onclick="closeModal('modal-rapport')">Retour a l'agenda</button>
   </div>
 </div>
 
@@ -724,7 +782,7 @@ function lancerApp(){
   av.textContent=currentUser.avatar;
   document.getElementById("headerNom").textContent=currentUser.nom;
   updateCA();renderRdv();renderTabsBadges();renderPerf();renderSemaine();renderHistorique();
-  renderKPI();checkUrgences();
+  renderKPI();checkUrgences();renderRecapJournee();
   verifierAlertes();
   document.getElementById("chat-fab").classList.remove("hidden");
   renderModuleNav();
@@ -783,6 +841,12 @@ function showVue(vue,btn){
 function setStatut(statut,color,btn){
   document.querySelectorAll(".statut-btn").forEach(b=>{b.style.background="";b.style.color="";b.style.borderColor="";});
   btn.style.background=color+"20";btn.style.color=color;btn.style.borderColor=color;
+  const badge=document.getElementById('statut-badge');
+  const dot=document.getElementById('statut-dot');
+  const txt=document.getElementById('statut-badge-text');
+  if(badge){badge.style.background=color+'20';badge.style.color=color;}
+  if(dot)dot.style.background=color;
+  if(txt)txt.textContent=statut;
   const d=JSON.parse(localStorage.getItem("pl_dispos")||"{}");
   d[currentUser.nom]={statut,updatedAt:new Date().toISOString()};
   localStorage.setItem("pl_dispos",JSON.stringify(d));
@@ -810,7 +874,7 @@ function renderTabsBadges(){
 }
 
 function renderRdv(){
-  updateCA();renderKPI();checkUrgences();
+  updateCA();renderKPI();checkUrgences();renderRecapJournee();
   const rdvs=getMesRdvs(),today=todayStr();
   let liste;
   if(currentVue==="auj")liste=rdvs.filter(r=>r.dateRdv===today).sort((a,b)=>a.heureRdv.localeCompare(b.heureRdv));
@@ -1191,7 +1255,7 @@ function soumettre(){
       document.getElementById("prime-win").classList.remove("hidden");
       document.getElementById("prime-win-amount").textContent=totalPrimes+" EUR";
     }
-    renderRdv();renderHistorique();renderKPI();checkUrgences();
+    renderRdv();renderHistorique();renderKPI();checkUrgences();renderRecapJournee();
   } catch(err){
     showNotif("Erreur: "+err.message);
     console.error("soumettre:",err);
@@ -1321,6 +1385,53 @@ function renderModuleNav(){
   const v=MODULES.filter(m=>m.roles.includes(role));if(v.length<=1)return;
   nav.classList.remove('hidden');
   nav.innerHTML=v.map(m=>`<button class="mnav-btn${m.file===MODULE_CURRENT?' active':''}" onclick="naviguerVers('${m.file}')">${m.icon} ${m.label}</button>`).join('');
+}
+
+/* ---- RECAP JOURNEE ---- */
+function renderRecapJournee(){
+  if(!currentUser)return;
+  const rdvs=getMesRdvs().filter(r=>r.dateRdv===todayStr());
+  const done=rdvs.filter(r=>r.statut==='Termine').length;
+  const ca=rdvs.reduce((s,r)=>s+(r.prixVente||0),0);
+  const s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  s('rj-total',rdvs.length);s('rj-done',done);s('rj-ca',ca+'€');
+  const now=new Date();
+  s('recap-date',now.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'}));
+  const pending=rdvs.filter(r=>r.statut!=='Termine').sort((a,b)=>a.heureRdv.localeCompare(b.heureRdv));
+  const bar=document.getElementById('next-rdv-bar');
+  if(!bar)return;
+  if(pending.length){
+    bar.classList.remove('hidden');
+    s('next-rdv-time','→ '+pending[0].heureRdv);
+    s('next-rdv-info',pending[0].clientNom);
+    s('next-rdv-sub',pending[0].type+' · '+pending[0].adresse.split(',')[0]);
+  } else if(rdvs.length>0&&done===rdvs.length){
+    bar.classList.remove('hidden');
+    s('next-rdv-time','🎉');s('next-rdv-info','Tous les RDV terminés !');s('next-rdv-sub','Excellente journée !');
+  } else {
+    bar.classList.add('hidden');
+  }
+}
+
+/* ---- PARTAGE RAPPORT ---- */
+function partagerWA(){
+  if(!currentRdv)return;
+  const montant=document.getElementById('montantFinal')?.value||currentRdv.prixVente;
+  const txt=`✅ *Intervention terminée — GreenFlow Technologies*\n\n📋 Réf: *${genIntId(currentRdv)}*\n👤 ${currentRdv.clientNom}\n📍 ${currentRdv.adresse}\n🔧 ${currentRdv.type}\n💶 *${montant} EUR*\n\nMerci de votre confiance.`;
+  window.open('https://api.whatsapp.com/send?text='+encodeURIComponent(txt),'_blank');
+}
+function partagerSMS(){
+  if(!currentRdv)return;
+  const tel=(currentRdv.clientTel||'').replace(/\s/g,'');
+  const montant=document.getElementById('montantFinal')?.value||currentRdv.prixVente;
+  const txt=`Bonjour, votre intervention GreenFlow (ref ${genIntId(currentRdv)}) est terminée. Montant: ${montant} EUR. Merci de votre confiance.`;
+  window.open('sms:'+tel+'?body='+encodeURIComponent(txt));
+}
+function copierRapport(){
+  if(!currentRdv||!currentUser)return;
+  const montant=document.getElementById('montantFinal')?.value||currentRdv.prixVente;
+  const txt=`RAPPORT D'INTERVENTION — GreenFlow Technologies\n${'─'.repeat(40)}\nRéférence : ${genIntId(currentRdv)}\nDate       : ${todayStr()}\nTechnicien : ${currentUser.nom}\nClient     : ${currentRdv.clientNom}\nAdresse    : ${currentRdv.adresse}\nType       : ${currentRdv.type}\nMontant    : ${montant} EUR\nStatut     : Terminé ✓`;
+  navigator.clipboard?.writeText(txt).then(()=>showNotif('Rapport copié !')).catch(()=>showNotif('Rapport copié !'));
 }
 
 /* ---- INT ID ---- */
