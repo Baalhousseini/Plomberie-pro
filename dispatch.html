@@ -102,6 +102,36 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 @keyframes si{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 .empty,.empty-state{text-align:center;padding:30px 0;color:var(--muted);}
 .fact-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);}
+
+/* ── DISPATCH KPI STRIP ── */
+.dispatch-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px 14px 12px;background:var(--blue);}
+.dkpi{background:rgba(255,255,255,0.09);border-radius:10px;padding:9px 5px;text-align:center;border:1px solid rgba(255,255,255,0.07);}
+.dkpi-icon{font-size:15px;margin-bottom:3px;}
+.dkpi-val{font-size:18px;font-weight:800;color:#fff;line-height:1;letter-spacing:-0.5px;}
+.dkpi-lbl{color:rgba(255,255,255,0.5);font-size:7px;font-weight:700;letter-spacing:0.8px;margin-top:3px;text-transform:uppercase;}
+.dkpi-urgent{color:#f87171!important;}
+.dkpi-green{color:#5ab048!important;}
+.dkpi-yellow{color:#fbbf24!important;}
+.dkpi-blue{color:#60a5fa!important;}
+
+/* ── URGENCE BAR ── */
+.urgence-bar{background:#dc2626;color:#fff;padding:9px 14px;display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;animation:pulseRedD 2s ease-in-out infinite;position:sticky;top:56px;z-index:45;}
+@keyframes pulseRedD{0%,100%{background:#dc2626}50%{background:#b91c1c}}
+.urgence-dot{width:8px;height:8px;border-radius:50%;background:#fff;animation:blinkD 0.9s ease-in-out infinite;flex-shrink:0;}
+@keyframes blinkD{0%,100%{opacity:1}50%{opacity:0.15}}
+.urgence-bar-btn{background:rgba(255,255,255,0.25);border:none;color:#fff;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;margin-left:auto;flex-shrink:0;font-family:'Inter',sans-serif;}
+.urgence-bar-close{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;flex-shrink:0;line-height:1;}
+
+/* ── LIVE HEADER ── */
+.live-chip{background:rgba(90,176,72,0.18);border:1px solid rgba(90,176,72,0.35);border-radius:6px;padding:3px 8px;display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:#5ab048;}
+.live-dot-h{width:6px;height:6px;border-radius:50%;background:#5ab048;animation:blinkD 1s ease-in-out infinite;}
+.header-clock{color:rgba(255,255,255,0.7);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;}
+
+/* ── STATUS DOT ANIM ── */
+@keyframes pulseStatus{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:0.6}}
+
+/* ── INT-ID DISPATCH ── */
+.int-id-d{font-size:9px;color:var(--muted);font-weight:700;letter-spacing:0.8px;background:#f1f5f9;border-radius:4px;padding:2px 6px;}
 </style>
 
 </head>
@@ -140,6 +170,10 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
       </div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
+      <div class="live-chip">
+        <div class="live-dot-h"></div>
+        <span id="header-clock">--:--</span>
+      </div>
       <div style="text-align:right;">
         <div style="color:#7bc144;font-weight:800;font-size:16px;" id="hdr-count">0</div>
         <div style="color:rgba(255,255,255,0.5);font-size:9px;letter-spacing:1px;">RAPPORTS</div>
@@ -149,6 +183,22 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   </div>
 
   <div class="module-nav hidden" id="module-nav"></div>
+
+  <!-- DISPATCH KPI STRIP -->
+  <div class="dispatch-kpi" id="dispatch-kpi">
+    <div class="dkpi"><div class="dkpi-icon">📅</div><div class="dkpi-val" id="dkpi-rdv">—</div><div class="dkpi-lbl">RDV jour</div></div>
+    <div class="dkpi"><div class="dkpi-icon">💶</div><div class="dkpi-val dkpi-green" id="dkpi-ca">—</div><div class="dkpi-lbl">CA €</div></div>
+    <div class="dkpi"><div class="dkpi-icon">⚡</div><div class="dkpi-val dkpi-urgent" id="dkpi-urg">—</div><div class="dkpi-lbl">Urgences</div></div>
+    <div class="dkpi"><div class="dkpi-icon">📋</div><div class="dkpi-val dkpi-yellow" id="dkpi-val-count">—</div><div class="dkpi-lbl">À valider</div></div>
+  </div>
+
+  <!-- URGENCE BANNER -->
+  <div id="urgence-bar" class="urgence-bar hidden">
+    <div class="urgence-dot"></div>
+    <span id="urgence-bar-text">⚡ URGENCE ACTIVE</span>
+    <button class="urgence-bar-btn" onclick="showPage('urgences',document.querySelectorAll('.nav-btn')[2])">Voir →</button>
+    <button class="urgence-bar-close" onclick="document.getElementById('urgence-bar').classList.add('hidden')">×</button>
+  </div>
 
   <div class="nav">
     <button class="nav-btn active" onclick="showPage('dashboard',this)">Tableau</button>
@@ -428,6 +478,7 @@ function lancerApp(){
   actualiserTout();
   renderDashboard();
   renderModuleNav();
+  demarrerHorloge();
   if(window.gfListen)gfListen(function(key,val){
     window.dispatchEvent(new StorageEvent('storage',{key:key,newValue:val,storageArea:localStorage}));
   });
@@ -445,7 +496,7 @@ function lancerApp(){
       actualiserTout();
       if(!document.getElementById('page-validation').classList.contains('hidden'))renderValidation();
     }
-    if(e.key==='pl_rdvs'){actualiserTout();}
+    if(e.key==='pl_rdvs'){actualiserTout();renderDispatchKPI();}
     if(e.key==='pl_chat'){
       var msgs=JSON.parse(localStorage.getItem('pl_chat')||'[]');
       if(msgs.length>0){var last=msgs[msgs.length-1];if(last.role==='TECHNICIEN')showNotif('Message de '+last.from+' : '+last.text.slice(0,40));}
@@ -461,8 +512,41 @@ function logout(){
   document.getElementById("app").classList.add("hidden");
 }
 
+function renderDispatchKPI(){
+  var rdvs=getRdvs().filter(function(r){return r.dateRdv===todayStr();});
+  var done=rdvs.filter(function(r){return r.statut==="Termine";}).length;
+  var ca=getRapports().filter(function(r){return r.date===todayStr();}).reduce(function(s,r){return s+(r.montantFinal||0);},0);
+  var urg=getUrgences().filter(function(u){return u.statut!=="Resolu";}).length;
+  var val=getRapports().filter(function(r){return r.statut==="En attente facturation";}).length;
+  var s=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+  s('dkpi-rdv',done+'/'+rdvs.length);
+  s('dkpi-ca',ca?ca+'€':'0€');
+  s('dkpi-urg',urg?urg:'✓');
+  s('dkpi-val-count',val?val:'✓');
+  var bar=document.getElementById('urgence-bar');
+  if(bar){
+    if(urg>0){
+      bar.classList.remove('hidden');
+      var t=document.getElementById('urgence-bar-text');
+      if(t)t.textContent='⚡ '+urg+' urgence'+(urg>1?'s':'')+' active'+(urg>1?'s':'')+' en ce moment';
+    } else {
+      bar.classList.add('hidden');
+    }
+  }
+}
+
+function demarrerHorloge(){
+  function tick(){
+    var now=new Date();
+    var h=("0"+now.getHours()).slice(-2),m=("0"+now.getMinutes()).slice(-2),sc=("0"+now.getSeconds()).slice(-2);
+    var el=document.getElementById('header-clock');
+    if(el)el.textContent=h+':'+m+':'+sc;
+  }
+  tick();setInterval(tick,1000);
+}
+
 function actualiserTout(){
-  actualiserDispos();renderPlanningJour();updateNavBadges();
+  actualiserDispos();renderPlanningJour();updateNavBadges();renderDispatchKPI();
   document.getElementById("hdr-count").textContent = getRapports().length;
 }
 
@@ -869,12 +953,22 @@ var html="";
 for(var i=0;i<techs.length;i++){
 var nom=techs[i],d=dispos[nom]||{statut:"Non connecte"};
 var color=STATUT_C[d.statut]||"#64748b",tc=TECH_C[nom];
-html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;">';
-html+='<div style="width:34px;height:34px;border-radius:9px;background:'+tc.bg+';border:1px solid '+tc.c+';color:'+tc.c+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;">'+tc.a+'</div>';
-html+='<div style="flex:1;font-weight:600;font-size:13px;color:#1a2537;">'+nom+'</div>';
-html+='<div style="display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:'+color+';"></span><span style="color:'+color+';font-size:12px;font-weight:700;">'+d.statut+'</span></div>';
+var isActive=d.statut==="En intervention";
+var rdvsT=rdvs.filter(function(r){return r.technicien===nom&&r.dateRdv===todayStr();});
+var doneT=rdvsT.filter(function(r){return r.statut==="Termine";}).length;
+var ago=d.updatedAt?Math.floor((Date.now()-new Date(d.updatedAt))/60000):null;
+html+='<div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #f1f5f9;">';
+html+='<div style="width:38px;height:38px;border-radius:10px;background:'+tc.bg+';border:2px solid '+tc.c+';color:'+tc.c+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;">'+tc.a+'</div>';
+html+='<div style="flex:1;">';
+html+='<div style="font-weight:700;font-size:13px;color:#1a2537;">'+nom+'</div>';
+html+='<div style="color:#94a3b8;font-size:10px;">'+doneT+'/'+rdvsT.length+' RDV'+(ago!==null?' · '+(ago<1?'maintenant':ago+'min'):'')+' </div>';
 html+='</div>';
+html+='<div style="display:flex;align-items:center;gap:6px;">';
+html+='<span style="width:9px;height:9px;border-radius:50%;background:'+color+';display:inline-block;'+(isActive?'animation:pulseStatus 1.5s ease-in-out infinite;':'')+'"></span>';
+html+='<span style="color:'+color+';font-size:11px;font-weight:700;">'+d.statut+'</span>';
+html+='</div></div>';
 }
+renderDispatchKPI();
 document.getElementById("dash-techs").innerHTML=html;
 
 // Urgences actives
