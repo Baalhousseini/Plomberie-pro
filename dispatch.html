@@ -993,6 +993,22 @@ var n=document.createElement("div");n.className="notif";n.textContent=msg;
 document.body.appendChild(n);setTimeout(function(){n.remove();},3500);
 }
 
+var MODULE_CURRENT='dispatch.html';
+var MODULES=[
+  {file:'index.html',label:'Technicien',icon:'👷',roles:['TECHNICIEN','PATRON']},
+  {file:'dispatch.html',label:'Dispatch',icon:'📋',roles:['DISPATCH','PATRON']},
+  {file:'patron.html',label:'Patron',icon:'👔',roles:['PATRON']},
+  {file:'patron-analytics.html',label:'Analytics',icon:'📊',roles:['PATRON']},
+];
+function naviguerVers(f){if(f===MODULE_CURRENT)return;var b=location.href.substring(0,location.href.lastIndexOf('/')+1);location.href=b+f;}
+function getCurrentRoleDispatch(){var id=localStorage.getItem("pl_dispatch_session");if(!id)return null;return id==="patron"?"PATRON":"DISPATCH";}
+function renderModuleNav(){
+  var nav=document.getElementById('module-nav');if(!nav)return;
+  var role=getCurrentRoleDispatch();if(!role)return;
+  var v=MODULES.filter(function(m){return m.roles.indexOf(role)>=0;});if(v.length<=1)return;
+  nav.classList.remove('hidden');
+  nav.innerHTML=v.map(function(m){return '<button class="mnav-btn'+(m.file===MODULE_CURRENT?' active':'')+'" onclick="naviguerVers(\''+m.file+'\')">'+(m.icon)+' '+(m.label)+'</button>';}).join('');
+}
 window.onload=function(){
 initPins();
 var s=localStorage.getItem("pl_dispatch_session");
