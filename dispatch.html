@@ -157,7 +157,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     </div>
     <button class="btn-login" onclick="seConnecter()">Se connecter</button>
     <div class="error-msg hidden" id="loginError">Identifiant ou PIN incorrect</div>
-    <div style="color:#94a3b8;font-size:11px;margin-top:20px;">dispatch / 1470 &nbsp;|&nbsp; patron / 2580</div>
   </div>
 </div>
 
@@ -205,6 +204,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <button class="nav-btn" onclick="showPage('dispos',this)">Dispos</button>
     <button class="nav-btn" onclick="showPage('urgences',this)" id="nav-urgences">Urgences</button>
     <button class="nav-btn" onclick="showPage('nouveau-rdv',this)">+ RDV</button>
+    <button class="nav-btn" onclick="showPage('tous-rdv',this)" id="nav-tous-rdv">Tous les RDV</button>
     <button class="nav-btn" onclick="showPage('validation',this)">Validation</button>
     <button class="nav-btn" onclick="showPage('rapports',this)">Rapports</button>
     <button class="nav-btn" onclick="showPage('sav',this)">SAV</button>
@@ -314,6 +314,25 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
       <button class="btn btn-primary btn-full" style="padding:14px;font-size:14px;" onclick="creerRdv()">Creer le RDV et notifier le technicien</button>
     </div>
   </div>
+</div>
+
+<!-- TOUS LES RDV -->
+<div id="page-tous-rdv" class="hidden">
+  <div style="margin-bottom:14px;">
+    <div style="color:var(--blue);font-size:11px;letter-spacing:2px;font-weight:700;margin-bottom:8px;">HISTORIQUE DES RDV</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+      <button class="btn btn-primary" id="frdv-auj" onclick="filtrerRdvs('auj',this)">Aujourd'hui</button>
+      <button class="btn btn-gray" id="frdv-sem" onclick="filtrerRdvs('sem',this)">Cette semaine</button>
+      <button class="btn btn-gray" id="frdv-all" onclick="filtrerRdvs('all',this)">Tous</button>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <button class="btn btn-gray" id="ftech-all" onclick="filtrerTech('all',this)">Tous les techs</button>
+      <button class="btn btn-gray" id="ftech-t1" onclick="filtrerTech('Technicien 1',this)">Tech 1</button>
+      <button class="btn btn-gray" id="ftech-t2" onclick="filtrerTech('Technicien 2',this)">Tech 2</button>
+    </div>
+  </div>
+  <div id="rdv-count-bar" style="color:var(--muted);font-size:12px;margin-bottom:10px;font-weight:600;"></div>
+  <div id="liste-tous-rdv"></div>
 </div>
 
 <div id="page-validation" class="hidden">
@@ -512,6 +531,106 @@ function logout(){
   document.getElementById("app").classList.add("hidden");
 }
 
+/* ---- TOUS LES RDV ---- */
+var filtreRdvPeriode='auj', filtreRdvTech='all';
+
+function filtrerRdvs(f,btn){
+  filtreRdvPeriode=f;
+  ['frdv-auj','frdv-sem','frdv-all'].forEach(function(id){var el=document.getElementById(id);if(el){el.className='btn btn-gray';}});
+  if(btn)btn.className='btn btn-primary';
+  renderTousRdvs();
+}
+
+function filtrerTech(t,btn){
+  filtreRdvTech=t;
+  ['ftech-all','ftech-t1','ftech-t2'].forEach(function(id){var el=document.getElementById(id);if(el){el.className='btn btn-gray';}});
+  if(btn)btn.className='btn btn-primary';
+  renderTousRdvs();
+}
+
+function genIntIdD(rdv){
+  var d=(rdv.dateRdv||todayStr()).replace(/-/g,'');
+  return 'INT-'+d+'-'+String(rdv.id).slice(-3).padStart(3,'0');
+}
+
+function renderTousRdvs(){
+  var all=getRdvs().sort(function(a,b){
+    if(a.dateRdv!==b.dateRdv)return b.dateRdv.localeCompare(a.dateRdv);
+    return a.heureRdv.localeCompare(b.heureRdv);
+  });
+  var now=new Date();
+  var lundi=new Date(now);lundi.setDate(now.getDate()-now.getDay()+1);lundi.setHours(0,0,0,0);
+  var dimanche=new Date(lundi);dimanche.setDate(lundi.getDate()+6);
+
+  var rdvs=all;
+  if(filtreRdvPeriode==='auj')rdvs=all.filter(function(r){return r.dateRdv===todayStr();});
+  if(filtreRdvPeriode==='sem')rdvs=all.filter(function(r){var d=new Date(r.dateRdv+'T12:00');return d>=lundi&&d<=dimanche;});
+  if(filtreRdvTech!=='all')rdvs=rdvs.filter(function(r){return r.technicien===filtreRdvTech;});
+
+  var cb=document.getElementById('rdv-count-bar');
+  if(cb){
+    var done=rdvs.filter(function(r){return r.statut==='Termine';}).length;
+    var ca=rdvs.reduce(function(s,r){return s+(r.prixVente||0);},0);
+    cb.textContent=rdvs.length+' RDV · '+done+' terminé'+(done>1?'s':'')+' · CA potentiel '+ca+' EUR';
+  }
+
+  if(!rdvs.length){
+    document.getElementById('liste-tous-rdv').innerHTML='<div class="empty-state"><div style="font-size:36px;margin-bottom:10px;">📭</div>Aucun RDV pour cette période</div>';
+    return;
+  }
+
+  var html='';
+  var STATUT_COLORS={'Confirme':'#1d4ed8','Termine':'#16a34a','Annule':'#dc2626','En cours':'#ea580c'};
+  var lastDate='';
+  for(var i=0;i<rdvs.length;i++){
+    var r=rdvs[i];
+    var tc=TECH_C[r.technicien]||{c:'#64748b',a:'??',bg:'#f1f5f9'};
+    var sc=STATUT_COLORS[r.statut]||'#64748b';
+    var isDone=r.statut==='Termine';
+    var dateLabel=r.dateRdv===todayStr()?'Aujourd\'hui':new Date(r.dateRdv+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+    if(r.dateRdv!==lastDate){
+      lastDate=r.dateRdv;
+      html+='<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;padding:10px 0 6px;border-top:'+(i>0?'2px solid var(--border)':'')+'">'+(r.dateRdv===todayStr()?'📅 ':'')+dateLabel+'</div>';
+    }
+    html+='<div style="background:#fff;border:1px solid var(--border);border-left:4px solid '+sc+';border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow);">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">';
+    html+='<div style="flex:1;">';
+    html+='<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px;">';
+    html+='<span style="color:var(--blue2);font-weight:800;font-size:15px;">'+r.heureRdv+'</span>';
+    html+='<span style="font-size:9px;color:var(--muted);font-weight:700;background:#f1f5f9;border-radius:4px;padding:2px 6px;">'+genIntIdD(r)+'</span>';
+    html+='<span style="background:'+sc+'18;color:'+sc+';border:1px solid '+sc+'30;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;">'+r.statut.toUpperCase()+'</span>';
+    html+='</div>';
+    html+='<div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:2px;">'+r.clientNom+'</div>';
+    html+='<div style="color:var(--muted);font-size:12px;">'+r.type+'</div>';
+    html+='<div style="color:var(--muted);font-size:11px;margin-top:2px;">📍 '+r.adresse+'</div>';
+    if(r.notes)html+='<div style="color:var(--blue2);font-size:11px;margin-top:4px;font-style:italic;">📝 '+r.notes+'</div>';
+    html+='</div>';
+    html+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">';
+    html+='<div style="color:var(--green);font-weight:800;font-size:16px;">'+r.prixVente+' EUR</div>';
+    html+='<div style="width:30px;height:30px;border-radius:8px;background:'+tc.bg+';border:1.5px solid '+tc.c+';color:'+tc.c+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;">'+tc.a+'</div>';
+    html+='</div></div>';
+    html+='<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">';
+    html+='<button class="btn btn-b" style="padding:6px 12px;font-size:11px;" onclick="window.open(\'tel:'+r.clientTel+'\')">📞 Appeler</button>';
+    html+='<button class="btn btn-b" style="padding:6px 12px;font-size:11px;" onclick="window.open(\'https://maps.google.com/?q='+encodeURIComponent(r.adresse)+'\',\'_blank\')">🗺 GPS</button>';
+    if(!isDone)html+='<button class="btn btn-green" style="padding:6px 12px;font-size:11px;" onclick="marquerRdvTermine('+r.id+')">✓ Terminer</button>';
+    html+='<button class="btn btn-r" style="padding:6px 12px;font-size:11px;" onclick="supprimerRdv('+r.id+')">Supprimer</button>';
+    html+='</div></div>';
+  }
+  document.getElementById('liste-tous-rdv').innerHTML=html;
+}
+
+function marquerRdvTermine(id){
+  var rdvs=getRdvs();
+  var idx=rdvs.findIndex(function(r){return r.id===id;});
+  if(idx>=0){rdvs[idx].statut='Termine';saveRdvs(rdvs);}
+  renderTousRdvs();actualiserTout();showNotif('RDV marqué terminé !');
+}
+
+function supprimerRdv(id){
+  var rdvs=getRdvs().filter(function(r){return r.id!==id;});
+  saveRdvs(rdvs);renderTousRdvs();actualiserTout();showNotif('RDV supprimé');
+}
+
 function renderDispatchKPI(){
   var rdvs=getRdvs().filter(function(r){return r.dateRdv===todayStr();});
   var done=rdvs.filter(function(r){return r.statut==="Termine";}).length;
@@ -561,7 +680,7 @@ function updateNavBadges(){
 }
 
 function showPage(page,btn){
-  var pages=["dashboard","dispos","urgences","nouveau-rdv","validation","rapports","sav","devis","facturation","procedures","infos"];
+  var pages=["dashboard","dispos","urgences","nouveau-rdv","tous-rdv","validation","rapports","sav","devis","facturation","procedures","infos"];
   for(var i=0;i<pages.length;i++) document.getElementById("page-"+pages[i]).classList.add("hidden");
   document.getElementById("page-"+page).classList.remove("hidden");
   document.querySelectorAll(".nav-btn").forEach(function(b){b.classList.remove("active");});
@@ -569,6 +688,7 @@ function showPage(page,btn){
   if(page==="dashboard")renderDashboard();
   if(page==="dispos"){actualiserDispos();renderPlanningJour();}
   if(page==="urgences")renderUrgences();
+  if(page==="tous-rdv")renderTousRdvs();
   if(page==="validation")renderValidation();
   if(page==="rapports")renderRapports();
   if(page==="sav")renderSavs();
