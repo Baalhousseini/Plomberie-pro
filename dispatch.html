@@ -540,7 +540,7 @@ function getDispos(){return JSON.parse(localStorage.getItem("pl_dispos")||"{}");
 function getDevis(){return JSON.parse(localStorage.getItem("pl_devis")||"[]");}
 function saveDevis(d){var v=JSON.stringify(d);localStorage.setItem("pl_devis",v);if(window.gfSync)gfSync("pl_devis",v);}
 function getUrgences(){return JSON.parse(localStorage.getItem("pl_urgences")||"[]");}
-function saveUrgences(u){localStorage.setItem("pl_urgences",JSON.stringify(u));}
+function saveUrgences(u){var v=JSON.stringify(u);localStorage.setItem("pl_urgences",v);if(window.gfSync)gfSync("pl_urgences",v);}
 function getSavs(){return JSON.parse(localStorage.getItem("pl_savs")||"[]");}
 function saveSavs(s){localStorage.setItem("pl_savs",JSON.stringify(s));}
 

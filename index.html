@@ -1517,6 +1517,36 @@ window.addEventListener('storage',e=>{
   if(!currentUser)return;
   renderRdv();renderKPI();checkUrgences();renderRecapJournee();renderTeamDispos();
 });
+
+// BroadcastChannel direct — même navigateur, même appareil (plus fiable que StorageEvent)
+var _techBC=null;
+try{_techBC=new BroadcastChannel('gf_sync');}catch(ex){}
+if(_techBC){
+  _techBC.onmessage=function(ev){
+    if(!currentUser)return;
+    if(!ev.data||!ev.data.key)return;
+    if(['pl_rdvs','pl_urgences','pl_dispos'].includes(ev.data.key)){
+      try{localStorage.setItem(ev.data.key,ev.data.value);}catch(ex){}
+      renderRdv();renderKPI();checkUrgences();renderRecapJournee();renderTeamDispos();
+      if(ev.data.key==='pl_rdvs'){
+        const rdvs=getMesRdvs();
+        const nouveau=rdvs.filter(r=>r.statut==='Confirme'&&r.dateRdv>=todayStr()).sort((a,b)=>b.id-a.id)[0];
+        if(nouveau)showNotif('Nouveau RDV : '+nouveau.clientNom+' à '+nouveau.heureRdv);
+      }
+    }
+  };
+}
+
+// Polling toutes les 5s — filet de sécurité si BroadcastChannel/Firebase défaillant
+var _rdvSnap='';
+setInterval(function(){
+  if(!currentUser)return;
+  const h=localStorage.getItem('pl_rdvs')||'';
+  if(h!==_rdvSnap){
+    _rdvSnap=h;
+    renderRdv();renderKPI();checkUrgences();renderRecapJournee();
+  }
+},5000);
 </script>
 
 <!-- CHAT FAB -->
