@@ -778,6 +778,21 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
     </div>
   </div>
 
+  <div class="card" style="margin-bottom:12px;background:linear-gradient(135deg,#0d2d52,#1a4a7a);color:#fff;">
+    <div class="lbl" style="color:rgba(255,255,255,0.7);">ENCAISSEMENT SUR PLACE</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;margin-bottom:12px;">
+      <button id="enc-cb" onclick="setEncaissement('CB')" style="background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);border-radius:10px;padding:12px 8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;">💳 Carte</button>
+      <button id="enc-esp" onclick="setEncaissement('Espèces')" style="background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);border-radius:10px;padding:12px 8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;">💵 Espèces</button>
+      <button id="enc-cheque" onclick="setEncaissement('Chèque')" style="background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);border-radius:10px;padding:12px 8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;">📄 Chèque</button>
+      <button id="enc-vir" onclick="setEncaissement('Virement')" style="background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);border-radius:10px;padding:12px 8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;">🏦 Virement</button>
+    </div>
+    <div id="enc-selected" style="text-align:center;color:rgba(255,255,255,0.4);font-size:12px;">Aucun mode sélectionné — laissez vide si paiement différé</div>
+    <input type="hidden" id="enc-mode" value="">
+    <div style="margin-top:10px;" id="enc-lien-stripe-div" style="display:none;">
+      <button onclick="envoyerLienPaiement()" style="width:100%;background:#7bc144;border:none;border-radius:10px;padding:12px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">📲 Envoyer lien de paiement au client</button>
+    </div>
+  </div>
+
   <div style="display:flex;gap:10px;padding-bottom:30px;">
     <button class="action-btn btn-gray" onclick="closeModal('modal-rapport')" style="flex:0 0 auto;">Retour</button>
     <button class="action-btn btn-green" id="btn-terminer" onclick="soumettre()" style="flex:1;background:linear-gradient(135deg,var(--green),var(--green-light));color:#fff;font-weight:700;">Terminer et Envoyer</button>
@@ -1402,6 +1417,7 @@ function soumettre(){
       pieces:piecesUtilisees,piecesNotes,
       satisfaction,retourRequis,
       checklistScore:checksDone+"/6",
+      modeEncaissement:(document.getElementById('enc-mode')||{}).value||'',
       soumisLe:new Date().toISOString(),statut:"En attente facturation"
     };
 
@@ -1612,6 +1628,35 @@ function renderRecapJournee(){
 }
 
 /* ---- PARTAGE RAPPORT ---- */
+function setEncaissement(mode){
+  document.getElementById('enc-mode').value=mode;
+  ['CB','Espèces','Chèque','Virement'].forEach(function(m){
+    var id={'CB':'enc-cb','Espèces':'enc-esp','Chèque':'enc-cheque','Virement':'enc-vir'}[m];
+    var el=document.getElementById(id);if(!el)return;
+    if(m===mode){el.style.background='rgba(123,193,68,0.3)';el.style.borderColor='#7bc144';el.style.color='#fff';}
+    else{el.style.background='rgba(255,255,255,0.1)';el.style.borderColor='rgba(255,255,255,0.2)';el.style.color='#fff';}
+  });
+  var sel=document.getElementById('enc-selected');
+  if(sel)sel.innerHTML='<span style="color:#7bc144;font-weight:700;">✓ Paiement : '+mode+'</span>';
+  var stripeDiv=document.getElementById('enc-lien-stripe-div');
+  if(stripeDiv)stripeDiv.style.display=mode==='CB'?'block':'none';
+}
+
+async function envoyerLienPaiement(){
+  if(!currentRdv)return;
+  var montant=Number(document.getElementById('montantFinal').value)||currentRdv.prixVente||0;
+  if(!montant){showNotif('Saisis le montant final');return;}
+  try{
+    var r=await fetch('/api/stripe-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rdvId:currentRdv.id,montant:montant*100,client:currentRdv.clientNom,description:currentRdv.type||'Intervention'})});
+    var d=await r.json();
+    if(d.url){
+      var msg='GreenFlow Technologies — Règlement intervention : '+d.url;
+      if(currentRdv.clientTel){window.open('sms:'+currentRdv.clientTel+'?body='+encodeURIComponent(msg));}
+      showNotif('Lien de paiement envoyé !');
+    }
+  }catch(e){showNotif('Lien de paiement en mode démo — configurez Stripe sur Vercel');}
+}
+
 function partagerWA(){
   if(!currentRdv)return;
   const montant=document.getElementById('montantFinal')?.value||currentRdv.prixVente;

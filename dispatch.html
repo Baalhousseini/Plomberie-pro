@@ -296,6 +296,43 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <div style="color:#64748b;font-size:12px;margin-top:2px;" id="dash-date"></div>
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;" id="dash-stats"></div>
+  <div id="pipeline-ca-card" style="background:linear-gradient(135deg,#0d2d52 0%,#1a4a7a 100%);border-radius:16px;padding:16px;margin-bottom:12px;color:#fff;">
+    <div style="font-size:10px;letter-spacing:2px;font-weight:700;opacity:0.7;margin-bottom:10px;">PIPELINE CA — AUJOURD'HUI</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:18px;font-weight:900;color:#7bc144;" id="pip-ca-conf">0€</div>
+        <div style="font-size:9px;opacity:0.7;margin-top:2px;">CA confirmé</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:18px;font-weight:900;color:#f59e0b;" id="pip-ca-encours">0€</div>
+        <div style="font-size:9px;opacity:0.7;margin-top:2px;">En cours</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:18px;font-weight:900;color:#60a5fa;" id="pip-rdv-nb">0</div>
+        <div style="font-size:9px;opacity:0.7;margin-top:2px;">RDV planifiés</div>
+      </div>
+    </div>
+    <div style="margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+        <span style="font-size:10px;opacity:0.7;">Objectif jour</span>
+        <span style="font-size:10px;font-weight:700;" id="pip-obj-txt">—</span>
+      </div>
+      <div style="background:rgba(255,255,255,0.15);border-radius:100px;height:6px;">
+        <div id="pip-obj-bar" style="background:#7bc144;height:6px;border-radius:100px;width:0%;transition:width 0.6s;"></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;">
+      <div style="background:rgba(255,255,255,0.08);border-radius:8px;padding:8px;">
+        <div style="opacity:0.6;font-size:9px;margin-bottom:2px;">CANAUX ACQUISITION</div>
+        <div id="pip-canaux" style="font-size:11px;"></div>
+      </div>
+      <div style="background:rgba(255,255,255,0.08);border-radius:8px;padding:8px;">
+        <div style="opacity:0.6;font-size:9px;margin-bottom:2px;">TAUX TRANSFORMATION</div>
+        <div id="pip-conv" style="font-size:18px;font-weight:900;color:#7bc144;">—</div>
+        <div style="opacity:0.5;font-size:9px;">terminés / planifiés</div>
+      </div>
+    </div>
+  </div>
   <div class="card card-blue">
     <div class="lbl">ETAT DES TECHNICIENS</div>
     <div id="dash-techs" style="margin-top:8px;"></div>
@@ -406,6 +443,17 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
       </div>
       <div class="form-field"><label>NOTE POUR LE TECHNICIEN</label>
         <textarea class="form-textarea" id="rdv-notes" rows="3" placeholder="Infos importantes : acces difficile, probleme recurrent..."></textarea>
+      </div>
+      <div class="form-field"><label>CANAL D'ACQUISITION</label>
+        <select class="form-select" id="rdv-canal">
+          <option value="Appel entrant">📞 Appel entrant</option>
+          <option value="Google/Site web">🌐 Google / Site web</option>
+          <option value="Client fidele">⭐ Client fidèle</option>
+          <option value="Mandant/Assurance">🏢 Mandant / Assurance</option>
+          <option value="Recommandation">🤝 Recommandation</option>
+          <option value="Prospection">📣 Prospection</option>
+          <option value="Autre">❓ Autre</option>
+        </select>
       </div>
       <div style="border-top:1px solid var(--border);margin:14px 0 14px;padding-top:14px;">
         <div class="lbl" style="color:#7c3aed;">PARTENAIRE / ASSURANCE (optionnel)</div>
@@ -1108,8 +1156,9 @@ function creerRdv(){
   var mandant=(document.getElementById("rdv-mandant")&&document.getElementById("rdv-mandant").value)||"";
   var bonCmd=(document.getElementById("rdv-bon-cmd")&&document.getElementById("rdv-bon-cmd").value.trim())||"";
   var codeDossier=(document.getElementById("rdv-code-dossier")&&document.getElementById("rdv-code-dossier").value.trim())||"";
+  var canal=(document.getElementById("rdv-canal")&&document.getElementById("rdv-canal").value)||"Appel entrant";
   var operateurNom=currentOperateur?currentOperateur.nom:"Opérateur";
-  var rdv={id:Date.now(),clientNom:nom,clientTel:tel,adresse:adresse,type:document.getElementById("rdv-type").value,dateRdv:document.getElementById("rdv-date").value,heureRdv:document.getElementById("rdv-heure").value,technicien:document.getElementById("rdv-tech").value,prixVente:Number(prix),statut:"Confirme",notes:document.getElementById("rdv-notes").value.trim(),mandant:mandant,bonCmd:bonCmd,codeDossier:codeDossier,creePar:operateurNom,operateur:operateurNom,creeAt:new Date().toISOString()};
+  var rdv={id:Date.now(),clientNom:nom,clientTel:tel,adresse:adresse,type:document.getElementById("rdv-type").value,dateRdv:document.getElementById("rdv-date").value,heureRdv:document.getElementById("rdv-heure").value,technicien:document.getElementById("rdv-tech").value,prixVente:Number(prix),statut:"Confirme",notes:document.getElementById("rdv-notes").value.trim(),mandant:mandant,bonCmd:bonCmd,codeDossier:codeDossier,canal:canal,creePar:operateurNom,operateur:operateurNom,creeAt:new Date().toISOString()};
   var rdvs=getRdvs();rdvs.push(rdv);saveRdvs(rdvs);
   // Mettre à jour la base clients
   upsertClient(nom,tel,adresse);
@@ -1479,6 +1528,31 @@ return '<div onclick="'+t[2]+'" style="display:flex;justify-content:space-betwee
 }).join("");
 }
 renderKpiOperateurs();
+renderPipelineCA();
+}
+
+function renderPipelineCA(){
+var rdvs=getRdvs();
+var today=todayStr();
+var rdvsAuj=rdvs.filter(function(r){return r.dateRdv===today;});
+var caConf=rdvsAuj.filter(function(r){return r.statut==="Termine"||r.statut==="Valide";}).reduce(function(s,r){return s+(r.prixVente||0);},0);
+var caEnCours=rdvsAuj.filter(function(r){return r.statut!=="Termine"&&r.statut!=="Annule";}).reduce(function(s,r){return s+(r.prixVente||0);},0);
+var objJour=Math.round(parseInt(localStorage.getItem('pl_objectif')||'1000000')/365);
+var pct=Math.min(100,Math.round(caEnCours/objJour*100));
+var termines=rdvsAuj.filter(function(r){return r.statut==="Termine";}).length;
+var txConv=rdvsAuj.length?Math.round(termines/rdvsAuj.length*100):0;
+// Canaux
+var canaux={};rdvsAuj.forEach(function(r){var c=r.canal||"Non précisé";canaux[c]=(canaux[c]||0)+1;});
+var canauxHtml=Object.entries(canaux).sort(function(a,b){return b[1]-a[1];}).slice(0,3).map(function(e){return '<div style="color:#fff;font-size:10px;margin-bottom:2px;">'+e[0].split('/')[0].replace(/[📞🌐⭐🏢🤝📣❓]/g,'').trim()+' <b>'+e[1]+'</b></div>';}).join("")||'<div style="color:rgba(255,255,255,0.4);font-size:10px;">Aucun RDV</div>';
+var s=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+var sh=function(id,v){var e=document.getElementById(id);if(e)e.innerHTML=v;};
+s('pip-ca-conf',caConf.toLocaleString('fr-FR')+'€');
+s('pip-ca-encours',caEnCours.toLocaleString('fr-FR')+'€');
+s('pip-rdv-nb',rdvsAuj.length);
+s('pip-obj-txt',objJour.toLocaleString('fr-FR')+'€/j · '+pct+'%');
+s('pip-conv',txConv+'%');
+sh('pip-canaux',canauxHtml);
+var bar=document.getElementById('pip-obj-bar');if(bar)bar.style.width=pct+'%';
 }
 
 var PROCEDURES=[

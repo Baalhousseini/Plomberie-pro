@@ -324,6 +324,23 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     </div>
     <div id="obj-rythme" style="margin-top:6px;"></div>
   </div>
+  <div class="card" style="margin-bottom:12px;background:linear-gradient(135deg,#0d2d52 0%,#1a4a7a 100%);color:#fff;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div class="lbl" style="color:rgba(255,255,255,0.7);margin-bottom:0;">CA — 7 DERNIERS JOURS</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.5);">vs objectif jour</div>
+    </div>
+    <div id="ca-7j-chart" style="display:flex;align-items:flex-end;gap:6px;height:80px;"></div>
+    <div id="ca-7j-labels" style="display:flex;gap:6px;margin-top:6px;"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.15);">
+      <div><div style="font-size:9px;opacity:0.6;">TOTAL 7J</div><div style="font-size:16px;font-weight:800;color:#7bc144;" id="ca-7j-total">—</div></div>
+      <div style="text-align:center;"><div style="font-size:9px;opacity:0.6;">MEIL. JOUR</div><div style="font-size:16px;font-weight:800;color:#60a5fa;" id="ca-7j-best">—</div></div>
+      <div style="text-align:right;"><div style="font-size:9px;opacity:0.6;">MOYENNE/J</div><div style="font-size:16px;font-weight:800;color:#f59e0b;" id="ca-7j-avg">—</div></div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">PERFORMANCE TECHNICIENS</div>
+    <div id="perf-techs"></div>
+  </div>
   <div class="card blue">
     <div class="lbl">TECHNICIENS EN CE MOMENT</div>
     <div id="dispos-dash"></div>
@@ -1032,6 +1049,8 @@ function renderDashboard(){
   const rythmeAnnuel=Math.round(caTotal/moisEcoules*12);
   const elRythme=document.getElementById('obj-rythme');
   if(elRythme)elRythme.innerHTML=`<span style="color:${rythmeAnnuel>=obj?'#16a34a':'#dc2626'};font-size:11px;font-weight:700;">Rythme annuel projeté : ${rythmeAnnuel.toLocaleString('fr-FR')} € ${rythmeAnnuel>=obj?'✅':'⚠️'}</span>`;
+  renderCA7j();
+  renderPerfTechs();
   renderDisposDash();
   renderAlertes();
   renderSuiviLive();
@@ -1041,6 +1060,79 @@ function renderDashboard(){
   const byType={};raps.forEach(r=>{byType[r.type]=(byType[r.type]||0)+(r.montantFinal||0);});
   const maxT=Math.max(...Object.values(byType),1);
   document.getElementById("ca-par-type").innerHTML=Object.entries(byType).sort((a,b)=>b[1]-a[1]).map(([t,c])=>`<div class="bar-row"><div class="bar-label">${t.substring(0,16)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/maxT*100)}%;background:#dcfce7;color:#15803d;">${c} EUR</div></div></div>`).join("")||`<div style="color:var(--text-light);font-size:13px;padding:12px 0;">Aucune donnee</div>`;
+}
+
+function renderCA7j(){
+  const jours=[];
+  const raps=getRapports();
+  const rdvs=getRdvs();
+  const objJour=Math.round(getObjectif()/365);
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const ds=d.toISOString().slice(0,10);
+    const jNom=['D','L','M','M','J','V','S'][d.getDay()];
+    const ca=rdvs.filter(r=>r.dateRdv===ds&&(r.statut==='Termine'||r.prixVente>0)).reduce((s,r)=>s+(r.prixVente||0),0);
+    jours.push({ds,jNom,ca,isToday:i===0});
+  }
+  const max=Math.max(...jours.map(j=>j.ca),objJour,1);
+  const chart=document.getElementById('ca-7j-chart');
+  const labels=document.getElementById('ca-7j-labels');
+  if(!chart||!labels)return;
+  const barW=`calc(${100/7}% - 5px)`;
+  chart.innerHTML=jours.map(j=>{
+    const h=Math.max(4,Math.round(j.ca/max*80));
+    const isOver=j.ca>=objJour;
+    const col=j.ca===0?'rgba(255,255,255,0.1)':isOver?'#7bc144':'#60a5fa';
+    const objH=Math.round(objJour/max*80);
+    return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;position:relative;">
+      <div style="position:absolute;bottom:${objH}px;width:100%;height:1px;background:rgba(255,255,255,0.2);"></div>
+      <div style="width:100%;height:${h}px;background:${col};border-radius:4px 4px 0 0;${j.isToday?'box-shadow:0 0 8px '+col+'80;':''}"></div>
+    </div>`;
+  }).join('');
+  labels.style.display='flex';labels.style.gap='6px';
+  labels.innerHTML=jours.map(j=>`<div style="flex:1;text-align:center;font-size:9px;color:${j.isToday?'#7bc144':'rgba(255,255,255,0.5)'};">${j.jNom}</div>`).join('');
+  const total=jours.reduce((s,j)=>s+j.ca,0);
+  const best=Math.max(...jours.map(j=>j.ca));
+  const avg=Math.round(total/7);
+  const s=id=>{const e=document.getElementById(id);return e?e:null;};
+  if(s('ca-7j-total'))s('ca-7j-total').textContent=total.toLocaleString('fr-FR')+'€';
+  if(s('ca-7j-best'))s('ca-7j-best').textContent=best.toLocaleString('fr-FR')+'€';
+  if(s('ca-7j-avg'))s('ca-7j-avg').textContent=avg.toLocaleString('fr-FR')+'€';
+}
+
+function renderPerfTechs(){
+  const techs=['Technicien 1','Technicien 2'];
+  const rdvs=getRdvs();
+  const raps=getRapports();
+  const today=todayStr();
+  const el=document.getElementById('perf-techs');
+  if(!el)return;
+  el.innerHTML=techs.map(nom=>{
+    const tc=TECH_C[nom];
+    const rdvsT=rdvs.filter(r=>r.technicien===nom&&r.dateRdv<=today);
+    const rdvsAuj=rdvs.filter(r=>r.technicien===nom&&r.dateRdv===today);
+    const termT=rdvsT.filter(r=>r.statut==='Termine').length;
+    const caT=rdvsT.filter(r=>r.statut==='Termine').reduce((s,r)=>s+(r.prixVente||0),0);
+    const caAuj=rdvsAuj.reduce((s,r)=>s+(r.prixVente||0),0);
+    const tmoy=termT?Math.round(caT/termT):0;
+    const txConv=rdvsT.length?Math.round(termT/rdvsT.length*100):0;
+    return`<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+      <div style="width:38px;height:38px;border-radius:10px;background:${tc.color}20;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;">${tc.avatar}</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:13px;">${nom.replace('Technicien ','Tech ')}</div>
+        <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap;">
+          <span style="font-size:10px;color:var(--muted);">${rdvsAuj.length} RDV auj.</span>
+          <span style="font-size:10px;color:var(--green);font-weight:700;">${caAuj.toLocaleString('fr-FR')}€ auj.</span>
+          <span style="font-size:10px;color:var(--muted);">TM ${tmoy}€</span>
+          <span style="font-size:10px;color:${txConv>=70?'#16a34a':'#f97316'};font-weight:700;">${txConv}% conv.</span>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="color:var(--green);font-weight:800;font-size:15px;">${caT.toLocaleString('fr-FR')}€</div>
+        <div style="color:var(--muted);font-size:10px;">total</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderDisposDash(){
@@ -1066,11 +1158,20 @@ function renderAlertes(){
   if(impayes.length)alertes.push(`${impayes.length} facture(s) impayee(s) — ${impayes.reduce((s,r)=>s+(r.montantFinal||0),0)} EUR`);
   const devisEnAttente=getDevis().filter(d=>d.statut!=="Traite");
   if(devisEnAttente.length)alertes.push(`${devisEnAttente.length} demande(s) de devis a traiter`);
+  // Relance devis > 3 jours
+  const now3j=Date.now()-3*24*3600*1000;
+  const devisARelancer=getDevis().filter(d=>d.statut!=="Traite"&&d.statut!=="Accepte"&&d.id&&d.id<now3j);
+  if(devisARelancer.length)alertes.push(`⏰ ${devisARelancer.length} devis sans réponse depuis +3j — relancer le client`);
   const urgences=getUrgences().filter(u=>u.statut!=="Resolu");
   if(urgences.length)alertes.push(`${urgences.length} urgence(s) active(s) !`);
   // Alertes business avancées
   const rdvsSansPrix=getRdvs().filter(r=>r.dateRdv>=todayStr()&&(!r.prixVente||r.prixVente===0));
   if(rdvsSansPrix.length)alertes.push(`${rdvsSansPrix.length} RDV sans prix défini — CA potentiel non comptabilisé`);
+  // CA journalier sous objectif
+  const objJour=Math.round(getObjectif()/365);
+  const caAuj=getRdvs().filter(r=>r.dateRdv===todayStr()&&r.statut==='Termine').reduce((s,r)=>s+(r.prixVente||0),0);
+  const hNow=new Date().getHours();
+  if(hNow>=15&&caAuj<objJour*0.7)alertes.push(`📉 CA jour ${caAuj.toLocaleString('fr-FR')}€ — objectif ${objJour.toLocaleString('fr-FR')}€ (${Math.round(caAuj/objJour*100)}%)`);
   const dispos=getDispos();['Technicien 1','Technicien 2'].forEach(t=>{
     const d=dispos[t];
     if(d&&d.updatedAt&&(Date.now()-new Date(d.updatedAt))>7200000&&d.statut!=='Indisponible')
@@ -1451,8 +1552,22 @@ document.getElementById("stats-fidel").innerHTML=[
 ["Recurrents",recurrents,"#4a9c3f"],["Taux fidel.",total>0?Math.round(recurrents/total*100)+"%":"0%","#7bc144"],
 ].map(([l,v,c])=>`<div class="stat-card" style="border-left:2px solid ${c}40;"><div class="lbl">${l}</div><div class="stat-val" style="color:${c};font-size:16px;">${v}</div></div>`).join("");
 
-const sources=JSON.parse(localStorage.getItem("pl_sources")||"{}");
-document.getElementById("sources-leads").innerHTML=SOURCES.map(s=>` <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);"> <span style="color:var(--text);font-size:13px;">${s}</span> <div style="display:flex;align-items:center;gap:8px;"> <span style="color:var(--green);font-weight:700;">${sources[s]||0}</span> <button class="btn btn-gray" style="padding:4px 8px;font-size:11px;" onclick="updateSource('${s}',-1)">-</button> <button class="btn btn-green" style="padding:4px 8px;font-size:11px;" onclick="updateSource('${s}',1)">+</button> </div> </div>`).join("");
+// Canaux d'acquisition réels depuis les RDVs
+const rdvsAll=getRdvs();
+const canaux={};rdvsAll.forEach(r=>{if(r.canal){const c=r.canal.replace(/[📞🌐⭐🏢🤝📣❓]/g,'').trim();canaux[c]=(canaux[c]||0)+1;}});
+const totalRdvs=rdvsAll.length||1;
+const maxC=Math.max(...Object.values(canaux),1);
+const canauxHtml=Object.entries(canaux).sort((a,b)=>b[1]-a[1]).map(([c,n])=>{
+  const ca=rdvsAll.filter(r=>(r.canal||'').includes(c.split('/')[0].trim())).reduce((s,r)=>s+(r.prixVente||0),0);
+  return`<div style="padding:8px 0;border-bottom:1px solid var(--border);">
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+      <span style="font-size:13px;font-weight:600;">${c}</span>
+      <div style="text-align:right;"><span style="color:var(--green);font-weight:700;">${n} RDV</span><span style="color:var(--muted);font-size:11px;margin-left:8px;">${ca.toLocaleString('fr-FR')}€</span></div>
+    </div>
+    <div style="background:var(--border);border-radius:100px;height:4px;"><div style="background:var(--green);height:4px;border-radius:100px;width:${Math.round(n/maxC*100)}%;"></div></div>
+  </div>`;
+}).join("")||'<div style="color:var(--muted);font-size:13px;padding:8px 0;">Les canaux seront affichés dès la création de RDVs</div>';
+document.getElementById("sources-leads").innerHTML=canauxHtml;
 
 const devis=getDevis();
 const traites=devis.filter(d=>d.statut==="Traite").length;
