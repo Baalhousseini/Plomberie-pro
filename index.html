@@ -932,6 +932,22 @@ function lancerApp(){
     }
     if(e.key==='pl_chat')pollChat();
   });
+  // GPS tracking — partage position toutes les 60 secondes
+  function partagerPosition(){
+    if(!currentUser||!navigator.geolocation)return;
+    navigator.geolocation.getCurrentPosition(pos=>{
+      const positions=JSON.parse(localStorage.getItem('pl_positions')||'{}');
+      const dispos=JSON.parse(localStorage.getItem('pl_dispos')||'{}');
+      const statut=(dispos[currentUser]||{}).statut||'Disponible';
+      positions[currentUser]={lat:pos.coords.latitude,lng:pos.coords.longitude,statut,updatedAt:new Date().toISOString(),precision:Math.round(pos.coords.accuracy)};
+      const v=JSON.stringify(positions);
+      localStorage.setItem('pl_positions',v);
+      if(window.gfSync)gfSync('pl_positions',v);
+    },err=>{},
+    {enableHighAccuracy:true,timeout:10000,maximumAge:30000});
+  }
+  partagerPosition();
+  setInterval(partagerPosition,60000);
 }
 
 function logout(){

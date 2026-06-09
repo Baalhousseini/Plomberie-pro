@@ -284,6 +284,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <button class="nav-btn" onclick="showPage('procedures',this)">Procedures</button>
     <button class="nav-btn" onclick="showPage('infos',this)">Infos</button>
     <button class="nav-btn" onclick="showPage('clients',this)">Clients</button>
+    <button class="nav-btn" onclick="showPage('appels',this)">📞 Appels</button>
   </div>
 
   <div class="content">
@@ -515,6 +516,45 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div class="stats-grid" id="stats-fact"></div>
   <div class="card card-yellow" style="margin-bottom:12px;"><div class="lbl">A FACTURER</div><div id="liste-a-facturer"></div></div>
   <div class="card card-green"><div class="lbl">DEJA FACTURES</div><div id="liste-factures"></div></div>
+</div>
+
+<div id="page-appels" class="hidden">
+  <div class="dispatch-kpi" id="appels-kpi" style="margin-bottom:12px;border-radius:12px;"></div>
+  <div class="card card-green" style="margin-bottom:12px;">
+    <div class="lbl">ENREGISTRER UN APPEL</div>
+    <div class="grid-2">
+      <div class="form-field"><label>N° TÉLÉPHONE</label><input type="tel" class="form-input" id="ap-tel" placeholder="06 XX XX XX XX" oninput="rechercherClientAppel(this.value)"></div>
+      <div class="form-field"><label>CLIENT IDENTIFIÉ</label><input type="text" class="form-input" id="ap-nom" placeholder="Auto-rempli..." readonly style="background:#f7f9fc;"></div>
+    </div>
+    <div class="form-field"><label>OBJET DE L'APPEL</label>
+      <select class="form-select" id="ap-objet">
+        <option value="rdv">Demande de RDV</option>
+        <option value="urgence">Urgence</option>
+        <option value="devis">Demande de devis</option>
+        <option value="rappel">Rappel client</option>
+        <option value="annulation">Annulation</option>
+        <option value="reclamation">Réclamation</option>
+        <option value="renseignement">Renseignement</option>
+      </select>
+    </div>
+    <div class="form-field"><label>NOTE</label><textarea class="form-textarea" id="ap-note" rows="2" placeholder="Résumé de l'appel..."></textarea></div>
+    <div class="grid-2">
+      <div class="form-field"><label>DURÉE (min)</label><input type="number" class="form-input" id="ap-duree" placeholder="3" min="0"></div>
+      <div class="form-field"><label>RÉSULTAT</label>
+        <select class="form-select" id="ap-resultat">
+          <option value="rdv_cree">✅ RDV créé</option>
+          <option value="rappel">📞 À rappeler</option>
+          <option value="devis_envoye">📋 Devis à faire</option>
+          <option value="info">ℹ️ Info donnée</option>
+          <option value="hors_zone">🚫 Hors zone</option>
+          <option value="annulation">❌ Annulation</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-green btn-full" style="padding:12px;" onclick="loggerAppel()">📝 Enregistrer l'appel</button>
+  </div>
+  <div class="lbl">JOURNAL DES APPELS</div>
+  <div id="liste-appels"></div>
 </div>
 
 <!-- PROCEDURES -->
@@ -958,7 +998,7 @@ function updateNavBadges(){
 }
 
 function showPage(page,btn){
-  var pages=["dashboard","dispos","urgences","nouveau-rdv","tous-rdv","validation","rapports","sav","devis","facturation","procedures","infos","clients"];
+  var pages=["dashboard","dispos","urgences","nouveau-rdv","tous-rdv","validation","rapports","sav","devis","facturation","procedures","infos","clients","appels"];
   for(var i=0;i<pages.length;i++) document.getElementById("page-"+pages[i]).classList.add("hidden");
   document.getElementById("page-"+page).classList.remove("hidden");
   document.querySelectorAll(".nav-btn").forEach(function(b){b.classList.remove("active");});
@@ -975,6 +1015,7 @@ function showPage(page,btn){
   if(page==="procedures")renderProcedures();
   if(page==="infos")renderInfos();
   if(page==="clients")renderClients();
+  if(page==="appels")renderAppels();
 }
 // Alias for convenience
 function showPageDispatch(page){showPage(page,null);}
@@ -1085,6 +1126,10 @@ function creerRdv(){
   document.getElementById("rdv-date").value=todayStr();
   if(document.getElementById("rdv-mandant"))document.getElementById("rdv-mandant").value="";
   showNotif("RDV cree pour "+nom+" !");actualiserTout();
+  if(rdv.clientTel){
+    var msg='GreenFlow Technologies : RDV confirmé le '+rdv.dateRdv+' à '+rdv.heureRdv+'. Technicien : '+rdv.technicien+'. Adresse : '+rdv.adresse+'. Pour toute question : 📞 [VOTRE_NUMÉRO]';
+    if(confirm('Envoyer SMS de confirmation au client ?'))envoyerSMS(rdv.clientTel,msg);
+  }
 }
 
 function toggleFormUrgence(){
@@ -1654,6 +1699,79 @@ async function updateTravelInfo(){
   td.style.background=bg;td.style.borderColor=border;
   tc.innerHTML='<div style="font-size:10px;font-weight:800;color:'+col+';letter-spacing:0.5px;margin-bottom:6px;">'+(ok?'✅':'⚠️')+' TRAJET CALCULÉ</div><div style="font-size:12px;color:#374151;line-height:2;"><div>📍 <b>'+prev.adresse.substring(0,35)+'</b> — fin à <b>'+prevEnd+'</b></div><div>🚗 Trajet → <b>'+mins+' min</b></div><div>📍 <b>'+adresse.substring(0,35)+'</b> — arrivée min. <b style="color:'+col+';">'+earliest+'</b></div>'+(ok?'':'<div style="background:#dc2626;color:#fff;border-radius:6px;padding:4px 10px;margin-top:4px;font-weight:700;font-size:11px;">RDV impossible à '+heure+' — corrigé à '+earliest+'</div>')+'</div>';
   if(!ok)document.getElementById('rdv-heure').value=earliest;
+}
+
+// CTI — JOURNAL DES APPELS
+function getAppels(){return JSON.parse(localStorage.getItem('pl_appels')||'[]');}
+function saveAppels(a){var v=JSON.stringify(a);localStorage.setItem('pl_appels',v);if(window.gfSync)gfSync('pl_appels',v);}
+
+function rechercherClientAppel(val){
+  var nomEl=document.getElementById('ap-nom');
+  if(!nomEl)return;
+  if(val.length<3){nomEl.value='';return;}
+  var clients=getClients().filter(function(c){return c.tel&&c.tel.includes(val.replace(/\s/g,''));});
+  if(clients.length){nomEl.value=clients[0].nom;nomEl.style.color='var(--green)';}
+  else{nomEl.value='Nouveau client';nomEl.style.color='var(--muted)';}
+}
+
+function loggerAppel(){
+  var tel=(document.getElementById('ap-tel')&&document.getElementById('ap-tel').value||'').trim();
+  var nom=document.getElementById('ap-nom')&&document.getElementById('ap-nom').value||'Inconnu';
+  var objet=document.getElementById('ap-objet')&&document.getElementById('ap-objet').value||'renseignement';
+  var note=document.getElementById('ap-note')&&document.getElementById('ap-note').value||'';
+  var duree=parseInt(document.getElementById('ap-duree')&&document.getElementById('ap-duree').value||'0');
+  var resultat=document.getElementById('ap-resultat')&&document.getElementById('ap-resultat').value||'info';
+  var operateur=currentOperateur&&currentOperateur?currentOperateur.nom:'Dispatch';
+
+  var appels=getAppels();
+  appels.unshift({id:Date.now(),tel:tel,nom:nom,objet:objet,note:note,duree:duree,resultat:resultat,operateur:operateur,date:todayStr(),heure:new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})});
+  saveAppels(appels);
+
+  ['ap-tel','ap-nom','ap-note','ap-duree'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  if(document.getElementById('ap-objet'))document.getElementById('ap-objet').value='rdv';
+  if(document.getElementById('ap-resultat'))document.getElementById('ap-resultat').value='rdv_cree';
+
+  renderAppels();
+  showNotif('Appel enregistré — '+nom);
+}
+
+function renderAppels(){
+  var appels=getAppels();
+  var today=todayStr();
+  var auj=appels.filter(function(a){return a.date===today;});
+  var totalDuree=auj.reduce(function(s,a){return s+(a.duree||0);},0);
+  var rdvCrees=auj.filter(function(a){return a.resultat==='rdv_cree';}).length;
+  var tauxConv=auj.length?Math.round(rdvCrees/auj.length*100):0;
+
+  var kpi=document.getElementById('appels-kpi');
+  if(kpi)kpi.innerHTML=[
+    ['📞','Appels auj.',auj.length,''],
+    ['✅','RDV créés',rdvCrees,'dkpi-green'],
+    ['📈','Taux conv.',tauxConv+'%',tauxConv>=50?'dkpi-green':'dkpi-yellow'],
+    ['⏱','Durée moy.',auj.length?Math.round(totalDuree/auj.length)+'min':'—','']
+  ].map(function(x){return '<div class="dkpi"><div class="dkpi-icon">'+x[0]+'</div><div class="dkpi-val '+x[3]+'">'+x[2]+'</div><div class="dkpi-lbl">'+x[1]+'</div></div>';}).join('');
+
+  var d=document.getElementById('liste-appels');
+  if(!d)return;
+  if(!appels.length){d.innerHTML='<div class="empty">Aucun appel enregistré</div>';return;}
+  var resultatLabel={rdv_cree:'✅ RDV créé',rappel:'📞 À rappeler',devis_envoye:'📋 Devis',info:'ℹ️ Info',hors_zone:'🚫 Hors zone',annulation:'❌ Annulation'};
+  var resultatCol={rdv_cree:'#16a34a',rappel:'#1d4ed8',devis_envoye:'#7c3aed',info:'#6b7a8f',hors_zone:'#dc2626',annulation:'#dc2626'};
+  d.innerHTML=appels.slice(0,30).map(function(a){
+    var col=resultatCol[a.resultat]||'#6b7a8f';
+    var lbl=resultatLabel[a.resultat]||a.resultat;
+    return '<div class="fact-card" style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:700;font-size:13px;">'+a.nom+(a.tel?' <span style="color:var(--muted);font-size:11px;">'+a.tel+'</span>':'')+'</div><div style="font-size:11px;color:var(--muted);">'+a.date+' '+a.heure+' · '+a.objet+' · '+(a.duree||0)+'min · '+a.operateur+'</div>'+(a.note?'<div style="font-size:11px;color:var(--muted);font-style:italic;margin-top:2px;">'+a.note.substring(0,60)+'</div>':'')+'</div><span style="background:'+col+'15;color:'+col+';font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;white-space:nowrap;">'+lbl+'</span></div></div>';
+  }).join('');
+}
+
+async function envoyerSMS(tel,message){
+  if(!tel)return;
+  try{
+    var r=await fetch('/api/send-sms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:tel,message:message})});
+    var d=await r.json();
+    if(d.demo)showNotif('SMS (mode démo) — configurez Twilio pour envoyer réellement');
+    else if(d.success)showNotif('SMS envoyé à '+tel);
+    else showNotif('Erreur SMS : '+d.error);
+  }catch(e){showNotif('SMS indisponible — vérifiez la connexion');}
 }
 </script>
 
