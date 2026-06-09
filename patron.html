@@ -1793,16 +1793,27 @@ function renderCrm(){
 }
 
 // CARTE GPS ÉQUIPE
-const MAPBOX_TOKEN='pk.eyJ1IjoiZ3JlZW5mbG93IiwiYSI6ImRlbW8ifQ.demo_token_replace_me';
+let _mapboxToken=null;
 let _mapInstance=null;
 let _mapMarkers={};
 
-function initCarteEquipe(){
+async function getMapboxToken(){
+  if(_mapboxToken)return _mapboxToken;
+  try{
+    const r=await fetch('/api/config');
+    if(r.ok){const d=await r.json();_mapboxToken=d.mapboxToken||'';}
+  }catch(e){_mapboxToken='';}
+  return _mapboxToken;
+}
+
+async function initCarteEquipe(){
   const el=document.getElementById('carte-equipe');
   if(!el||_mapInstance)return;
   if(typeof mapboxgl==='undefined')return;
+  const tok=await getMapboxToken();
+  if(!tok)return;
   try{
-    mapboxgl.accessToken=MAPBOX_TOKEN;
+    mapboxgl.accessToken=tok;
     _mapInstance=new mapboxgl.Map({
       container:'carte-equipe',
       style:'mapbox://styles/mapbox/streets-v12',
