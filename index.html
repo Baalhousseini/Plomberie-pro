@@ -294,6 +294,28 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
 .share-wa{background:#25d366;color:#fff;}
 .share-sms{background:var(--blue);color:#fff;}
 .share-copy{background:#f1f5f9;color:var(--text);}
+
+/* ── STATUT BAR RAPIDE ── */
+.sbar-btn{flex-shrink:0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;}
+.sbar-btn.sbar-active{background:#3a8c30;border-color:#3a8c30;color:#fff;}
+
+/* ── FORM FIELDS ── */
+.form-field{margin-bottom:14px;}
+.form-field label{display:block;color:var(--muted);font-size:10px;letter-spacing:1.2px;font-weight:700;margin-bottom:6px;text-transform:uppercase;}
+.form-input{width:100%;background:#fff;border:2px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-size:14px;font-weight:500;outline:none;box-sizing:border-box;font-family:'Inter',sans-serif;transition:border-color 0.2s,box-shadow 0.2s;}
+.form-input:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(26,74,122,0.08);}
+.form-textarea{width:100%;background:#fff;border:2px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-size:14px;outline:none;resize:vertical;box-sizing:border-box;font-family:'Inter',sans-serif;min-height:80px;}
+.form-select{width:100%;background:#fff;border:2px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-size:14px;outline:none;box-sizing:border-box;font-family:'Inter',sans-serif;appearance:none;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.sc{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;box-shadow:var(--shadow);}
+.card.green{border-left:4px solid var(--green);}
+.card.red{border-left:4px solid #dc2626;}
+.card.blue{border-left:4px solid var(--blue2);}
+.btn-primary{background:var(--green);color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:background 0.2s;}
+.btn-primary:active{background:var(--green-light);}
+.btn-full{width:100%;}
+
 /* Team status strip */
 .team-strip{display:flex;gap:8px;padding:8px 14px;background:rgba(0,0,0,0.15);border-bottom:1px solid rgba(255,255,255,0.06);overflow-x:auto;-webkit-overflow-scrolling:touch;}
 .team-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:#e2e8f0;white-space:nowrap;flex-shrink:0;}
@@ -401,6 +423,14 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
   <!-- TEAM STATUS STRIP -->
   <div id="team-strip" class="team-strip"></div>
 
+  <!-- STATUT BAR RAPIDE -->
+  <div id="statut-bar" style="background:#0a2240;padding:8px 14px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid rgba(255,255,255,0.08);">
+    <button onclick="changerStatut('Disponible',this)" class="sbar-btn sbar-active">🟢 Dispo</button>
+    <button onclick="changerStatut('En intervention',this)" class="sbar-btn">🔧 En inter.</button>
+    <button onclick="changerStatut('Pause',this)" class="sbar-btn">⏸ Pause</button>
+    <button onclick="changerStatut('Indisponible',this)" class="sbar-btn">🔴 Indispo</button>
+  </div>
+
   <!-- URGENT BANNER -->
   <div id="urgent-banner" class="urgent-banner hidden pulse">
     <div class="urgent-dot"></div>
@@ -439,6 +469,28 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
             <div class="next-rdv-sub" id="next-rdv-sub">—</div>
           </div>
         </div>
+      </div>
+
+      <!-- KPI PERSO DU TECH -->
+      <div class="g3" id="kpi-tech-strip" style="margin-bottom:12px;"></div>
+
+      <!-- DEVIS RAPIDE -->
+      <div id="form-devis-rapide" class="card green" style="margin-bottom:12px;">
+        <div class="lbl">DEMANDER UN DEVIS AU PATRON</div>
+        <div class="form-field"><label>CLIENT</label><input type="text" class="form-input" id="dq-client" placeholder="Nom du client"></div>
+        <div class="form-field"><label>DESCRIPTION DES TRAVAUX</label><textarea class="form-textarea" id="dq-desc" rows="3" placeholder="Décrire précisément les travaux à chiffrer..."></textarea></div>
+        <div class="grid-2">
+          <div class="form-field"><label>TYPE</label>
+            <select class="form-select" id="dq-type">
+              <option>Remplacement chaudière</option><option>Installation sanitaire</option>
+              <option>Rénovation salle de bain</option><option>Installation VMC</option>
+              <option>Travaux urgents</option><option>Autre</option>
+            </select>
+          </div>
+          <div class="form-field"><label>MONTANT ESTIMÉ (€)</label><input type="number" class="form-input" id="dq-montant" placeholder="0"></div>
+        </div>
+        <div class="form-field"><label>PHOTOS (optionnel)</label><input type="file" id="dq-photos" accept="image/*" multiple style="font-size:12px;color:var(--text);"></div>
+        <button class="btn-primary btn-full" style="padding:13px;" onclick="envoyerDevisRapide()">📋 Envoyer la demande de devis au patron</button>
       </div>
 
       <div class="card accent-green">
@@ -670,6 +722,36 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
     </div>
   </div>
 
+  <!-- CHAMPS RAPPORT ENRICHIS -->
+  <input type="hidden" id="rp-rdv-id">
+  <div class="card accent-blue" style="margin-bottom:12px;">
+    <div class="lbl">SATISFACTION & SUIVI</div>
+    <div class="form-field"><label>SATISFACTION CLIENT</label>
+      <select id="rp-satisfaction" class="form-select">
+        <option value="5">⭐⭐⭐⭐⭐ Très satisfait</option>
+        <option value="4">⭐⭐⭐⭐ Satisfait</option>
+        <option value="3">⭐⭐⭐ Neutre</option>
+        <option value="2">⭐⭐ Insatisfait</option>
+        <option value="1">⭐ Très insatisfait</option>
+      </select>
+    </div>
+    <div class="form-field"><label>PIÈCES UTILISÉES (résumé)</label>
+      <textarea id="rp-pieces" class="form-textarea" rows="2" placeholder="Ex: Joint 3/4 (x2), Vanne équerre..."></textarea>
+    </div>
+    <div class="form-field"><label>RETOUR NÉCESSAIRE ?</label>
+      <select id="rp-retour" class="form-select">
+        <option value="non">Non — intervention terminée</option>
+        <option value="oui-pieces">Oui — pièces à commander</option>
+        <option value="oui-suite">Oui — suite des travaux</option>
+        <option value="oui-garantie">Oui — retour garantie</option>
+      </select>
+    </div>
+    <div class="grid-2">
+      <div class="form-field"><label>HEURE DÉBUT</label><input type="text" id="rp-heure-debut" class="form-input" placeholder="09:00" readonly></div>
+      <div class="form-field"><label>HEURE FIN</label><input type="text" id="rp-heure-fin" class="form-input" placeholder="10:00" readonly></div>
+    </div>
+  </div>
+
   <div class="card accent-green" style="margin-bottom:12px;">
     <div class="lbl">VENTES ADDITIONNELLES</div>
     <div class="prime-bar hidden" id="prime-bar">
@@ -814,7 +896,7 @@ function lancerApp(){
   av.textContent=currentUser.avatar;
   document.getElementById("headerNom").textContent=currentUser.nom;
   updateCA();renderRdv();renderTabsBadges();renderPerf();renderSemaine();renderHistorique();
-  renderKPI();checkUrgences();renderRecapJournee();renderTeamDispos();
+  renderKPI();checkUrgences();renderRecapJournee();renderTeamDispos();renderKpiTech();
   verifierAlertes();
   document.getElementById("chat-fab").classList.remove("hidden");
   renderModuleNav();
@@ -915,7 +997,7 @@ function renderTabsBadges(){
 }
 
 function renderRdv(){
-  updateCA();renderKPI();checkUrgences();renderRecapJournee();
+  updateCA();renderKPI();checkUrgences();renderRecapJournee();renderKpiTech();
   const rdvs=getMesRdvs(),today=todayStr();
   let liste;
   if(currentVue==="auj")liste=rdvs.filter(r=>r.dateRdv===today).sort((a,b)=>a.heureRdv.localeCompare(b.heureRdv));
@@ -928,29 +1010,43 @@ function renderRdv(){
 }
 
 function carteHtml(r){
-  const isToday=r.dateRdv===todayStr(),isDone=r.statut==="Termine",isExp=expandedId===r.id;
+  const isToday=r.dateRdv===todayStr(),isDone=r.statut==="Termine"||r.statut==="Paye",isExp=expandedId===r.id;
+  const isEnCours=r.statut==="En cours";
   const isUrgent=r.type&&/urgent|urgence|depannage/i.test(r.type);
   const cls=isDone?"done":isToday?"today":"";
-  const badge=isDone?`<span class="badge badge-green">TERMINÉ</span>`:isToday?`<span class="badge badge-blue">AUJOURD'HUI</span>`:"";
+  // Badge statut coloré
+  const statutColor=isDone?'#16a34a':isEnCours?'#f97316':'#1d4ed8';
+  const statutLabel=isDone?'TERMINÉ':isEnCours?'EN COURS':'PRÉVU';
+  const statutBadge=`<span style="background:${statutColor}18;color:${statutColor};border:1px solid ${statutColor}40;border-radius:6px;padding:3px 9px;font-size:10px;font-weight:700;">${statutLabel}</span>`;
   const urgBadge=isUrgent&&!isDone?`<span class="badge" style="background:#fee2e2;color:#dc2626;">⚡ URGENT</span>`:"";
   const dateLabel=r.dateRdv!==todayStr()?`<span style="color:var(--muted);font-size:11px;margin-left:4px;">${new Date(r.dateRdv+"T12:00").toLocaleDateString("fr-FR",{day:"numeric",month:"short"})}</span>`:"";
+  const mapsUrl='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(r.adresse||'')+'&travelmode=driving';
+  // Boutons action rapide dans le header
+  const quickActions=isToday&&!isDone?`<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+    <a href="tel:${r.clientTel}" style="flex:1;min-width:70px;background:#eff6ff;color:#1d4ed8;border:none;border-radius:8px;padding:8px 6px;font-size:11px;font-weight:700;text-align:center;text-decoration:none;display:block;">📞 ${r.clientTel}</a>
+    <button onclick="event.stopPropagation();window.open('${mapsUrl}','_blank')" style="flex:1;min-width:70px;background:#fff7ed;color:#c2410c;border:none;border-radius:8px;padding:8px 6px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">🗺️ Y aller</button>
+    ${!isEnCours?`<button onclick="event.stopPropagation();demarrerIntervention(${r.id})" style="flex:1;min-width:70px;background:#f0fdf4;color:#166534;border:1.5px solid #86efac;border-radius:8px;padding:8px 6px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">▶ Démarrer</button>`:""}
+    ${isEnCours?`<button onclick="event.stopPropagation();terminerEtRapport(${r.id})" style="flex:1;min-width:70px;background:#f0fdf4;color:#15803d;border:1.5px solid #86efac;border-radius:8px;padding:8px 6px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">✓ Terminer</button>`:""}
+  </div>`:"";
   return`<div class="carte-rdv ${cls}">
   <div class="carte-header" onclick="toggleCarte(${r.id})">
     <div style="flex:1;">
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px;">
         <span class="carte-heure">${r.heureRdv}</span>${dateLabel}
         <span class="int-id">${genIntId(r)}</span>
-        ${badge}${urgBadge}
+        ${statutBadge}${urgBadge}
       </div>
       <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:2px;">${r.clientNom}</div>
       <div class="carte-sub">${r.type} · ${r.adresse.split(",")[0]}</div>
+      ${r.notes?`<div style="font-size:11px;color:#6b7a8f;margin-top:3px;font-style:italic;">📝 ${r.notes}</div>`:""}
     </div>
     <div style="text-align:right;flex-shrink:0;">
-      <div class="carte-prix">${r.prixVente} EUR</div>
-      <div style="color:var(--text-light);font-size:14px;margin-top:4px;">${isExp?"▲":"▼"}</div>
+      <div class="carte-prix" style="color:var(--green);font-weight:800;font-size:16px;">${r.prixVente} €</div>
+      <div style="color:var(--muted);font-size:14px;margin-top:4px;">${isExp?"▲":"▼"}</div>
     </div>
   </div>
-  ${!isExp?`<div class="voir-details" onclick="toggleCarte(${r.id})">Voir détails · Appel · GPS · Demarrer ▼</div>`:""}
+  ${isToday&&!isDone?`<div style="padding:0 14px 12px;">${quickActions}</div>`:""}
+  ${!isExp?`<div class="voir-details" onclick="toggleCarte(${r.id})">Voir détails complets ▼</div>`:""}
   ${isExp?carteBodyHtml(r,isToday,isDone):""}
 </div>`;
 }
@@ -958,22 +1054,30 @@ function carteHtml(r){
 function carteBodyHtml(r,isToday,isDone){
   const histClient=getRapports().filter(rap=>rap.clientNom===r.clientNom).slice(-3).reverse();
   const histHtml=histClient.length?`<div class="info-item"><div class="lbl">HISTORIQUE CLIENT (${histClient.length} visite(s))</div>${histClient.map(h=>`<div class="hist-client-item"><div style="display:flex;justify-content:space-between;"><span style="font-weight:600;font-size:12px;">${h.type}</span><span style="color:#4a9c3f;font-weight:700;font-size:12px;">${h.montantFinal||0} EUR</span></div><div style="color:#64748b;font-size:11px;">${h.date||""} · ${h.checklistScore||""}</div></div>`).join("")}</div>`:"";
+  const mapsUrl='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(r.adresse||'')+'&travelmode=driving';
+  const isEnCours=r.statut==='En cours';
   return`<div class="carte-body">
-  <div class="info-item"><div class="lbl">ADRESSE</div><div class="info-val">${r.adresse}</div></div>
-  <div class="info-item"><div class="lbl">TELEPHONE</div><div class="info-val"><a href="tel:${r.clientTel}">${r.clientTel}</a></div></div>
-  ${r.notes?`<div class="info-item"><div class="lbl">NOTES PATRON</div><div class="notes-box">${r.notes}</div></div>`:""}
+  <div class="info-item"><div class="lbl">ADRESSE</div>
+    <div class="info-val" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+      <span>${r.adresse}</span>
+      <a href="${mapsUrl}" target="_blank" style="flex-shrink:0;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap;">🗺️ Y aller</a>
+    </div>
+  </div>
+  <div class="info-item"><div class="lbl">TELEPHONE</div><div class="info-val"><a href="tel:${r.clientTel}" style="color:var(--blue2);font-weight:700;font-size:15px;">📞 ${r.clientTel}</a></div></div>
+  ${r.notes?`<div class="info-item"><div class="lbl">NOTE DISPATCH</div><div class="notes-box">${r.notes}</div></div>`:""}
   ${histHtml}
   <div class="prix-box">
     <div class="lbl">PRIX A FACTURER</div>
-    <div class="prix-val">${r.prixVente} EUR</div>
+    <div class="prix-val" style="color:var(--green);">${r.prixVente} €</div>
     <div class="prix-note">Ne pas descendre sans accord patron</div>
   </div>
+  ${r.heureDebut?`<div style="margin-top:8px;font-size:11px;color:var(--muted);">⏱ Démarré à ${r.heureDebut}${r.heureFin?' · Terminé à '+r.heureFin:''}</div>`:""}
   ${!isDone?`<div class="actions-row">
     <button class="action-btn btn-blue" onclick="ouvrirScript(${r.id})">Script IA</button>
-    ${isToday?`<button class="action-btn btn-green" onclick="ouvrirRapport(${r.id})">Demarrer</button>`:""}
-    <button class="action-btn btn-gray" onclick="window.open('https://maps.google.com/?q=${encodeURIComponent(r.adresse)}','_blank')">GPS</button>
-    <button class="action-btn btn-gray" onclick="window.open('tel:${r.clientTel}')">Appel</button>
-    ${isToday?`<button class="action-btn btn-orange" onclick="ouvrirDevisSurPlace(${r.id})">Devis</button>`:""}
+    ${isToday&&!isEnCours?`<button class="action-btn btn-green" onclick="demarrerIntervention(${r.id})" style="background:#f0fdf4;color:#166534;">▶ Démarrer</button>`:""}
+    ${isToday&&isEnCours?`<button class="action-btn btn-green" onclick="terminerEtRapport(${r.id})" style="background:#dcfce7;color:#15803d;">✓ Terminer</button>`:""}
+    ${isToday&&!isEnCours?`<button class="action-btn btn-orange" onclick="ouvrirDevisSurPlace(${r.id})">Devis</button>`:""}
+    <button class="action-btn btn-gray" onclick="ouvrirRapport(${r.id})">Rapport</button>
   </div>`:""}
 </div>`;
 }
@@ -1110,6 +1214,14 @@ function showEtape(e){
     renderSlotsAvant();renderSlotsApres();renderVentes();startChrono();
     document.querySelectorAll(".check-item").forEach(i=>{i.querySelector(".check-box").classList.remove("checked");});
     updateCheckCount();
+    // Pré-remplir champs enrichis
+    const si=id=>document.getElementById(id);
+    if(si('rp-rdv-id'))si('rp-rdv-id').value=currentRdv.id;
+    if(si('rp-heure-debut'))si('rp-heure-debut').value=heureDebut;
+    if(si('rp-heure-fin'))si('rp-heure-fin').value='';
+    if(si('rp-satisfaction'))si('rp-satisfaction').value='5';
+    if(si('rp-pieces'))si('rp-pieces').value='';
+    if(si('rp-retour'))si('rp-retour').value='non';
   }
 }
 
@@ -1248,10 +1360,18 @@ function soumettre(){
   try {
     if(chronoInterval)clearInterval(chronoInterval);
     const heureFin=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+    // Mettre à jour heure fin dans le champ
+    const heureFinEl=document.getElementById('rp-heure-fin');
+    if(heureFinEl)heureFinEl.value=heureFin;
     const totalPrimes=ventesSelectionnees.reduce((s,v)=>s+(v.primeChoisie||v.primeMin),0);
     const desc=document.getElementById("description").value.trim()||"Intervention effectuee";
     const checksDone=document.querySelectorAll(".check-box.checked").length;
     const rapportId=Date.now();
+    // Lire champs enrichis
+    const satisfaction=Number((document.getElementById('rp-satisfaction')||{}).value||5);
+    const piecesNotes=(document.getElementById('rp-pieces')||{}).value||'';
+    const retourReqEl=document.getElementById('rp-retour');
+    const retourRequis=retourReqEl?retourReqEl.value:'non';
 
     const rapport={
       id:rapportId,rdvId:currentRdv.id,clientNom:currentRdv.clientNom,
@@ -1263,7 +1383,8 @@ function soumettre(){
       nbPhotosAvant:photosAvant.filter(Boolean).length,
       nbPhotosApres:photosApres.filter(Boolean).length,
       ventes:ventesSelectionnees,totalPrimes,
-      pieces:piecesUtilisees,
+      pieces:piecesUtilisees,piecesNotes,
+      satisfaction,retourRequis,
       checklistScore:checksDone+"/6",
       soumisLe:new Date().toISOString(),statut:"En attente facturation"
     };
@@ -1291,6 +1412,25 @@ function soumettre(){
     savePrimes(primes);
 
     saveRdvs(getRdvs().map(r=>r.id===currentRdv.id?{...r,statut:"Termine",rapportId}:r));
+
+    // Remettre statut tech à Disponible
+    if(currentUser){
+      const disposPost=JSON.parse(localStorage.getItem('pl_dispos')||'{}');
+      disposPost[currentUser.nom]={statut:'Disponible',updatedAt:new Date().toISOString()};
+      const vDispos=JSON.stringify(disposPost);
+      localStorage.setItem('pl_dispos',vDispos);
+      if(window.gfSync)gfSync('pl_dispos',vDispos);
+      // Synchroniser la statut-bar
+      document.querySelectorAll('.sbar-btn').forEach(b=>b.classList.remove('sbar-active'));
+      const dispoBtn=document.querySelector('.sbar-btn[onclick*="Disponible"]');
+      if(dispoBtn)dispoBtn.classList.add('sbar-active');
+      const badge=document.getElementById('statut-badge');
+      const dot=document.getElementById('statut-dot');
+      const txt=document.getElementById('statut-badge-text');
+      if(badge){badge.style.background='#4a9c3f20';badge.style.color='#4a9c3f';}
+      if(dot)dot.style.background='#4a9c3f';
+      if(txt)txt.textContent='Disponible';
+    }
 
     showEtape("succes");
     if(totalPrimes>0){
@@ -1510,6 +1650,103 @@ function checkUrgences(){
   }
 }
 function fermerUrgent(){const b=document.getElementById('urgent-banner');if(b)b.classList.add('hidden');}
+
+/* ---- DÉMARRER INTERVENTION ---- */
+function demarrerIntervention(rdvId){
+  const rdvs=getRdvs();
+  const r=rdvs.find(x=>x.id===rdvId);
+  if(!r)return;
+  r.statut='En cours';
+  r.heureDebut=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  saveRdvs(rdvs);
+  // Mettre à jour dispo tech
+  const dispos=JSON.parse(localStorage.getItem('pl_dispos')||'{}');
+  if(currentUser){
+    dispos[currentUser.nom]={statut:'En intervention',updatedAt:new Date().toISOString(),rdvEnCours:r.clientNom};
+    const v=JSON.stringify(dispos);
+    localStorage.setItem('pl_dispos',v);
+    if(window.gfSync)gfSync('pl_dispos',v);
+  }
+  // Synchroniser la statut-bar
+  document.querySelectorAll('.sbar-btn').forEach(b=>b.classList.remove('sbar-active'));
+  const interBtn=document.querySelector('.sbar-btn[onclick*="En intervention"]');
+  if(interBtn)interBtn.classList.add('sbar-active');
+  renderRdv();
+  renderKpiTech();
+  showNotif('Intervention démarrée — '+r.clientNom);
+}
+
+/* ---- TERMINER ET OUVRIR RAPPORT ---- */
+function terminerEtRapport(rdvId){
+  const rdvs=getRdvs();
+  const r=rdvs.find(x=>x.id===rdvId);
+  if(!r)return;
+  r.statut='Termine';
+  r.heureFin=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  saveRdvs(rdvs);
+  // Ouvrir le rapport pré-rempli via ouvrirRapport
+  ouvrirRapport(rdvId);
+  showNotif('Intervention terminée — remplissez le rapport');
+}
+
+/* ---- CHANGER STATUT VIA BARRE RAPIDE ---- */
+function changerStatut(statut,btn){
+  if(!currentUser)return;
+  const dispos=JSON.parse(localStorage.getItem('pl_dispos')||'{}');
+  dispos[currentUser.nom]={statut,updatedAt:new Date().toISOString()};
+  const v=JSON.stringify(dispos);
+  localStorage.setItem('pl_dispos',v);
+  if(window.gfSync)gfSync('pl_dispos',v);
+  document.querySelectorAll('.sbar-btn').forEach(b=>b.classList.remove('sbar-active'));
+  if(btn)btn.classList.add('sbar-active');
+  // Synchroniser aussi le badge user-bar
+  const STATUT_BTN_COLORS={Disponible:'#4a9c3f','En intervention':'#f97316',Pause:'#eab308',Indisponible:'#ef4444'};
+  const color=STATUT_BTN_COLORS[statut]||'#4a9c3f';
+  const badge=document.getElementById('statut-badge');
+  const dot=document.getElementById('statut-dot');
+  const txt=document.getElementById('statut-badge-text');
+  if(badge){badge.style.background=color+'20';badge.style.color=color;}
+  if(dot)dot.style.background=color;
+  if(txt)txt.textContent=statut;
+  renderTeamDispos();
+  showNotif('Statut : '+statut);
+}
+
+/* ---- KPI PERSO DU TECH ---- */
+function renderKpiTech(){
+  const d=document.getElementById('kpi-tech-strip');
+  if(!d||!currentUser)return;
+  const today=todayStr();
+  const mesRdvs=getMesRdvs().filter(r=>r.dateRdv===today);
+  const termines=mesRdvs.filter(r=>r.statut==='Termine'||r.statut==='Paye').length;
+  const caJour=mesRdvs.reduce((s,r)=>s+(r.prixVente||0),0);
+  const urgences=JSON.parse(localStorage.getItem('pl_urgences')||'[]').filter(u=>u.technicien===currentUser.nom&&u.statut==='Active').length;
+  d.innerHTML=`
+    <div class="sc" style="border-left:3px solid var(--green);padding:10px 12px;"><div class="lbl">MES RDV</div><div style="font-weight:800;font-size:18px;color:var(--blue);">${mesRdvs.length}</div><div style="font-size:10px;color:var(--muted);">${termines} terminés</div></div>
+    <div class="sc" style="border-left:3px solid #1d4ed8;padding:10px 12px;"><div class="lbl">CA GÉNÉRÉ</div><div style="font-weight:800;font-size:18px;color:var(--green);">${caJour.toLocaleString('fr-FR')}€</div></div>
+    <div class="sc" style="border-left:3px solid ${urgences?'#dc2626':'#16a34a'};padding:10px 12px;"><div class="lbl">URGENCES</div><div style="font-weight:800;font-size:18px;color:${urgences?'#dc2626':'#16a34a'};">${urgences}</div></div>`;
+}
+
+/* ---- ENVOYER DEVIS RAPIDE ---- */
+function envoyerDevisRapide(){
+  if(!currentUser)return;
+  const client=(document.getElementById('dq-client')||{}).value||'';
+  const desc=(document.getElementById('dq-desc')||{}).value||'';
+  const type=(document.getElementById('dq-type')||{}).value||'';
+  const montant=Number((document.getElementById('dq-montant')||{}).value||0);
+  if(!client.trim()||!desc.trim()){showNotif('Remplissez le client et la description');return;}
+  const d=JSON.parse(localStorage.getItem('pl_devis')||'[]');
+  const entry={id:Date.now(),type,description:desc,clientNom:client,technicien:currentUser.nom,date:todayStr(),prixEstimatif:montant,statut:'Nouveau',source:'devis-rapide'};
+  d.push(entry);
+  const v=JSON.stringify(d);
+  localStorage.setItem('pl_devis',v);
+  if(window.gfSync)gfSync('pl_devis',v);
+  // Reset formulaire
+  document.getElementById('dq-client').value='';
+  document.getElementById('dq-desc').value='';
+  document.getElementById('dq-montant').value='';
+  showNotif('Demande de devis envoyée au patron !');
+}
 
 window.onload=()=>{
   document.querySelectorAll(".pin-input").forEach((el,i,arr)=>{
