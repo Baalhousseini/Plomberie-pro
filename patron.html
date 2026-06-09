@@ -189,6 +189,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <button onclick="showPage('params')">Params</button>
     <button onclick="showPage('devis')" id="nav-devis">Devis</button>
     <button onclick="showPage('analytics')" id="nav-analytics">📊 Analytics</button>
+    <button onclick="showPage('agenda')" id="nav-agenda">📅 Agenda</button>
   </div>
 
   <div class="content">
@@ -222,6 +223,10 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <div id="dispos-dash"></div>
   </div>
   <div id="section-alertes"></div>
+  <div class="card b" id="suivi-live-card" style="margin-bottom:12px;">
+    <div class="lbl">SUIVI LIVE — TECHNICIENS</div>
+    <div id="suivi-live"></div>
+  </div>
   <div class="card">
     <div class="lbl">CA PAR TYPE D'INTERVENTION</div>
     <div id="ca-par-type" style="margin-top:8px;"></div>
@@ -374,6 +379,22 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <div class="lbl">IMPAYES ET RELANCES</div>
     <div id="liste-impayes"></div>
   </div>
+</div>
+
+<!-- AGENDA GLOBAL -->
+<div id="page-agenda" class="hidden">
+  <div style="margin-bottom:14px;">
+    <div class="lbl">AGENDA GLOBAL — TOUS LES MODULES</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;margin-bottom:8px;">
+      <button class="btn btn-primary" id="ag-auj" onclick="setAgendaFiltre('auj',this)">Aujourd'hui</button>
+      <button class="btn btn-gray" id="ag-sem" onclick="setAgendaFiltre('sem',this)">7 jours</button>
+      <button class="btn btn-gray" id="ag-mois" onclick="setAgendaFiltre('mois',this)">30 jours</button>
+      <button class="btn btn-gray" id="ag-all" onclick="setAgendaFiltre('all',this)">Tout</button>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;" id="agenda-tech-btns"></div>
+  </div>
+  <div id="agenda-stats" class="g3" style="margin-bottom:12px;"></div>
+  <div id="agenda-liste"></div>
 </div>
 
 <!-- DEVIS -->
@@ -648,6 +669,7 @@ const todayStr=()=>new Date().toISOString().split("T")[0];
 const moisStr=()=>new Date().toISOString().slice(0,7);
 const anneeStr=()=>new Date().getFullYear().toString();
 let periode="jour",filtreRapport="tous",obatIdx=null,semaineOffset=0;
+let agendaFiltre="auj",agendaTech="tous";
 
 const getRdvs=()=>JSON.parse(localStorage.getItem("pl_rdvs")||"[]");
 const saveRdvs=r=>{const v=JSON.stringify(r);localStorage.setItem("pl_rdvs",v);if(window.gfSync)gfSync("pl_rdvs",v);};
@@ -735,12 +757,14 @@ function lancerApp(){
     }
     if(e.key==='pl_rdvs'){
       renderDisposDispatch();renderPlanningJour();renderDashboard();
+      if(!document.getElementById('page-agenda').classList.contains('hidden'))renderAgenda();
     }
     if(e.key==='pl_urgences'){
       updateNavBadges();renderDashboard();renderAlertes();
       if(!document.getElementById('page-urgences').classList.contains('hidden'))renderUrgences();
-      const actives=getUrgences().filter(u=>u.statut!=='Resolu');
-      if(actives.length)showNotif('Urgence reçue : '+actives[0].clientNom+' — '+actives[0].type);
+      if(!document.getElementById('page-agenda').classList.contains('hidden'))renderAgenda();
+      const nouvelles=JSON.parse(e.newValue||'[]').filter(u=>u.statut==='Active'&&(Date.now()-u.id)<120000);
+      if(nouvelles.length)showNotif('🚨 Urgence : '+nouvelles[0].clientNom+' — '+nouvelles[0].type);
     }
     if(e.key==='pl_chat'){
       const msgs=JSON.parse(localStorage.getItem('pl_chat')||'[]');
@@ -764,9 +788,9 @@ function logout(){
 }
 
 function showPage(p){
-  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","analytics"].forEach(x=>document.getElementById("page-"+x).classList.add("hidden"));
+  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","analytics","agenda"].forEach(x=>document.getElementById("page-"+x).classList.add("hidden"));
   document.getElementById("page-"+p).classList.remove("hidden");
-  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","analytics"][i]===p));
+  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","analytics","agenda"][i]===p));
   if(p==="dashboard")renderDashboard();
   if(p==="dispatch"){renderDisposDispatch();renderPlanningJour();}
   if(p==="urgences")renderUrgences();
@@ -777,6 +801,7 @@ function showPage(p){
   if(p==="params")renderParams();
   if(p==="devis")renderDevis();
   if(p==="analytics"){showAnalytics("finances");}
+  if(p==="agenda")renderAgenda();
 }
 
 function showAnalytics(p){
@@ -841,6 +866,7 @@ function renderDashboard(){
   document.getElementById("obj-target").textContent=obj.toLocaleString("fr-FR")+" EUR";
   renderDisposDash();
   renderAlertes();
+  renderSuiviLive();
   const byType={};raps.forEach(r=>{byType[r.type]=(byType[r.type]||0)+(r.montantFinal||0);});
   const maxT=Math.max(...Object.values(byType),1);
   document.getElementById("ca-par-type").innerHTML=Object.entries(byType).sort((a,b)=>b[1]-a[1]).map(([t,c])=>`<div class="bar-row"><div class="bar-label">${t.substring(0,16)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/maxT*100)}%;background:#dcfce7;color:#15803d;">${c} EUR</div></div></div>`).join("")||`<div style="color:var(--text-light);font-size:13px;padding:12px 0;">Aucune donnee</div>`;
@@ -872,6 +898,38 @@ function renderAlertes(){
   const urgences=getUrgences().filter(u=>u.statut!=="Resolu");
   if(urgences.length)alertes.push(`${urgences.length} urgence(s) active(s) !`);
   document.getElementById("section-alertes").innerHTML=alertes.length?`<div class="card red" style="margin-bottom:12px;"><div class="lbl" style="color:var(--red);">ALERTES</div>${alertes.map(a=>`<div class="alerte-card"><span style="color:#b91c1c;font-size:13px;font-weight:600;">! ${a}</span></div>`).join("")}</div>`:"";
+}
+function renderSuiviLive(){
+  const dispos=getDispos();
+  const rdvs=getRdvs();
+  const urgences=getUrgences().filter(u=>u.statut!=="Resolu");
+  const div=document.getElementById("suivi-live");if(!div)return;
+  div.innerHTML=getTechs().map(t=>{
+    const d=dispos[t.nom]||{statut:"Non connecté"};
+    const color=STATUT_C[d.statut]||"#94a3b8";
+    const ago=d.updatedAt?Math.floor((Date.now()-new Date(d.updatedAt))/60000):null;
+    const rdvAuj=rdvs.filter(r=>r.technicien===t.nom&&r.dateRdv===todayStr());
+    const enCours=rdvAuj.find(r=>r.statut==="En cours"||r.statut==="Confirme");
+    const urg=urgences.find(u=>u.technicien===t.nom);
+    const tc=TECH_C[t.nom]||{color:"#94a3b8",avatar:"??"};
+    return`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="width:38px;height:38px;border-radius:10px;background:${tc.color}20;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;">${tc.avatar}</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:13px;">${t.nom}</div>
+        <div style="display:flex;align-items:center;gap:5px;margin-top:2px;">
+          <div style="width:7px;height:7px;border-radius:50%;background:${color};"></div>
+          <span style="color:${color};font-size:11px;font-weight:700;">${d.statut}</span>
+          ${ago!==null?`<span style="color:var(--muted);font-size:10px;">(${ago<1?"<1min":ago+"min"})</span>`:""}
+        </div>
+        ${urg?`<div style="color:#dc2626;font-size:10px;margin-top:2px;font-weight:600;">🚨 Urgence: ${urg.clientNom}</div>`:""}
+        ${enCours?`<div style="color:var(--muted);font-size:10px;margin-top:2px;">📍 ${enCours.clientNom} — ${enCours.type.substring(0,25)}</div>`:""}
+      </div>
+      <div style="text-align:right;">
+        <div style="color:var(--muted);font-size:11px;">${rdvAuj.length} RDV auj.</div>
+        <div style="color:var(--green);font-size:11px;font-weight:700;">${rdvAuj.reduce((s,r)=>s+(r.prixVente||0),0)} €</div>
+      </div>
+    </div>`;
+  }).join("");
 }
 
 // DISPATCH
@@ -1328,6 +1386,83 @@ function convertirDevisRdv(i){
   const telEl=document.getElementById("rdv-tel");if(telEl)telEl.value=d.clientTel||"";
   const notesEl=document.getElementById("rdv-notes");if(notesEl)notesEl.value="Devis: "+d.type+(d.description?" — "+d.description.substring(0,60):"");
   showNotif("Infos devis copiees dans le formulaire RDV");
+}
+
+// AGENDA GLOBAL
+function setAgendaFiltre(f,btn){
+  agendaFiltre=f;
+  ["auj","sem","mois","all"].forEach(x=>{const b=document.getElementById("ag-"+x);if(b)b.className="btn btn-gray";});
+  if(btn)btn.className="btn btn-primary";
+  renderAgenda();
+}
+function setAgendaTech(t,btn){
+  agendaTech=t;
+  document.querySelectorAll("#agenda-tech-btns button").forEach(b=>b.className="btn btn-gray");
+  if(btn)btn.className="btn btn-primary";
+  renderAgenda();
+}
+function renderAgenda(){
+  const techs=getTechs();
+  const tb=document.getElementById("agenda-tech-btns");
+  if(tb&&!tb.dataset.built){
+    tb.dataset.built="1";
+    tb.innerHTML='<button class="btn btn-primary" onclick="setAgendaTech(\'tous\',this)">Tous</button>'+techs.map(t=>`<button class="btn btn-gray" onclick="setAgendaTech('${t.nom}',this)">${t.nom.replace('Technicien ','T')}</button>`).join('');
+  }
+  const today=todayStr();
+  const endFn=n=>{const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().split("T")[0];};
+  let rdvs=getRdvs().filter(r=>r.dateRdv>=today).sort((a,b)=>(a.dateRdv+(a.heureRdv||'')).localeCompare(b.dateRdv+(b.heureRdv||'')));
+  if(agendaFiltre==="auj")rdvs=rdvs.filter(r=>r.dateRdv===today);
+  else if(agendaFiltre==="sem")rdvs=rdvs.filter(r=>r.dateRdv<=endFn(7));
+  else if(agendaFiltre==="mois")rdvs=rdvs.filter(r=>r.dateRdv<=endFn(30));
+  if(agendaTech!=="tous")rdvs=rdvs.filter(r=>r.technicien===agendaTech);
+  const urgences=getUrgences().filter(u=>u.statut!=="Resolu");
+  const urgRdvs=urgences.filter(u=>agendaTech==="tous"||u.technicien===agendaTech).map(u=>({id:u.id,clientNom:u.clientNom,clientTel:u.clientTel||"",adresse:u.adresse||"",type:"🚨 "+u.type,dateRdv:u.dateIntervention||today,heureRdv:u.heureIntervention||"—",technicien:u.technicien,statut:"Urgent",prixVente:0,notes:u.note||"",_urg:true}));
+  let all=[...urgRdvs,...rdvs].sort((a,b)=>(a.dateRdv+(a.heureRdv||'')).localeCompare(b.dateRdv+(b.heureRdv||'')));
+  const stats=document.getElementById("agenda-stats");
+  if(stats){
+    const ca=rdvs.reduce((s,r)=>s+(r.prixVente||0),0);
+    stats.innerHTML=[["RDV planifiés",rdvs.length,"#1a4a7a"],["Urgences",urgRdvs.length,"#dc2626"],["CA prévu",ca.toLocaleString("fr-FR")+" €","#3a8c30"]].map(([l,v,c])=>`<div class="sc"><div class="lbl">${l}</div><div class="sv" style="color:${c};font-size:16px;">${v}</div></div>`).join("");
+  }
+  const lst=document.getElementById("agenda-liste");if(!lst)return;
+  if(!all.length){lst.innerHTML=`<div class="empty-state" style="padding:40px 0;text-align:center;color:var(--muted);">Aucun rendez-vous sur cette période</div>`;return;}
+  const byDate={};all.forEach(r=>{const d=r.dateRdv||today;if(!byDate[d])byDate[d]=[];byDate[d].push(r);});
+  const jours=["dim","lun","mar","mer","jeu","ven","sam"];
+  const moisN=["jan","fév","mar","avr","mai","jun","jul","aoû","sep","oct","nov","déc"];
+  lst.innerHTML=Object.entries(byDate).sort((a,b)=>a[0].localeCompare(b[0])).map(([date,items])=>{
+    const d=new Date(date+"T12:00:00");
+    const isToday=date===today;
+    const label=isToday?"Aujourd'hui":jours[d.getDay()]+" "+d.getDate()+" "+moisN[d.getMonth()];
+    return`<div style="margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <div style="background:${isToday?"var(--blue)":"#f1f5f9"};color:${isToday?"#fff":"var(--muted)"};border-radius:8px;padding:4px 12px;font-size:11px;font-weight:800;text-transform:uppercase;">${label}</div>
+        <div style="flex:1;height:1px;background:var(--border);"></div>
+        <span style="color:var(--muted);font-size:11px;">${items.length} rdv</span>
+      </div>
+      ${items.map(r=>{
+        const tc=TECH_C[r.technicien]||{color:"#94a3b8",avatar:(r.technicien||"?").substring(0,2)};
+        const isUrg=r._urg;const isFait=r.statut==="Termine"||r.statut==="Paye";
+        const sc=isUrg?"#dc2626":isFait?"#16a34a":"#1d4ed8";
+        const sl=isUrg?"URGENT":isFait?"FAIT":(r.statut||"CONFIRMÉ");
+        const src=r.creePar==="patron"?"👔":r.creePar==="dispatch"?"📋":r.creePar==="patron-urgence"?"🚨":"📱";
+        return`<div style="background:#fff;border:1px solid var(--border);border-left:4px solid ${isUrg?"#dc2626":tc.color};border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow);opacity:${isFait?0.6:1};">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="color:${tc.color};font-weight:800;font-size:14px;min-width:48px;font-variant-numeric:tabular-nums;">${r.heureRdv||"—"}</div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:13px;">${r.clientNom} <span style="font-size:10px;color:var(--muted);">${src}</span></div>
+              <div style="color:var(--muted);font-size:11px;">${r.type}</div>
+              ${r.adresse?`<div style="color:var(--muted);font-size:10px;">${r.adresse.substring(0,45)}</div>`:""}
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+              <div style="width:28px;height:28px;border-radius:7px;background:${tc.color}20;border:1.5px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;">${tc.avatar}</div>
+              <span style="background:${sc}15;color:${sc};font-size:9px;font-weight:800;padding:2px 7px;border-radius:4px;">${sl}</span>
+              ${r.prixVente?`<span style="color:var(--green);font-weight:700;font-size:11px;">${r.prixVente}€</span>`:""}
+            </div>
+          </div>
+          ${r.notes?`<div style="margin-top:5px;color:var(--muted);font-size:11px;background:#f7f9fc;border-radius:6px;padding:4px 8px;border-left:2px solid var(--border);">${r.notes.substring(0,80)}${r.notes.length>80?"...":""}</div>`:""}
+        </div>`;
+      }).join("")}
+    </div>`;
+  }).join("");
 }
 
 // ANALYTICS

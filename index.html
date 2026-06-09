@@ -840,6 +840,14 @@ function lancerApp(){
       renderRdv();
       renderTabsBadges();
     }
+    if(e.key==='pl_urgences'&&currentUser){
+      const urgs=JSON.parse(e.newValue||'[]');
+      const recentes=urgs.filter(u=>u.technicien===currentUser&&u.statut==='Active'&&(Date.now()-u.id)<120000);
+      if(recentes.length){
+        showNotif('🚨 URGENCE ASSIGNÉE : '+recentes[0].clientNom+' — '+recentes[0].type);
+        renderRdv();
+      }
+    }
     if(e.key==='pl_chat')pollChat();
   });
 }
