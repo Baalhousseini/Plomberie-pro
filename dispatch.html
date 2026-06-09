@@ -361,9 +361,10 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <div class="lbl">CREER UN NOUVEAU RDV</div>
     <div style="margin-top:12px;">
       <div class="grid-2">
-        <div class="form-field"><label>NOM CLIENT</label><input type="text" class="form-input" id="rdv-nom" placeholder="Jean Dupont"></div>
-        <div class="form-field"><label>TELEPHONE</label><input type="tel" class="form-input" id="rdv-tel" placeholder="06 XX XX XX XX"></div>
+        <div class="form-field"><label>PRENOM</label><input type="text" class="form-input" id="rdv-prenom" placeholder="Jean"></div>
+        <div class="form-field"><label>NOM</label><input type="text" class="form-input" id="rdv-nom" placeholder="Dupont"></div>
       </div>
+      <div class="form-field"><label>TELEPHONE</label><input type="tel" class="form-input" id="rdv-tel" placeholder="06 XX XX XX XX"></div>
       <div class="form-field"><label>ADRESSE</label><input type="text" class="form-input" id="rdv-adresse" placeholder="12 rue des Fleurs, Paris"></div>
       <div class="form-field"><label>TYPE D'INTERVENTION</label>
         <select class="form-select" id="rdv-type">
@@ -849,14 +850,16 @@ function renderPlanningJour(){
 }
 
 function creerRdv(){
-  var nom=document.getElementById("rdv-nom").value.trim();
+  var prenom=(document.getElementById("rdv-prenom")?document.getElementById("rdv-prenom").value.trim():"");
+  var nomF=document.getElementById("rdv-nom").value.trim();
+  var nom=prenom&&nomF?prenom+" "+nomF:prenom||nomF;
   var tel=document.getElementById("rdv-tel").value.trim();
   var adresse=document.getElementById("rdv-adresse").value.trim();
   var prix=document.getElementById("rdv-prix").value;
   if(!nom||!tel||!adresse||!prix){showNotif("Remplis tous les champs");return;}
   var rdv={id:Date.now(),clientNom:nom,clientTel:tel,adresse:adresse,type:document.getElementById("rdv-type").value,dateRdv:document.getElementById("rdv-date").value,heureRdv:document.getElementById("rdv-heure").value,technicien:document.getElementById("rdv-tech").value,prixVente:Number(prix),statut:"Confirme",notes:document.getElementById("rdv-notes").value.trim(),creePar:"dispatch",creeAt:new Date().toISOString()};
   var rdvs=getRdvs();rdvs.push(rdv);saveRdvs(rdvs);
-  ["rdv-nom","rdv-tel","rdv-adresse","rdv-prix","rdv-notes"].forEach(function(id){document.getElementById(id).value="";});
+  ["rdv-prenom","rdv-nom","rdv-tel","rdv-adresse","rdv-prix","rdv-notes"].forEach(function(id){var e=document.getElementById(id);if(e)e.value="";});
   document.getElementById("rdv-date").value=todayStr();
   showNotif("RDV cree pour "+nom+" !");actualiserTout();
 }
