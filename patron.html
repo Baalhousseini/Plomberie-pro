@@ -102,6 +102,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 @keyframes si{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 .empty,.empty-state{text-align:center;padding:30px 0;color:var(--muted);}
 .fact-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);}
+.devis-alerte-banner{position:fixed;top:0;left:0;right:0;z-index:9998;background:linear-gradient(135deg,#1c3557,#0d2d52);border-bottom:3px solid #f97316;padding:12px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 6px 24px rgba(249,115,22,0.35);animation:slideDown 0.3s ease;}
+.devis-alerte-banner.hidden{display:none!important;}
+@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
 </style>
 
 </head>
@@ -160,6 +163,17 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   </div>
 
   <div class="module-nav hidden" id="module-nav"></div>
+
+  <!-- Alerte devis temps réel -->
+  <div id="devis-alerte-banner" class="devis-alerte-banner hidden">
+    <div style="background:#f97316;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;">📋</div>
+    <div style="flex:1;min-width:0;">
+      <div style="color:#f97316;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;">Nouveau devis terrain !</div>
+      <div id="devis-alerte-text" style="color:#fff;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div>
+    </div>
+    <button onclick="voirDevisAlerte()" style="background:#f97316;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;">VOIR →</button>
+    <button onclick="document.getElementById('devis-alerte-banner').classList.add('hidden')" style="background:transparent;border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.6);border-radius:8px;padding:8px 10px;font-size:16px;cursor:pointer;margin-left:4px;line-height:1;">×</button>
+  </div>
 
   <div class="nav">
     <button class="active" onclick="showPage('dashboard')">Dashboard</button>
@@ -511,8 +525,17 @@ function lancerApp(){
       if(!document.getElementById('page-rapports').classList.contains('hidden'))renderRapports();
     }
     if(e.key==='pl_devis'){
-      showNotif('Nouveau devis terrain !');
       updateNavBadges();
+      renderDashboard();
+      const devisArr=JSON.parse(e.newValue||'[]');
+      const nouveaux=devisArr.filter(d=>d.statut==='Nouveau').sort((a,b)=>b.id-a.id);
+      if(nouveaux.length){
+        const dv=nouveaux[0];
+        const txt=`${dv.technicien||'Tech'} — ${dv.clientNom} — ${dv.type} — ${dv.prixEstimatif||'?'}€`;
+        document.getElementById('devis-alerte-text').textContent=txt;
+        document.getElementById('devis-alerte-banner').classList.remove('hidden');
+        setTimeout(()=>document.getElementById('devis-alerte-banner').classList.add('hidden'),15000);
+      }
       if(!document.getElementById('page-business').classList.contains('hidden'))renderBusiness();
     }
     if(e.key==='pl_rdvs'){
@@ -526,6 +549,11 @@ function lancerApp(){
   });
   setInterval(()=>{renderDisposDash();updateNavBadges();},10000);
   setInterval(updateChronosUrgences,1000);
+}
+
+function voirDevisAlerte(){
+  document.getElementById('devis-alerte-banner').classList.add('hidden');
+  showPage('business');
 }
 
 function logout(){

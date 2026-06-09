@@ -294,6 +294,13 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
 .share-wa{background:#25d366;color:#fff;}
 .share-sms{background:var(--blue);color:#fff;}
 .share-copy{background:#f1f5f9;color:var(--text);}
+/* Team status strip */
+.team-strip{display:flex;gap:8px;padding:8px 14px;background:rgba(0,0,0,0.15);border-bottom:1px solid rgba(255,255,255,0.06);overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.team-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:#e2e8f0;white-space:nowrap;flex-shrink:0;}
+.team-chip-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;animation:pulseDot 2s ease-in-out infinite;}
+/* RDV card voir détails */
+.voir-details{display:flex;align-items:center;justify-content:center;gap:4px;padding:8px;color:#64748b;font-size:11px;font-weight:600;border-top:1px solid #f1f5f9;background:#fafbff;cursor:pointer;user-select:none;}
+.voir-details:active{background:#f1f5f9;}
 </style>
 
 
@@ -390,6 +397,9 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
     <div class="kpi-card"><div class="kpi-icon">💶</div><div class="kpi-val kpi-blue" id="kpi-ca">—</div><div class="kpi-label">CA € jour</div></div>
     <div class="kpi-card"><div class="kpi-icon">🏆</div><div class="kpi-val kpi-gold" id="kpi-prime">—</div><div class="kpi-label">Primes €</div></div>
   </div>
+
+  <!-- TEAM STATUS STRIP -->
+  <div id="team-strip" class="team-strip"></div>
 
   <!-- URGENT BANNER -->
   <div id="urgent-banner" class="urgent-banner hidden pulse">
@@ -775,6 +785,28 @@ function seConnecter(){
   lancerApp();
 }
 
+const STATUT_COLORS={'Disponible':'#4a9c3f','En intervention':'#f97316','Pause':'#eab308','Indisponible':'#ef4444','Non connecte':'#94a3b8'};
+
+function renderTeamDispos(){
+  const strip=document.getElementById('team-strip');
+  if(!strip)return;
+  const dispos=JSON.parse(localStorage.getItem('pl_dispos')||'{}');
+  const techs=Object.values(USERS).filter(u=>u.role==='TECHNICIEN');
+  strip.innerHTML=techs.map(u=>{
+    const d=dispos[u.nom]||{statut:'Non connecte'};
+    const color=STATUT_COLORS[d.statut]||'#94a3b8';
+    const isMe=currentUser&&currentUser.nom===u.nom;
+    const ago=d.updatedAt?Math.floor((Date.now()-new Date(d.updatedAt))/60000):null;
+    const agoStr=ago===null?'':(ago<1?' · <1min':(ago<60?' · '+ago+'min':(` · ${Math.floor(ago/60)}h`)));
+    return`<div class="team-chip" style="border-color:${color}50;background:${color}18;">
+      <div class="team-chip-dot" style="background:${color};box-shadow:0 0 5px ${color}90;"></div>
+      <span style="color:#e2e8f0;font-size:10px;">${isMe?'Moi':u.nom.replace('Technicien ','T')}</span>
+      <span style="color:${color};">${d.statut}</span>
+      <span style="color:#94a3b8;font-size:9px;">${agoStr}</span>
+    </div>`;
+  }).join('');
+}
+
 function lancerApp(){
   document.getElementById("login").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
@@ -782,7 +814,7 @@ function lancerApp(){
   av.textContent=currentUser.avatar;
   document.getElementById("headerNom").textContent=currentUser.nom;
   updateCA();renderRdv();renderTabsBadges();renderPerf();renderSemaine();renderHistorique();
-  renderKPI();checkUrgences();renderRecapJournee();
+  renderKPI();checkUrgences();renderRecapJournee();renderTeamDispos();
   verifierAlertes();
   document.getElementById("chat-fab").classList.remove("hidden");
   renderModuleNav();
@@ -909,6 +941,7 @@ function carteHtml(r){
       <div style="color:var(--text-light);font-size:14px;margin-top:4px;">${isExp?"▲":"▼"}</div>
     </div>
   </div>
+  ${!isExp?`<div class="voir-details" onclick="toggleCarte(${r.id})">Voir détails · Appel · GPS · Demarrer ▼</div>`:""}
   ${isExp?carteBodyHtml(r,isToday,isDone):""}
 </div>`;
 }
@@ -1482,7 +1515,7 @@ window.onload=()=>{
 window.addEventListener('storage',e=>{
   if(!['pl_rdvs','pl_urgences','pl_dispos','pl_rapports'].includes(e.key))return;
   if(!currentUser)return;
-  renderRdv();renderKPI();checkUrgences();renderRecapJournee();
+  renderRdv();renderKPI();checkUrgences();renderRecapJournee();renderTeamDispos();
 });
 </script>
 
