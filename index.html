@@ -1042,6 +1042,13 @@ window.onload=()=>{
   const s=localStorage.getItem("pl_session");
   if(s){currentUser=JSON.parse(s);lancerApp();}
 };
+
+// Mise à jour temps réel quand Firebase pousse des données (dispatch → technicien)
+window.addEventListener('storage',e=>{
+  if(!['pl_rdvs','pl_urgences','pl_dispos','pl_rapports'].includes(e.key))return;
+  if(!currentUser)return;
+  renderRdv();renderKPI();checkUrgences();renderRecapJournee();
+});
 </script>
 
 </body>
