@@ -778,6 +778,16 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
     </div>
   </div>
 
+  <div class="card accent-blue" style="margin-bottom:12px;">
+    <div class="lbl">SIGNATURE CLIENT</div>
+    <div style="color:var(--text-light);font-size:11px;margin-bottom:8px;">Le client signe pour valider les travaux effectués</div>
+    <canvas id="signatureCanvas" style="width:100%;height:160px;background:#f7f9fc;border:2px dashed var(--border);border-radius:10px;touch-action:none;cursor:crosshair;display:block;"></canvas>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button onclick="effacerSignature()" style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;padding:8px 14px;font-size:12px;color:#64748b;cursor:pointer;">Effacer</button>
+      <div id="sig-status" style="flex:1;display:flex;align-items:center;color:var(--text-light);font-size:12px;padding-left:8px;">En attente de signature...</div>
+    </div>
+  </div>
+
   <div class="card" style="margin-bottom:12px;background:linear-gradient(135deg,#0d2d52,#1a4a7a);color:#fff;">
     <div class="lbl" style="color:rgba(255,255,255,0.7);">ENCAISSEMENT SUR PLACE</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;margin-bottom:12px;">
@@ -1253,6 +1263,13 @@ function showEtape(e){
     if(si('rp-satisfaction'))si('rp-satisfaction').value='5';
     if(si('rp-pieces'))si('rp-pieces').value='';
     if(si('rp-retour'))si('rp-retour').value='non';
+    // Reset encaissement
+    var encMode=document.getElementById('enc-mode');if(encMode)encMode.value='';
+    var encSel=document.getElementById('enc-selected');if(encSel)encSel.textContent='Aucun mode sélectionné — laissez vide si paiement différé';
+    ['enc-cb','enc-esp','enc-cheque','enc-vir'].forEach(function(id){var el=document.getElementById(id);if(el){el.style.background='rgba(255,255,255,0.1)';el.style.borderColor='rgba(255,255,255,0.2)';}});
+    // Init signature canvas
+    effacerSignature();
+    setTimeout(initSignatureCanvas,100);
   }
 }
 
@@ -1418,6 +1435,7 @@ function soumettre(){
       satisfaction,retourRequis,
       checklistScore:checksDone+"/6",
       modeEncaissement:(document.getElementById('enc-mode')||{}).value||'',
+      signature:getSignatureData(),
       soumisLe:new Date().toISOString(),statut:"En attente facturation"
     };
 
@@ -1628,6 +1646,39 @@ function renderRecapJournee(){
 }
 
 /* ---- PARTAGE RAPPORT ---- */
+// SIGNATURE ÉLECTRONIQUE
+var _sigCanvas=null,_sigCtx=null,_sigDrawing=false,_sigHasData=false;
+function initSignatureCanvas(){
+  _sigCanvas=document.getElementById('signatureCanvas');
+  if(!_sigCanvas)return;
+  // Set real pixel dimensions
+  _sigCanvas.width=_sigCanvas.offsetWidth||300;
+  _sigCanvas.height=160;
+  _sigCtx=_sigCanvas.getContext('2d');
+  _sigCtx.strokeStyle='#0d2d52';_sigCtx.lineWidth=2.5;_sigCtx.lineCap='round';_sigCtx.lineJoin='round';
+  _sigCanvas.addEventListener('mousedown',function(e){_sigDrawing=true;_sigCtx.beginPath();var r=_sigCanvas.getBoundingClientRect();_sigCtx.moveTo(e.clientX-r.left,e.clientY-r.top);});
+  _sigCanvas.addEventListener('mousemove',function(e){if(!_sigDrawing)return;var r=_sigCanvas.getBoundingClientRect();_sigCtx.lineTo(e.clientX-r.left,e.clientY-r.top);_sigCtx.stroke();_setSigStatus();});
+  _sigCanvas.addEventListener('mouseup',function(){_sigDrawing=false;});
+  _sigCanvas.addEventListener('touchstart',function(e){e.preventDefault();_sigDrawing=true;_sigCtx.beginPath();var t=e.touches[0],r=_sigCanvas.getBoundingClientRect();_sigCtx.moveTo(t.clientX-r.left,t.clientY-r.top);},{passive:false});
+  _sigCanvas.addEventListener('touchmove',function(e){e.preventDefault();if(!_sigDrawing)return;var t=e.touches[0],r=_sigCanvas.getBoundingClientRect();_sigCtx.lineTo(t.clientX-r.left,t.clientY-r.top);_sigCtx.stroke();_setSigStatus();},{passive:false});
+  _sigCanvas.addEventListener('touchend',function(){_sigDrawing=false;});
+}
+function _setSigStatus(){
+  _sigHasData=true;
+  var s=document.getElementById('sig-status');
+  if(s)s.innerHTML='<span style="color:#16a34a;font-weight:600;">✓ Signature enregistrée</span>';
+}
+function effacerSignature(){
+  if(_sigCtx)_sigCtx.clearRect(0,0,_sigCanvas.width,_sigCanvas.height);
+  _sigHasData=false;
+  var s=document.getElementById('sig-status');
+  if(s)s.textContent='En attente de signature...';
+}
+function getSignatureData(){
+  if(!_sigCanvas||!_sigHasData)return null;
+  return _sigCanvas.toDataURL('image/png');
+}
+
 function setEncaissement(mode){
   document.getElementById('enc-mode').value=mode;
   ['CB','Espèces','Chèque','Virement'].forEach(function(m){
