@@ -8,6 +8,8 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="firebase-config.js"></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css' rel='stylesheet' />
+<script src='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js'></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif;}
@@ -360,6 +362,15 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 </div>
 
 <div id="page-dispos" class="hidden">
+  <div style="background:linear-gradient(135deg,#0d2d52,#1a4a7a);border-radius:16px;padding:14px;margin-bottom:12px;color:#fff;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="font-size:10px;letter-spacing:2px;font-weight:700;opacity:0.7;">📍 GPS ÉQUIPE — TEMPS RÉEL</div>
+      <span style="font-size:10px;opacity:0.5;" id="disp-map-update">—</span>
+    </div>
+    <div id="dispatch-carte" style="height:220px;border-radius:10px;overflow:hidden;background:#1e3a5f;display:flex;align-items:center;justify-content:center;">
+      <div style="color:rgba(255,255,255,0.4);font-size:12px;">Chargement...</div>
+    </div>
+  </div>
   <div class="card card-green">
     <div class="lbl">DISPONIBILITE EN TEMPS REEL</div>
     <div style="color:#64748b;font-size:12px;margin-bottom:12px;">Actualisation auto toutes les 10s</div>
@@ -983,8 +994,16 @@ function lancerApp(){
       if(actives.length)showNotif('Urgence : '+actives[0].clientNom+' — '+actives[0].type);
     }
     if(e.key==='pl_dispos'){
-      if(!document.getElementById('page-dispos').classList.contains('hidden'))renderDispos();
+      if(!document.getElementById('page-dispos').classList.contains('hidden'))actualiserDispos();
       if(!document.getElementById('page-dashboard').classList.contains('hidden'))renderDashboard();
+    }
+    if(e.key==='pl_positions'){
+      renderDispatchCarte();
+      if(!document.getElementById('page-dispos').classList.contains('hidden'))actualiserDispos();
+    }
+    if(e.key==='pl_stock'){
+      if(!document.getElementById('page-stock').classList.contains('hidden'))renderStock();
+      renderStock();
     }
     if(e.key==='pl_chat'){
       var msgs=JSON.parse(localStorage.getItem('pl_chat')||'[]');
@@ -1211,7 +1230,7 @@ function showPage(page,btn){
   document.querySelectorAll(".nav-btn").forEach(function(b){b.classList.remove("active");});
   if(btn) btn.classList.add("active");
   if(page==="dashboard")renderDashboard();
-  if(page==="dispos"){actualiserDispos();renderPlanningJour();}
+  if(page==="dispos"){actualiserDispos();renderPlanningJour();initDispatchCarte();}
   if(page==="urgences")renderUrgences();
   if(page==="tous-rdv")renderTousRdvs();
   if(page==="validation")renderValidation();
@@ -1847,6 +1866,47 @@ return '<div onclick="'+t[2]+'" style="display:flex;justify-content:space-betwee
 }
 renderKpiOperateurs();
 renderPipelineCA();
+}
+
+// CARTE GPS DISPATCH
+var _dMapTok=null,_dMapInst=null,_dMapMark={};
+async function _getDMapToken(){
+  if(_dMapTok)return _dMapTok;
+  try{var r=await fetch('/api/config');if(r.ok){var d=await r.json();_dMapTok=d.mapboxToken||'';}}catch(e){_dMapTok='';}
+  return _dMapTok;
+}
+async function initDispatchCarte(){
+  var el=document.getElementById('dispatch-carte');
+  if(!el||_dMapInst)return;
+  if(typeof mapboxgl==='undefined')return;
+  var tok=await _getDMapToken();
+  if(!tok){el.innerHTML='<div style="padding:20px;text-align:center;color:rgba(255,255,255,0.4);font-size:12px;">Configurez MAPBOX_TOKEN sur Vercel</div>';return;}
+  try{
+    mapboxgl.accessToken=tok;
+    _dMapInst=new mapboxgl.Map({container:'dispatch-carte',style:'mapbox://styles/mapbox/streets-v12',center:[0.5,45.7],zoom:8});
+    _dMapInst.addControl(new mapboxgl.NavigationControl(),'top-right');
+    renderDispatchCarte();
+  }catch(e){if(el)el.innerHTML='<div style="padding:20px;text-align:center;color:rgba(255,255,255,0.4);font-size:12px;">Carte non disponible</div>';}
+}
+function renderDispatchCarte(){
+  if(!_dMapInst)return;
+  var positions=JSON.parse(localStorage.getItem('pl_positions')||'{}');
+  var upd=document.getElementById('disp-map-update');
+  if(upd)upd.textContent='Mis à jour '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  var bounds=[];
+  Object.entries(positions).forEach(function(entry){
+    var tech=entry[0],pos=entry[1];
+    if(!pos.lat||!pos.lng)return;
+    var tc=TECH_C[tech]||{c:'#94a3b8',a:tech.substring(0,2),bg:'#f1f5f9'};
+    var statusCol=(STATUT_C||{})[pos.statut]||tc.c;
+    var el=document.createElement('div');
+    el.style.cssText='width:38px;height:38px;border-radius:50%;background:'+tc.c+';border:3px solid '+statusCol+';display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px;box-shadow:0 2px 10px rgba(0,0,0,0.3);cursor:pointer;';
+    el.textContent=tc.a;
+    if(_dMapMark[tech])_dMapMark[tech].remove();
+    _dMapMark[tech]=new mapboxgl.Marker({element:el}).setLngLat([pos.lng,pos.lat]).setPopup(new mapboxgl.Popup({offset:20}).setHTML('<b>'+tech+'</b><br>'+(pos.statut||'—')+(pos.adresse?'<br><small>'+pos.adresse+'</small>':''))).addTo(_dMapInst);
+    bounds.push([pos.lng,pos.lat]);
+  });
+  if(bounds.length>0){try{var b=new mapboxgl.LngLatBounds();bounds.forEach(function(c){b.extend(c);});_dMapInst.fitBounds(b,{padding:40,maxZoom:13});}catch(e){}}
 }
 
 function renderPipelineCA(){

@@ -296,6 +296,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <button onclick="showPage('analytics')" id="nav-analytics">📊 Analytics</button>
     <button onclick="showPage('agenda')" id="nav-agenda">📅 Agenda</button>
     <button onclick="showPage('contrats')" id="nav-contrats">📋 Contrats</button>
+    <button onclick="showPage('live')" id="nav-live" style="color:#dc2626;">🔴 Live</button>
   </div>
 
   <div class="content">
@@ -603,6 +604,39 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     </div>
   </div>
   <div id="liste-contrats"></div>
+</div>
+
+<!-- LIVE FEED -->
+<div id="page-live" class="hidden">
+  <!-- Statuts techs en haut -->
+  <div id="live-techs-strip" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;"></div>
+  <!-- Map GPS live -->
+  <div style="background:linear-gradient(135deg,#0d2d52,#1a4a7a);border-radius:16px;padding:14px;margin-bottom:12px;color:#fff;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="font-size:10px;letter-spacing:2px;font-weight:700;opacity:0.7;">📍 GPS ÉQUIPE — EN DIRECT</div>
+      <span style="font-size:10px;opacity:0.5;" id="live-map-update">—</span>
+    </div>
+    <div id="live-carte" style="height:200px;border-radius:10px;overflow:hidden;background:#1e3a5f;display:flex;align-items:center;justify-content:center;">
+      <div style="color:rgba(255,255,255,0.4);font-size:12px;">Chargement de la carte...</div>
+    </div>
+  </div>
+  <!-- KPIs live -->
+  <div id="live-kpis" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;"></div>
+  <!-- Filtres -->
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+    <button class="btn btn-primary" id="lf-all" onclick="setLiveFiltre('all',this)">Tout</button>
+    <button class="btn btn-gray" id="lf-rdv" onclick="setLiveFiltre('rdv',this)">📅 RDVs</button>
+    <button class="btn btn-gray" id="lf-rapport" onclick="setLiveFiltre('rapport',this)">✅ Rapports</button>
+    <button class="btn btn-gray" id="lf-urgence" onclick="setLiveFiltre('urgence',this)">🚨 Urgences</button>
+    <button class="btn btn-gray" id="lf-appel" onclick="setLiveFiltre('appel',this)">📞 Appels</button>
+  </div>
+  <!-- Feed -->
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+    <div style="width:8px;height:8px;border-radius:50%;background:#dc2626;animation:pulse 1.5s ease-in-out infinite;"></div>
+    <span style="font-size:11px;font-weight:700;color:#dc2626;letter-spacing:1px;">FLUX EN TEMPS RÉEL</span>
+    <span style="color:#94a3b8;font-size:11px;" id="live-count">—</span>
+  </div>
+  <div id="live-feed"></div>
 </div>
 
 <!-- CRM FIDÉLISATION -->
@@ -1000,9 +1034,13 @@ function lancerApp(){
       const msgs=JSON.parse(localStorage.getItem('pl_chat')||'[]');
       if(msgs.length){const last=msgs[msgs.length-1];if(last.role==='TECHNICIEN')showNotif('Message de '+last.from+' : '+last.text.slice(0,40));}
     }
-    if(e.key==='pl_dispos'){renderDisposDash();}
+    if(e.key==='pl_dispos'){renderDisposDash();if(!document.getElementById('page-live').classList.contains('hidden'))renderLiveFeed();}
     if(e.key==='pl_positions'){
       renderCarteEquipe();
+      _renderLiveMapMarkers();
+    }
+    if(['pl_rapports','pl_rdvs','pl_urgences','pl_appels'].includes(e.key)){
+      if(!document.getElementById('page-live').classList.contains('hidden'))renderLiveFeed();
     }
   });
   setInterval(()=>{renderDisposDash();updateNavBadges();},10000);
@@ -1021,9 +1059,9 @@ function logout(){
 }
 
 function showPage(p){
-  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
+  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
   document.getElementById("page-"+p).classList.remove("hidden");
-  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats"][i]===p));
+  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live"][i]===p));
   if(p==="dashboard")renderDashboard();
   if(p==="dispatch"){renderDisposDispatch();renderPlanningJour();}
   if(p==="urgences")renderUrgences();
@@ -1037,6 +1075,7 @@ function showPage(p){
   if(p==="analytics"){showAnalytics("finances");}
   if(p==="agenda")renderAgenda();
   if(p==="contrats")renderContrats();
+  if(p==="live"){startLiveFeed();}
 }
 
 function showAnalytics(p){
@@ -2302,6 +2341,175 @@ document.querySelectorAll(".pin-input").forEach((el,i,arr)=>{
 el.addEventListener("input",()=>{if(el.value&&i<arr.length-1)arr[i+1].focus();});
 el.addEventListener("keydown",e=>{if(e.key==="Backspace"&&!el.value&&i>0)arr[i-1].focus();});
 });
+// ===== LIVE FEED =====
+var _liveFiltre='all';
+var _liveInterval=null;
+var _liveMapInstance=null;
+var _liveMapMarkers={};
+
+function setLiveFiltre(f,btn){
+  _liveFiltre=f;
+  document.querySelectorAll('#page-live .btn').forEach(b=>b.className='btn btn-gray');
+  if(btn)btn.className='btn btn-primary';
+  renderLiveFeed();
+}
+
+function startLiveFeed(){
+  renderLiveFeed();
+  initLiveMap();
+  if(_liveInterval)clearInterval(_liveInterval);
+  _liveInterval=setInterval(function(){
+    renderLiveFeed();
+    renderLiveTechs();
+    renderLiveKpis();
+    renderCarteEquipe();
+  },5000);
+}
+
+function renderLiveTechs(){
+  const dispos=getDispos();
+  const rdvs=getRdvs();
+  const today=todayStr();
+  const el=document.getElementById('live-techs-strip');
+  if(!el)return;
+  el.innerHTML=getTechs().map(t=>{
+    const d=dispos[t.nom]||{statut:'Non connecté'};
+    const tc=TECH_C[t.nom]||{color:'#94a3b8',avatar:'??'};
+    const col=(STATUT_C||{})[d.statut]||'#94a3b8';
+    const rdvsAuj=rdvs.filter(r=>r.technicien===t.nom&&r.dateRdv===today);
+    const done=rdvsAuj.filter(r=>r.statut==='Termine').length;
+    const ca=rdvsAuj.reduce((s,r)=>s+(r.prixVente||0),0);
+    const ago=d.updatedAt?Math.floor((Date.now()-new Date(d.updatedAt))/60000):null;
+    return`<div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid ${col};border-radius:12px;padding:10px 14px;flex:1;min-width:140px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <div style="width:32px;height:32px;border-radius:8px;background:${tc.color}20;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;">${tc.avatar}</div>
+        <div>
+          <div style="font-weight:700;font-size:12px;">${t.nom.replace('Technicien ','Tech ')}</div>
+          <div style="color:${col};font-size:10px;font-weight:700;">${d.statut}</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#64748b;">
+        <span>${done}/${rdvsAuj.length} RDV</span>
+        <span style="color:#16a34a;font-weight:700;">${ca.toLocaleString('fr-FR')}€</span>
+      </div>
+      ${ago!==null?`<div style="color:#94a3b8;font-size:9px;margin-top:3px;">${ago<1?'maintenant':ago+'min'}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderLiveKpis(){
+  const today=todayStr();
+  const rdvsAuj=getRdvs().filter(r=>r.dateRdv===today);
+  const termines=rdvsAuj.filter(r=>r.statut==='Termine').length;
+  const caAuj=rdvsAuj.reduce((s,r)=>s+(r.prixVente||0),0);
+  const urgActives=getUrgences().filter(u=>u.statut!=='Resolu').length;
+  const rapsAttente=getRapports().filter(r=>r.statut==='En attente facturation').length;
+  const appels=JSON.parse(localStorage.getItem('pl_appels')||'[]').filter(a=>a.date===today).length;
+  const el=document.getElementById('live-kpis');
+  if(!el)return;
+  el.innerHTML=[
+    ['CA JOUR',caAuj.toLocaleString('fr-FR')+'€','#16a34a','#dcfce7'],
+    ['RDV TERMINÉS',termines+'/'+rdvsAuj.length,'#2563eb','#dbeafe'],
+    ['URGENCES',urgActives,urgActives>0?'#dc2626':'#16a34a',urgActives>0?'#fee2e2':'#dcfce7'],
+    ['APPELS',appels,'#7c3aed','#ede9fe'],
+  ].map(([l,v,c,bg])=>`<div style="background:${bg};border-radius:10px;padding:10px;text-align:center;"><div style="font-size:9px;color:${c};font-weight:700;letter-spacing:1px;">${l}</div><div style="font-size:20px;font-weight:900;color:${c};margin-top:2px;">${v}</div></div>`).join('');
+}
+
+function buildLiveEvents(){
+  const today=todayStr();
+  const events=[];
+  // RDVs
+  getRdvs().filter(r=>r.creeAt||r.dateRdv>=today).slice(-50).forEach(r=>{
+    const ts=r.creeAt?new Date(r.creeAt).getTime():0;
+    events.push({ts,type:'rdv',icon:'📅',color:'#2563eb',bg:'#dbeafe',titre:r.clientNom,sous:r.type+' · '+r.dateRdv+' '+r.heureRdv,detail:r.technicien+(r.prixVente?' · '+r.prixVente+'€':''),statut:r.statut,canal:r.canal||''});
+    if(r.statut==='Termine'){
+      events.push({ts:ts+1,type:'rapport',icon:'✅',color:'#16a34a',bg:'#dcfce7',titre:'Terminé — '+r.clientNom,sous:r.type+' · '+r.dateRdv,detail:r.technicien+(r.prixVente?' · '+r.prixVente+'€':''),statut:'Terminé'});
+    }
+  });
+  // Rapports
+  getRapports().filter(r=>r.soumisLe).slice(-30).forEach(r=>{
+    const ts=new Date(r.soumisLe).getTime();
+    events.push({ts,type:'rapport',icon:'📋',color:'#16a34a',bg:'#dcfce7',titre:'Rapport — '+r.clientNom,sous:r.type+' · '+r.date,detail:r.technicien+(r.montantFinal?' · '+r.montantFinal+'€':'')+(r.satisfaction?' · ⭐'+r.satisfaction:'')+(r.modeEncaissement?' · 💳'+r.modeEncaissement:''),statut:r.statut});
+  });
+  // Urgences
+  getUrgences().forEach(u=>{
+    const ts=new Date(u.creeeAt||Date.now()).getTime();
+    events.push({ts,type:'urgence',icon:'🚨',color:'#dc2626',bg:'#fee2e2',titre:'URGENCE — '+u.clientNom,sous:u.type,detail:u.technicien+(u.adresse?' · '+u.adresse.substring(0,30):''),statut:u.statut});
+  });
+  // Appels
+  JSON.parse(localStorage.getItem('pl_appels')||'[]').slice(-30).forEach(a=>{
+    const ts=a.id||Date.now();
+    events.push({ts,type:'appel',icon:'📞',color:'#7c3aed',bg:'#ede9fe',titre:'Appel — '+(a.clientNom||a.clientTel||'Inconnu'),sous:(a.objet||'Renseignement')+' · '+a.date,detail:(a.resultat||'—')+(a.operateur?' · '+a.operateur:''),statut:a.statut||''});
+  });
+  return events.sort((a,b)=>b.ts-a.ts);
+}
+
+function renderLiveFeed(){
+  renderLiveTechs();
+  renderLiveKpis();
+  let events=buildLiveEvents();
+  if(_liveFiltre!=='all') events=events.filter(e=>e.type===_liveFiltre);
+  const countEl=document.getElementById('live-count');
+  if(countEl)countEl.textContent=events.length+' événement'+(events.length>1?'s':'');
+  const el=document.getElementById('live-feed');
+  if(!el)return;
+  if(!events.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#94a3b8;font-size:13px;">Aucune activité — les événements apparaîtront en temps réel</div>';return;}
+  el.innerHTML=events.slice(0,60).map(ev=>{
+    const ago=Math.floor((Date.now()-ev.ts)/60000);
+    const agoStr=ago<1?'maintenant':ago<60?ago+'min':Math.floor(ago/60)+'h'+('0'+ago%60).slice(-2);
+    return`<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;align-items:flex-start;">
+      <div style="width:36px;height:36px;border-radius:10px;background:${ev.bg};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${ev.icon}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
+          <div style="font-weight:700;font-size:13px;color:${ev.color};">${ev.titre}</div>
+          <div style="font-size:10px;color:#94a3b8;white-space:nowrap;flex-shrink:0;">${agoStr}</div>
+        </div>
+        <div style="color:#64748b;font-size:12px;margin-top:1px;">${ev.sous}</div>
+        <div style="color:#94a3b8;font-size:11px;margin-top:1px;">${ev.detail}</div>
+        ${ev.statut&&ev.statut!=='Terminé'?`<span style="background:${ev.bg};color:${ev.color};border-radius:4px;padding:1px 6px;font-size:9px;font-weight:700;margin-top:3px;display:inline-block;">${ev.statut}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function initLiveMap(){
+  const el=document.getElementById('live-carte');
+  if(!el||_liveMapInstance)return;
+  if(typeof mapboxgl==='undefined')return;
+  const tok=await getMapboxToken();
+  if(!tok){el.innerHTML='<div style="padding:20px;text-align:center;color:rgba(255,255,255,0.4);font-size:12px;">Token Mapbox requis — configurez MAPBOX_TOKEN sur Vercel</div>';return;}
+  try{
+    _liveMapInstance=new mapboxgl.Map({container:'live-carte',style:'mapbox://styles/mapbox/dark-v11',center:[0.5,45.7],zoom:8});
+    _liveMapInstance.addControl(new mapboxgl.NavigationControl(),'top-right');
+    _renderLiveMapMarkers();
+  }catch(e){el.innerHTML='<div style="padding:20px;text-align:center;color:rgba(255,255,255,0.4);font-size:12px;">Carte non disponible</div>';}
+}
+
+function _renderLiveMapMarkers(){
+  if(!_liveMapInstance)return;
+  const positions=JSON.parse(localStorage.getItem('pl_positions')||'{}');
+  const upd=document.getElementById('live-map-update');
+  if(upd)upd.textContent='Mis à jour '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  const bounds=[];
+  Object.entries(positions).forEach(([tech,pos])=>{
+    if(!pos.lat||!pos.lng)return;
+    const tc=TECH_C[tech]||{color:'#94a3b8',avatar:tech.substring(0,2)};
+    const statusCol=(STATUT_C||{})[pos.statut]||tc.color;
+    const el=document.createElement('div');
+    el.style.cssText=`width:38px;height:38px;border-radius:50%;background:${tc.color};border:3px solid ${statusCol};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px;box-shadow:0 2px 10px rgba(0,0,0,0.4);`;
+    el.textContent=tc.avatar;
+    if(_liveMapMarkers[tech])_liveMapMarkers[tech].remove();
+    _liveMapMarkers[tech]=new mapboxgl.Marker({element:el})
+      .setLngLat([pos.lng,pos.lat])
+      .setPopup(new mapboxgl.Popup({offset:20}).setHTML(`<b>${tech}</b><br>${pos.statut||'—'}`))
+      .addTo(_liveMapInstance);
+    bounds.push([pos.lng,pos.lat]);
+  });
+  if(bounds.length>0){
+    try{const b=new mapboxgl.LngLatBounds();bounds.forEach(c=>b.extend(c));_liveMapInstance.fitBounds(b,{padding:30,maxZoom:12});}catch(e){}
+  }
+}
+
 if(localStorage.getItem("pl_patron_session"))lancerApp();
 };
 
