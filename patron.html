@@ -305,7 +305,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <button class="periode-btn" onclick="setPeriode('mois',this)">Mois</button>
     <button class="periode-btn" onclick="setPeriode('annee',this)">Annee</button>
   </div>
-  <div class="grid-2" id="stats-dash" style="margin-bottom:12px;"></div>
+  <div class="g2" id="stats-dash" style="margin-bottom:12px;"></div>
   <div class="card green">
     <div class="lbl">OBJECTIF ANNUEL</div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -320,6 +320,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
       <span style="color:var(--text-light);font-size:11px;">0</span>
       <span style="color:var(--green);font-size:11px;font-weight:700;" id="obj-target">1 000 000 EUR</span>
     </div>
+    <div id="obj-rythme" style="margin-top:6px;"></div>
   </div>
   <div class="card blue">
     <div class="lbl">TECHNICIENS EN CE MOMENT</div>
@@ -333,6 +334,13 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div class="card">
     <div class="lbl">CA PAR TYPE D'INTERVENTION</div>
     <div id="ca-par-type" style="margin-top:8px;"></div>
+  </div>
+  <div class="card" style="margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div class="lbl" style="margin-bottom:0;">PLANNING DU JOUR — TOUTE L'EQUIPE</div>
+      <button class="btn btn-gray" style="padding:4px 10px;font-size:10px;" onclick="showPage('agenda')">Agenda complet →</button>
+    </div>
+    <div id="planning-live-dash"></div>
   </div>
 </div>
 
@@ -457,6 +465,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 
 <!-- RAPPORTS -->
 <div id="page-rapports" class="hidden">
+  <div class="g3" id="stats-rapports" style="margin-bottom:14px;"></div>
   <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
     <button class="btn btn-gray" onclick="filtrerRap('tous',this)">Tous</button>
     <button class="btn btn-gray" onclick="filtrerRap('attente',this)">En attente</button>
@@ -961,14 +970,25 @@ function renderDashboard(){
   const raps=getRapsPeriode();
   const ca=raps.reduce((s,r)=>s+(r.montantFinal||0),0);
   const enc=raps.filter(r=>r.statut==="Paye").reduce((s,r)=>s+(r.montantFinal||0),0);
-  const rdvAuj=getRdvs().filter(r=>r.dateRdv===todayStr()).reduce((s,r)=>s+(r.prixVente||0),0);
-  document.getElementById("hdr-ca").textContent=rdvAuj+" EUR";
-  document.getElementById("stats-dash").innerHTML=[
-    ["CA Periode",ca+" EUR","#4a9c3f"],
-    ["Encaisse",enc+" EUR","#7bc144"],
-    ["Interventions",raps.length,"#2d6a9f"],
-    ["Ventes add.",raps.reduce((s,r)=>s+(r.ventes?.length||0),0),"#1a3a5c"],
-  ].map(([l,v,c])=>`<div class="stat-card" style="border-left:3px solid ${c}40;"><div class="lbl">${l}</div><div class="stat-val" style="color:${c};">${v}</div></div>`).join("");
+  // KPI strip direction
+  const rdvsAuj=getRdvs().filter(r=>r.dateRdv===todayStr());
+  const caAuj=rdvsAuj.reduce((s,r)=>s+(r.prixVente||0),0);
+  const urgActives=getUrgences().filter(u=>u.statut==='Active').length;
+  const techDispos=Object.values(getDispos()).filter(d=>d.statut==='Disponible').length;
+  const rdvsTermines=rdvsAuj.filter(r=>r.statut==='Termine'||r.statut==='Paye').length;
+  const tauxConv=rdvsAuj.length?Math.round(rdvsTermines/rdvsAuj.length*100):0;
+  document.getElementById('stats-dash').innerHTML=`
+<div class="sc" style="border-left:4px solid var(--green)"><div class="lbl">CA DU JOUR</div><div class="sv" style="color:var(--green)">${caAuj.toLocaleString('fr-FR')} €</div></div>
+<div class="sc" style="border-left:4px solid #1d4ed8"><div class="lbl">RDV AUJOURD'HUI</div><div class="sv" style="color:#1d4ed8">${rdvsAuj.length}</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">${rdvsTermines} terminés · ${tauxConv}% conv.</div></div>
+<div class="sc" style="border-left:4px solid ${urgActives>0?'#dc2626':'#16a34a'}"><div class="lbl">URGENCES</div><div class="sv" style="color:${urgActives>0?'#dc2626':'#16a34a'}">${urgActives}</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">${urgActives>0?'actives':'Aucune active'}</div></div>
+<div class="sc" style="border-left:4px solid #7c3aed"><div class="lbl">TECHS DISPOS</div><div class="sv" style="color:#7c3aed">${techDispos}/2</div></div>`;
+  // Header CA avec progression objectif jour
+  const objAnnuel=parseInt(localStorage.getItem('pl_objectif')||'1000000');
+  const objJour=Math.round(objAnnuel/365);
+  const pctJour=Math.min(100,Math.round(caAuj/objJour*100));
+  const elHdrCa=document.getElementById('hdr-ca');
+  if(elHdrCa)elHdrCa.innerHTML=caAuj.toLocaleString('fr-FR')+' €<div style="font-size:8px;font-weight:600;opacity:0.7;margin-top:1px;">'+pctJour+'% obj. jour ('+objJour.toLocaleString('fr-FR')+'€)</div>';
+  // Objectif annuel
   const obj=getObjectif();
   const caA=getRapports().filter(r=>r.date?.startsWith(anneeStr())).reduce((s,r)=>s+(r.montantFinal||0),0);
   const pct=Math.min(100,Math.round(caA/obj*100));
@@ -978,9 +998,16 @@ function renderDashboard(){
   document.getElementById("obj-prev").textContent="Prev. annuelle: "+(Math.round(caA/moisE*12)).toLocaleString("fr-FR")+" EUR";
   document.getElementById("obj-bar").style.width=pct+"%";
   document.getElementById("obj-target").textContent=obj.toLocaleString("fr-FR")+" EUR";
+  // Rythme annuel projeté
+  const caTotal=getRapports().filter(r=>r.statut==='Paye').reduce((s,r)=>s+(r.montantFinal||0),0);
+  const moisEcoules=new Date().getMonth()+1+(new Date().getDate()/31);
+  const rythmeAnnuel=Math.round(caTotal/moisEcoules*12);
+  const elRythme=document.getElementById('obj-rythme');
+  if(elRythme)elRythme.innerHTML=`<span style="color:${rythmeAnnuel>=obj?'#16a34a':'#dc2626'};font-size:11px;font-weight:700;">Rythme annuel projeté : ${rythmeAnnuel.toLocaleString('fr-FR')} € ${rythmeAnnuel>=obj?'✅':'⚠️'}</span>`;
   renderDisposDash();
   renderAlertes();
   renderSuiviLive();
+  renderPlanningLiveDash();
   const byType={};raps.forEach(r=>{byType[r.type]=(byType[r.type]||0)+(r.montantFinal||0);});
   const maxT=Math.max(...Object.values(byType),1);
   document.getElementById("ca-par-type").innerHTML=Object.entries(byType).sort((a,b)=>b[1]-a[1]).map(([t,c])=>`<div class="bar-row"><div class="bar-label">${t.substring(0,16)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/maxT*100)}%;background:#dcfce7;color:#15803d;">${c} EUR</div></div></div>`).join("")||`<div style="color:var(--text-light);font-size:13px;padding:12px 0;">Aucune donnee</div>`;
@@ -1011,6 +1038,16 @@ function renderAlertes(){
   if(devisEnAttente.length)alertes.push(`${devisEnAttente.length} demande(s) de devis a traiter`);
   const urgences=getUrgences().filter(u=>u.statut!=="Resolu");
   if(urgences.length)alertes.push(`${urgences.length} urgence(s) active(s) !`);
+  // Alertes business avancées
+  const rdvsSansPrix=getRdvs().filter(r=>r.dateRdv>=todayStr()&&(!r.prixVente||r.prixVente===0));
+  if(rdvsSansPrix.length)alertes.push(`${rdvsSansPrix.length} RDV sans prix défini — CA potentiel non comptabilisé`);
+  const dispos=getDispos();['Technicien 1','Technicien 2'].forEach(t=>{
+    const d=dispos[t];
+    if(d&&d.updatedAt&&(Date.now()-new Date(d.updatedAt))>7200000&&d.statut!=='Indisponible')
+      alertes.push(`${t} — pas de mise à jour depuis ${Math.floor((Date.now()-new Date(d.updatedAt))/3600000)}h`);
+  });
+  const urgVieilles=getUrgences().filter(u=>u.statut==='Active'&&(Date.now()-u.id)>3600000);
+  if(urgVieilles.length)alertes.push(`${urgVieilles.length} urgence(s) non résolue(s) depuis plus d'1h`);
   document.getElementById("section-alertes").innerHTML=alertes.length?`<div class="card red" style="margin-bottom:12px;"><div class="lbl" style="color:var(--red);">ALERTES</div>${alertes.map(a=>`<div class="alerte-card"><span style="color:#b91c1c;font-size:13px;font-weight:600;">! ${a}</span></div>`).join("")}</div>`:"";
 }
 function renderSuiviLive(){
@@ -1018,32 +1055,59 @@ function renderSuiviLive(){
   const rdvs=getRdvs();
   const urgences=getUrgences().filter(u=>u.statut!=="Resolu");
   const div=document.getElementById("suivi-live");if(!div)return;
+  const today=todayStr();
   div.innerHTML=getTechs().map(t=>{
     const d=dispos[t.nom]||{statut:"Non connecté"};
     const color=STATUT_C[d.statut]||"#94a3b8";
     const ago=d.updatedAt?Math.floor((Date.now()-new Date(d.updatedAt))/60000):null;
-    const rdvAuj=rdvs.filter(r=>r.technicien===t.nom&&r.dateRdv===todayStr());
-    const enCours=rdvAuj.find(r=>r.statut==="En cours"||r.statut==="Confirme");
+    const rdvAuj=rdvs.filter(r=>r.technicien===t.nom&&r.dateRdv===today).sort((a,b)=>(a.heureRdv||'').localeCompare(b.heureRdv||''));
+    const now=new Date();const hNow=now.getHours()*60+now.getMinutes();
+    const enCours=rdvAuj.find(r=>{const hR=r.heureRdv?parseInt(r.heureRdv)*60+parseInt(r.heureRdv.split(':')[1]||0):0;return(r.statut==="En cours"||r.statut==="Confirme")&&hR<=hNow&&hR+90>hNow;});
+    const prochainRdv=rdvAuj.find(r=>{const hR=r.heureRdv?parseInt(r.heureRdv)*60+parseInt(r.heureRdv.split(':')[1]||0):0;return hR>hNow&&r.statut!=='Termine'&&r.statut!=='Paye';});
     const urg=urgences.find(u=>u.technicien===t.nom);
     const tc=TECH_C[t.nom]||{color:"#94a3b8",avatar:"??"};
-    return`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
-      <div style="width:38px;height:38px;border-radius:10px;background:${tc.color}20;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;">${tc.avatar}</div>
-      <div style="flex:1;">
-        <div style="font-weight:700;font-size:13px;">${t.nom}</div>
-        <div style="display:flex;align-items:center;gap:5px;margin-top:2px;">
-          <div style="width:7px;height:7px;border-radius:50%;background:${color};"></div>
-          <span style="color:${color};font-size:11px;font-weight:700;">${d.statut}</span>
-          ${ago!==null?`<span style="color:var(--muted);font-size:10px;">(${ago<1?"<1min":ago+"min"})</span>`:""}
+    const caAuj=rdvAuj.reduce((s,r)=>s+(r.prixVente||0),0);
+    const techTel=t.tel||d.tel||'';
+    return`<div style="padding:12px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:40px;height:40px;border-radius:10px;background:${tc.color}20;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;">${tc.avatar}</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:13px;">${t.nom}</div>
+          <div style="display:flex;align-items:center;gap:5px;margin-top:2px;">
+            <div style="width:7px;height:7px;border-radius:50%;background:${color};"></div>
+            <span style="color:${color};font-size:11px;font-weight:700;">${d.statut}</span>
+            ${ago!==null?`<span style="color:var(--muted);font-size:10px;">(${ago<1?"<1min":ago+"min"})</span>`:""}
+          </div>
+          ${urg?`<div style="color:#dc2626;font-size:10px;margin-top:2px;font-weight:600;">🚨 Urgence: ${urg.clientNom}</div>`:""}
+          ${enCours?`<div style="color:var(--muted);font-size:10px;margin-top:3px;">📍 En cours: <b style="color:var(--text)">${enCours.clientNom}</b> — ${enCours.heureRdv} — ${enCours.type.substring(0,22)}${enCours.adresse?'<br><span style="margin-left:14px;">'+enCours.adresse.substring(0,40)+'</span>':''}</div>`:""}
+          ${prochainRdv&&!enCours?`<div style="color:var(--muted);font-size:10px;margin-top:3px;">⏭ Prochain: <b style="color:var(--text)">${prochainRdv.clientNom}</b> — ${prochainRdv.heureRdv}</div>`:""}
         </div>
-        ${urg?`<div style="color:#dc2626;font-size:10px;margin-top:2px;font-weight:600;">🚨 Urgence: ${urg.clientNom}</div>`:""}
-        ${enCours?`<div style="color:var(--muted);font-size:10px;margin-top:2px;">📍 ${enCours.clientNom} — ${enCours.type.substring(0,25)}</div>`:""}
-      </div>
-      <div style="text-align:right;">
-        <div style="color:var(--muted);font-size:11px;">${rdvAuj.length} RDV auj.</div>
-        <div style="color:var(--green);font-size:11px;font-weight:700;">${rdvAuj.reduce((s,r)=>s+(r.prixVente||0),0)} €</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
+          <div style="color:var(--green);font-size:12px;font-weight:800;">${caAuj.toLocaleString('fr-FR')} €</div>
+          <div style="color:var(--muted);font-size:10px;">${rdvAuj.length} RDV auj.</div>
+          ${techTel?`<a href="tel:${techTel}" class="btn btn-gray" style="padding:4px 10px;font-size:10px;text-decoration:none;">📱 Contacter</a>`:""}
+        </div>
       </div>
     </div>`;
   }).join("");
+}
+
+function renderPlanningLiveDash(){
+  const d=document.getElementById('planning-live-dash');
+  if(!d)return;
+  const today=todayStr();
+  const rdvs=getRdvs().filter(r=>r.dateRdv===today).sort((a,b)=>(a.heureRdv||'').localeCompare(b.heureRdv||''));
+  if(!rdvs.length){d.innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px 0;">Aucun RDV planifié aujourd\'hui</div>';return;}
+  d.innerHTML=rdvs.slice(0,8).map(r=>{
+    const tc=TECH_C[r.technicien]||{color:'#94a3b8',avatar:'?'};
+    const fait=r.statut==='Termine'||r.statut==='Paye';
+    return`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);opacity:${fait?0.5:1}">
+      <div style="color:var(--muted);font-size:11px;font-weight:700;min-width:42px;">${r.heureRdv||'—'}</div>
+      <div style="width:26px;height:26px;border-radius:6px;background:${tc.color}20;border:1.5px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;flex-shrink:0;">${tc.avatar}</div>
+      <div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.clientNom}</div><div style="font-size:10px;color:var(--muted);">${r.type}</div></div>
+      <div style="text-align:right;flex-shrink:0;"><div style="font-weight:700;font-size:12px;color:var(--green);">${r.prixVente?r.prixVente+'€':''}</div><div style="font-size:9px;font-weight:700;color:${fait?'#16a34a':'#1d4ed8'};background:${fait?'#f0fdf4':'#eff6ff'};padding:1px 6px;border-radius:4px;">${fait?'FAIT':'PRÉVU'}</div></div>
+    </div>`;
+  }).join('')+(rdvs.length>8?`<div style="text-align:center;padding:8px 0;"><button class="btn btn-gray" onclick="showPage('agenda')" style="font-size:11px;">Voir les ${rdvs.length-8} autres →</button></div>`:'');
 }
 
 // DISPATCH
@@ -1187,18 +1251,34 @@ function convertirUrgenceRdv(i){
 // EQUIPE
 function renderEquipe(){
   const dispos=getDispos(),rapports=getRapports(),mois=moisStr();
+  const notes=gNotes();
   document.getElementById("dispos-equipe").innerHTML=["Technicien 1","Technicien 2"].map(nom=>{
     const d=dispos[nom]||{statut:"Non connecte"};
     const color=STATUT_C[d.statut]||"#94a3b8";
     const tc=TECH_C[nom];
     const rdvAuj=getRdvs().filter(r=>r.technicien===nom&&r.dateRdv===todayStr()).length;
-    return`<div class="tech-card" style="border-left:3px solid ${color}40;">
-      <div style="width:44px;height:44px;border-radius:12px;background:${tc.color}20;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0;">${tc.avatar}</div>
-      <div style="flex:1;margin-left:12px;">
-        <div style="font-weight:700;">${nom}</div>
-        <div style="font-size:12px;margin-top:2px;color:${color};font-weight:700;">${d.statut}</div>
+    const mesMois=rapports.filter(r=>r.technicien===nom&&r.date?.startsWith(mois));
+    const caMois=mesMois.reduce((s,r)=>s+(r.montantFinal||0),0);
+    const nbMois=mesMois.length;
+    // satisfaction: moyenne des notes des clients intervenus ce mois par ce tech
+    const clientsMois=[...new Set(mesMois.map(r=>r.clientNom))];
+    const notesMois=clientsMois.map(c=>notes[c]).filter(n=>n>0);
+    const satMoy=notesMois.length?Math.round(notesMois.reduce((s,n)=>s+n,0)/notesMois.length*10)/10:null;
+    return`<div style="background:#fff;border:1px solid var(--border);border-left:3px solid ${color}40;border-radius:12px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <div style="width:44px;height:44px;border-radius:12px;background:${tc.color}20;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0;">${tc.avatar}</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:14px;">${nom}</div>
+          <div style="font-size:12px;margin-top:2px;color:${color};font-weight:700;">${d.statut}</div>
+        </div>
+        <div style="text-align:right;color:var(--text-light);font-size:11px;">${rdvAuj} RDV auj.</div>
       </div>
-      <div style="text-align:right;color:var(--text-light);font-size:11px;">${rdvAuj} RDV auj.</div>
+      <div class="g3" style="margin-bottom:10px;">
+        <div style="background:#f0fdf4;border-radius:8px;padding:8px 10px;text-align:center;"><div style="color:var(--muted);font-size:9px;letter-spacing:1px;font-weight:700;text-transform:uppercase;">CA MOIS</div><div style="color:var(--green);font-weight:800;font-size:14px;margin-top:3px;">${caMois.toLocaleString('fr-FR')} €</div></div>
+        <div style="background:#eff6ff;border-radius:8px;padding:8px 10px;text-align:center;"><div style="color:var(--muted);font-size:9px;letter-spacing:1px;font-weight:700;text-transform:uppercase;">INTERV.</div><div style="color:#1d4ed8;font-weight:800;font-size:14px;margin-top:3px;">${nbMois}</div></div>
+        <div style="background:#fefce8;border-radius:8px;padding:8px 10px;text-align:center;"><div style="color:var(--muted);font-size:9px;letter-spacing:1px;font-weight:700;text-transform:uppercase;">SATISF.</div><div style="color:#ca8a04;font-weight:800;font-size:14px;margin-top:3px;">${satMoy?satMoy+'/5':'—'}</div></div>
+      </div>
+      <button class="btn btn-gray" style="width:100%;font-size:11px;padding:7px;" onclick="agendaTech='${nom}';showPage('agenda')">Voir planning →</button>
     </div>`;
   }).join("");
 
@@ -1240,6 +1320,20 @@ function filtrerRap(f,btn){
 }
 
 function renderRapports(){
+  // Bandeau stats rapports
+  const statsRap=document.getElementById('stats-rapports');
+  if(statsRap){
+    const allRaps=getRapports();
+    const enAttente=allRaps.filter(r=>r.statut==='En attente facturation');
+    const mtAttente=enAttente.reduce((s,r)=>s+(r.montantFinal||0),0);
+    const moisCourant=moisStr();
+    const payeMois=allRaps.filter(r=>r.statut==='Paye'&&r.date?.startsWith(moisCourant)).reduce((s,r)=>s+(r.montantFinal||0),0);
+    statsRap.innerHTML=[
+      [`${enAttente.length}`,'A VALIDER','#ca8a04','#fefce8'],
+      [`${mtAttente.toLocaleString('fr-FR')} €`,'A FACTURER','#dc2626','#fef2f2'],
+      [`${payeMois.toLocaleString('fr-FR')} €`,'PAYE CE MOIS','#16a34a','#f0fdf4'],
+    ].map(([v,l,c,bg])=>`<div style="background:${bg};border-radius:10px;padding:10px 12px;text-align:center;border:1px solid ${c}30;"><div style="color:var(--muted);font-size:9px;letter-spacing:1px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">${l}</div><div style="color:${c};font-weight:800;font-size:15px;">${v}</div></div>`).join('');
+  }
   // Validation
   const aValider=getRapports().filter(r=>r.statut==="En attente facturation");
   document.getElementById("liste-validation").innerHTML=aValider.length?aValider.map((r,i)=>{
@@ -1449,7 +1543,12 @@ function showModalTech(){document.getElementById("modal-tech").classList.remove(
 function closeModal(id){document.getElementById(id).classList.add("hidden");}
 function openPhotoFs(src){document.getElementById("photo-fs-img").src=src;document.getElementById("photo-fs").classList.remove("hidden");}
 function closePhotoFs(){document.getElementById("photo-fs").classList.add("hidden");}
-function showNotif(msg){const n=document.createElement("div");n.className="notif";n.textContent=msg;document.body.appendChild(n);setTimeout(()=>n.remove(),3500);}
+function showNotif(msg){
+  if(msg.includes('URGENCE')||msg.includes('🚨')){
+    try{if(navigator.vibrate)navigator.vibrate([200,100,200,100,200]);}catch(e){}
+  }
+  const n=document.createElement("div");n.className="notif";n.textContent=msg;document.body.appendChild(n);setTimeout(()=>n.remove(),3500);
+}
 const notif=msg=>showNotif(msg);
 function toggleForm(id){const d=document.getElementById(id);if(d)d.classList.toggle("hidden");}
 
