@@ -365,7 +365,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
         <div class="form-field"><label>NOM</label><input type="text" class="form-input" id="rdv-nom" placeholder="Dupont"></div>
       </div>
       <div class="form-field"><label>TELEPHONE</label><input type="tel" class="form-input" id="rdv-tel" placeholder="06 XX XX XX XX"></div>
-      <div class="form-field"><label>ADRESSE</label><input type="text" class="form-input" id="rdv-adresse" placeholder="12 rue des Fleurs, Paris"></div>
+      <div class="form-field"><label>ADRESSE</label><input type="text" class="form-input" id="rdv-adresse" placeholder="12 rue des Fleurs, Paris" oninput="scheduleTravelUpdate()"></div>
       <div class="form-field"><label>TYPE D'INTERVENTION</label>
         <select class="form-select" id="rdv-type">
           <option>Fuite d'eau</option><option>Debouchage</option><option>Chaudiere</option>
@@ -374,11 +374,22 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
         </select>
       </div>
       <div class="grid-2">
-        <div class="form-field"><label>DATE RDV</label><input type="date" class="form-input" id="rdv-date"></div>
-        <div class="form-field"><label>HEURE RDV</label><input type="time" class="form-input" id="rdv-heure" value="09:00"></div>
+        <div class="form-field"><label>DATE RDV</label><input type="date" class="form-input" id="rdv-date" onchange="updateTechPlanning()"></div>
+        <div class="form-field"><label>HEURE RDV</label><input type="time" class="form-input" id="rdv-heure" value="09:00" onchange="scheduleTravelUpdate()"></div>
       </div>
       <div class="form-field"><label>TECHNICIEN</label>
-        <select class="form-select" id="rdv-tech"><option>Technicien 1</option><option>Technicien 2</option></select>
+        <select class="form-select" id="rdv-tech" onchange="updateTechPlanning()"><option>Technicien 1</option><option>Technicien 2</option></select>
+      </div>
+      <div id="rdv-plan-div" class="hidden" style="margin-bottom:14px;">
+        <div class="lbl" style="color:#1a4a7a;">PLANNING DU TECHNICIEN CE JOUR</div>
+        <div id="rdv-plan-list"></div>
+      </div>
+      <div id="rdv-conflict-div" class="hidden" style="background:#fef2f2;border:1.5px solid #dc2626;border-radius:8px;padding:10px 14px;margin-bottom:14px;">
+        <div style="color:#dc2626;font-size:12px;font-weight:700;">⚠️ Créneau déjà occupé — heure corrigée automatiquement</div>
+        <div id="rdv-conflict-msg" style="color:#991b1b;font-size:11px;margin-top:4px;"></div>
+      </div>
+      <div id="rdv-travel-div" class="hidden" style="border-radius:8px;padding:10px 14px;margin-bottom:14px;border:1.5px solid #bae6fd;">
+        <div id="rdv-travel-content"></div>
       </div>
       <div class="form-field"><label>PRIX DE VENTE (EUR)</label>
         <input type="number" class="form-input" id="rdv-prix" placeholder="250" style="color:#1a3a5c;font-weight:800;font-size:18px;">
@@ -1335,6 +1346,111 @@ window.addEventListener('storage',function(e){
     actualiserTout();
   }
 });
+
+/* ── ANTI DOUBLE-BOOKING & CALCUL TRAJET ── */
+async function geocodeAddress(addr){
+  try{
+    const r=await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(addr+', France')+'&format=json&limit=1',{headers:{'Accept-Language':'fr'}});
+    const d=await r.json();
+    if(d&&d.length)return{lat:parseFloat(d[0].lat),lon:parseFloat(d[0].lon)};
+  }catch(e){}
+  return null;
+}
+async function getOSRMTime(lat1,lon1,lat2,lon2){
+  try{
+    const r=await fetch('https://router.project-osrm.org/route/v1/driving/'+lon1+','+lat1+';'+lon2+','+lat2+'?overview=false');
+    const d=await r.json();
+    if(d.routes&&d.routes.length)return Math.ceil(d.routes[0].duration/60);
+  }catch(e){}
+  return null;
+}
+function addMins(t,m){
+  if(!t)return'';
+  const[h,mn]=t.split(':').map(Number);
+  const tot=h*60+mn+m;
+  return String(Math.floor(tot/60)%24).padStart(2,'0')+':'+String(tot%60).padStart(2,'0');
+}
+function t2m(t){if(!t)return 0;const[h,m]=t.split(':').map(Number);return h*60+m;}
+function getTechDayRdvs(tech,date){
+  return getRdvs().filter(function(r){return r.technicien===tech&&r.dateRdv===date&&r.statut!=='Annule';}).sort(function(a,b){return(a.heureRdv||'').localeCompare(b.heureRdv||'');});
+}
+function checkConflict(tech,date,heure){
+  var DURATION=60;
+  var rdvs=getTechDayRdvs(tech,date);
+  var ns=t2m(heure),ne=ns+DURATION;
+  for(var i=0;i<rdvs.length;i++){
+    var r=rdvs[i];
+    if(!r.heureRdv)continue;
+    var s=t2m(r.heureRdv),e=s+DURATION;
+    if(ns<e&&ne>s)return{ok:false,msg:r.clientNom+' à '+r.heureRdv+' ('+r.type+')',next:addMins(r.heureRdv,DURATION)};
+  }
+  return{ok:true};
+}
+function updateTechPlanning(){
+  var tech=document.getElementById('rdv-tech')&&document.getElementById('rdv-tech').value;
+  var date=document.getElementById('rdv-date')&&document.getElementById('rdv-date').value;
+  var heure=document.getElementById('rdv-heure')&&document.getElementById('rdv-heure').value;
+  var pd=document.getElementById('rdv-plan-div');
+  var pl=document.getElementById('rdv-plan-list');
+  var ca=document.getElementById('rdv-conflict-div');
+  var cm=document.getElementById('rdv-conflict-msg');
+  if(!tech||!date||!pd)return;
+  var rdvs=getTechDayRdvs(tech,date);
+  if(rdvs.length){
+    pd.classList.remove('hidden');
+    pl.innerHTML=rdvs.map(function(r){return'<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #e2e8f0;"><span style="background:#fee2e2;color:#dc2626;font-size:10px;font-weight:800;padding:2px 7px;border-radius:4px;white-space:nowrap;">'+(r.heureRdv||'?')+' → '+(addMins(r.heureRdv,60)||'?')+'</span><div><div style="font-size:12px;font-weight:700;">'+r.clientNom+'</div><div style="font-size:10px;color:#6b7a8f;">'+r.type+(r.adresse?' · '+r.adresse.substring(0,28):'')+'</div></div></div>';}).join('');
+  }else{
+    pd.classList.add('hidden');
+  }
+  if(heure&&ca&&cm){
+    var c=checkConflict(tech,date,heure);
+    if(!c.ok){
+      ca.classList.remove('hidden');
+      cm.textContent='Conflit avec : '+c.msg+'. Heure corrigée → '+c.next;
+      document.getElementById('rdv-heure').value=c.next;
+    }else{
+      ca.classList.add('hidden');
+    }
+  }
+}
+var _tvTimer=null;
+function scheduleTravelUpdate(){
+  updateTechPlanning();
+  clearTimeout(_tvTimer);
+  _tvTimer=setTimeout(updateTravelInfo,800);
+}
+async function updateTravelInfo(){
+  var tech=document.getElementById('rdv-tech')&&document.getElementById('rdv-tech').value;
+  var date=document.getElementById('rdv-date')&&document.getElementById('rdv-date').value;
+  var heure=document.getElementById('rdv-heure')&&document.getElementById('rdv-heure').value;
+  var adresseEl=document.getElementById('rdv-adresse');
+  var adresse=adresseEl?(adresseEl.value||'').trim():'';
+  var td=document.getElementById('rdv-travel-div');
+  var tc=document.getElementById('rdv-travel-content');
+  if(!td||!tc)return;
+  if(!tech||!date||!heure||adresse.length<6){td.classList.add('hidden');return;}
+  var rdvs=getTechDayRdvs(tech,date).filter(function(r){return r.adresse&&r.heureRdv&&r.heureRdv<heure;});
+  if(!rdvs.length){td.classList.add('hidden');return;}
+  var prev=rdvs[rdvs.length-1];
+  if(prev.adresse===adresse){td.classList.add('hidden');return;}
+  td.classList.remove('hidden');
+  td.style.background='#f0f9ff';td.style.borderColor='#bae6fd';
+  tc.innerHTML='<div style="color:#0369a1;font-size:11px;font-weight:600;">⏳ Calcul du trajet en cours...</div>';
+  var coords=await Promise.all([geocodeAddress(prev.adresse),geocodeAddress(adresse)]);
+  var c1=coords[0],c2=coords[1];
+  if(!c1||!c2){td.classList.add('hidden');return;}
+  var mins=await getOSRMTime(c1.lat,c1.lon,c2.lat,c2.lon);
+  if(mins===null){td.classList.add('hidden');return;}
+  var prevEnd=addMins(prev.heureRdv,60);
+  var earliest=addMins(prevEnd,mins);
+  var ok=t2m(heure)>=t2m(earliest);
+  var col=ok?'#16a34a':'#dc2626';
+  var bg=ok?'#f0fdf4':'#fef2f2';
+  var border=ok?'#86efac':'#fca5a5';
+  td.style.background=bg;td.style.borderColor=border;
+  tc.innerHTML='<div style="font-size:10px;font-weight:800;color:'+col+';letter-spacing:0.5px;margin-bottom:6px;">'+(ok?'✅':'⚠️')+' TRAJET CALCULÉ</div><div style="font-size:12px;color:#374151;line-height:2;"><div>📍 <b>'+prev.adresse.substring(0,35)+'</b> — fin à <b>'+prevEnd+'</b></div><div>🚗 Trajet → <b>'+mins+' min</b></div><div>📍 <b>'+adresse.substring(0,35)+'</b> — arrivée min. <b style="color:'+col+';">'+earliest+'</b></div>'+(ok?'':'<div style="background:#dc2626;color:#fff;border-radius:6px;padding:4px 10px;margin-top:4px;font-weight:700;font-size:11px;">RDV impossible à '+heure+' — corrigé à '+earliest+'</div>')+'</div>';
+  if(!ok)document.getElementById('rdv-heure').value=earliest;
+}
 </script>
 
 </body>
