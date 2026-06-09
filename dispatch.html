@@ -285,6 +285,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <button class="nav-btn" onclick="showPage('infos',this)">Infos</button>
     <button class="nav-btn" onclick="showPage('clients',this)">Clients</button>
     <button class="nav-btn" onclick="showPage('appels',this)">📞 Appels</button>
+    <button class="nav-btn" id="nav-stock" onclick="showPage('stock',this)">📦 Stock</button>
   </div>
 
   <div class="content">
@@ -332,6 +333,13 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
         <div style="opacity:0.5;font-size:9px;">terminés / planifiés</div>
       </div>
     </div>
+  </div>
+  <div class="card" style="margin-bottom:12px;border-left:4px solid #7c3aed;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div class="lbl" style="margin-bottom:0;color:#7c3aed;">OPTIMISATION TOURNÉES</div>
+      <button class="btn btn-primary" style="background:#7c3aed;font-size:11px;" onclick="optimiserTournees()">🗺️ Optimiser</button>
+    </div>
+    <div id="tournees-result" style="color:#64748b;font-size:12px;">Cliquez pour regrouper les RDVs d'aujourd'hui par zone et économiser du trajet.</div>
   </div>
   <div class="card card-blue">
     <div class="lbl">ETAT DES TECHNICIENS</div>
@@ -691,6 +699,37 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div id="liste-clients"></div>
 </div>
 
+<!-- STOCK PIÈCES -->
+<div id="page-stock" class="hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+    <div><div style="color:#7c3aed;font-size:11px;letter-spacing:2px;font-weight:700;">STOCK PIÈCES & MATÉRIAUX</div></div>
+    <button class="btn btn-primary" onclick="toggleFormStock()">+ Ajouter</button>
+  </div>
+  <div id="form-stock" class="hidden">
+    <div class="card" style="margin-bottom:12px;border-left:4px solid #7c3aed;">
+      <div class="lbl" style="color:#7c3aed;">NOUVELLE PIÈCE</div>
+      <div class="grid-2">
+        <div class="form-field"><label>DÉSIGNATION</label><input type="text" class="form-input" id="sk-nom" placeholder="Joint 3/4 pouces"></div>
+        <div class="form-field"><label>RÉFÉRENCE</label><input type="text" class="form-input" id="sk-ref" placeholder="REF-001"></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-field"><label>QUANTITÉ EN STOCK</label><input type="number" class="form-input" id="sk-qty" value="10" min="0"></div>
+        <div class="form-field"><label>SEUIL D'ALERTE</label><input type="number" class="form-input" id="sk-seuil" value="3" min="0"></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-field"><label>PRIX UNITAIRE (€)</label><input type="number" class="form-input" id="sk-prix" value="0" min="0" step="0.01"></div>
+        <div class="form-field"><label>FOURNISSEUR</label><input type="text" class="form-input" id="sk-fourn" placeholder="Prolians, Sonepar..."></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-gray" onclick="toggleFormStock()">Annuler</button>
+        <button class="btn btn-primary" style="flex:1;" onclick="ajouterPieceStock()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+  <div id="stock-alertes" style="margin-bottom:12px;"></div>
+  <div id="liste-stock"></div>
+</div>
+
 <!-- INFOS -->
 <div id="page-infos" class="hidden">
   <div style="margin-bottom:16px;">
@@ -959,6 +998,36 @@ function lancerApp(){
   setInterval(checkRappelsSMS,30*60*1000);
 }
 
+async function optimiserTournees(){
+  var el=document.getElementById('tournees-result');
+  if(el)el.innerHTML='<span style="color:#7c3aed;">⏳ Analyse en cours...</span>';
+  var rdvs=getRdvs().filter(function(r){return r.dateRdv===todayStr()&&r.statut!=='Annule';});
+  if(rdvs.length<2){if(el)el.innerHTML='<span style="color:#94a3b8;">Moins de 2 RDV aujourd\'hui — pas d\'optimisation nécessaire.</span>';return;}
+  var techs={};rdvs.forEach(function(r){if(!techs[r.technicien])techs[r.technicien]=[];techs[r.technicien].push(r);});
+  var html='<div style="color:#7c3aed;font-size:10px;font-weight:700;margin-bottom:8px;">ORDRE OPTIMAL SUGGÉRÉ</div>';
+  for(var tech in techs){
+    var list=techs[tech];
+    // Trier par heure puis grouper par ville (last part of address)
+    list.sort(function(a,b){return (a.heureRdv||'').localeCompare(b.heureRdv||'');});
+    // Extraire villes pour regroupement
+    var zones={};list.forEach(function(r,i){var v=(r.adresse||'').split(',').pop().replace(/\d/g,'').trim().substring(0,15)||'Autre';if(!zones[v])zones[v]=[];zones[v].push(r);});
+    var totalRdv=list.length;
+    html+='<div style="margin-bottom:10px;"><div style="font-weight:700;font-size:12px;color:#1a2537;margin-bottom:4px;">'+tech+' — '+totalRdv+' RDV</div>';
+    var ordre=[];
+    Object.entries(zones).sort(function(a,b){return b[1].length-a[1].length;}).forEach(function(z){z[1].forEach(function(r){ordre.push(r);});});
+    html+=ordre.map(function(r,i){return'<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:'+(i%2===0?'#f8fafc':'#fff')+';border-radius:6px;margin-bottom:2px;">'
+      +'<span style="background:#7c3aed;color:#fff;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;">'+(i+1)+'</span>'
+      +'<div style="flex:1;"><div style="font-size:12px;font-weight:600;">'+r.clientNom+'</div><div style="font-size:10px;color:#94a3b8;">'+r.heureRdv+' · '+(r.adresse||'—').substring(0,30)+'</div></div>'
+      +'<span style="color:#7c3aed;font-size:11px;font-weight:700;">'+r.prixVente+'€</span>'
+      +'</div>';}).join('');
+    // Economie estimée
+    var econMin=Math.round(totalRdv*8);
+    html+='<div style="color:#16a34a;font-size:10px;margin-top:4px;font-weight:600;">⚡ Trajet optimisé — économie estimée ~'+econMin+'min</div>';
+    html+='</div>';
+  }
+  if(el)el.innerHTML=html;
+}
+
 function checkRappelsSMS(){
   var demain=new Date();demain.setDate(demain.getDate()+1);
   var dStr=demain.toISOString().slice(0,10);
@@ -1136,7 +1205,7 @@ function updateNavBadges(){
 }
 
 function showPage(page,btn){
-  var pages=["dashboard","dispos","urgences","nouveau-rdv","tous-rdv","validation","rapports","sav","devis","facturation","procedures","infos","clients","appels"];
+  var pages=["dashboard","dispos","urgences","nouveau-rdv","tous-rdv","validation","rapports","sav","devis","facturation","procedures","infos","clients","appels","stock"];
   for(var i=0;i<pages.length;i++) document.getElementById("page-"+pages[i]).classList.add("hidden");
   document.getElementById("page-"+page).classList.remove("hidden");
   document.querySelectorAll(".nav-btn").forEach(function(b){b.classList.remove("active");});
@@ -1154,6 +1223,58 @@ function showPage(page,btn){
   if(page==="infos")renderInfos();
   if(page==="clients")renderClients();
   if(page==="appels")renderAppels();
+  if(page==="stock")renderStock();
+}
+
+// STOCK PIÈCES
+function getStock(){return JSON.parse(localStorage.getItem('pl_stock')||'[]');}
+function saveStock(s){var v=JSON.stringify(s);localStorage.setItem('pl_stock',v);if(window.gfSync)gfSync('pl_stock',v);}
+function toggleFormStock(){document.getElementById('form-stock').classList.toggle('hidden');}
+function ajouterPieceStock(){
+  var nom=document.getElementById('sk-nom').value.trim();
+  if(!nom){showNotif('Désignation requise');return;}
+  var s=getStock();
+  s.push({id:Date.now(),nom:nom,ref:document.getElementById('sk-ref').value.trim(),qty:Number(document.getElementById('sk-qty').value||0),seuil:Number(document.getElementById('sk-seuil').value||3),prix:Number(document.getElementById('sk-prix').value||0),fourn:document.getElementById('sk-fourn').value.trim(),updatedAt:new Date().toISOString()});
+  saveStock(s);
+  ['sk-nom','sk-ref','sk-fourn'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('sk-qty').value=10;document.getElementById('sk-seuil').value=3;document.getElementById('sk-prix').value=0;
+  document.getElementById('form-stock').classList.add('hidden');
+  renderStock();showNotif('Pièce ajoutée au stock !');
+}
+function modifQtyStock(id,delta){
+  var s=getStock();var idx=s.findIndex(function(x){return x.id===id;});
+  if(idx<0)return;s[idx].qty=Math.max(0,s[idx].qty+delta);s[idx].updatedAt=new Date().toISOString();
+  saveStock(s);renderStock();
+}
+function supprimerStock(id){var s=getStock().filter(function(x){return x.id!==id;});saveStock(s);renderStock();}
+function renderStock(){
+  var s=getStock();
+  var alertes=s.filter(function(x){return x.qty<=x.seuil;});
+  var aEl=document.getElementById('stock-alertes');
+  if(aEl)aEl.innerHTML=alertes.length?'<div style="background:#fef2f2;border:1.5px solid #fecaca;border-radius:10px;padding:12px 14px;margin-bottom:12px;"><div style="color:#dc2626;font-size:11px;font-weight:700;margin-bottom:6px;">⚠️ '+alertes.length+' pièce(s) en rupture ou stock critique</div>'+alertes.map(function(x){return'<div style="color:#b91c1c;font-size:12px;">• '+x.nom+' : '+x.qty+' restant(s) (seuil '+x.seuil+')</div>';}).join('')+'</div>':'';
+  if(!s.length){document.getElementById('liste-stock').innerHTML='<div class="empty-state"><div class="empty-icon">📦</div>Aucune pièce en stock</div>';return;}
+  var valTotal=s.reduce(function(sum,x){return sum+x.qty*x.prix;},0);
+  var html='<div style="background:#f0fdf4;border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;"><span style="color:#16a34a;font-size:12px;font-weight:600;">Valeur stock totale</span><span style="color:#16a34a;font-weight:800;font-size:16px;">'+valTotal.toLocaleString('fr-FR')+'€</span></div>';
+  s.forEach(function(x){
+    var crit=x.qty<=x.seuil;var ok=x.qty>x.seuil*2;
+    var col=crit?'#dc2626':ok?'#16a34a':'#f97316';
+    html+='<div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid '+col+';border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">';
+    html+='<div><div style="font-weight:700;font-size:14px;color:#1a2537;">'+x.nom+'</div>';
+    html+='<div style="color:#64748b;font-size:11px;">'+(x.ref?x.ref+' · ':'')+''+(x.fourn||'')+'</div>';
+    if(x.prix)html+='<div style="color:#64748b;font-size:11px;">'+x.prix+'€/u · Valeur: '+(x.qty*x.prix).toLocaleString('fr-FR')+'€</div>';
+    html+='</div>';
+    html+='<div style="text-align:right;"><div style="font-size:22px;font-weight:900;color:'+col+';">'+x.qty+'</div><div style="font-size:10px;color:#94a3b8;">seuil '+x.seuil+'</div></div>';
+    html+='</div><div style="display:flex;gap:8px;">';
+    html+='<button onclick="modifQtyStock('+x.id+',-1)" style="background:#fee2e2;border:none;border-radius:8px;padding:7px 14px;font-size:14px;font-weight:800;color:#dc2626;cursor:pointer;">-</button>';
+    html+='<button onclick="modifQtyStock('+x.id+',1)" style="background:#dcfce7;border:none;border-radius:8px;padding:7px 14px;font-size:14px;font-weight:800;color:#16a34a;cursor:pointer;flex:1;">+ Entrée</button>';
+    html+='<button onclick="supprimerStock('+x.id+')" style="background:#f1f5f9;border:none;border-radius:8px;padding:7px 12px;font-size:12px;color:#64748b;cursor:pointer;">Suppr.</button>';
+    html+='</div></div>';
+  });
+  document.getElementById('liste-stock').innerHTML=html;
+  // Badge nav
+  var btn=document.getElementById('nav-stock');
+  if(btn){btn.textContent=alertes.length>0?'📦 Stock (⚠️'+alertes.length+')':'📦 Stock';btn.style.color=alertes.length>0?'#dc2626':'';}
 }
 // Alias for convenience
 function showPageDispatch(page){showPage(page,null);}

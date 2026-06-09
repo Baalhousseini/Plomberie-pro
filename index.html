@@ -826,6 +826,11 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
         <button class="share-btn share-copy" onclick="copierRapport()">📋 Copier</button>
       </div>
     </div>
+    <div id="avis-google-section" class="hidden" style="margin-top:14px;background:linear-gradient(135deg,#fef9c3,#fefce8);border:2px solid #fde68a;border-radius:14px;padding:14px 16px;text-align:center;">
+      <div style="font-size:14px;font-weight:700;color:#92400e;margin-bottom:4px;">⭐ Client très satisfait !</div>
+      <div style="font-size:12px;color:#78350f;margin-bottom:10px;">Demandez un avis Google — chaque avis booste votre visibilité</div>
+      <button onclick="demanderAvisGoogle()" style="background:#4285f4;border:none;border-radius:10px;padding:10px 20px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;width:100%;">⭐ Envoyer demande d'avis Google</button>
+    </div>
     <button class="btn-login" style="max-width:200px;margin:16px auto 0;" onclick="closeModal('modal-rapport')">Retour a l'agenda</button>
   </div>
 </div>
@@ -1487,6 +1492,11 @@ function soumettre(){
       document.getElementById("prime-win").classList.remove("hidden");
       document.getElementById("prime-win-amount").textContent=totalPrimes+" EUR";
     }
+    // Avis Google si satisfaction >= 4
+    if(satisfaction>=4){
+      var avisEl=document.getElementById('avis-google-section');
+      if(avisEl)avisEl.classList.remove('hidden');
+    }
     renderRdv();renderHistorique();renderKPI();checkUrgences();renderRecapJournee();
   } catch(err){
     showNotif("Erreur: "+err.message);
@@ -1677,6 +1687,24 @@ function effacerSignature(){
 function getSignatureData(){
   if(!_sigCanvas||!_sigHasData)return null;
   return _sigCanvas.toDataURL('image/png');
+}
+
+function demanderAvisGoogle(){
+  if(!currentRdv)return;
+  // Lien Google Maps / Google My Business — à remplacer par votre vrai lien
+  var lienGoogle='https://search.google.com/local/writereview?placeid=VOTRE_PLACE_ID';
+  var msg='Bonjour '+currentRdv.clientNom+', merci pour votre confiance ! Si vous êtes satisfait(e), votre avis Google nous aide beaucoup : '+lienGoogle+' — GreenFlow Technologies 🙏';
+  if(currentRdv.clientTel){
+    window.open('sms:'+currentRdv.clientTel+'?body='+encodeURIComponent(msg));
+    // Tracker l'avis demandé
+    var avis=JSON.parse(localStorage.getItem('pl_avis')||'[]');
+    avis.push({id:Date.now(),rdvId:currentRdv.id,client:currentRdv.clientNom,tel:currentRdv.clientTel,date:todayStr(),tech:currentUser?currentUser.nom:'',sent:true});
+    localStorage.setItem('pl_avis',JSON.stringify(avis));
+    showNotif('Demande d\'avis envoyée par SMS !');
+  } else {
+    window.open(lienGoogle,'_blank');
+  }
+  document.getElementById('avis-google-section').classList.add('hidden');
 }
 
 function setEncaissement(mode){
