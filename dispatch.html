@@ -339,6 +339,10 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
           <option>Chaudiere en panne</option><option>Canalisation bouchee</option><option>Autre urgence</option>
         </select>
       </div>
+      <div class="grid-2">
+        <div class="form-field"><label>DATE INTERVENTION</label><input type="date" class="form-input" id="urg-date"></div>
+        <div class="form-field"><label>HEURE</label><input type="time" class="form-input" id="urg-heure" value="09:00"></div>
+      </div>
       <div class="form-field"><label>TECHNICIEN</label>
         <select class="form-select" id="urg-tech"><option>Technicien 1</option><option>Technicien 2</option></select>
       </div>
@@ -857,17 +861,38 @@ function creerRdv(){
   showNotif("RDV cree pour "+nom+" !");actualiserTout();
 }
 
-function toggleFormUrgence(){document.getElementById("form-urgence").classList.toggle("hidden");}
+function toggleFormUrgence(){
+  document.getElementById("form-urgence").classList.toggle("hidden");
+  // Pré-remplir la date du jour à l'ouverture
+  var df=document.getElementById("urg-date");
+  if(df&&!df.value)df.value=todayStr();
+}
 
 function sauvegarderUrgence(){
   var nom=document.getElementById("urg-nom").value.trim(),tel=document.getElementById("urg-tel").value.trim();
   if(!nom||!tel){showNotif("Nom et telephone requis");return;}
+  var dateInt=document.getElementById("urg-date").value||todayStr();
+  var heureInt=document.getElementById("urg-heure").value||"09:00";
+  var tech=document.getElementById("urg-tech").value;
+  var adresse=document.getElementById("urg-adresse").value.trim();
+  var type=document.getElementById("urg-type").value;
+  var note=document.getElementById("urg-note").value.trim();
+  var rid=Date.now();
+
+  // Sauvegarder l'urgence
   var u=getUrgences();
-  u.unshift({id:Date.now(),clientNom:nom,clientTel:tel,adresse:document.getElementById("urg-adresse").value.trim(),type:document.getElementById("urg-type").value,technicien:document.getElementById("urg-tech").value,note:document.getElementById("urg-note").value.trim(),creeeAt:new Date().toISOString(),statut:"Active"});
+  u.unshift({id:rid,clientNom:nom,clientTel:tel,adresse:adresse,type:type,technicien:tech,note:note,dateRdv:dateInt,heureRdv:heureInt,creeeAt:new Date().toISOString(),statut:"Active"});
   saveUrgences(u);
+
+  // Créer aussi un RDV dans pl_rdvs pour que le technicien le voit
+  var rdvs=getRdvs();
+  rdvs.push({id:rid,clientNom:nom,clientTel:tel,adresse:adresse,type:"🚨 URGENCE — "+type,dateRdv:dateInt,heureRdv:heureInt,technicien:tech,prixVente:0,statut:"Confirme",notes:note,urgent:true,creePar:"dispatch",creeAt:new Date().toISOString()});
+  saveRdvs(rdvs);
+
   ["urg-nom","urg-tel","urg-adresse","urg-note"].forEach(function(id){document.getElementById(id).value="";});
+  document.getElementById("urg-date").value="";
   document.getElementById("form-urgence").classList.add("hidden");
-  renderUrgences();updateNavBadges();showNotif("Urgence creee !");
+  renderUrgences();updateNavBadges();actualiserTout();showNotif("Urgence creee et envoyee au technicien !");
 }
 
 function renderUrgences(){
@@ -1268,7 +1293,7 @@ document.body.appendChild(n);setTimeout(function(){n.remove();},3500);
 
 var MODULE_CURRENT='dispatch.html';
 var MODULES=[
-  {file:'index.html',label:'Technicien',icon:'👷',roles:['TECHNICIEN','PATRON','DISPATCH']},
+  {file:'index.html',label:'Technicien',icon:'👷',roles:['TECHNICIEN','PATRON']},
   {file:'dispatch.html',label:'Dispatch',icon:'📋',roles:['DISPATCH','PATRON']},
   {file:'patron.html',label:'Patron',icon:'👔',roles:['PATRON']},
   {file:'patron-analytics.html',label:'Analytics',icon:'📊',roles:['PATRON']},
@@ -1282,12 +1307,19 @@ function renderModuleNav(){
   nav.classList.remove('hidden');
   nav.innerHTML=v.map(function(m){return '<button class="mnav-btn'+(m.file===MODULE_CURRENT?' active':'')+'" onclick="naviguerVers(\''+m.file+'\')">'+(m.icon)+' '+(m.label)+'</button>';}).join('');
 }
-
 window.onload=function(){
 initPins();
 var s=localStorage.getItem("pl_dispatch_session");
 if(s) lancerApp();
 };
+
+// Mise à jour temps réel quand Firebase pousse des données
+window.addEventListener('storage',function(e){
+  if(!['pl_rdvs','pl_urgences','pl_rapports','pl_dispos'].includes(e.key))return;
+  if(document.getElementById("app")&&!document.getElementById("app").classList.contains("hidden")){
+    actualiserTout();
+  }
+});
 </script>
 
 </body>
