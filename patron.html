@@ -707,6 +707,10 @@ function lancerApp(){
   renderDashboard();
   renderModuleNav();
   updateNavBadges();
+  if(window.gfListen)gfListen((key,val)=>{
+    localStorage.setItem(key,val);
+    window.dispatchEvent(new StorageEvent('storage',{key,newValue:val,storageArea:localStorage}));
+  });
   window.addEventListener('storage',e=>{
     if(e.key==='pl_rapports'){
       showNotif('Nouveau rapport recu !');
@@ -731,6 +735,12 @@ function lancerApp(){
     }
     if(e.key==='pl_rdvs'){
       renderDisposDispatch();renderPlanningJour();renderDashboard();
+    }
+    if(e.key==='pl_urgences'){
+      updateNavBadges();renderDashboard();renderAlertes();
+      if(!document.getElementById('page-urgences').classList.contains('hidden'))renderUrgences();
+      const actives=getUrgences().filter(u=>u.statut!=='Resolu');
+      if(actives.length)showNotif('Urgence reçue : '+actives[0].clientNom+' — '+actives[0].type);
     }
     if(e.key==='pl_chat'){
       const msgs=JSON.parse(localStorage.getItem('pl_chat')||'[]');

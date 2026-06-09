@@ -821,6 +821,7 @@ function lancerApp(){
   lastRdvCount=getMesRdvs().length;
   lastChatCount=getMessages().length;
   if(window.gfListen)gfListen(function(key,val){
+    localStorage.setItem(key,val);
     window.dispatchEvent(new StorageEvent('storage',{key:key,newValue:val,storageArea:localStorage}));
   });
   setInterval(()=>{

@@ -574,6 +574,7 @@ function lancerApp(){
   renderModuleNav();
   demarrerHorloge();
   if(window.gfListen)gfListen(function(key,val){
+    localStorage.setItem(key,val);
     window.dispatchEvent(new StorageEvent('storage',{key:key,newValue:val,storageArea:localStorage}));
   });
   window.addEventListener('storage',function(e){
@@ -591,6 +592,17 @@ function lancerApp(){
       if(!document.getElementById('page-validation').classList.contains('hidden'))renderValidation();
     }
     if(e.key==='pl_rdvs'){actualiserTout();renderDispatchKPI();}
+    if(e.key==='pl_urgences'){
+      updateNavBadges();
+      if(!document.getElementById('page-urgences').classList.contains('hidden'))renderUrgences();
+      if(!document.getElementById('page-dashboard').classList.contains('hidden'))renderDashboard();
+      var actives=getUrgences().filter(function(u){return u.statut!=='Resolu';});
+      if(actives.length)showNotif('Urgence : '+actives[0].clientNom+' — '+actives[0].type);
+    }
+    if(e.key==='pl_dispos'){
+      if(!document.getElementById('page-dispos').classList.contains('hidden'))renderDispos();
+      if(!document.getElementById('page-dashboard').classList.contains('hidden'))renderDashboard();
+    }
     if(e.key==='pl_chat'){
       var msgs=JSON.parse(localStorage.getItem('pl_chat')||'[]');
       if(msgs.length>0){var last=msgs[msgs.length-1];if(last.role==='TECHNICIEN')showNotif('Message de '+last.from+' : '+last.text.slice(0,40));}
