@@ -1,0 +1,8 @@
+{
+  "name": "greenflow-pro",
+  "version": "1.0.0",
+  "dependencies": {
+    "stripe": "^14.0.0",
+    "twilio": "^4.0.0"
+  }
+}
