@@ -1125,10 +1125,11 @@ function carteBodyHtml(r,isToday,isDone){
   ${r.heureDebut?`<div style="margin-top:8px;font-size:11px;color:var(--muted);">⏱ Démarré à ${r.heureDebut}${r.heureFin?' · Terminé à '+r.heureFin:''}</div>`:""}
   ${!isDone?`<div class="actions-row">
     <button class="action-btn btn-blue" onclick="ouvrirScript(${r.id})">Script IA</button>
-    ${isToday&&!isEnCours?`<button class="action-btn btn-green" onclick="demarrerIntervention(${r.id})" style="background:#f0fdf4;color:#166534;">▶ Démarrer</button>`:""}
+    ${isToday&&!isEnCours?`<button class="action-btn btn-green" onclick="demarrerIntervention(${r.id})" style="background:#f0fdf4;color:#166634;">▶ Démarrer</button>`:""}
     ${isToday&&isEnCours?`<button class="action-btn btn-green" onclick="terminerEtRapport(${r.id})" style="background:#dcfce7;color:#15803d;">✓ Terminer</button>`:""}
     ${isToday&&!isEnCours?`<button class="action-btn btn-orange" onclick="ouvrirDevisSurPlace(${r.id})">Devis</button>`:""}
     <button class="action-btn btn-gray" onclick="ouvrirRapport(${r.id})">Rapport</button>
+    <button class="action-btn" style="background:${getFicheLogement(r.clientTel)?'#fef9c3;color:#854d0e;border:1px solid #fde047':'#f8fafc;color:#475569;border:1px solid #e2e8f0'};border-radius:9px;padding:11px 8px;" onclick="ouvrirFicheLogement('${r.clientTel}','${r.clientNom}','${(r.adresse||'').replace(/'/g,"\\'")}')">🏠 ${getFicheLogement(r.clientTel)?'Fiche ✓':'Fiche'}</button>
   </div>`:""}
 </div>`;
 }
@@ -1992,6 +1993,335 @@ setInterval(function(){
     </div>
   </div>
 </div>
+
+<!-- MODAL FICHE LOGEMENT -->
+<div class="modal-bg hidden" id="modal-fiche-logement">
+  <div class="modal-sheet" style="max-height:92vh;overflow-y:auto;padding-bottom:24px;">
+    <div class="modal-header" style="position:sticky;top:0;background:#fff;z-index:10;padding-bottom:10px;border-bottom:1px solid var(--border);">
+      <div>
+        <div class="modal-title">🏠 FICHE LOGEMENT</div>
+        <div class="modal-subtitle" id="fiche-client-label"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-fiche-logement')">✕</button>
+    </div>
+    <div style="padding-top:12px;">
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:8px 12px;margin-bottom:14px;font-size:11px;color:#166534;font-weight:600;">💡 Ces infos restent attachées au client pour toutes les interventions futures. Auto-sauvegarde à chaque saisie.</div>
+
+      <!-- SECTION LOGEMENT -->
+      <div class="fiche-section">
+        <div class="fiche-section-titre">🏗️ LOGEMENT</div>
+        <div class="fiche-grid">
+          <div class="fiche-field"><label>Type</label>
+            <select class="fiche-select" id="f-type-logement" onchange="autoSaveFiche()">
+              <option value="">—</option><option>Appartement</option><option>Maison</option><option>Studio</option><option>Duplex</option><option>Loft</option><option>Commerce</option>
+            </select>
+          </div>
+          <div class="fiche-field"><label>Surface (m²)</label><input type="number" class="fiche-input" id="f-surface" placeholder="75" min="0" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Étage</label><input type="number" class="fiche-input" id="f-etage" placeholder="3" min="-2" max="50" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Nb pièces</label><input type="number" class="fiche-input" id="f-nb-pieces" placeholder="4" min="1" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Nb SDB / WC</label><input type="text" class="fiche-input" id="f-nb-sdb" placeholder="1 SDB + 1 WC" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Année construction</label><input type="number" class="fiche-input" id="f-annee-const" placeholder="1985" min="1850" max="2025" oninput="autoSaveFiche()"></div>
+        </div>
+      </div>
+
+      <!-- SECTION CHAUFFAGE -->
+      <div class="fiche-section">
+        <div class="fiche-section-titre">🔥 CHAUFFAGE</div>
+        <div class="fiche-grid">
+          <div class="fiche-field" style="grid-column:span 2;"><label>Type de chauffage</label>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;" id="f-chauffage-type-group">
+              <button class="fiche-chip" onclick="toggleChip(this,'f-chauf-gaz')" id="f-chauf-gaz">🔵 Chaudière gaz</button>
+              <button class="fiche-chip" onclick="toggleChip(this,'f-chauf-fioul')" id="f-chauf-fioul">🛢 Fioul</button>
+              <button class="fiche-chip" onclick="toggleChip(this,'f-chauf-elec')" id="f-chauf-elec">⚡ Électrique</button>
+              <button class="fiche-chip" onclick="toggleChip(this,'f-chauf-pac')" id="f-chauf-pac">♻️ PAC air/eau</button>
+              <button class="fiche-chip" onclick="toggleChip(this,'f-chauf-bois')" id="f-chauf-bois">🪵 Poêle à bois</button>
+              <button class="fiche-chip" onclick="toggleChip(this,'f-chauf-plancher')" id="f-chauf-plancher">🌡️ Plancher chauffant</button>
+            </div>
+          </div>
+          <div class="fiche-field"><label>Marque chaudière</label><input type="text" class="fiche-input" id="f-chaud-marque" placeholder="Viessmann, Saunier..." oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Modèle / Réf.</label><input type="text" class="fiche-input" id="f-chaud-modele" placeholder="Vitodens 200-W" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Année installation</label><input type="number" class="fiche-input" id="f-chaud-annee" placeholder="2015" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Dernier entretien</label><input type="month" class="fiche-input" id="f-chaud-entretien" oninput="autoSaveFiche()"></div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+          <label class="fiche-check"><input type="checkbox" id="f-vase" onchange="autoSaveFiche()"> Vase expansion</label>
+          <label class="fiche-check"><input type="checkbox" id="f-purgeur" onchange="autoSaveFiche()"> Purgeur automatique</label>
+          <label class="fiche-check"><input type="checkbox" id="f-disconnecteur" onchange="autoSaveFiche()"> Disconnecteur</label>
+          <label class="fiche-check"><input type="checkbox" id="f-robinets-rad" onchange="autoSaveFiche()"> Robinets radiateurs</label>
+        </div>
+      </div>
+
+      <!-- SECTION RADIATEURS -->
+      <div class="fiche-section">
+        <div class="fiche-section-titre">🌡️ RADIATEURS</div>
+        <div class="fiche-grid">
+          <div class="fiche-field"><label>Type</label>
+            <select class="fiche-select" id="f-rad-type" onchange="autoSaveFiche()">
+              <option value="">—</option><option>Fonte</option><option>Acier</option><option>Aluminium</option><option>Électrique</option><option>Sèche-serviettes</option>
+            </select>
+          </div>
+          <div class="fiche-field"><label>Nombre</label><input type="number" class="fiche-input" id="f-rad-nb" placeholder="6" min="0" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>État général</label>
+            <select class="fiche-select" id="f-rad-etat" onchange="autoSaveFiche()">
+              <option value="">—</option><option>Bon</option><option>Entartrés</option><option>Bruyants</option><option>Fuites</option><option>À remplacer</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+          <label class="fiche-check"><input type="checkbox" id="f-trv" onchange="autoSaveFiche()"> Têtes thermostatiques (TRV)</label>
+          <label class="fiche-check"><input type="checkbox" id="f-thermostat-prog" onchange="autoSaveFiche()"> Thermostat programmable</label>
+          <label class="fiche-check"><input type="checkbox" id="f-thermostat-smart" onchange="autoSaveFiche()"> Thermostat connecté</label>
+        </div>
+      </div>
+
+      <!-- SECTION EAU CHAUDE -->
+      <div class="fiche-section">
+        <div class="fiche-section-titre">💧 EAU CHAUDE SANITAIRE</div>
+        <div class="fiche-grid">
+          <div class="fiche-field" style="grid-column:span 2;"><label>Type</label>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
+              <button class="fiche-chip" onclick="toggleChip(this,'f-ecs-ballon-elec')" id="f-ecs-ballon-elec">⚡ Ballon électrique</button>
+              <button class="fiche-chip" onclick="toggleChip(this,'f-ecs-ballon-gaz')" id="f-ecs-ballon-gaz">🔵 Chauffe-eau gaz</button>
+              <button class="fiche-chip" onclick="toggleChip(this,'f-ecs-instantane')" id="f-ecs-instantane">⚡ Instantané</button>
+              <button class="fiche-chip" onclick="toggleChip(this,'f-ecs-thermo')" id="f-ecs-thermo">♻️ Thermodynamique</button>
+              <button class="fiche-chip" onclick="toggleChip(this,'f-ecs-solaire')" id="f-ecs-solaire">☀️ Solaire</button>
+            </div>
+          </div>
+          <div class="fiche-field"><label>Marque</label><input type="text" class="fiche-input" id="f-ecs-marque" placeholder="Chaffoteaux, Atlantic..." oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Capacité (L)</label><input type="number" class="fiche-input" id="f-ecs-capacite" placeholder="150" min="0" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Année</label><input type="number" class="fiche-input" id="f-ecs-annee" placeholder="2018" oninput="autoSaveFiche()"></div>
+        </div>
+      </div>
+
+      <!-- SECTION PLOMBERIE -->
+      <div class="fiche-section">
+        <div class="fiche-section-titre">🔧 PLOMBERIE</div>
+        <div class="fiche-grid">
+          <div class="fiche-field"><label>Canalisations</label>
+            <select class="fiche-select" id="f-cana-type" onchange="autoSaveFiche()">
+              <option value="">—</option><option>Cuivre</option><option>PER</option><option>PVC</option><option>Galvanisé</option><option>Multicouche</option><option>Mixte</option>
+            </select>
+          </div>
+          <div class="fiche-field"><label>Vanne générale</label>
+            <select class="fiche-select" id="f-vanne-etat" onchange="autoSaveFiche()">
+              <option value="">—</option><option>Bonne</option><option>Usée</option><option>Bloquée</option><option>Introuvable</option>
+            </select>
+          </div>
+          <div class="fiche-field"><label>Pression eau</label>
+            <select class="fiche-select" id="f-pression" onchange="autoSaveFiche()">
+              <option value="">—</option><option>Normale</option><option>Faible</option><option>Trop forte</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+          <label class="fiche-check"><input type="checkbox" id="f-adoucisseur" onchange="autoSaveFiche()"> Adoucisseur d'eau</label>
+          <label class="fiche-check"><input type="checkbox" id="f-dfi" onchange="autoSaveFiche()"> Détecteur fuite individuel</label>
+          <label class="fiche-check"><input type="checkbox" id="f-reducpression" onchange="autoSaveFiche()"> Réducteur de pression</label>
+          <label class="fiche-check"><input type="checkbox" id="f-filtre-line" onchange="autoSaveFiche()"> Filtre en ligne</label>
+        </div>
+      </div>
+
+      <!-- SECTION CLIMATISATION -->
+      <div class="fiche-section">
+        <div class="fiche-section-titre">❄️ CLIMATISATION</div>
+        <div class="fiche-grid">
+          <div class="fiche-field"><label>Présente ?</label>
+            <select class="fiche-select" id="f-clim-present" onchange="autoSaveFiche()">
+              <option value="">—</option><option>Oui</option><option>Non</option>
+            </select>
+          </div>
+          <div class="fiche-field"><label>Nb d'unités</label><input type="number" class="fiche-input" id="f-clim-nb" placeholder="2" min="0" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Marque</label><input type="text" class="fiche-input" id="f-clim-marque" placeholder="Daikin, Mitsubishi..." oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Année</label><input type="number" class="fiche-input" id="f-clim-annee" placeholder="2020" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Dernier entretien</label><input type="month" class="fiche-input" id="f-clim-entretien" oninput="autoSaveFiche()"></div>
+        </div>
+      </div>
+
+      <!-- SECTION GAZ -->
+      <div class="fiche-section">
+        <div class="fiche-section-titre">🔵 GAZ</div>
+        <div class="fiche-grid">
+          <div class="fiche-field"><label>Gaz présent ?</label>
+            <select class="fiche-select" id="f-gaz-present" onchange="autoSaveFiche()">
+              <option value="">—</option><option>Oui</option><option>Non</option>
+            </select>
+          </div>
+          <div class="fiche-field"><label>Compteur</label>
+            <select class="fiche-select" id="f-gaz-compteur" onchange="autoSaveFiche()">
+              <option value="">—</option><option>Intérieur</option><option>Extérieur</option><option>Cave</option><option>Commun</option>
+            </select>
+          </div>
+          <div class="fiche-field"><label>Dernier contrôle</label><input type="month" class="fiche-input" id="f-gaz-controle" oninput="autoSaveFiche()"></div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+          <label class="fiche-check"><input type="checkbox" id="f-vanne-gaz" onchange="autoSaveFiche()"> Vanne gaz accessible</label>
+          <label class="fiche-check"><input type="checkbox" id="f-detecteur-gaz" onchange="autoSaveFiche()"> Détecteur de gaz</label>
+          <label class="fiche-check"><input type="checkbox" id="f-detecteur-co" onchange="autoSaveFiche()"> Détecteur CO</label>
+        </div>
+      </div>
+
+      <!-- OPPORTUNITÉS COMMERCIALES -->
+      <div class="fiche-section" style="background:#fef9c3;border-color:#fde047;">
+        <div class="fiche-section-titre" style="color:#854d0e;">💰 OPPORTUNITÉS DÉTECTÉES</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <label class="fiche-check"><input type="checkbox" id="fo-chaudiere" onchange="autoSaveFiche()"> Remplacement chaudière</label>
+          <label class="fiche-check"><input type="checkbox" id="fo-ballon" onchange="autoSaveFiche()"> Nouveau ballon ECS</label>
+          <label class="fiche-check"><input type="checkbox" id="fo-adoucisseur" onchange="autoSaveFiche()"> Adoucisseur d'eau</label>
+          <label class="fiche-check"><input type="checkbox" id="fo-clim" onchange="autoSaveFiche()"> Installation clim</label>
+          <label class="fiche-check"><input type="checkbox" id="fo-trv" onchange="autoSaveFiche()"> Pose têtes TRV</label>
+          <label class="fiche-check"><label class="fiche-check"><input type="checkbox" id="fo-robinets" onchange="autoSaveFiche()"> Remplacement robinets</label>
+          <label class="fiche-check"><input type="checkbox" id="fo-contrat" onchange="autoSaveFiche()"> Contrat entretien annuel</label>
+          <label class="fiche-check"><input type="checkbox" id="fo-thermostat" onchange="autoSaveFiche()"> Thermostat connecté</label>
+          <label class="fiche-check"><input type="checkbox" id="fo-plancher" onchange="autoSaveFiche()"> Plancher chauffant</label>
+          <label class="fiche-check"><input type="checkbox" id="fo-renovation-sdb" onchange="autoSaveFiche()"> Rénovation SDB</label>
+        </div>
+      </div>
+
+      <!-- NOTES LIBRES -->
+      <div class="fiche-section">
+        <div class="fiche-section-titre">📝 NOTES TECHNICIEN</div>
+        <textarea class="fiche-input" id="f-notes-libres" rows="3" placeholder="Accès difficile, vanne rouillée, prévoir remplacement chaudière dans 2 ans, client intéressé par contrat entretien..." style="width:100%;resize:vertical;" oninput="autoSaveFiche()"></textarea>
+      </div>
+
+      <div id="fiche-save-status" style="text-align:center;font-size:11px;color:#16a34a;font-weight:600;margin-top:8px;"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+.fiche-section{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+.fiche-section-titre{font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;}
+.fiche-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.fiche-field label{display:block;font-size:9px;font-weight:700;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:4px;}
+.fiche-input{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;box-sizing:border-box;background:#fafafa;}
+.fiche-select{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;background:#fafafa;}
+.fiche-check{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:6px 10px;background:#f8fafc;border-radius:8px;cursor:pointer;border:1px solid var(--border);}
+.fiche-check input{width:16px;height:16px;cursor:pointer;accent-color:var(--green);}
+.fiche-chip{border:1.5px solid var(--border);border-radius:20px;padding:6px 12px;font-size:11px;font-weight:600;background:#f8fafc;color:var(--text);cursor:pointer;transition:all 0.15s;}
+.fiche-chip.active{background:var(--green);color:#fff;border-color:var(--green);}
+</style>
+
+<script>
+/* ══════════════════════════════════════════
+   FICHE LOGEMENT — MODULE TECHNICIEN
+   ══════════════════════════════════════════ */
+
+var _ficheClientTel = null;
+var _ficheAutoSaveTimer = null;
+var _ficheChips = {};
+
+function getFichesLogement(){ return JSON.parse(localStorage.getItem("pl_fiches_logement") || "{}"); }
+function getFicheLogement(tel){ return getFichesLogement()[tel] || null; }
+
+function saveFicheLogement(tel, data){
+  var fiches = getFichesLogement();
+  fiches[tel] = Object.assign(fiches[tel] || {}, data, {updatedAt: new Date().toISOString(), updatedBy: currentTech ? currentTech.nom : "Tech"});
+  var v = JSON.stringify(fiches);
+  localStorage.setItem("pl_fiches_logement", v);
+  if(window.gfSync) gfSync("pl_fiches_logement", v);
+}
+
+function ouvrirFicheLogement(tel, nom, adresse){
+  _ficheClientTel = tel;
+  _ficheChips = {};
+  document.getElementById("fiche-client-label").textContent = nom + " · " + adresse;
+  document.getElementById("fiche-save-status").textContent = "";
+
+  var fiche = getFicheLogement(tel) || {};
+
+  // Logement
+  _setFiche("f-type-logement", fiche.typeLogement);
+  _setFiche("f-surface", fiche.surface);
+  _setFiche("f-etage", fiche.etage);
+  _setFiche("f-nb-pieces", fiche.nbPieces);
+  _setFiche("f-nb-sdb", fiche.nbSdb);
+  _setFiche("f-annee-const", fiche.anneeConst);
+  // Chauffage
+  _setChips(fiche.chauffageTypes || [], ["f-chauf-gaz","f-chauf-fioul","f-chauf-elec","f-chauf-pac","f-chauf-bois","f-chauf-plancher"]);
+  _setFiche("f-chaud-marque", fiche.chaudMarque);
+  _setFiche("f-chaud-modele", fiche.chaudModele);
+  _setFiche("f-chaud-annee", fiche.chaudAnnee);
+  _setFiche("f-chaud-entretien", fiche.chaudEntretien);
+  _setCb("f-vase", fiche.vase); _setCb("f-purgeur", fiche.purgeur); _setCb("f-disconnecteur", fiche.disconnecteur); _setCb("f-robinets-rad", fiche.robinetsRad);
+  // Radiateurs
+  _setFiche("f-rad-type", fiche.radType); _setFiche("f-rad-nb", fiche.radNb); _setFiche("f-rad-etat", fiche.radEtat);
+  _setCb("f-trv", fiche.trv); _setCb("f-thermostat-prog", fiche.thermostatProg); _setCb("f-thermostat-smart", fiche.thermostatSmart);
+  // ECS
+  _setChips(fiche.ecsTypes || [], ["f-ecs-ballon-elec","f-ecs-ballon-gaz","f-ecs-instantane","f-ecs-thermo","f-ecs-solaire"]);
+  _setFiche("f-ecs-marque", fiche.ecsMarque); _setFiche("f-ecs-capacite", fiche.ecsCapacite); _setFiche("f-ecs-annee", fiche.ecsAnnee);
+  // Plomberie
+  _setFiche("f-cana-type", fiche.canaType); _setFiche("f-vanne-etat", fiche.vanneEtat); _setFiche("f-pression", fiche.pression);
+  _setCb("f-adoucisseur", fiche.adoucisseur); _setCb("f-dfi", fiche.dfi); _setCb("f-reducpression", fiche.reducpression); _setCb("f-filtre-line", fiche.filtreLine);
+  // Clim
+  _setFiche("f-clim-present", fiche.climPresent); _setFiche("f-clim-nb", fiche.climNb); _setFiche("f-clim-marque", fiche.climMarque); _setFiche("f-clim-annee", fiche.climAnnee); _setFiche("f-clim-entretien", fiche.climEntretien);
+  // Gaz
+  _setFiche("f-gaz-present", fiche.gazPresent); _setFiche("f-gaz-compteur", fiche.gazCompteur); _setFiche("f-gaz-controle", fiche.gazControle);
+  _setCb("f-vanne-gaz", fiche.vanneGaz); _setCb("f-detecteur-gaz", fiche.detecteurGaz); _setCb("f-detecteur-co", fiche.detecteurCO);
+  // Opportunités
+  ["fo-chaudiere","fo-ballon","fo-adoucisseur","fo-clim","fo-trv","fo-robinets","fo-contrat","fo-thermostat","fo-plancher","fo-renovation-sdb"].forEach(id => {
+    _setCb(id, (fiche.opportunites||[]).includes(id));
+  });
+  // Notes
+  _setFiche("f-notes-libres", fiche.notes);
+
+  document.getElementById("modal-fiche-logement").classList.remove("hidden");
+}
+
+function _setFiche(id, val){ var el = document.getElementById(id); if(el && val !== undefined && val !== null) el.value = val; }
+function _setCb(id, val){ var el = document.getElementById(id); if(el) el.checked = !!val; }
+function _setChips(active, ids){
+  ids.forEach(id => {
+    var el = document.getElementById(id);
+    if(!el) return;
+    if(active.includes(id)){ el.classList.add("active"); } else { el.classList.remove("active"); }
+  });
+}
+function toggleChip(el, id){ el.classList.toggle("active"); autoSaveFiche(); }
+
+function _readFiche(){
+  var f = {};
+  var g = function(id){ var el=document.getElementById(id); return el?el.value:undefined; };
+  var cb = function(id){ var el=document.getElementById(id); return el?el.checked:false; };
+  // Logement
+  f.typeLogement=g("f-type-logement"); f.surface=g("f-surface")?Number(g("f-surface")):undefined;
+  f.etage=g("f-etage")!==undefined&&g("f-etage")!==""?Number(g("f-etage")):undefined;
+  f.nbPieces=g("f-nb-pieces")?Number(g("f-nb-pieces")):undefined; f.nbSdb=g("f-nb-sdb"); f.anneeConst=g("f-annee-const")?Number(g("f-annee-const")):undefined;
+  // Chauffage
+  f.chauffageTypes=["f-chauf-gaz","f-chauf-fioul","f-chauf-elec","f-chauf-pac","f-chauf-bois","f-chauf-plancher"].filter(id=>{var el=document.getElementById(id);return el&&el.classList.contains("active");});
+  f.chaudMarque=g("f-chaud-marque"); f.chaudModele=g("f-chaud-modele"); f.chaudAnnee=g("f-chaud-annee")?Number(g("f-chaud-annee")):undefined; f.chaudEntretien=g("f-chaud-entretien");
+  f.vase=cb("f-vase"); f.purgeur=cb("f-purgeur"); f.disconnecteur=cb("f-disconnecteur"); f.robinetsRad=cb("f-robinets-rad");
+  // Radiateurs
+  f.radType=g("f-rad-type"); f.radNb=g("f-rad-nb")?Number(g("f-rad-nb")):undefined; f.radEtat=g("f-rad-etat");
+  f.trv=cb("f-trv"); f.thermostatProg=cb("f-thermostat-prog"); f.thermostatSmart=cb("f-thermostat-smart");
+  // ECS
+  f.ecsTypes=["f-ecs-ballon-elec","f-ecs-ballon-gaz","f-ecs-instantane","f-ecs-thermo","f-ecs-solaire"].filter(id=>{var el=document.getElementById(id);return el&&el.classList.contains("active");});
+  f.ecsMarque=g("f-ecs-marque"); f.ecsCapacite=g("f-ecs-capacite")?Number(g("f-ecs-capacite")):undefined; f.ecsAnnee=g("f-ecs-annee")?Number(g("f-ecs-annee")):undefined;
+  // Plomberie
+  f.canaType=g("f-cana-type"); f.vanneEtat=g("f-vanne-etat"); f.pression=g("f-pression");
+  f.adoucisseur=cb("f-adoucisseur"); f.dfi=cb("f-dfi"); f.reducpression=cb("f-reducpression"); f.filtreLine=cb("f-filtre-line");
+  // Clim
+  f.climPresent=g("f-clim-present"); f.climNb=g("f-clim-nb")?Number(g("f-clim-nb")):undefined; f.climMarque=g("f-clim-marque"); f.climAnnee=g("f-clim-annee")?Number(g("f-clim-annee")):undefined; f.climEntretien=g("f-clim-entretien");
+  // Gaz
+  f.gazPresent=g("f-gaz-present"); f.gazCompteur=g("f-gaz-compteur"); f.gazControle=g("f-gaz-controle");
+  f.vanneGaz=cb("f-vanne-gaz"); f.detecteurGaz=cb("f-detecteur-gaz"); f.detecteurCO=cb("f-detecteur-co");
+  // Opportunités
+  f.opportunites=["fo-chaudiere","fo-ballon","fo-adoucisseur","fo-clim","fo-trv","fo-robinets","fo-contrat","fo-thermostat","fo-plancher","fo-renovation-sdb"].filter(cb);
+  // Notes
+  f.notes=g("f-notes-libres");
+  return f;
+}
+
+function autoSaveFiche(){
+  clearTimeout(_ficheAutoSaveTimer);
+  _ficheAutoSaveTimer = setTimeout(function(){
+    if(!_ficheClientTel) return;
+    saveFicheLogement(_ficheClientTel, _readFiche());
+    var st = document.getElementById("fiche-save-status");
+    if(st){ st.textContent = "✓ Sauvegardé"; setTimeout(()=>{ st.textContent=""; }, 2000); }
+    renderRdv();
+  }, 600);
+}
+</script>
 
 <script>
 if('serviceWorker' in navigator) {
