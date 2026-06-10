@@ -165,6 +165,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <button onclick="showPage('rh')">👥 RH</button>
     <button onclick="showPage('commercial')">📈 Commercial</button>
     <button onclick="showPage('strategie')">🎯 Strategie</button>
+    <button onclick="showPage('mandants')">🤝 Mandants</button>
   </div>
 
   <div class="content">
@@ -238,6 +239,53 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div class="card b"><div class="lbl">10 — PANIER MOYEN</div><div id="com-panier"></div></div>
   <div class="card o"><div class="lbl">11 — SAISONNALITE — CA PAR MOIS</div><div id="com-saison"></div></div>
   <div class="card y"><div class="lbl">12 — TOP 10 CLIENTS LES PLUS RENTABLES</div><div id="com-top"></div></div>
+</div>
+
+<!-- MANDANTS -->
+<div id="page-mandants" class="hidden">
+  <div class="card g">
+    <div class="lbl">🎯 PLATEFORMES D'AGRÉMENT — PRIORITÉ ABSOLUE</div>
+    <div style="background:#f0fdf4;border-radius:10px;padding:12px;margin-bottom:8px;font-size:12px;color:#166534;font-weight:600;">
+      ⚡ Inscription gratuite — accès à tous les réseaux assureurs en une fois
+    </div>
+    <div id="mandants-plateformes"></div>
+  </div>
+  <div class="card b">
+    <div class="lbl">🏢 ASSUREURS — SERVICE RÉSEAU PRESTATAIRES</div>
+    <div id="mandants-assureurs"></div>
+  </div>
+  <div class="card y">
+    <div class="lbl">🏘 SYNDICS & GESTIONNAIRES IDF</div>
+    <div id="mandants-syndics"></div>
+  </div>
+  <div class="card o">
+    <div class="lbl">🏗 BAILLEURS SOCIAUX IDF</div>
+    <div id="mandants-bailleurs"></div>
+  </div>
+  <div class="card p">
+    <div class="lbl">📋 MON PIPELINE MANDANTS</div>
+    <div id="mandants-pipeline"></div>
+    <button class="btn btn-g" style="margin-top:10px;width:100%;" onclick="toggleForm('form-mandant')">+ Ajouter un contact</button>
+    <div id="form-mandant" class="hidden" style="margin-top:12px;">
+      <input type="text" class="fi" id="mand-nom" placeholder="Nom de la société">
+      <input type="text" class="fi" id="mand-contact" placeholder="Nom du contact (optionnel)">
+      <input type="tel" class="fi" id="mand-tel" placeholder="Téléphone">
+      <input type="email" class="fi" id="mand-email" placeholder="Email (optionnel)">
+      <select class="fs" id="mand-statut">
+        <option value="Prospect">📋 Prospect — à contacter</option>
+        <option value="Contacté">📞 Contacté — en attente retour</option>
+        <option value="RDV">📅 RDV planifié</option>
+        <option value="Négociation">🤝 En négociation</option>
+        <option value="Partenaire">✅ Partenaire actif</option>
+        <option value="Refusé">❌ Refusé</option>
+      </select>
+      <textarea class="fi" id="mand-notes" placeholder="Notes (interlocuteur, suite à donner...)" rows="2" style="resize:none;height:60px;"></textarea>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-gray" onclick="toggleForm('form-mandant')">Annuler</button>
+        <button class="btn btn-g" style="flex:1;" onclick="saveMandant()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- STRATEGIE -->
@@ -391,13 +439,14 @@ function logout(){
 }
 
 function showPage(p){
-  ["finances","rh","commercial","strategie"].forEach(x=>el("page-"+x).classList.add("hidden"));
+  ["finances","rh","commercial","strategie","mandants"].forEach(x=>el("page-"+x).classList.add("hidden"));
   el("page-"+p).classList.remove("hidden");
-  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["finances","rh","commercial","strategie"][i]===p));
+  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["finances","rh","commercial","strategie","mandants"][i]===p));
   if(p==="finances")renderFinances();
   if(p==="rh")renderRH();
   if(p==="commercial")renderCommercial();
   if(p==="strategie")renderStrategie();
+  if(p==="mandants")renderMandants();
 }
 
 function toggleForm(id){el(id).classList.toggle("hidden");}
@@ -541,6 +590,168 @@ function saveConc(){const n=el("conc-nom")?.value.trim();if(!n){notif("Nom requi
 function delConc(i){const c=gConc();c.splice(i,1);sConc(c);renderStrategie();}
 function saveAlerte(){const s=el("ale-seuil")?.value;const c=el("ale-contact")?.value.trim();if(!s||!c){notif("Remplis seuil et contact");return;}const a=gAlertes();a.push({type:el("ale-type")?.value,seuil:s,contact:c});sAlertes(a);el("ale-seuil").value="";el("ale-contact").value="";renderStrategie();notif("Alerte activee !");}
 function delAlerte(i){const a=gAlertes();a.splice(i,1);sAlertes(a);renderStrategie();}
+
+// MANDANTS
+var MANDANTS_BASE=[
+  // ─── PLATEFORMES D'AGRÉMENT (priorité absolue) ───
+  {id:"darva",categorie:"plateforme",nom:"Darva",contact:"Service prestataires",
+   tel:"05 62 74 40 00",email:"contact@darva.com",site:"darva.net",
+   approche:"Inscription gratuite sur darva.net. C'est LA plateforme B2B qui connecte les réparateurs avec Allianz, AXA, Groupama, MAAF, GMF, MMA. Une inscription = accès à tous leurs réseaux sinistres dégâts des eaux.",
+   potentiel:"Fort",statut:"Prospect"},
+  {id:"sinapps",categorie:"plateforme",nom:"Sinapps",contact:"Service intégration prestataires",
+   tel:"05 56 11 51 00",email:"prestataires@sinapps.fr",site:"sinapps.fr",
+   approche:"Plateforme sinistres du groupe Covéa (MAAF + GMF + MMA). Formulaire d'inscription prestataire sur leur site. Couvre toute l'IDF.",
+   potentiel:"Fort",statut:"Prospect"},
+  {id:"homeforce",categorie:"plateforme",nom:"Homeforce (Veolia Habitat)",contact:"Direction Réseau",
+   tel:"01 71 75 00 00",email:"prestataires@homeforce.fr",site:"homeforce.fr",
+   approche:"Plateforme de mise en relation syndics/assureurs avec artisans. Très actif en IDF. Inscription en ligne + audit qualité. Bon volume d'affaires.",
+   potentiel:"Fort",statut:"Prospect"},
+  {id:"claimstech",categorie:"plateforme",nom:"Claimstech",contact:"Service prestataires",
+   tel:"01 53 93 09 00",email:"contact@claimstech.fr",site:"claimstech.fr",
+   approche:"Réseau de gestionnaires sinistres. Couvre notamment les dégâts des eaux urgents en IDF. Demander à être inscrit comme prestataire plombier agréé.",
+   potentiel:"Moyen",statut:"Prospect"},
+  // ─── ASSUREURS ───
+  {id:"allianz",categorie:"assureur",nom:"Allianz France",contact:"Direction Réseau Prestataires",
+   tel:"01 58 85 86 87",email:"reseau.prestataires@allianz.fr",site:"allianz.fr",
+   approche:"Contacter la Direction Réseau (pas le service client). Demander à être référencé comme plombier agréé IDF. Passer de préférence par Darva d'abord.",
+   potentiel:"Fort",statut:"Prospect"},
+  {id:"axa",categorie:"assureur",nom:"AXA Assistance France",contact:"Service Partenaires Réseau",
+   tel:"01 55 92 20 00",email:"partenaires@axa-assistance.fr",site:"axa-assistance.fr",
+   approche:"AXA Assistance gère les interventions urgences 24h/24. Contacter le service partenaires pour intégrer leur réseau plombiers IDF. Mettre en avant la réactivité < 2h.",
+   potentiel:"Fort",statut:"Prospect"},
+  {id:"maif",categorie:"assureur",nom:"MAIF — Service Sinistres",contact:"Réseau prestataires habitation",
+   tel:"05 49 73 73 73",email:"sinistres.habitation@maif.fr",site:"maif.fr",
+   approche:"MAIF a un fort réseau de prestataires plombiers agréés. Contacter leur service sinistres habitation et demander la procédure d'agrément prestataire IDF.",
+   potentiel:"Moyen",statut:"Prospect"},
+  {id:"macif",categorie:"assureur",nom:"MACIF — Sinistres Habitation",contact:"Direction des Prestataires",
+   tel:"09 69 32 49 46",email:"prestataires.hab@macif.fr",site:"macif.fr",
+   approche:"La MACIF mandate des plombiers pour les dégâts des eaux. Démarche d'agrément via leur site professionnel ou en contactant la direction sinistres habitation.",
+   potentiel:"Moyen",statut:"Prospect"},
+  {id:"groupama",categorie:"assureur",nom:"Groupama Île-de-France",contact:"Service Sinistres / Réseau",
+   tel:"01 44 56 77 77",email:"sinistres@groupama-idf.fr",site:"groupama.fr",
+   approche:"Groupama IDF gère localement ses prestataires. Contacter la direction régionale IDF sinistres habitation. Mettre en avant volume interventions + certifications RGE.",
+   potentiel:"Moyen",statut:"Prospect"},
+  {id:"matmut",categorie:"assureur",nom:"Matmut — Réseau Prestataires",contact:"Direction Sinistres Habitation",
+   tel:"02 35 03 67 00",email:"reseau@matmut.fr",site:"matmut.fr",
+   approche:"La Matmut a un réseau prestataires dégâts des eaux. Contacter la direction sinistres et proposer de couvrir l'IDF avec réactivité 24h/24.",
+   potentiel:"Moyen",statut:"Prospect"},
+  {id:"covea",categorie:"assureur",nom:"Covéa (MAAF / GMF / MMA)",contact:"Direction Réseau Prestataires",
+   tel:"02 43 41 72 72",email:"reseau.prestataires@covea.fr",site:"covea.fr",
+   approche:"Covéa regroupe MAAF + GMF + MMA. Un seul contact pour 3 réseaux. Passer aussi par Sinapps qui est leur plateforme de gestion sinistres. Fort potentiel volume.",
+   potentiel:"Fort",statut:"Prospect"},
+  {id:"europ",categorie:"assureur",nom:"Europ Assistance France",contact:"Service Prestataires Dépannage",
+   tel:"01 41 85 85 85",email:"prestataires@europ-assistance.fr",site:"europ-assistance.fr",
+   approche:"Europ Assistance gère les dépannages urgents pour de nombreux assureurs et mutuelles. Contacter leur service prestataires pour intégrer leur réseau plomberie IDF.",
+   potentiel:"Fort",statut:"Prospect"},
+  // ─── SYNDICS IDF ───
+  {id:"foncia-idf",categorie:"syndic",nom:"Foncia Île-de-France",contact:"Responsable Technique Copropriété",
+   tel:"01 47 70 99 99",email:"technique.idf@foncia.com",site:"foncia.com",
+   approche:"Appeler les agences Foncia locales (pas le siège), demander le 'responsable technique de copropriété'. Proposer un contrat-cadre de maintenance + urgences avec tarifs négociés.",
+   potentiel:"Fort",statut:"Prospect"},
+  {id:"nexity-ger",categorie:"syndic",nom:"Nexity Gérance",contact:"Direction Technique",
+   tel:"01 85 55 00 00",email:"gerance.technique@nexity.fr",site:"nexity.fr",
+   approche:"Nexity Gérance gère plusieurs milliers de copropriétés en IDF. Contacter la direction technique et proposer un partenariat maintenance plomberie + astreinte 24h.",
+   potentiel:"Fort",statut:"Prospect"},
+  {id:"oralia",categorie:"syndic",nom:"Oralia (groupe BNP Paribas RE)",contact:"Service Technique Syndic",
+   tel:"01 57 19 20 00",email:"syndic@oralia.fr",site:"oralia.fr",
+   approche:"Oralia gère de nombreuses copropriétés haut de gamme en IDF. Contacter le service technique syndic. Mettre en avant qualité et réactivité pour résidences premium.",
+   potentiel:"Moyen",statut:"Prospect"},
+  {id:"citya",categorie:"syndic",nom:"Citya Immobilier IDF",contact:"Responsable Technique",
+   tel:"01 43 41 20 00",email:"technique@citya.fr",site:"citya.fr",
+   approche:"Citya est en forte expansion en IDF. Contacter les agences locales et proposer un partenariat avec tarifs préférentiels. Mettre en avant la rapidité d'intervention.",
+   potentiel:"Moyen",statut:"Prospect"},
+  // ─── BAILLEURS SOCIAUX ───
+  {id:"paris-habitat",categorie:"bailleur",nom:"Paris Habitat",contact:"Direction Maintenance / Prestataires",
+   tel:"01 40 28 34 35",email:"maintenance@paris-habitat.fr",site:"paris-habitat.fr",
+   approche:"Paris Habitat gère 120 000 logements. Marchés publics souvent mais aussi contrats de maintenance directs. Contacter la direction maintenance pour les interventions urgentes non contractualisées.",
+   potentiel:"Moyen",statut:"Prospect"},
+  {id:"icf",categorie:"bailleur",nom:"ICF Habitat La Sablière",contact:"Service Maintenance Technique",
+   tel:"01 56 96 00 00",email:"maintenance@icf-habitat.fr",site:"icf-habitat.fr",
+   approche:"ICF gère 35 000 logements en IDF. Contacter leur service maintenance pour les urgences plomberie. Ils font appel à des prestataires extérieurs pour les interventions urgentes.",
+   potentiel:"Moyen",statut:"Prospect"},
+  {id:"3f",categorie:"bailleur",nom:"Immobilière 3F",contact:"Direction Territoriale IDF",
+   tel:"01 40 75 45 45",email:"technique@immobiliere3f.fr",site:"immobiliere3f.fr",
+   approche:"Immobilière 3F gère 100 000+ logements. Contacter la direction territoriale IDF pour les marchés de maintenance. Certifications RGE et RC Pro indispensables.",
+   potentiel:"Moyen",statut:"Prospect"},
+  {id:"cdc-habitat",categorie:"bailleur",nom:"CDC Habitat (Caisse des Dépôts)",contact:"Direction Exploitation",
+   tel:"01 40 49 85 00",email:"exploitation@cdc-habitat.fr",site:"cdc-habitat.fr",
+   approche:"CDC Habitat gère 300 000 logements en France dont beaucoup en IDF. Contacter la direction exploitation pour les marchés de maintenance et urgences techniques.",
+   potentiel:"Moyen",statut:"Prospect"},
+];
+
+function gMandants(){return JSON.parse(localStorage.getItem('pl_mandants_perso')||'[]');}
+function sMandants(d){var v=JSON.stringify(d);localStorage.setItem('pl_mandants_perso',v);if(window.gfSync)gfSync('pl_mandants_perso',v);}
+function getMandants(){
+  var perso=gMandants();
+  var merged=JSON.parse(JSON.stringify(MANDANTS_BASE));
+  perso.forEach(function(p){
+    var idx=merged.findIndex(function(m){return m.id===p.id;});
+    if(idx>=0)Object.assign(merged[idx],p);else merged.push(p);
+  });
+  return merged;
+}
+function saveMandant(){
+  var nom=el('mand-nom')?.value.trim();
+  if(!nom){notif('Nom requis');return;}
+  var perso=gMandants();
+  perso.unshift({id:'custom-'+Date.now(),categorie:'custom',nom:nom,contact:el('mand-contact')?.value.trim()||'',tel:el('mand-tel')?.value.trim()||'',email:el('mand-email')?.value.trim()||'',site:'',approche:el('mand-notes')?.value.trim()||'',potentiel:'Moyen',statut:el('mand-statut')?.value||'Prospect'});
+  sMandants(perso);
+  toggleForm('form-mandant');
+  ['mand-nom','mand-contact','mand-tel','mand-email','mand-notes'].forEach(id=>el(id)&&(el(id).value=''));
+  renderMandants();
+  notif('Contact ajouté !');
+}
+function majStatutMandant(id,statut){
+  var perso=gMandants();
+  var idx=perso.findIndex(function(p){return p.id===id;});
+  if(idx>=0){perso[idx].statut=statut;}else{var base=MANDANTS_BASE.find(function(m){return m.id===id;});if(base){var copy=JSON.parse(JSON.stringify(base));copy.statut=statut;perso.push(copy);}else return;}
+  sMandants(perso);
+  renderMandants();
+  notif('Statut mis à jour');
+}
+function renderMandants(){
+  var all=getMandants();
+  var statCols={'Prospect':'#94a3b8','Contacté':'#2d6a9f','RDV':'#7c3aed','Négociation':'#ea580c','Partenaire':'#16a34a','Refusé':'#dc2626'};
+  var statBg={'Prospect':'#f1f5f9','Contacté':'#dbeafe','RDV':'#ede9fe','Négociation':'#fff7ed','Partenaire':'#dcfce7','Refusé':'#fee2e2'};
+  function card(m){
+    var col=statCols[m.statut]||'#94a3b8';
+    var bg=statBg[m.statut]||'#f1f5f9';
+    var potCol=m.potentiel==='Fort'?'#16a34a':m.potentiel==='Moyen'?'#ca8a04':'#94a3b8';
+    return '<div style="background:#f8fafc;border-radius:12px;padding:12px;margin-bottom:10px;border-left:3px solid '+col+';">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">'
+      +'<div style="flex:1;">'
+      +'<div style="font-weight:800;font-size:13px;color:#0d1b2e;">'+m.nom+'</div>'
+      +(m.contact?'<div style="font-size:11px;color:#6b7a8f;margin-top:1px;">'+m.contact+'</div>':'')
+      +'</div>'
+      +'<span style="background:'+bg+';color:'+col+';font-size:9px;font-weight:800;padding:2px 8px;border-radius:5px;white-space:nowrap;margin-left:8px;">'+m.statut+'</span>'
+      +'</div>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">'
+      +(m.tel?'<a href="tel:'+m.tel+'" style="background:#0d2d52;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">📞 '+m.tel+'</a>':'')
+      +(m.email?'<a href="mailto:'+m.email+'" style="background:#1a4a7a;color:#fff;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">✉️ Email</a>':'')
+      +(m.site?'<a href="https://'+m.site+'" target="_blank" style="background:#f1f5f9;color:#475569;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">🌐 Site</a>':'')
+      +'</div>'
+      +'<div style="font-size:11px;color:#475569;background:#fff;border-radius:8px;padding:8px 10px;margin-bottom:8px;line-height:1.5;">'+m.approche+'</div>'
+      +'<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;">'
+      +'<span style="color:'+potCol+';font-size:10px;font-weight:700;">● Potentiel '+m.potentiel+'</span>'
+      +'<div style="flex:1;"></div>'
+      +'<select onchange="majStatutMandant(\''+m.id+'\',this.value)" style="background:#f7f9fc;border:1px solid #dde3ec;border-radius:7px;padding:4px 8px;font-size:10px;font-weight:600;color:#0d1b2e;cursor:pointer;">'
+      +['Prospect','Contacté','RDV','Négociation','Partenaire','Refusé'].map(function(s){return'<option value="'+s+'"'+(m.statut===s?' selected':'')+'>'+s+'</option>';}).join('')
+      +'</select>'
+      +'</div>'
+      +'</div>';
+  }
+  var plateformes=all.filter(function(m){return m.categorie==='plateforme';});
+  var assureurs=all.filter(function(m){return m.categorie==='assureur';});
+  var syndics=all.filter(function(m){return m.categorie==='syndic';});
+  var bailleurs=all.filter(function(m){return m.categorie==='bailleur'||m.categorie==='custom';});
+  el('mandants-plateformes').innerHTML=plateformes.map(card).join('');
+  el('mandants-assureurs').innerHTML=assureurs.map(card).join('');
+  el('mandants-syndics').innerHTML=syndics.map(card).join('');
+  el('mandants-bailleurs').innerHTML=bailleurs.map(card).join('');
+  var perso=gMandants().filter(function(m){return m.categorie==='custom';});
+  var pipe=el('mandants-pipeline');
+  if(pipe)pipe.innerHTML=perso.length?perso.map(card).join(''):'<div style="text-align:center;padding:16px;color:#94a3b8;font-size:12px;">Aucun contact perso — ajoute tes relances ci-dessous</div>';
+}
 
 var MODULE_CURRENT='patron-analytics.html';
 var MODULES_NAV=[
