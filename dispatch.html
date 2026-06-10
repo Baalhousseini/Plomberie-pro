@@ -843,6 +843,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
       <button class="modal-close" onclick="fermerModalCrm()">x</button>
     </div>
     <div id="crm-modal-infos" style="margin-bottom:14px;"></div>
+    <div id="crm-modal-fiche-logement" style="margin-bottom:12px;"></div>
     <div class="card" style="border-left:4px solid #1d4ed8;margin-bottom:12px;">
       <div class="lbl">HISTORIQUE DES INTERVENTIONS</div>
       <div id="crm-modal-historique" style="margin-top:8px;"></div>
@@ -1639,7 +1640,50 @@ function openCrmClient(id){
     }).join('');
   }
   document.getElementById('crm-modal-note').value=c.note||'';
+  document.getElementById('crm-modal-fiche-logement').innerHTML=renderFicheLogementReadOnly(c.tel);
   document.getElementById('modal-crm-client').classList.remove('hidden');
+}
+
+function getFichesLogement(){return JSON.parse(localStorage.getItem('pl_fiches_logement')||'{}');}
+
+function renderFicheLogementReadOnly(tel){
+  var f=getFichesLogement()[tel];
+  if(!f)return '<div style="background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;padding:12px 14px;margin-bottom:0;"><div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:1px;">🏠 FICHE LOGEMENT</div><div style="font-size:12px;color:#94a3b8;margin-top:4px;">Pas encore remplie par le technicien</div></div>';
+  var chips=function(arr){return arr&&arr.length?arr.map(function(id){var labels={"f-chauf-gaz":"🔵 Chaudière gaz","f-chauf-fioul":"🛢 Fioul","f-chauf-elec":"⚡ Élec","f-chauf-pac":"♻️ PAC","f-chauf-bois":"🪵 Bois","f-chauf-plancher":"🌡 Plancher","f-ecs-ballon-elec":"⚡ Ballon élec","f-ecs-ballon-gaz":"🔵 Ballon gaz","f-ecs-instantane":"⚡ Instantané","f-ecs-thermo":"♻️ Thermo","f-ecs-solaire":"☀️ Solaire"};return '<span style="background:#f1f5f9;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:600;margin-right:4px;">'+(labels[id]||id)+'</span>';}).join(''):'—';};
+  var row=function(label,val){return val?'<div style="display:flex;gap:6px;margin-bottom:4px;"><span style="font-size:9px;font-weight:700;color:#94a3b8;min-width:110px;text-transform:uppercase;letter-spacing:0.5px;">'+label+'</span><span style="font-size:12px;color:#1a2537;">'+val+'</span></div>':'';};
+  var opp=(f.opportunites||[]).map(function(id){var l={"fo-chaudiere":"Chaudière","fo-ballon":"Ballon ECS","fo-adoucisseur":"Adoucisseur","fo-clim":"Clim","fo-trv":"TRV","fo-robinets":"Robinets","fo-contrat":"Contrat entretien","fo-thermostat":"Thermostat connecté","fo-plancher":"Plancher chauffant","fo-renovation-sdb":"Rénovation SDB"};return l[id]||id;});
+  var upd=f.updatedAt?new Date(f.updatedAt).toLocaleDateString('fr-FR'):'';
+  return '<div style="background:linear-gradient(135deg,#f0fdf4,#f8fafc);border:1.5px solid #86efac;border-radius:12px;padding:14px;margin-bottom:12px;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'
+    +'<div style="font-size:10px;font-weight:800;letter-spacing:1.5px;color:#16a34a;text-transform:uppercase;">🏠 Fiche Logement</div>'
+    +(upd?'<div style="font-size:9px;color:#94a3b8;">MàJ '+upd+(f.updatedBy?' par '+f.updatedBy:'')+'</div>':'')
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">'
+    +row('Type logement',f.typeLogement)
+    +row('Surface',f.surface?f.surface+' m²':null)
+    +row('Étage',f.etage!==undefined&&f.etage!==''?f.etage:null)
+    +row('Pièces',f.nbPieces?f.nbPieces+' pièces · '+(f.nbSdb||''):null)
+    +row('Construction',f.anneeConst)
+    +row('Chauffage',f.chauffageTypes&&f.chauffageTypes.length?chips(f.chauffageTypes):null)
+    +row('Chaudière',f.chaudMarque?f.chaudMarque+(f.chaudModele?' '+f.chaudModele:'')+(f.chaudAnnee?' ('+f.chaudAnnee+')':''):null)
+    +row('Dernier entretien',f.chaudEntretien)
+    +row('ECS',f.ecsTypes&&f.ecsTypes.length?chips(f.ecsTypes)+(f.ecsCapacite?' · '+f.ecsCapacite+'L':''):null)
+    +row('Canalisations',f.canaType)
+    +row('Vanne générale',f.vanneEtat)
+    +row('Pression eau',f.pression)
+    +row('Gaz',f.gazPresent==='Oui'?'✅ Présent ('+( f.gazCompteur||'?')+')':f.gazPresent==='Non'?'❌ Absent':null)
+    +row('Clim',f.climPresent==='Oui'?'✅ '+( f.climNb||'?')+'x '+(f.climMarque||''):f.climPresent==='Non'?'❌ Absente':null)
+    +'</div>'
+    +(f.trv||f.adoucisseur||f.dfi||f.detecteurGaz||f.detecteurCO?'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:8px;">'
+      +(f.trv?'<span style="background:#dbeafe;color:#1d4ed8;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;">TRV ✓</span>':'')
+      +(f.adoucisseur?'<span style="background:#dbeafe;color:#1d4ed8;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;">Adoucisseur ✓</span>':'')
+      +(f.dfi?'<span style="background:#dcfce7;color:#166534;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;">DFI ✓</span>':'')
+      +(f.detecteurGaz?'<span style="background:#dcfce7;color:#166534;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;">Détect. gaz ✓</span>':'')
+      +(f.detecteurCO?'<span style="background:#dcfce7;color:#166534;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;">CO ✓</span>':'')
+      +'</div>':'')
+    +(opp.length?'<div style="margin-top:8px;background:#fef9c3;border-radius:8px;padding:8px 10px;"><div style="font-size:9px;font-weight:700;color:#854d0e;margin-bottom:4px;">💰 OPPORTUNITÉS DÉTECTÉES</div><div style="font-size:11px;color:#713f12;font-weight:600;">'+opp.join(' · ')+'</div></div>':'')
+    +(f.notes?'<div style="margin-top:8px;font-size:12px;color:#475569;font-style:italic;border-top:1px solid #e2e8f0;padding-top:8px;">📝 '+f.notes+'</div>':'')
+    +'</div>';
 }
 
 function fermerModalCrm(){document.getElementById('modal-crm-client').classList.add('hidden');_crmClientCourant=null;}
