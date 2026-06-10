@@ -1230,10 +1230,17 @@ function assignerRdv(id,tech){
   var rdvs=getRdvs();
   var idx=rdvs.findIndex(function(r){return r.id===id;});
   if(idx<0)return;
+  var dateEl=document.getElementById('ap-date-'+id);
+  var heureEl=document.getElementById('ap-heure-'+id);
+  var date=dateEl?dateEl.value:'';
+  var heure=heureEl?heureEl.value:'';
+  if(!date){showNotif('⚠️ Choisir une date d\'intervention');return;}
   rdvs[idx].technicien=tech;
+  rdvs[idx].dateRdv=date;
+  rdvs[idx].heureRdv=heure||'09:00';
   saveRdvs(rdvs);
   renderTousRdvs();actualiserTout();
-  showNotif('RDV assigné à '+tech+' !');
+  showNotif('✅ RDV assigné à '+tech+' — '+date+' à '+(heure||'09:00'));
 }
 
 function renderAPlanifier(){
@@ -1249,20 +1256,24 @@ function renderAPlanifier(){
     html+='<div style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px;border:1px solid #ddd6fe;box-shadow:0 1px 4px rgba(139,92,246,0.08);">';
     html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">';
     html+='<div style="flex:1;">';
-    html+='<div style="font-weight:700;font-size:13px;color:#1e1b4b;">'+r.clientNom+'</div>';
+    html+='<div style="font-weight:700;font-size:13px;color:#1e1b4b;">'+r.clientNom+(r.clientTel?'<a href="tel:'+r.clientTel+'" style="margin-left:8px;font-size:11px;color:#7c3aed;text-decoration:none;">📞 '+r.clientTel+'</a>':'')+'</div>';
     html+='<div style="color:#6d28d9;font-size:12px;font-weight:600;">'+r.type+'</div>';
-    html+='<div style="color:#64748b;font-size:11px;margin-top:2px;">📅 '+r.dateRdv+' à '+r.heureRdv+' &nbsp;·&nbsp; 📍 '+r.adresse+'</div>';
+    html+='<div style="color:#64748b;font-size:11px;margin-top:2px;">📞 Prise de contact : '+(r.datePriseContact||r.dateRdv||'—')+' &nbsp;·&nbsp; 📍 '+(r.adresse||'Adresse non précisée')+'</div>';
     if(r.notes)html+='<div style="color:#7c3aed;font-size:11px;margin-top:2px;font-style:italic;">📝 '+r.notes+'</div>';
     html+='</div>';
-    html+='<div style="font-weight:800;color:#059669;font-size:15px;white-space:nowrap;">'+r.prixVente+' €</div>';
+    html+='</div>';
+    html+='<div style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap;">';
+    html+='<span style="color:#6d28d9;font-size:10px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;width:100%;margin-bottom:2px;">📅 Fixer la date d\'intervention :</span>';
+    html+='<input type="date" id="ap-date-'+r.id+'" class="form-select" style="flex:1;min-width:130px;padding:7px 10px;font-size:12px;" value="">';
+    html+='<input type="time" id="ap-heure-'+r.id+'" class="form-select" style="width:100px;padding:7px 10px;font-size:12px;" value="09:00">';
     html+='</div>';
     html+='<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;">';
-    html+='<span style="color:#64748b;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;">Assigner →</span>';
+    html+='<span style="color:#64748b;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;">Assigner à →</span>';
     Object.keys(TECH_C).forEach(function(tech){
       var tc=TECH_C[tech];
       html+='<button class="btn" style="padding:5px 12px;font-size:11px;background:'+tc.bg+';color:'+tc.c+';border:1.5px solid '+tc.c+';border-radius:8px;font-weight:700;" onclick="assignerRdv('+r.id+',\''+tech+'\')">'+tc.a+' '+tech+'</button>';
     });
-    html+='<button class="btn btn-r" style="padding:5px 10px;font-size:11px;margin-left:auto;" onclick="supprimerRdv('+r.id+')">✕ Supprimer</button>';
+    html+='<button class="btn btn-r" style="padding:5px 10px;font-size:11px;margin-left:auto;" onclick="supprimerRdv('+r.id+')">✕ Annuler</button>';
     html+='</div></div>';
   });
   html+='</div>';
