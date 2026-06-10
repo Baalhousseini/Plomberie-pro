@@ -706,11 +706,13 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div id="liste-procedures"></div>
 </div>
 
-<!-- CLIENTS -->
+<!-- CLIENTS (CRM) -->
 <div id="page-clients" class="hidden">
-  <div style="margin-bottom:16px;">
-    <div style="color:var(--blue);font-size:11px;letter-spacing:2px;font-weight:700;margin-bottom:8px;">BASE CLIENTS</div>
+  <div style="margin-bottom:12px;">
+    <div style="color:var(--blue);font-size:11px;letter-spacing:2px;font-weight:700;margin-bottom:4px;">CRM CLIENTS</div>
+    <div style="color:var(--muted);font-size:12px;">Base clients, historique & fidelisation</div>
   </div>
+  <div id="crm-kpis" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;"></div>
   <div style="display:flex;gap:8px;margin-bottom:14px;">
     <input type="text" class="form-input" id="search-clients" placeholder="Rechercher par nom ou téléphone..." oninput="renderClients()" style="flex:1;">
   </div>
@@ -719,9 +721,12 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 
 <!-- STOCK PIÈCES -->
 <div id="page-stock" class="hidden">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
     <div><div style="color:#7c3aed;font-size:11px;letter-spacing:2px;font-weight:700;">STOCK PIÈCES & MATÉRIAUX</div></div>
-    <button class="btn btn-primary" onclick="toggleFormStock()">+ Ajouter</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-blue" onclick="genererBonCommande()">📦 Bon de commande</button>
+      <button class="btn btn-primary" onclick="toggleFormStock()">+ Ajouter</button>
+    </div>
   </div>
   <div id="form-stock" class="hidden">
     <div class="card" style="margin-bottom:12px;border-left:4px solid #7c3aed;">
@@ -735,9 +740,10 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
         <div class="form-field"><label>SEUIL D'ALERTE</label><input type="number" class="form-input" id="sk-seuil" value="3" min="0"></div>
       </div>
       <div class="grid-2">
-        <div class="form-field"><label>PRIX UNITAIRE (€)</label><input type="number" class="form-input" id="sk-prix" value="0" min="0" step="0.01"></div>
-        <div class="form-field"><label>FOURNISSEUR</label><input type="text" class="form-input" id="sk-fourn" placeholder="Prolians, Sonepar..."></div>
+        <div class="form-field"><label>PRIX UNITAIRE HT (€)</label><input type="number" class="form-input" id="sk-prix" value="0" min="0" step="0.01"></div>
+        <div class="form-field"><label>FOURNISSEUR</label><input type="text" class="form-input" id="sk-fourn" placeholder="Rexel, Sonepar..."></div>
       </div>
+      <div class="form-field"><label>REF. FOURNISSEUR</label><input type="text" class="form-input" id="sk-ref-fourn" placeholder="REX-1023"></div>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-gray" onclick="toggleFormStock()">Annuler</button>
         <button class="btn btn-primary" style="flex:1;" onclick="ajouterPieceStock()">Enregistrer</button>
@@ -745,79 +751,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     </div>
   </div>
   <div id="stock-alertes" style="margin-bottom:12px;"></div>
-  <div id="liste-stock"></div>
-</div>
-
-<!-- INFOS -->
-<div id="page-infos" class="hidden">
-  <div style="margin-bottom:16px;">
-    <div style="color:#4a9c3f;font-size:11px;letter-spacing:2px;font-weight:700;">CONSEILS & INFOS</div>
-    <div style="color:#64748b;font-size:12px;margin-top:2px;">Tarifs, contacts et infos utiles</div>
-  </div>
-  <div id="liste-infos"></div>
-</div>
-
-<!-- CLIENTS (CRM) -->
-<div id="page-clients" class="hidden">
-  <div style="margin-bottom:16px;">
-    <div style="color:#1a3a5c;font-size:11px;letter-spacing:2px;font-weight:700;">CRM CLIENTS</div>
-    <div style="color:#64748b;font-size:12px;margin-top:2px;">Base clients & historique</div>
-  </div>
-  <div id="crm-kpis" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;"></div>
-  <div id="liste-clients"></div>
-</div>
-
-<!-- APPELS -->
-<div id="page-appels" class="hidden">
-  <div style="margin-bottom:16px;">
-    <div style="color:#1a3a5c;font-size:11px;letter-spacing:2px;font-weight:700;">JOURNAL D'APPELS</div>
-    <div style="color:#64748b;font-size:12px;margin-top:2px;">Appels entrants et sortants</div>
-  </div>
-  <div class="card card-blue">
-    <div class="lbl">NOUVEL APPEL</div>
-    <div class="form-field"><label>NOM APPELANT</label><input type="text" class="form-input" id="appel-nom" placeholder="Jean Dupont"></div>
-    <div class="form-field"><label>TELEPHONE</label><input type="tel" class="form-input" id="appel-tel" placeholder="06 XX XX XX XX"></div>
-    <div class="form-field"><label>OBJET</label><input type="text" class="form-input" id="appel-objet" placeholder="Demande de RDV, renseignement..."></div>
-    <div class="form-field"><label>NOTE</label><textarea class="form-textarea" id="appel-note" rows="2" placeholder="Details..."></textarea></div>
-    <button class="btn btn-primary btn-full" onclick="enregistrerAppel()">Enregistrer l'appel</button>
-  </div>
-  <div style="margin-top:14px;" id="liste-appels"></div>
-</div>
-
-<!-- STOCK -->
-<div id="page-stock" class="hidden">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
-    <div>
-      <div style="color:#1a3a5c;font-size:11px;letter-spacing:2px;font-weight:700;">GESTION DU STOCK</div>
-      <div style="color:#64748b;font-size:12px;margin-top:2px;">Pieces et materiel</div>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn btn-blue" onclick="genererBonCommande()">📦 Bon de commande</button>
-      <button class="btn btn-primary" onclick="toggleFormStock()">+ Ajouter</button>
-    </div>
-  </div>
-  <div id="form-stock" class="hidden">
-    <div class="card card-green">
-      <div class="lbl">NOUVELLE PIECE</div>
-      <div class="grid-2">
-        <div class="form-field"><label>NOM PIECE</label><input type="text" class="form-input" id="stock-nom" placeholder="Robinet d'arret 1/2"></div>
-        <div class="form-field"><label>REFERENCE</label><input type="text" class="form-input" id="stock-ref" placeholder="REX-1023"></div>
-      </div>
-      <div class="grid-2">
-        <div class="form-field"><label>QUANTITE</label><input type="number" class="form-input" id="stock-qty" placeholder="10" min="0"></div>
-        <div class="form-field"><label>SEUIL MINIMUM</label><input type="number" class="form-input" id="stock-seuil" placeholder="3" min="0"></div>
-      </div>
-      <div class="grid-2">
-        <div class="form-field"><label>FOURNISSEUR</label><input type="text" class="form-input" id="stock-fournisseur" placeholder="Rexel Paris 13"></div>
-        <div class="form-field"><label>REF. FOURNISSEUR</label><input type="text" class="form-input" id="stock-ref-fourn" placeholder="REX-1023"></div>
-      </div>
-      <div class="form-field"><label>PRIX UNITAIRE HT (EUR)</label><input type="number" class="form-input" id="stock-prix" placeholder="8.50" step="0.01" min="0"></div>
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-gray" onclick="toggleFormStock()">Annuler</button>
-        <button class="btn btn-primary" style="flex:1;" onclick="sauvegarderStock()">Ajouter au stock</button>
-      </div>
-    </div>
-  </div>
   <div id="liste-stock"></div>
   <div id="bon-commande-preview" class="hidden" style="margin-top:14px;"></div>
   <div style="margin-top:20px;">
@@ -829,6 +762,16 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <div id="liste-fournisseurs" style="margin-top:8px;"></div>
   </div>
 </div>
+
+<!-- INFOS -->
+<div id="page-infos" class="hidden">
+  <div style="margin-bottom:16px;">
+    <div style="color:#4a9c3f;font-size:11px;letter-spacing:2px;font-weight:700;">CONSEILS & INFOS</div>
+    <div style="color:#64748b;font-size:12px;margin-top:2px;">Tarifs, contacts et infos utiles</div>
+  </div>
+  <div id="liste-infos"></div>
+</div>
+
 
 <!-- COMPTABILITE -->
 <div id="page-compta" class="hidden">
@@ -973,44 +916,7 @@ function upsertClient(nom,tel,adresse){
   saveClients(clients);
 }
 
-/* ── AUTO-ASSIGN ── */
-async function autoAssignTech(){
-  var date=document.getElementById('rdv-date')&&document.getElementById('rdv-date').value;
-  var heure=document.getElementById('rdv-heure')&&document.getElementById('rdv-heure').value;
-  var adresse=(document.getElementById('rdv-adresse')&&document.getElementById('rdv-adresse').value||'').trim();
-  var res=document.getElementById('auto-assign-result');
-  if(!res)return;
-  res.style.display='block';
-  res.innerHTML='<div style="color:#0369a1;">⏳ Analyse en cours...</div>';
-  var techs=Object.keys(TECH_C);
-  var scores=[];
-  for(var ti=0;ti<techs.length;ti++){
-    var tech=techs[ti];
-    var rdvsJour=getTechDayRdvs(tech,date||todayStr());
-    var charge=rdvsJour.length;
-    var dispo=getDispos()[tech]||{};
-    if(dispo.statut==='Indisponible')continue;
-    var travelMin=999;
-    if(adresse.length>5&&rdvsJour.length>0){
-      var prev=rdvsJour[rdvsJour.length-1];
-      if(prev.adresse){
-        try{
-          var coords=await Promise.all([geocodeAddress(prev.adresse),geocodeAddress(adresse)]);
-          var c1=coords[0],c2=coords[1];
-          if(c1&&c2){var t=await getOSRMTime(c1.lat,c1.lon,c2.lat,c2.lon);if(t!==null)travelMin=t;}
-        }catch(e){}
-      }
-    } else {travelMin=0;}
-    scores.push({tech:tech,charge:charge,travelMin:travelMin,score:charge*20+travelMin});
-  }
-  if(!scores.length){res.style.display='block';res.textContent='Aucun technicien disponible.';return;}
-  scores.sort(function(a,b){return a.score-b.score;});
-  var best=scores[0];
-  document.getElementById('rdv-tech').value=best.tech;
-  updateTechPlanning();
-  res.style.display='block';
-  res.innerHTML='<b style="color:#16a34a;">✅ '+best.tech+' assigné</b> — '+best.charge+' RDV ce jour'+(best.travelMin<999?' · trajet ~'+best.travelMin+'min':'')+(scores[1]?' <span style="color:var(--muted);font-size:11px;">| Alt: '+scores[1].tech+'</span>':'');
-}
+/* ── AUTO-ASSIGN — see improved version below ── */
 
 /* ── RECHERCHE CLIENT ── */
 function rechercherClientRdv(val){
@@ -1061,21 +967,7 @@ function renderKpiOperateurs(){
   d.innerHTML=list.map(function(op){return '<div class="tr"><div><div style="font-weight:700;font-size:13px;">'+op.nom+'</div><div style="font-size:11px;color:var(--muted);">'+op.rdvs+' RDV créés aujourd\'hui</div></div><div style="text-align:right;"><div style="font-weight:800;color:var(--green);font-size:15px;">'+op.ca.toLocaleString('fr-FR')+' €</div></div></div>';}).join('');
 }
 
-/* ── CLIENTS ── */
-function renderClients(){
-  var q=(document.getElementById('search-clients')&&document.getElementById('search-clients').value||'').toLowerCase();
-  var clients=getClients().filter(function(c){return !q||c.nom.toLowerCase().includes(q)||c.tel.includes(q);});
-  var d=document.getElementById('liste-clients');
-  if(!d)return;
-  if(!clients.length){d.innerHTML='<div class="empty">Aucun client enregistré</div>';return;}
-  d.innerHTML=clients.slice(0,50).map(function(c){
-    var safeNom=c.nom.replace(/'/g,"\\'");
-    var safeTel=c.tel;
-    var safeAdr=(c.adresse||'').replace(/'/g,"\\'");
-    var combined=safeNom+'_SEP_'+safeTel+'_SEP_'+safeAdr;
-    return '<div class="fact-card"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:700;font-size:14px;">'+c.nom+'</div><div style="font-size:12px;color:var(--muted);">'+c.tel+(c.adresse?' · '+c.adresse.substring(0,30):'')+'</div></div><div style="text-align:right;"><div style="font-weight:800;color:var(--green);font-size:14px;">'+(c.ca||0).toLocaleString('fr-FR')+' €</div><div style="font-size:11px;color:var(--muted);">'+(c.nbRdv||0)+' RDV</div></div></div><div style="margin-top:8px;"><button class="btn btn-g" style="padding:6px 14px;font-size:11px;" onclick="remplirClientRdv(\''+combined+'\');showPage(\'nouveau-rdv\',null);">+ Nouveau RDV</button></div></div>';
-  }).join('');
-}
+/* ── CLIENTS — see improved version below ── */
 
 function initPins(){
   var pins = document.querySelectorAll(".pin-input");
@@ -1428,7 +1320,7 @@ function updateNavBadges(){
 }
 
 function showPage(page,btn){
-  var pages=["dashboard","dispos","urgences","nouveau-rdv","tous-rdv","validation","rapports","sav","devis","facturation","procedures","infos","clients","appels","stock"];
+  var pages=["dashboard","dispos","urgences","nouveau-rdv","tous-rdv","validation","rapports","sav","devis","facturation","procedures","infos","clients","appels","stock","compta"];
   for(var i=0;i<pages.length;i++) document.getElementById("page-"+pages[i]).classList.add("hidden");
   document.getElementById("page-"+page).classList.remove("hidden");
   document.querySelectorAll(".nav-btn").forEach(function(b){b.classList.remove("active");});
@@ -1447,6 +1339,7 @@ function showPage(page,btn){
   if(page==="clients")renderClients();
   if(page==="appels")renderAppels();
   if(page==="stock")renderStock();
+  if(page==="compta")renderCompta();
 }
 
 // STOCK PIÈCES
@@ -1457,9 +1350,11 @@ function ajouterPieceStock(){
   var nom=document.getElementById('sk-nom').value.trim();
   if(!nom){showNotif('Désignation requise');return;}
   var s=getStock();
-  s.push({id:Date.now(),nom:nom,ref:document.getElementById('sk-ref').value.trim(),qty:Number(document.getElementById('sk-qty').value||0),seuil:Number(document.getElementById('sk-seuil').value||3),prix:Number(document.getElementById('sk-prix').value||0),fourn:document.getElementById('sk-fourn').value.trim(),updatedAt:new Date().toISOString()});
+  var refFourn=document.getElementById('sk-ref-fourn');
+  s.push({id:Date.now(),nom:nom,ref:document.getElementById('sk-ref').value.trim(),qty:Number(document.getElementById('sk-qty').value||0),seuil:Number(document.getElementById('sk-seuil').value||3),prix:Number(document.getElementById('sk-prix').value||0),fourn:document.getElementById('sk-fourn').value.trim(),refFourn:refFourn?refFourn.value.trim():'',updatedAt:new Date().toISOString()});
   saveStock(s);
   ['sk-nom','sk-ref','sk-fourn'].forEach(function(id){document.getElementById(id).value='';});
+  if(refFourn)refFourn.value='';
   document.getElementById('sk-qty').value=10;document.getElementById('sk-seuil').value=3;document.getElementById('sk-prix').value=0;
   document.getElementById('form-stock').classList.add('hidden');
   renderStock();showNotif('Pièce ajoutée au stock !');
@@ -1498,7 +1393,513 @@ function renderStock(){
   // Badge nav
   var btn=document.getElementById('nav-stock');
   if(btn){btn.textContent=alertes.length>0?'📦 Stock (⚠️'+alertes.length+')':'📦 Stock';btn.style.color=alertes.length>0?'#dc2626':'';}
+  // Catalogue standard
+  renderCatalogueStd();
+  // Fournisseurs
+  renderFournisseurs();
 }
+
+/* ── CATALOGUE STANDARD ── */
+var CATALOGUE_STD=[
+  {ref:"REX-1023",nom:"Robinet d'arrêt 1/2\"",prix:8.50,fournisseur:"Rexel"},
+  {ref:"GEB-2041",nom:"Joint plat EPDM 20mm",prix:0.30,fournisseur:"Gebhardt"},
+  {ref:"LEG-5520",nom:"Thermostat Honeywell T6",prix:45.00,fournisseur:"Leroy Merlin Pro"},
+  {ref:"SIT-0820",nom:"Vanne gaz Dungs",prix:32.00,fournisseur:"Sider"},
+  {ref:"REX-3310",nom:"Siphon douche inox ø90",prix:18.50,fournisseur:"Rexel"},
+  {ref:"AQP-1140",nom:"Coude PER 16 à sertir",prix:1.20,fournisseur:"AquaPlus"},
+  {ref:"AQP-2201",nom:"Té PER 16",prix:1.80,fournisseur:"AquaPlus"},
+  {ref:"GEB-4410",nom:"Cartouche mitigeur Grohe",prix:28.00,fournisseur:"Gebhardt"},
+  {ref:"LEG-7730",nom:"Pompe circulateur Grundfos",prix:95.00,fournisseur:"Leroy Merlin Pro"},
+  {ref:"SIT-1550",nom:"Électrovanne gaz NC 230V",prix:55.00,fournisseur:"Sider"},
+  {ref:"REX-8820",nom:"Flexible inox 40cm ø3/8\"",prix:4.50,fournisseur:"Rexel"},
+  {ref:"AQP-0940",nom:"Té de réglage radiateur",prix:12.00,fournisseur:"AquaPlus"}
+];
+
+function renderCatalogueStd(){
+  var d=document.getElementById('catalogue-std');
+  if(!d)return;
+  var stock=getStock();
+  d.innerHTML=CATALOGUE_STD.map(function(p){
+    var inStock=stock.find(function(s){return s.ref===p.ref;});
+    return '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">'
+      +'<div style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:3px;">'+p.ref+' · '+p.fournisseur+'</div>'
+      +'<div style="font-weight:700;font-size:12px;color:var(--text);margin-bottom:4px;line-height:1.3;">'+p.nom+'</div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;">'
+      +'<span style="font-weight:800;color:var(--green);font-size:13px;">'+p.prix.toFixed(2)+'€</span>'
+      +(inStock
+        ? '<span style="font-size:10px;background:#f0fdf4;color:#16a34a;border-radius:5px;padding:2px 7px;font-weight:700;">✓ En stock ('+inStock.qty+')</span>'
+        : '<button onclick="ajouterDepuisCatalogue(\''+p.ref+'\',\''+p.nom.replace(/'/g,"\\'").replace(/"/g,"'")+'\','+p.prix+',\''+p.fournisseur+'\')" style="background:#eff6ff;color:#1d4ed8;border:none;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;">➕ Ajouter</button>'
+      )
+      +'</div></div>';
+  }).join('');
+}
+
+function ajouterDepuisCatalogue(ref,nom,prix,fourn){
+  var s=getStock();
+  if(s.find(function(x){return x.ref===ref;})){showNotif('Déjà en stock !');return;}
+  s.push({id:Date.now(),nom:nom,ref:ref,qty:0,seuil:3,prix:prix,fourn:fourn,refFourn:ref,updatedAt:new Date().toISOString()});
+  saveStock(s);renderStock();showNotif(nom+' ajouté au stock !');
+}
+
+function renderFournisseurs(){
+  var d=document.getElementById('liste-fournisseurs');
+  if(!d)return;
+  var s=getStock();
+  if(!s.length){d.innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px 0;">Aucun fournisseur renseigné</div>';return;}
+  var fmap={};
+  s.forEach(function(p){
+    var f=p.fourn||'Non renseigné';
+    if(!fmap[f])fmap[f]={nb:0,valeur:0,pieces:[]};
+    fmap[f].nb++;
+    fmap[f].valeur+=p.qty*(p.prix||0);
+    fmap[f].pieces.push(p.nom);
+  });
+  d.innerHTML=Object.keys(fmap).sort().map(function(f){
+    var info=fmap[f];
+    return '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">'
+      +'<div><div style="font-weight:700;font-size:13px;color:var(--text);">'+f+'</div>'
+      +'<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+info.nb+' pièce(s) · '+info.pieces.slice(0,2).join(', ')+(info.pieces.length>2?' +'+( info.pieces.length-2)+'...':'')+'</div></div>'
+      +'<div style="text-align:right;"><div style="font-weight:800;color:var(--green);font-size:13px;">'+info.valeur.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+'€</div>'
+      +'<div style="font-size:10px;color:var(--muted);">valeur stock</div></div>'
+      +'</div>';
+  }).join('');
+}
+
+function genererBonCommande(){
+  var s=getStock();
+  var aCommander=s.filter(function(x){return x.qty<=x.seuil;});
+  if(!aCommander.length){showNotif('Aucune pièce sous le seuil minimum');return;}
+  // Grouper par fournisseur
+  var byFourn={};
+  aCommander.forEach(function(p){
+    var f=p.fourn||'Non renseigné';
+    if(!byFourn[f])byFourn[f]=[];
+    var qtyCmd=Math.max(1,(p.seuil*3)-p.qty);
+    byFourn[f].push({piece:p,qtyCmd:qtyCmd});
+  });
+  var html='<div style="margin-bottom:14px;">';
+  Object.keys(byFourn).sort().forEach(function(f){
+    var lignes=byFourn[f];
+    html+='<div style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:12px;">';
+    html+='<div style="font-weight:800;font-size:14px;color:#1a3a5c;margin-bottom:8px;">📦 '+f+'</div>';
+    html+='<table style="width:100%;border-collapse:collapse;font-size:12px;">';
+    html+='<tr style="background:#f1f5f9;"><th style="text-align:left;padding:6px 8px;">Référence</th><th style="text-align:left;padding:6px 8px;">Désignation</th><th style="text-align:right;padding:6px 8px;">Stock</th><th style="text-align:right;padding:6px 8px;">À commander</th><th style="text-align:right;padding:6px 8px;">PU HT</th></tr>';
+    lignes.forEach(function(l){
+      html+='<tr style="border-bottom:1px solid #e2e8f0;">'
+        +'<td style="padding:6px 8px;color:var(--muted);">'+(l.piece.refFourn||l.piece.ref||'—')+'</td>'
+        +'<td style="padding:6px 8px;font-weight:600;">'+l.piece.nom+'</td>'
+        +'<td style="padding:6px 8px;text-align:right;color:#dc2626;font-weight:700;">'+l.piece.qty+'</td>'
+        +'<td style="padding:6px 8px;text-align:right;color:#16a34a;font-weight:800;">'+l.qtyCmd+'</td>'
+        +'<td style="padding:6px 8px;text-align:right;">'+((l.piece.prix||0).toFixed(2))+'€</td>'
+        +'</tr>';
+    });
+    html+='</table></div>';
+  });
+  html+='</div>';
+  document.getElementById('bc-content').innerHTML=html;
+  document.getElementById('modal-bon-commande').classList.remove('hidden');
+}
+
+function imprimerBonCommande(){
+  var w=window.open('','_blank','width=800,height=700');
+  var d=w.document;
+  var content=document.getElementById('bc-content').innerHTML;
+  d.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Bon de Commande</title>'
+    +'<style>body{font-family:Arial,sans-serif;margin:0;padding:24px;color:#0d1b2e;}'
+    +'h1{font-size:20px;font-weight:900;color:#0d2d52;margin-bottom:4px;}'
+    +'.sub{font-size:12px;color:#6b7a8f;margin-bottom:20px;}'
+    +'table{border-collapse:collapse;font-size:12px;width:100%;}'
+    +'th{background:#f1f5f9;padding:6px 8px;text-align:left;}'
+    +'td{padding:6px 8px;border-bottom:1px solid #e2e8f0;}'
+    +'@media print{@page{size:A4;margin:1.5cm;}}</style></head><body>'
+    +'<h1>GreenFlow Technologies — Bon de Commande</h1>'
+    +'<div class="sub">Généré le '+new Date().toLocaleDateString('fr-FR')+' à '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})+'</div>'
+    +content
+    +'</body></html>');
+  d.close();
+  setTimeout(function(){w.print();},400);
+}
+
+/* ── CRM AMÉLIORÉ ── */
+var _crmClientCourant=null;
+
+function renderClients(){
+  var q=(document.getElementById('search-clients')&&document.getElementById('search-clients').value||'').toLowerCase();
+  var clients=getClients();
+  var rapports=getRapports();
+  var now=new Date();
+
+  // KPIs CRM
+  var kpiEl=document.getElementById('crm-kpis');
+  if(kpiEl){
+    var vip=clients.filter(function(c){return (c.ca||0)>1000;}).length;
+    var nouveaux=clients.filter(function(c){
+      if(!c.createdAt)return false;
+      var d=new Date(c.createdAt);
+      return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+    }).length;
+    var recurrents=clients.filter(function(c){return (c.nbRdv||0)>=3;}).length;
+    var taux=clients.length?Math.round(recurrents/clients.length*100):0;
+    kpiEl.innerHTML=[
+      ['👥','Total clients',clients.length,''],
+      ['⭐','VIP (CA>1000€)',vip,'#f59e0b'],
+      ['🆕','Nouveaux ce mois',nouveaux,'#1d4ed8'],
+      ['🔄','Fidélisation',taux+'%',taux>=50?'#16a34a':'#f97316']
+    ].map(function(k){
+      return '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.05);">'
+        +'<div style="font-size:18px;margin-bottom:4px;">'+k[0]+'</div>'
+        +'<div style="font-weight:900;font-size:18px;color:'+(k[3]||'var(--blue)')+';">'+k[2]+'</div>'
+        +'<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;">'+k[1]+'</div>'
+        +'</div>';
+    }).join('');
+  }
+
+  var filtered=clients.filter(function(c){return !q||c.nom.toLowerCase().includes(q)||c.tel.includes(q);});
+  var d=document.getElementById('liste-clients');
+  if(!d)return;
+  if(!filtered.length){d.innerHTML='<div class="empty">Aucun client enregistré</div>';return;}
+
+  d.innerHTML=filtered.slice(0,50).map(function(c){
+    // Calcul interventions et dernière intervention depuis rapports
+    var clientRaps=rapports.filter(function(r){return r.clientNom===c.nom||r.clientTel===c.tel;});
+    var nbInt=clientRaps.length;
+    var caTotal=clientRaps.reduce(function(s,r){return s+(r.montantFinal||0);},0)||(c.ca||0);
+    var lastRap=clientRaps.sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
+    var derniere=lastRap.length?{date:lastRap[0].date,type:lastRap[0].type}:null;
+    // Segment
+    var segment='';
+    if(caTotal>1000)segment='⭐ VIP';
+    else if(nbInt>=3)segment='🔄 Récurrent';
+    else if(nbInt===1)segment='🆕 Nouveau';
+    else if(derniere){
+      var joursDepuis=Math.floor((Date.now()-new Date(derniere.date+'T12:00'))/86400000);
+      if(joursDepuis>90)segment='😴 Inactif';
+    }
+    var segColor=segment.includes('VIP')?'#f59e0b':segment.includes('Récurrent')?'#1d4ed8':segment.includes('Nouveau')?'#16a34a':segment.includes('Inactif')?'#6b7a8f':'#6b7a8f';
+    return '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">'
+      +'<div style="flex:1;">'
+      +'<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px;">'
+      +'<div style="font-weight:700;font-size:14px;color:var(--text);">'+c.nom+'</div>'
+      +(segment?'<span style="background:'+segColor+'18;color:'+segColor+';border:1px solid '+segColor+'30;border-radius:5px;padding:1px 8px;font-size:10px;font-weight:700;">'+segment+'</span>':'')
+      +'</div>'
+      +'<div style="font-size:12px;color:var(--muted);"><a href="tel:'+c.tel+'" style="color:#1d4ed8;text-decoration:none;">'+c.tel+'</a>'+(c.adresse?' · '+c.adresse.substring(0,28):'')+'</div>'
+      +(derniere?'<div style="font-size:11px;color:var(--muted);margin-top:2px;">Dernière int. : '+derniere.date+' — '+derniere.type+'</div>':'')
+      +'</div>'
+      +'<div style="text-align:right;flex-shrink:0;">'
+      +'<div style="font-weight:800;color:var(--green);font-size:15px;">'+caTotal.toLocaleString('fr-FR')+'€</div>'
+      +'<div style="font-size:10px;color:var(--muted);">'+nbInt+' intervention'+(nbInt>1?'s':'')+'</div>'
+      +'</div></div>'
+      +'<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">'
+      +'<button class="btn btn-b" style="padding:5px 10px;font-size:11px;" onclick="openCrmClient(\''+String(c.id)+'\')">📋 Fiche complète</button>'
+      +'<button class="btn btn-g" style="padding:5px 10px;font-size:11px;" onclick="creerRdvDepuisClientId(\''+String(c.id)+'\')">+ RDV</button>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function openCrmClient(id){
+  var clients=getClients();
+  var c=clients.find(function(x){return String(x.id)===String(id);});
+  if(!c)return;
+  _crmClientCourant=c;
+  document.getElementById('crm-modal-nom').textContent=c.nom;
+  var rapports=getRapports();
+  var clientRaps=rapports.filter(function(r){return r.clientNom===c.nom||r.clientTel===c.tel;}).sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
+  var nbInt=clientRaps.length;
+  var caTotal=clientRaps.reduce(function(s,r){return s+(r.montantFinal||0);},0)||(c.ca||0);
+  var segment='';
+  if(caTotal>1000)segment='⭐ VIP';
+  else if(nbInt>=3)segment='🔄 Récurrent';
+  else if(nbInt===1)segment='🆕 Nouveau';
+  else if(clientRaps.length){
+    var joursDepuis=Math.floor((Date.now()-new Date(clientRaps[0].date+'T12:00'))/86400000);
+    if(joursDepuis>90)segment='😴 Inactif';
+  }
+  document.getElementById('crm-modal-infos').innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">'
+    +'<div class="sc"><div class="lbl">TÉLÉPHONE</div><a href="tel:'+c.tel+'" style="font-weight:700;color:#1d4ed8;font-size:14px;">'+c.tel+'</a></div>'
+    +'<div class="sc"><div class="lbl">CA TOTAL</div><div style="font-weight:900;color:var(--green);font-size:18px;">'+caTotal.toLocaleString('fr-FR')+'€</div></div>'
+    +'<div class="sc"><div class="lbl">INTERVENTIONS</div><div style="font-weight:800;font-size:18px;">'+nbInt+'</div></div>'
+    +'<div class="sc"><div class="lbl">SEGMENT</div><div style="font-weight:700;font-size:13px;">'+(segment||'Standard')+'</div></div>'
+    +'</div>'
+    +(c.adresse?'<div style="font-size:12px;color:var(--muted);margin-bottom:4px;">📍 '+c.adresse+'</div>':'');
+  if(!clientRaps.length){
+    document.getElementById('crm-modal-historique').innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px 0;">Aucune intervention enregistrée</div>';
+  } else {
+    document.getElementById('crm-modal-historique').innerHTML=clientRaps.map(function(r){
+      var bc=r.statut==='Paye'?'#16a34a':r.statut==='Facture'?'#a16207':'#64748b';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;">'
+        +'<div><div style="font-weight:700;font-size:13px;">'+r.type+'</div>'
+        +'<div style="font-size:11px;color:var(--muted);">'+r.date+' · '+r.technicien+'</div></div>'
+        +'<div style="text-align:right;">'
+        +'<div style="font-weight:800;color:var(--green);">'+(r.montantFinal||0)+'€</div>'
+        +'<span style="font-size:10px;font-weight:700;color:'+bc+';">'+r.statut+'</span>'
+        +'</div></div>';
+    }).join('');
+  }
+  document.getElementById('crm-modal-note').value=c.note||'';
+  document.getElementById('modal-crm-client').classList.remove('hidden');
+}
+
+function fermerModalCrm(){document.getElementById('modal-crm-client').classList.add('hidden');_crmClientCourant=null;}
+
+function sauvegarderNoteCrm(){
+  if(!_crmClientCourant)return;
+  var clients=getClients();
+  var idx=clients.findIndex(function(c){return c.id===_crmClientCourant.id;});
+  if(idx>=0){clients[idx].note=document.getElementById('crm-modal-note').value;saveClients(clients);}
+  showNotif('Note sauvegardée !');
+}
+
+function creerRdvDepuisClient(){
+  if(!_crmClientCourant)return;
+  fermerModalCrm();
+  var c=_crmClientCourant;
+  showPage('nouveau-rdv',null);
+  setTimeout(function(){
+    var p=c.nom.split(' ');
+    var prenomEl=document.getElementById('rdv-prenom');
+    var nomEl=document.getElementById('rdv-nom');
+    if(prenomEl)prenomEl.value=p[0]||'';
+    if(nomEl)nomEl.value=p.slice(1).join(' ')||c.nom;
+    var telEl=document.getElementById('rdv-tel');if(telEl)telEl.value=c.tel;
+    var adrEl=document.getElementById('rdv-adresse');if(adrEl)adrEl.value=c.adresse||'';
+  },150);
+}
+
+function creerRdvDepuisClientId(id){
+  var c=getClients().find(function(x){return String(x.id)===String(id);});
+  if(!c)return;
+  _crmClientCourant=c;creerRdvDepuisClient();
+}
+
+function smsRelanceClient(){
+  if(!_crmClientCourant)return;
+  var c=_crmClientCourant;
+  var msg='Bonjour '+c.nom.split(' ')[0]+', c\'est GreenFlow Technologies. Nous souhaitons vous proposer une visite d\'entretien ou de contrôle. Appelez-nous au 01 XX XX XX XX ou répondez à ce SMS. Bonne journée !';
+  window.open('sms:'+c.tel+'?body='+encodeURIComponent(msg));
+}
+
+/* ── COMPTABILITÉ ── */
+function renderCompta(){
+  var rapports=getRapports();
+  var now=new Date();
+  var moisStr=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  var moisPrec=new Date(now.getFullYear(),now.getMonth()-1,1);
+  var moisPrecStr=moisPrec.getFullYear()+'-'+String(moisPrec.getMonth()+1).padStart(2,'0');
+
+  function isMois(r,m){return (r.date||'').startsWith(m);}
+
+  var rapsMois=rapports.filter(function(r){return isMois(r,moisStr);});
+  var caFacture=rapsMois.filter(function(r){return ['Valide','Facture','Paye'].indexOf(r.statut)>=0;}).reduce(function(s,r){return s+(r.montantFinal||0);},0);
+  var caEncaisse=rapsMois.filter(function(r){return r.statut==='Paye';}).reduce(function(s,r){return s+(r.montantFinal||0);},0);
+  var enAttente=rapports.filter(function(r){return r.statut==='Facture';}).reduce(function(s,r){return s+(r.montantFinal||0);},0);
+  var limite30=new Date();limite30.setDate(limite30.getDate()-30);
+  var impayes=rapports.filter(function(r){
+    return r.statut==='Facture'&&r.date&&new Date(r.date+'T12:00')<limite30;
+  }).reduce(function(s,r){return s+(r.montantFinal||0);},0);
+
+  var kpiEl=document.getElementById('compta-kpis');
+  if(kpiEl){
+    kpiEl.innerHTML=[
+      ['💶','CA Facturé ce mois',caFacture.toLocaleString('fr-FR')+'€','#1d4ed8'],
+      ['✅','CA Encaissé',caEncaisse.toLocaleString('fr-FR')+'€','#16a34a'],
+      ['⏳','En attente encaiss.',enAttente.toLocaleString('fr-FR')+'€','#a16207'],
+      ['⚠️','Impayés +30j',impayes.toLocaleString('fr-FR')+'€',impayes>0?'#dc2626':'#16a34a']
+    ].map(function(k){
+      return '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">'
+        +'<div style="font-size:20px;margin-bottom:4px;">'+k[0]+'</div>'
+        +'<div style="font-weight:900;font-size:17px;color:'+k[3]+';">'+k[2]+'</div>'
+        +'<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-top:2px;">'+k[1]+'</div>'
+        +'</div>';
+    }).join('');
+  }
+
+  // Auto-facture toggle
+  var cb=document.getElementById('toggle-auto-facture');
+  if(cb)cb.checked=localStorage.getItem('pl_auto_facture')==='1';
+
+  // Factures auto
+  var sansFacture=rapports.filter(function(r){return r.statut==='Valide'&&!r.factureEnvoyee;});
+  var faEl=document.getElementById('liste-factures-auto');
+  if(faEl){
+    if(!sansFacture.length){faEl.innerHTML='<div style="color:var(--muted);font-size:13px;padding:10px 0;">Toutes les factures ont été générées</div>';}
+    else{
+      faEl.innerHTML=sansFacture.map(function(r){
+        var safe=function(s){return (s||'').replace(/'/g,"\\'");};
+        return '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">'
+          +'<div><div style="font-weight:700;font-size:13px;">'+r.clientNom+'</div><div style="font-size:11px;color:var(--muted);">'+r.type+' — '+r.date+'</div></div>'
+          +'<div style="font-weight:800;color:var(--green);font-size:15px;">'+(r.montantFinal||0)+'€</div>'
+          +'<div style="display:flex;gap:6px;flex-wrap:wrap;">'
+          +'<button class="btn btn-primary" style="padding:5px 10px;font-size:11px;" onclick="genererFacturePDFById(\''+r.id+'\')">📄 PDF</button>'
+          +'<button class="btn btn-blue" style="padding:5px 10px;font-size:11px;" onclick="window.open(\'mailto:?subject=Facture+GreenFlow+-+'+encodeURIComponent(r.clientNom)+'&body=Bonjour,+veuillez+trouver+votre+facture+GreenFlow+en+pièce+jointe.\')">✉️ Email</button>'
+          +'</div></div>';
+      }).join('');
+    }
+  }
+
+  // Tableau mensuel
+  renderTableauMensuel();
+}
+
+function toggleAutoFacture(val){
+  localStorage.setItem('pl_auto_facture',val?'1':'0');
+  showNotif(val?'Automatisation activée':'Automatisation désactivée');
+}
+
+function renderTableauMensuel(){
+  var d=document.getElementById('tableau-mensuel');
+  if(!d)return;
+  var rapports=getRapports();
+  var lignes=[];
+  var now=new Date();
+  for(var i=5;i>=0;i--){
+    var m=new Date(now.getFullYear(),now.getMonth()-i,1);
+    var mStr=m.getFullYear()+'-'+String(m.getMonth()+1).padStart(2,'0');
+    var mLabel=m.toLocaleDateString('fr-FR',{month:'short',year:'numeric'});
+    var raps=rapports.filter(function(r){return (r.date||'').startsWith(mStr);});
+    var caFact=raps.filter(function(r){return ['Valide','Facture','Paye'].indexOf(r.statut)>=0;}).reduce(function(s,r){return s+(r.montantFinal||0);},0);
+    var caEnc=raps.filter(function(r){return r.statut==='Paye';}).reduce(function(s,r){return s+(r.montantFinal||0);},0);
+    var nbInt=raps.length;
+    var ticket=nbInt?Math.round(caFact/nbInt):0;
+    var limite30=new Date(m.getFullYear(),m.getMonth()+1,1);limite30.setDate(limite30.getDate()-30);
+    var imp=raps.filter(function(r){return r.statut==='Facture';}).reduce(function(s,r){return s+(r.montantFinal||0);},0);
+    lignes.push({mois:mLabel,caFact:caFact,caEnc:caEnc,nbInt:nbInt,ticket:ticket,imp:imp});
+  }
+  var html='<table style="width:100%;border-collapse:collapse;font-size:11px;">'
+    +'<thead><tr style="background:#f1f5f9;">'
+    +'<th style="padding:8px 10px;text-align:left;font-weight:700;color:var(--muted);">MOIS</th>'
+    +'<th style="padding:8px 6px;text-align:right;font-weight:700;color:var(--muted);">CA FACTURÉ</th>'
+    +'<th style="padding:8px 6px;text-align:right;font-weight:700;color:var(--muted);">ENCAISSÉ</th>'
+    +'<th style="padding:8px 6px;text-align:right;font-weight:700;color:var(--muted);">NB INT.</th>'
+    +'<th style="padding:8px 6px;text-align:right;font-weight:700;color:var(--muted);">TKT MOY.</th>'
+    +'<th style="padding:8px 6px;text-align:right;font-weight:700;color:var(--muted);">IMPAYÉS</th>'
+    +'</tr></thead><tbody>';
+  lignes.forEach(function(l,idx){
+    var isCurr=(idx===5);
+    html+='<tr style="border-bottom:1px solid #f1f5f9;'+(isCurr?'background:#f0fdf4;font-weight:700;':'')+'">'
+      +'<td style="padding:8px 10px;font-weight:600;color:var(--text);">'+l.mois+'</td>'
+      +'<td style="padding:8px 6px;text-align:right;color:#1d4ed8;">'+l.caFact.toLocaleString('fr-FR')+'€</td>'
+      +'<td style="padding:8px 6px;text-align:right;color:#16a34a;">'+l.caEnc.toLocaleString('fr-FR')+'€</td>'
+      +'<td style="padding:8px 6px;text-align:right;">'+l.nbInt+'</td>'
+      +'<td style="padding:8px 6px;text-align:right;">'+l.ticket+'€</td>'
+      +'<td style="padding:8px 6px;text-align:right;color:'+(l.imp>0?'#dc2626':'#94a3b8')+';">'+l.caFact.toLocaleString('fr-FR')+'€</td>'
+      +'</tr>';
+  });
+  html+='</tbody></table>';
+  d.innerHTML=html;
+}
+
+function exporterCSV(periode){
+  var rapports=getRapports();
+  var now=new Date();
+  var moisStr=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  var moisPrec=new Date(now.getFullYear(),now.getMonth()-1,1);
+  var moisPrecStr=moisPrec.getFullYear()+'-'+String(moisPrec.getMonth()+1).padStart(2,'0');
+  var filtered=rapports;
+  if(periode==='mois')filtered=rapports.filter(function(r){return (r.date||'').startsWith(moisStr);});
+  if(periode==='mois-prec')filtered=rapports.filter(function(r){return (r.date||'').startsWith(moisPrecStr);});
+  var header='Date,Référence,Client,Type,Technicien,Montant HT,TVA 20%,Montant TTC,Statut,Mode paiement\n';
+  var rows=filtered.map(function(r){
+    var ttc=r.montantFinal||0;
+    var ht=Math.round(ttc/1.2*100)/100;
+    var tva=Math.round((ttc-ht)*100)/100;
+    var ref='INT-'+((r.date||'').replace(/-/g,''))+'-'+String(r.id||'').slice(-3);
+    return [r.date||'',ref,'"'+(r.clientNom||'').replace(/"/g,"'")+'"','"'+(r.type||'').replace(/"/g,"'")+'"',r.technicien||'',ht,tva,ttc,r.statut||'',r.modePaiement||''].join(',');
+  }).join('\n');
+  var csv='﻿'+header+rows;
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.download='GreenFlow_Compta_'+(periode==='mois-prec'?moisPrecStr:moisStr)+'.csv';
+  a.style.display='none';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  showNotif('Export CSV téléchargé !');
+}
+
+/* ── AUTO-ASSIGN AMÉLIORÉ ── */
+async function autoAssignTech(){
+  var date=document.getElementById('rdv-date')&&document.getElementById('rdv-date').value;
+  var heure=document.getElementById('rdv-heure')&&document.getElementById('rdv-heure').value;
+  var adresse=(document.getElementById('rdv-adresse')&&document.getElementById('rdv-adresse').value||'').trim();
+  var typeInt=(document.getElementById('rdv-type')&&document.getElementById('rdv-type').value||'');
+  var res=document.getElementById('auto-assign-result');
+  if(!res)return;
+  res.style.display='block';
+  res.innerHTML='<div style="color:#0369a1;">⏳ Analyse en cours...</div>';
+  var techs=Object.keys(TECH_C);
+  var plTechs=JSON.parse(localStorage.getItem('pl_techs')||'{}');
+  var conges=JSON.parse(localStorage.getItem('pl_conges')||'[]');
+  var dateTarget=date||todayStr();
+  var scores=[];
+  var reasons=[];
+  for(var ti=0;ti<techs.length;ti++){
+    var tech=techs[ti];
+    var score=0;
+    var raisons=[];
+    var rdvsJour=getTechDayRdvs(tech,dateTarget);
+    var charge=rdvsJour.length;
+    var dispo=getDispos()[tech]||{};
+
+    // 1. Disponibilité statut
+    if(dispo.statut==='Indisponible'){score=-999;raisons.push('indisponible');}
+    else {
+      // 2. Congé
+      var enConge=conges.some(function(c){return c.tech===tech&&c.debut<=dateTarget&&c.fin>=dateTarget;});
+      if(enConge){score=-999;raisons.push('en congé');}
+      else {
+        // 3. Charge journalière
+        score-=charge*5;
+        if(charge>0)raisons.push(charge+' RDV ce jour');
+
+        // 4. Proximité géographique
+        if(adresse.length>5&&rdvsJour.length>0){
+          var prev=rdvsJour[rdvsJour.length-1];
+          if(prev.adresse){
+            var prevParts=prev.adresse.split(/[\s,]/);
+            var adrParts=adresse.split(/[\s,]/);
+            var memeZone=prevParts.some(function(p){return p.length>=5&&adrParts.indexOf(p)>=0;});
+            if(memeZone){score+=20;raisons.push('même zone que le précédent (+20pts)');}
+          }
+        }
+
+        // 5. Spécialisation
+        var techInfo=plTechs[tech]||{};
+        var specialite=techInfo.specialite||'';
+        if(specialite&&typeInt.toLowerCase().includes(specialite.toLowerCase())){
+          score+=15;raisons.push('spécialiste '+specialite+' (+15pts)');
+        }
+
+        // 6. Temps de trajet OSRM
+        var travelMin=0;
+        if(adresse.length>5&&rdvsJour.length>0){
+          var prevAddr=rdvsJour[rdvsJour.length-1];
+          if(prevAddr.adresse){
+            try{
+              var coords=await Promise.all([geocodeAddress(prevAddr.adresse),geocodeAddress(adresse)]);
+              var c1=coords[0],c2=coords[1];
+              if(c1&&c2){var t=await getOSRMTime(c1.lat,c1.lon,c2.lat,c2.lon);if(t!==null){travelMin=t;var pts=Math.floor(t/5);score-=pts;if(pts>0)raisons.push('trajet ~'+t+'min (-'+pts+'pts)');}}
+            }catch(e){}
+          }
+        }
+      }
+    }
+    scores.push({tech:tech,score:score,raisons:raisons,charge:charge,travelMin:travelMin||0});
+  }
+  var avail=scores.filter(function(s){return s.score>-999;}).sort(function(a,b){return b.score-a.score;});
+  if(!avail.length){res.innerHTML='<div style="color:#dc2626;font-weight:700;">Aucun technicien disponible pour cette date.</div>';return;}
+  var best=avail[0];
+  document.getElementById('rdv-tech').value=best.tech;
+  if(typeof updateTechPlanning==='function')updateTechPlanning();
+  var raisonStr=best.raisons.length?best.raisons.join(', '):'disponible';
+  res.innerHTML='<div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:12px 14px;">'
+    +'<div style="font-weight:800;color:#16a34a;font-size:13px;margin-bottom:4px;">✅ '+best.tech+' recommandé (score: '+best.score+')</div>'
+    +'<div style="font-size:12px;color:#374151;margin-bottom:10px;">'+best.tech+' recommandé : '+raisonStr+'</div>'
+    +(avail[1]?'<div style="font-size:11px;color:var(--muted);">Alternative : '+avail[1].tech+' (score: '+avail[1].score+')</div>':'')
+    +'<button onclick="document.getElementById(\'rdv-tech\').value=\''+best.tech+'\';if(typeof updateTechPlanning===\'function\')updateTechPlanning();" style="background:#16a34a;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px;font-family:\'Inter\',sans-serif;">Assigner '+best.tech+'</button>'
+    +'</div>';
+}
+
 // Alias for convenience
 function showPageDispatch(page){showPage(page,null);}
 
@@ -1972,6 +2373,12 @@ function genererFacturePDF(r){
   if(!w)return;
   w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Facture '+num+'</title><style>body{font-family:Arial,sans-serif;margin:0;padding:30px;color:#0d1b2e;}@media print{@page{size:A4;margin:1cm;}body{padding:15px;}}.header{display:flex;justify-content:space-between;border-bottom:3px solid #0d2d52;padding-bottom:20px;margin-bottom:24px;}.logo{font-size:26px;font-weight:900;}.logo span{color:#3a8c30;}.badge{background:#dcfce7;color:#15803d;border-radius:6px;padding:4px 12px;font-size:12px;font-weight:700;display:inline-block;}.paid-stamp{position:fixed;top:40%;left:50%;transform:translate(-50%,-50%) rotate(-15deg);font-size:80px;color:rgba(22,163,74,0.08);font-weight:900;pointer-events:none;white-space:nowrap;letter-spacing:4px;}.sign-area{border:2px dashed #e2e8f0;border-radius:8px;height:80px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px;}</style></head><body>'+(r.statut==='Paye'?'<div class="paid-stamp">PAYÉ</div>':'')+'<div class="header"><div><div class="logo">Green<span>Flow</span></div><div style="font-size:11px;color:#64748b;margin-top:4px;">Plomberie · Chauffage · Sanitaire</div><div style="font-size:11px;color:#64748b;">SIRET : [VOTRE SIRET] — TVA : [VOTRE NUM TVA]</div></div><div style="text-align:right;"><div style="font-size:10px;color:#64748b;letter-spacing:2px;font-weight:700;">FACTURE</div><div style="font-size:22px;font-weight:900;color:#0d2d52;margin-top:4px;">'+num+'</div><div style="font-size:11px;color:#64748b;margin-top:4px;">Émise le '+r.date+'</div><span class="badge">'+(r.statut||'Facturée')+'</span></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-bottom:24px;"><div><div style="font-size:10px;letter-spacing:2px;font-weight:700;color:#64748b;margin-bottom:8px;">FACTURER À</div><div style="font-weight:700;font-size:14px;">'+(r.clientNom||'—')+'</div><div style="color:#64748b;">'+(r.clientTel||'—')+'</div><div style="color:#64748b;font-size:12px;">'+(r.adresse||'—')+'</div></div><div><div style="font-size:10px;letter-spacing:2px;font-weight:700;color:#64748b;margin-bottom:8px;">INTERVENTION</div><div style="font-weight:700;font-size:13px;">'+(r.type||'Intervention')+'</div><div style="color:#64748b;font-size:12px;">Technicien : '+(r.technicien||'—')+'</div><div style="color:#64748b;font-size:12px;">'+(r.heureDebut?r.heureDebut+' → '+(r.heureFin||''):'')+'</div>'+(r.modeEncaissement?'<div style="color:#16a34a;font-size:12px;font-weight:700;margin-top:4px;">Paiement : '+r.modeEncaissement+'</div>':'')+'</div></div><table style="width:100%;border-collapse:collapse;margin-bottom:20px;"><thead><tr style="background:#f7f9fc;"><th style="padding:10px;text-align:left;font-size:11px;letter-spacing:1px;color:#64748b;font-weight:700;text-transform:uppercase;">Description</th><th style="padding:10px;text-align:right;font-size:11px;letter-spacing:1px;color:#64748b;font-weight:700;">Montant HT</th></tr></thead><tbody><tr><td style="padding:12px 10px;border-bottom:1px solid #f0f0f0;">'+(r.description||r.type||'Intervention')+(r.piecesNotes?'<br><span style="color:#64748b;font-size:11px;">Pièces : '+r.piecesNotes+'</span>':'')+'</td><td style="padding:12px 10px;text-align:right;font-weight:700;border-bottom:1px solid #f0f0f0;">'+ht.toLocaleString('fr-FR')+'€</td></tr></tbody><tfoot><tr><td style="text-align:right;padding:8px 10px;font-weight:700;background:#f7f9fc;">Total HT</td><td style="text-align:right;padding:8px 10px;font-weight:700;background:#f7f9fc;">'+ht.toLocaleString('fr-FR')+'€</td></tr><tr><td style="text-align:right;padding:8px 10px;background:#f7f9fc;">TVA 10%</td><td style="text-align:right;padding:8px 10px;background:#f7f9fc;">'+tva.toLocaleString('fr-FR')+'€</td></tr><tr><td style="text-align:right;padding:10px;font-size:16px;font-weight:900;color:#0d2d52;">TOTAL TTC</td><td style="text-align:right;padding:10px;font-size:20px;font-weight:900;color:#0d2d52;">'+ttc.toLocaleString('fr-FR')+'€</td></tr></tfoot></table>'+(r.signature?'<div style="margin-bottom:20px;"><div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:6px;">SIGNATURE CLIENT</div><img src="'+r.signature+'" style="height:70px;border:1px solid #e2e8f0;border-radius:6px;"/></div>':'<div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-bottom:20px;"><div><div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px;">Signature client :</div><div class="sign-area"></div></div><div><div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px;">Pour GreenFlow :</div><div class="sign-area"></div></div></div>')+'<div style="font-size:11px;color:#64748b;text-align:center;margin-top:20px;padding-top:20px;border-top:1px solid #e2e8f0;">GreenFlow Technologies — Merci de votre confiance</div></body></html>');
   w.document.close();setTimeout(function(){w.print();},400);
+}
+
+function genererFacturePDFById(id){
+  var r=getRapports().find(function(x){return String(x.id)===String(id);});
+  if(!r){showNotif('Rapport introuvable');return;}
+  genererFacturePDF(r);
 }
 
 function renderFacturation(){

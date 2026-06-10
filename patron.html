@@ -697,6 +697,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <button onclick="showAnalytics('rh')">👥 RH</button>
     <button onclick="showAnalytics('commercial')">📈 Commercial</button>
     <button onclick="showAnalytics('strategie')">🎯 Strategie</button>
+    <button onclick="showAnalytics('prevision')" id="atab-prev">🔮 Prévision</button>
   </div>
   <div id="analytics-finances">
     <div class="kpi">
@@ -885,6 +886,25 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
       <select id="rapport-annee" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:10px;color:#fff;font-size:12px;"></select>
     </div>
     <button onclick="genererRapportDirection()" style="width:100%;background:#7bc144;border:none;border-radius:10px;padding:12px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">📊 Générer le rapport PDF</button>
+  </div>
+  <!-- Onglet Prévision IA -->
+  <div id="analytics-prevision" class="hidden">
+    <div class="card" style="margin-bottom:12px;">
+      <div class="lbl">PREVISION 4 SEMAINES</div>
+      <div id="a-prev-chart" style="margin-top:10px;"></div>
+    </div>
+    <div class="card b" style="margin-bottom:12px;">
+      <div class="lbl">RECOMMANDATIONS STAFFING</div>
+      <div id="a-prev-staffing" style="margin-top:10px;"></div>
+    </div>
+    <div class="card" style="margin-bottom:12px;">
+      <div class="lbl">TOP TYPES D'INTERVENTIONS PREVUS</div>
+      <div id="a-prev-types" style="margin-top:10px;"></div>
+    </div>
+    <div class="card r">
+      <div class="lbl">ALERTES METEO / SAISONNIERES</div>
+      <div id="a-prev-alertes" style="margin-top:10px;"></div>
+    </div>
   </div>
 </div>
 
@@ -1309,13 +1329,14 @@ function showPage(p){
 }
 
 function showAnalytics(p){
-  ["finances","rh","commercial","strategie"].forEach(x=>{const d=document.getElementById("analytics-"+x);if(d)d.classList.add("hidden");});
+  ["finances","rh","commercial","strategie","prevision"].forEach(x=>{const d=document.getElementById("analytics-"+x);if(d)d.classList.add("hidden");});
   const div=document.getElementById("analytics-"+p);if(div)div.classList.remove("hidden");
-  document.querySelectorAll("#analytics-nav button").forEach((b,i)=>b.classList.toggle("active",["finances","rh","commercial","strategie"][i]===p));
+  document.querySelectorAll("#analytics-nav button").forEach((b,i)=>b.classList.toggle("active",["finances","rh","commercial","strategie","prevision"][i]===p));
   if(p==="finances")renderFinances();
   if(p==="rh")renderRH();
   if(p==="commercial")renderCommercial();
   if(p==="strategie")renderStrategie();
+  if(p==="prevision")renderPrevision();
 }
 
 function updateNavBadges(){
@@ -2893,6 +2914,529 @@ async function updateTravelInfo(){
   td.style.background=bg;td.style.borderColor=border;
   tc.innerHTML=`<div style="font-size:10px;font-weight:800;color:${col};letter-spacing:0.5px;margin-bottom:6px;">${ok?'✅':'⚠️'} TRAJET CALCULÉ</div><div style="font-size:12px;color:#374151;line-height:2;"><div>📍 <b>${prev.adresse.substring(0,35)}</b> — fin à <b>${prevEnd}</b></div><div>🚗 Trajet → <b>${mins} min</b></div><div>📍 <b>${adresse.substring(0,35)}</b> — arrivée min. <b style="color:${col};">${earliest}</b></div>${!ok?`<div style="background:#dc2626;color:#fff;border-radius:6px;padding:4px 10px;margin-top:4px;font-weight:700;font-size:11px;">RDV impossible à ${heure} — corrigé à ${earliest}</div>`:''}</div>`;
   if(!ok)document.getElementById('rdv-heure').value=earliest;
+}
+
+// =============================================
+// ZONE
+// =============================================
+function changerZone(zone){
+  localStorage.setItem('pl_zone_active',zone);
+  renderDashboard();
+  updateNavBadges();
+}
+function getZoneActive(){return localStorage.getItem('pl_zone_active')||'all';}
+
+// =============================================
+// STORAGE HELPERS RH / NPS
+// =============================================
+function getTechsRH(){
+  return JSON.parse(localStorage.getItem('pl_techs_rh')||JSON.stringify({
+    'Technicien 1':{nom:'Technicien 1',specialite:'Plomberie générale',contrat:'CDI',salaire:2200,embauche:'2020-01-15',telUrgence:'06 00 00 00 01'},
+    'Technicien 2':{nom:'Technicien 2',specialite:'Chauffage',contrat:'CDI',salaire:2400,embauche:'2021-06-01',telUrgence:'06 00 00 00 02'}
+  }));
+}
+function saveTechsRH(d){localStorage.setItem('pl_techs_rh',JSON.stringify(d));}
+function getEvaluations(){return JSON.parse(localStorage.getItem('pl_evaluations')||'[]');}
+function saveEvaluations(d){localStorage.setItem('pl_evaluations',JSON.stringify(d));}
+function getHabilitations(){
+  return JSON.parse(localStorage.getItem('pl_habilitations')||JSON.stringify({
+    'Technicien 1':{gazPG:{obtention:'',expiry:''},electriciteBR:{obtention:'',expiry:''},permisB:{obtention:''},cqp:{obtention:''},rge:{obtention:'',expiry:''}},
+    'Technicien 2':{gazPG:{obtention:'',expiry:''},electriciteBR:{obtention:'',expiry:''},permisB:{obtention:''},cqp:{obtention:''},rge:{obtention:'',expiry:''}}
+  }));
+}
+function saveHabilitations(d){localStorage.setItem('pl_habilitations',JSON.stringify(d));}
+function getNps(){return JSON.parse(localStorage.getItem('pl_nps')||'[]');}
+function saveNps(d){localStorage.setItem('pl_nps',JSON.stringify(d));}
+
+// =============================================
+// PAGE RH
+// =============================================
+function renderRHPage(){
+  renderRHFiches();
+  renderRHPlanning();
+  renderRHEvaluations();
+  renderRHHabilitations();
+  const evalMois=document.getElementById('eval-mois');
+  if(evalMois&&!evalMois.value)evalMois.value=moisStr();
+  updateEvalScore();
+}
+
+function renderRHFiches(){
+  const techs=getTechsRH();
+  const el=document.getElementById('rh-fiches');
+  if(!el)return;
+  el.innerHTML=Object.entries(techs).map(([key,t])=>{
+    const tc=TECH_C[key]||{color:'#94a3b8',avatar:'??'};
+    const safeKey=key.replace(/\s/g,'_');
+    return`<div style="background:#f8fafc;border-radius:12px;padding:14px;margin-bottom:10px;border-left:4px solid ${tc.color};">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:44px;height:44px;border-radius:12px;background:${tc.color}20;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;">${tc.avatar}</div>
+          <div>
+            <div style="font-weight:700;font-size:14px;">${t.nom}</div>
+            <div style="color:var(--muted);font-size:12px;">${t.specialite} — <span style="background:#dbeafe;color:#1d4ed8;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;">${t.contrat}</span></div>
+          </div>
+        </div>
+        <button class="btn btn-b" style="padding:5px 10px;font-size:11px;" onclick="toggleRHFicheEdit('${key}')">Modifier</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;">
+        <div style="font-size:12px;color:var(--muted);">Salaire brut : <span style="color:var(--text);font-weight:600;">${t.salaire?t.salaire+' EUR':'N/A'}</span></div>
+        <div style="font-size:12px;color:var(--muted);">Embauche : <span style="color:var(--text);font-weight:600;">${t.embauche||'N/A'}</span></div>
+        <div style="font-size:12px;color:var(--muted);">Tel urgence : <span style="color:var(--text);font-weight:600;">${t.telUrgence||'N/A'}</span></div>
+      </div>
+      <div id="rh-edit-${safeKey}" class="hidden" style="margin-top:12px;background:#fff;border-radius:8px;padding:12px;border:1px solid var(--border);">
+        <div class="g2" style="margin-bottom:6px;">
+          <div>
+            <label style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px;">SPECIALITE</label>
+            <input type="text" class="fi" id="rh-spec-${safeKey}" value="${t.specialite}" style="margin-bottom:0;">
+          </div>
+          <div>
+            <label style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px;">CONTRAT</label>
+            <select class="fs" id="rh-contrat-${safeKey}" style="margin-bottom:0;">
+              <option ${t.contrat==='CDI'?'selected':''}>CDI</option>
+              <option ${t.contrat==='CDD'?'selected':''}>CDD</option>
+              <option ${t.contrat==='Auto-entrepreneur'?'selected':''}>Auto-entrepreneur</option>
+            </select>
+          </div>
+        </div>
+        <div class="g2" style="margin-bottom:6px;">
+          <div>
+            <label style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px;">SALAIRE BRUT (EUR)</label>
+            <input type="number" class="fi" id="rh-sal-${safeKey}" value="${t.salaire||''}" style="margin-bottom:0;">
+          </div>
+          <div>
+            <label style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px;">DATE EMBAUCHE</label>
+            <input type="date" class="fi" id="rh-emb-${safeKey}" value="${t.embauche||''}" style="margin-bottom:0;">
+          </div>
+        </div>
+        <div style="margin-bottom:8px;">
+          <label style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px;">TEL URGENCE</label>
+          <input type="tel" class="fi" id="rh-tel-${safeKey}" value="${t.telUrgence||''}" style="margin-bottom:0;">
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-g" style="flex:1;" onclick="sauvegarderFicheRH('${key}')">Sauvegarder</button>
+          <button class="btn btn-gray" onclick="toggleRHFicheEdit('${key}')">Annuler</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleRHFicheEdit(key){
+  const safeKey=key.replace(/\s/g,'_');
+  const editEl=document.getElementById('rh-edit-'+safeKey);
+  if(editEl)editEl.classList.toggle('hidden');
+}
+
+function sauvegarderFicheRH(key){
+  const safeKey=key.replace(/\s/g,'_');
+  const techs=getTechsRH();
+  if(!techs[key])return;
+  const specEl=document.getElementById('rh-spec-'+safeKey);
+  const contratEl=document.getElementById('rh-contrat-'+safeKey);
+  const salEl=document.getElementById('rh-sal-'+safeKey);
+  const embEl=document.getElementById('rh-emb-'+safeKey);
+  const telEl=document.getElementById('rh-tel-'+safeKey);
+  if(specEl)techs[key].specialite=specEl.value;
+  if(contratEl)techs[key].contrat=contratEl.value;
+  if(salEl)techs[key].salaire=Number(salEl.value)||techs[key].salaire;
+  if(embEl)techs[key].embauche=embEl.value;
+  if(telEl)techs[key].telUrgence=telEl.value;
+  saveTechsRH(techs);
+  renderRHFiches();
+  showNotif('Fiche mise à jour !');
+}
+
+function renderRHPlanning(){
+  const container=document.getElementById('rh-planning');
+  if(!container)return;
+  const jours=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  const today=new Date();
+  const dayOfWeek=today.getDay()||7;
+  const lundi=new Date(today);
+  lundi.setDate(today.getDate()-dayOfWeek+1);
+  const datesCols=jours.map((_,i)=>{
+    const d=new Date(lundi);d.setDate(lundi.getDate()+i);
+    return d.toISOString().split('T')[0];
+  });
+  const conges=getConges();
+  const rdvs=getRdvs();
+  const techKeys=Object.keys(TECH_C);
+
+  let html=`<table style="width:100%;border-collapse:collapse;font-size:11px;">
+    <thead><tr>
+      <th style="padding:6px 4px;text-align:left;color:var(--muted);font-weight:700;min-width:80px;">Tech</th>`;
+  datesCols.forEach((d,i)=>{
+    const isToday=d===todayStr();
+    html+=`<th style="padding:6px 4px;text-align:center;color:${isToday?'var(--green)':'var(--muted)'};font-weight:700;">${jours[i]}<br><span style="font-size:10px;font-weight:400;">${d.slice(8)}</span></th>`;
+  });
+  html+='</tr></thead><tbody>';
+
+  techKeys.forEach(tech=>{
+    const tc=TECH_C[tech]||{color:'#94a3b8'};
+    html+=`<tr><td style="padding:6px 4px;font-weight:700;font-size:11px;color:${tc.color};">${tech.replace('Technicien ','T')}</td>`;
+    datesCols.forEach(d=>{
+      const conge=conges.find(c=>c.technicien===tech&&c.debut<=d&&c.fin>=d);
+      const travaille=rdvs.some(r=>r.technicien===tech&&r.dateRdv===d);
+      let bg='#f1f5f9',label='—',color='#94a3b8';
+      if(conge){
+        if(conge.type==='Conge paye'){bg='#fff7ed';label='Congé';color='#ea580c';}
+        else if(conge.type==='Arret maladie'){bg='#fee2e2';label='Absent';color='#dc2626';}
+        else if(conge.type==='Formation'){bg='#dbeafe';label='Form.';color='#1d4ed8';}
+        else{bg='#fee2e2';label='Abs.';color='#dc2626';}
+      } else if(travaille){bg='#dcfce7';label='Travail';color='#15803d';}
+      html+=`<td style="padding:3px;text-align:center;"><div style="background:${bg};color:${color};font-weight:700;border-radius:5px;padding:3px 2px;font-size:9px;">${label}</div></td>`;
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  html+=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:11px;">
+    <span style="display:flex;align-items:center;gap:4px;"><span style="background:#dcfce7;border-radius:4px;padding:2px 6px;color:#15803d;font-weight:700;">Travail</span></span>
+    <span style="display:flex;align-items:center;gap:4px;"><span style="background:#fff7ed;border-radius:4px;padding:2px 6px;color:#ea580c;font-weight:700;">Congé</span></span>
+    <span style="display:flex;align-items:center;gap:4px;"><span style="background:#fee2e2;border-radius:4px;padding:2px 6px;color:#dc2626;font-weight:700;">Absent</span></span>
+    <span style="display:flex;align-items:center;gap:4px;"><span style="background:#dbeafe;border-radius:4px;padding:2px 6px;color:#1d4ed8;font-weight:700;">Form.</span></span>
+  </div>`;
+  container.innerHTML=html;
+}
+
+function updateEvalScore(){
+  const p=Number(document.getElementById('eval-ponc')?.value||3);
+  const q=Number(document.getElementById('eval-qual')?.value||3);
+  const c=Number(document.getElementById('eval-comm')?.value||3);
+  const a=Number(document.getElementById('eval-att')?.value||3);
+  const global=Math.round((p+q+c+a)/20*20);
+  const pv=document.getElementById('eval-ponc-v');if(pv)pv.textContent=p+'/5';
+  const qv=document.getElementById('eval-qual-v');if(qv)qv.textContent=q+'/5';
+  const cv=document.getElementById('eval-comm-v');if(cv)cv.textContent=c+'/5';
+  const av=document.getElementById('eval-att-v');if(av)av.textContent=a+'/5';
+  const gv=document.getElementById('eval-global');if(gv)gv.textContent=global+'/20';
+}
+
+function sauvegarderEval(){
+  const tech=document.getElementById('eval-tech')?.value;
+  const mois=document.getElementById('eval-mois')?.value;
+  if(!tech||!mois){showNotif('Sélectionner technicien et mois');return;}
+  const p=Number(document.getElementById('eval-ponc').value);
+  const q=Number(document.getElementById('eval-qual').value);
+  const c=Number(document.getElementById('eval-comm').value);
+  const a=Number(document.getElementById('eval-att').value);
+  const global=Math.round((p+q+c+a)/20*20);
+  const commentaire=document.getElementById('eval-commentaire')?.value||'';
+  const evals=getEvaluations();
+  evals.unshift({id:Date.now(),technicien:tech,mois,ponctualite:p,qualite:q,commercial:c,attitude:a,global,commentaire,creeAt:new Date().toISOString()});
+  saveEvaluations(evals.slice(0,50));
+  renderRHEvaluations();
+  const commEl=document.getElementById('eval-commentaire');if(commEl)commEl.value='';
+  showNotif('Évaluation enregistrée !');
+}
+
+function renderRHEvaluations(){
+  const container=document.getElementById('rh-evaluations');
+  if(!container)return;
+  const evals=getEvaluations().slice(0,6);
+  if(!evals.length){container.innerHTML='<div style="color:var(--muted);font-size:13px;padding:10px 0;">Aucune évaluation enregistrée</div>';return;}
+  container.innerHTML=evals.map(e=>{
+    const tc=TECH_C[e.technicien]||{color:'#94a3b8'};
+    const starsCount=Math.round(e.global/4);
+    const stars='★'.repeat(Math.min(starsCount,5))+'☆'.repeat(Math.max(0,5-starsCount));
+    return`<div style="background:#fff;border-radius:10px;padding:12px;margin-bottom:8px;border-left:3px solid ${tc.color};box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <div>
+          <span style="font-weight:700;font-size:13px;">${e.technicien}</span>
+          <span style="color:var(--muted);font-size:11px;margin-left:8px;">${e.mois}</span>
+        </div>
+        <div style="text-align:right;">
+          <div style="color:#f59e0b;font-size:14px;">${stars}</div>
+          <div style="color:var(--green);font-weight:800;font-size:15px;">${e.global}/20</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:6px;">
+        ${[['Ponct.',e.ponctualite],['Qualité',e.qualite],['Comm.',e.commercial],['Attitude',e.attitude]].map(([l,v])=>`<div style="text-align:center;background:#f8fafc;border-radius:6px;padding:4px;"><div style="font-size:9px;color:var(--muted);font-weight:700;">${l}</div><div style="font-weight:800;color:var(--blue2);font-size:13px;">${v}/5</div></div>`).join('')}
+      </div>
+      ${e.commentaire?`<div style="color:var(--muted);font-size:12px;font-style:italic;">"${e.commentaire}"</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderRHHabilitations(){
+  const container=document.getElementById('rh-habilitations');
+  if(!container)return;
+  const hab=getHabilitations();
+  const todayD=new Date();
+  const HABS=[
+    {key:'gazPG',label:'GAZ PG',hasExpiry:true},
+    {key:'electriciteBR',label:'Élec. BR',hasExpiry:true},
+    {key:'permisB',label:'Permis B',hasExpiry:false},
+    {key:'cqp',label:'CQP Install.',hasExpiry:false},
+    {key:'rge',label:'RGE',hasExpiry:true},
+  ];
+
+  let html=`<table style="width:100%;border-collapse:collapse;font-size:11px;">
+    <thead><tr>
+      <th style="padding:8px 6px;text-align:left;color:var(--muted);font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;">Technicien</th>
+      ${HABS.map(h=>`<th style="padding:8px 6px;text-align:center;color:var(--muted);font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;">${h.label}</th>`).join('')}
+    </tr></thead><tbody>`;
+
+  Object.entries(hab).forEach(([tech,data])=>{
+    const tc=TECH_C[tech]||{color:'#94a3b8'};
+    html+=`<tr><td style="padding:8px 6px;font-weight:700;font-size:12px;color:${tc.color};">${tech}</td>`;
+    HABS.forEach(h=>{
+      const hd=(data&&data[h.key])||{};
+      let bg='#f8fafc',color='var(--muted)',alertIcon='';
+      let label=hd.obtention?hd.obtention.slice(0,7):'—';
+      if(h.hasExpiry&&hd.expiry){
+        const exp=new Date(hd.expiry);
+        const diffDays=Math.floor((exp-todayD)/86400000);
+        if(diffDays<60){bg='#fee2e2';color='#dc2626';alertIcon='🔴';}
+        else if(diffDays<180){bg='#fff7ed';color='#ea580c';alertIcon='🟠';}
+        else{bg='#dcfce7';color='#15803d';}
+        label=(hd.obtention?hd.obtention.slice(0,7):'?')+' ▸ '+hd.expiry.slice(0,7);
+      } else if(hd.obtention){bg='#dcfce7';color='#15803d';}
+      html+=`<td style="padding:4px 3px;text-align:center;">
+        <div style="background:${bg};border-radius:5px;padding:3px 4px;cursor:pointer;" onclick="editHabilitation('${tech}','${h.key}',${h.hasExpiry})">
+          <div style="font-size:9px;font-weight:700;color:${color};">${alertIcon}${label}</div>
+          <div style="font-size:8px;color:var(--muted);">✎ Modifier</div>
+        </div>
+      </td>`;
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  container.innerHTML=html;
+}
+
+function editHabilitation(tech,key,hasExpiry){
+  const hab=getHabilitations();
+  if(!hab[tech])hab[tech]={};
+  const hd=hab[tech][key]||{};
+  const obtention=prompt(`${tech} — ${key}\nDate d'obtention (AAAA-MM-JJ) :`,hd.obtention||'');
+  if(obtention===null)return;
+  if(!hab[tech][key])hab[tech][key]={};
+  hab[tech][key].obtention=obtention;
+  if(hasExpiry){
+    const expiry=prompt(`Date d'expiration (AAAA-MM-JJ, vide si aucune) :`,hd.expiry||'');
+    if(expiry!==null)hab[tech][key].expiry=expiry;
+  }
+  saveHabilitations(hab);
+  renderRHHabilitations();
+  showNotif('Habilitation mise à jour !');
+}
+
+// =============================================
+// PAGE NPS
+// =============================================
+function renderNPS(){
+  const nps=getNps();
+  const now=new Date();
+  const cutoff=new Date(now.getTime()-30*24*3600*1000).toISOString().split('T')[0];
+  const recent=nps.filter(n=>n.date>=cutoff);
+  const promo=recent.filter(n=>n.note>=9).length;
+  const passif=recent.filter(n=>n.note>=7&&n.note<=8).length;
+  const detrac=recent.filter(n=>n.note<=6).length;
+  const total=recent.length||1;
+  const score=Math.round((promo/total-detrac/total)*100);
+
+  const scoreEl=document.getElementById('nps-score');
+  const scoreColor=score>=50?'#15803d':score>=0?'#ea580c':'#dc2626';
+  if(scoreEl){scoreEl.textContent=recent.length?score:'—';scoreEl.style.color=scoreColor;}
+  const detailEl=document.getElementById('nps-detail');
+  if(detailEl)detailEl.textContent=recent.length?`${recent.length} réponses — ${promo} promoteurs · ${passif} passifs · ${detrac} détracteurs`:'Aucune réponse ces 30 derniers jours';
+
+  // Répartition
+  const reptEl=document.getElementById('nps-repartition');
+  if(reptEl){
+    const maxN=Math.max(promo,passif,detrac,1);
+    reptEl.innerHTML=[
+      ['Promoteurs (9-10)',promo,'#15803d','#dcfce7'],
+      ['Passifs (7-8)',passif,'#ca8a04','#fef9c3'],
+      ['Détracteurs (1-6)',detrac,'#dc2626','#fee2e2'],
+    ].map(([label,n,color,bg])=>`
+      <div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+          <span style="font-size:12px;font-weight:600;color:${color};">${label}</span>
+          <span style="font-weight:700;color:${color};">${n} <span style="font-size:11px;font-weight:400;">(${Math.round(n/total*100)}%)</span></span>
+        </div>
+        <div style="background:#e2e8f0;border-radius:6px;height:14px;overflow:hidden;">
+          <div style="width:${Math.round(n/maxN*100)}%;height:100%;background:${color};border-radius:6px;"></div>
+        </div>
+      </div>`).join('');
+  }
+
+  // Par technicien
+  const ptEl=document.getElementById('nps-par-tech');
+  if(ptEl){
+    const byTech={};
+    nps.forEach(n=>{
+      if(!byTech[n.technicien])byTech[n.technicien]={sum:0,count:0};
+      byTech[n.technicien].sum+=n.note;
+      byTech[n.technicien].count++;
+    });
+    ptEl.innerHTML=Object.entries(TECH_C).map(([nom,tc])=>{
+      const d=byTech[nom]||{sum:0,count:0};
+      const avg=d.count>0?(d.sum/d.count).toFixed(1):'—';
+      const starsN=d.count>0?Math.round(d.sum/d.count/2):0;
+      const stars='★'.repeat(Math.min(starsN,5))+'☆'.repeat(Math.max(0,5-starsN));
+      return`<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+        <div style="width:38px;height:38px;border-radius:10px;background:${tc.color}20;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;">${tc.avatar}</div>
+        <div style="flex:1;"><div style="font-weight:700;font-size:13px;">${nom}</div><div style="color:#f59e0b;font-size:14px;letter-spacing:-1px;">${stars}</div></div>
+        <div style="text-align:right;"><div style="color:var(--green);font-weight:800;font-size:18px;">${avg}<span style="font-size:12px;font-weight:400;">/10</span></div><div style="color:var(--muted);font-size:11px;">${d.count} avis</div></div>
+      </div>`;
+    }).join('');
+  }
+
+  // Historique 20 dernières
+  const histEl=document.getElementById('nps-historique');
+  if(histEl){
+    const hist=nps.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,20);
+    if(!hist.length){histEl.innerHTML='<div style="color:var(--muted);font-size:13px;padding:12px 0;">Aucune réponse enregistrée</div>';}
+    else{
+      histEl.innerHTML=hist.map(n=>{
+        const noteColor=n.note>=9?'#15803d':n.note>=7?'#ca8a04':'#dc2626';
+        const noteBg=n.note>=9?'#dcfce7':n.note>=7?'#fef9c3':'#fee2e2';
+        const cat=n.note>=9?'Promoteur':n.note>=7?'Passif':'Détracteur';
+        return`<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+          <div style="background:${noteBg};color:${noteColor};font-weight:800;font-size:18px;border-radius:8px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${n.note}</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:13px;">${n.clientNom}</div>
+            <div style="color:var(--muted);font-size:11px;">${n.technicien} — ${n.date} — <span style="color:${noteColor};font-weight:600;">${cat}</span></div>
+            ${n.commentaire?`<div style="color:var(--muted);font-size:12px;font-style:italic;margin-top:2px;">"${n.commentaire}"</div>`:''}
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+}
+
+function sauvegarderNps(){
+  const client=document.getElementById('nps-client')?.value.trim();
+  const note=Number(document.getElementById('nps-note')?.value||5);
+  const commentaire=document.getElementById('nps-commentaire')?.value.trim()||'';
+  const tech=document.getElementById('nps-tech')?.value||'';
+  if(!client){showNotif('Nom du client requis');return;}
+  const nps=getNps();
+  nps.unshift({id:Date.now(),clientNom:client,technicien:tech,note,commentaire,date:todayStr(),rdvId:null});
+  saveNps(nps.slice(0,200));
+  const clientEl=document.getElementById('nps-client');if(clientEl)clientEl.value='';
+  const commEl=document.getElementById('nps-commentaire');if(commEl)commEl.value='';
+  const noteEl=document.getElementById('nps-note');if(noteEl)noteEl.value=5;
+  const noteValEl=document.getElementById('nps-note-val');if(noteValEl)noteValEl.textContent='5';
+  renderNPS();
+  showNotif('Réponse NPS enregistrée !');
+}
+
+// =============================================
+// PREVISION IA
+// =============================================
+const SAISONNALITE={1:1.3,2:1.2,3:1.0,4:0.9,5:0.8,6:0.7,7:0.6,8:0.6,9:0.9,10:1.1,11:1.3,12:1.4};
+
+function renderPrevision(){
+  const rapports=getRapports();
+  const now=new Date();
+  const moisCourant=now.getMonth()+1;
+  const coeff=SAISONNALITE[moisCourant]||1.0;
+
+  // Semaines: S-1, S courante, S+1, S+2, S+3
+  const getWeekBounds=(offsetWeeks)=>{
+    const d=new Date(now);
+    const dayOfWeek=d.getDay()||7;
+    d.setDate(d.getDate()-dayOfWeek+1+offsetWeeks*7);
+    const debut=d.toISOString().split('T')[0];
+    const fin=new Date(d.getTime()+6*86400000).toISOString().split('T')[0];
+    return{debut,fin};
+  };
+
+  // Historique 4 semaines pour calcul moyenne
+  const hist=[-5,-4,-3,-2].map(o=>{
+    const {debut,fin}=getWeekBounds(o);
+    const raps=rapports.filter(r=>r.date>=debut&&r.date<=fin);
+    return{n:raps.length,ca:raps.reduce((s,r)=>s+(r.montantFinal||0),0)};
+  });
+  const avgN=hist.length>0?hist.reduce((s,h)=>s+h.n,0)/hist.length:3;
+  const avgCA=hist.length>0?hist.reduce((s,h)=>s+h.ca,0)/hist.length:800;
+
+  const labels=['S-1 (passée)','Cette semaine','S+1 prévue','S+2 prévue','S+3 prévue'];
+  const colors=['#94a3b8','#1d4ed8','#86efac','#22c55e','#15803d'];
+  const prevData=[-1,0,1,2,3].map((o,i)=>{
+    const {debut,fin}=getWeekBounds(o);
+    if(i<=1){
+      const raps=rapports.filter(r=>r.date>=debut&&r.date<=fin);
+      return{n:raps.length,ca:raps.reduce((s,r)=>s+(r.montantFinal||0),0),reel:true,debut,fin};
+    }
+    return{n:Math.round(avgN*coeff),ca:Math.round(avgCA*coeff),reel:false,debut,fin};
+  });
+
+  const maxN=Math.max(...prevData.map(d=>d.n),1);
+
+  // Chart
+  const chartEl=document.getElementById('a-prev-chart');
+  if(chartEl){
+    let html='<div style="margin-bottom:6px;font-size:11px;color:var(--muted);">Coefficient saisonnalité mois '+moisCourant+' : ×'+coeff+'</div>';
+    prevData.forEach((d,i)=>{
+      const pct=Math.round(d.n/maxN*100);
+      html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <div style="min-width:95px;font-size:11px;color:${colors[i]};font-weight:600;">${labels[i]}</div>
+        <div style="flex:1;background:#e2e8f0;border-radius:4px;height:22px;overflow:hidden;">
+          <div style="width:${pct}%;min-width:${d.n>0?'36px':'0'};height:100%;background:${colors[i]};border-radius:4px;display:flex;align-items:center;padding-left:6px;">
+            <span style="font-size:11px;font-weight:700;color:#fff;white-space:nowrap;">${d.n} interv.</span>
+          </div>
+        </div>
+        <div style="min-width:65px;font-size:11px;${d.reel?'color:var(--muted);':'color:'+colors[i]+';font-weight:600;'}text-align:right;">${d.reel?'réel':'~'+d.ca+' EUR'}</div>
+      </div>`;
+    });
+    chartEl.innerHTML=html;
+  }
+
+  // Staffing
+  const staffEl=document.getElementById('a-prev-staffing');
+  if(staffEl){
+    const nextN=prevData[2]?.n||0;
+    const currentN=prevData[1]?.n||0;
+    const pctChange=currentN>0?Math.round((nextN-currentN)/currentN*100):0;
+    let msg,icon;
+    if(pctChange>=15){msg=`Semaine prochaine : +${pctChange}% activité prévue → Prévoir renfort jeudi/vendredi`;icon='⚠️';}
+    else if(pctChange<=-10){msg=`Semaine prochaine : -${Math.abs(pctChange)}% activité → Période idéale pour formations`;icon='ℹ️';}
+    else{msg=`Semaine prochaine : activité stable (${pctChange>=0?'+':''}${pctChange}%)`;icon='✅';}
+    staffEl.innerHTML=`<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;">
+      <div style="font-size:28px;">${icon}</div>
+      <div>
+        <div style="font-weight:700;font-size:14px;">${msg}</div>
+        <div style="color:var(--muted);font-size:12px;margin-top:4px;">Moyenne 4 semaines : ${Math.round(avgN)} interventions — Moy. CA : ${Math.round(avgCA)} EUR</div>
+      </div>
+    </div>`;
+  }
+
+  // Top types prévus
+  const typesEl=document.getElementById('a-prev-types');
+  if(typesEl){
+    const typeCount={};
+    rapports.slice(-60).forEach(r=>{typeCount[r.type]=(typeCount[r.type]||0)+1;});
+    const sortedTypes=Object.entries(typeCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const maxT=Math.max(...sortedTypes.map(([,n])=>n),1);
+    typesEl.innerHTML=sortedTypes.length?sortedTypes.map(([t,n])=>`
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <div style="min-width:120px;font-size:11px;color:var(--muted);">${t.slice(0,18)}</div>
+        <div style="flex:1;background:#e2e8f0;border-radius:4px;height:14px;overflow:hidden;">
+          <div style="width:${Math.round(n/maxT*100)}%;height:100%;background:var(--blue2);border-radius:4px;"></div>
+        </div>
+        <div style="font-size:11px;font-weight:700;color:var(--blue2);min-width:22px;text-align:right;">${n}</div>
+      </div>`).join(''):'<div style="color:var(--muted);font-size:13px;">Aucune donnée historique</div>';
+  }
+
+  // Alertes météo/saisonnières
+  const alertesEl=document.getElementById('a-prev-alertes');
+  if(alertesEl){
+    const alertes=[];
+    if([11,12,1,2].includes(moisCourant))alertes.push({icon:'❄️',msg:'Vague de froid probable — +40% chaudières et dépannages. Prévoir stock pièces chaudière.',color:'#1d4ed8',bg:'#dbeafe'});
+    if([3,4].includes(moisCourant))alertes.push({icon:'🌸',msg:'Printemps — remise en service systèmes eau froide, entretien préventif.',color:'#15803d',bg:'#dcfce7'});
+    if([6,7,8].includes(moisCourant))alertes.push({icon:'☀️',msg:'Haute saison été — demande réduite. Période idéale pour formations et congés.',color:'#ca8a04',bg:'#fef9c3'});
+    if([9,10].includes(moisCourant))alertes.push({icon:'🍂',msg:'Reprise automne — maintenance chaudières et contrôles annuels à anticiper.',color:'#ea580c',bg:'#fff7ed'});
+    if(!alertes.length)alertes.push({icon:'📊',msg:'Période standard — activité selon tendances historiques.',color:'#475569',bg:'#f1f5f9'});
+    alertesEl.innerHTML=alertes.map(a=>`
+      <div style="background:${a.bg};border-radius:8px;padding:12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;">
+        <div style="font-size:20px;">${a.icon}</div>
+        <div style="color:${a.color};font-weight:600;font-size:13px;">${a.msg}</div>
+      </div>`).join('');
+  }
 }
 </script>
 
