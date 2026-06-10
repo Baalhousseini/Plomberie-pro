@@ -419,16 +419,21 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
           <option>Installation sanitaire</option><option>Urgent / Depannage</option><option>Autre</option>
         </select>
       </div>
-      <div class="grid-2">
-        <div class="form-field"><label>DATE RDV *</label><input type="date" class="form-input" id="rdv-date" onchange="updateTechPlanning()"></div>
-        <div class="form-field"><label>HEURE RDV *</label><input type="time" class="form-input" id="rdv-heure" value="09:00" onchange="scheduleTravelUpdate()"></div>
-      </div>
       <div class="form-field"><label>TECHNICIEN *</label>
         <select class="form-select" id="rdv-tech" onchange="updateTechPlanning()">
           <option value="Technicien 1">Technicien 1</option>
           <option value="Technicien 2">Technicien 2</option>
           <option value="À planifier">📋 À planifier</option>
         </select>
+      </div>
+      <div id="rdv-date-div" class="grid-2">
+        <div class="form-field"><label>DATE RDV *</label><input type="date" class="form-input" id="rdv-date" onchange="updateTechPlanning()"></div>
+        <div class="form-field"><label>HEURE RDV *</label><input type="time" class="form-input" id="rdv-heure" value="09:00" onchange="scheduleTravelUpdate()"></div>
+      </div>
+      <div id="rdv-contact-div" class="hidden" style="background:#f5f3ff;border:1.5px solid #8b5cf6;border-radius:10px;padding:12px 14px;margin-bottom:14px;">
+        <div style="color:#6d28d9;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">📞 PRISE DE CONTACT</div>
+        <div style="color:#7c3aed;font-size:12px;">Date d'appel : <strong id="rdv-contact-date"></strong></div>
+        <div style="color:#94a3b8;font-size:11px;margin-top:4px;">📅 La date et l'heure d'intervention seront fixées par le Dispatch</div>
       </div>
       <div id="rdv-plan-div" class="hidden" style="margin-bottom:14px;">
         <div class="lbl" style="color:#1a4a7a;">PLANNING DU TECHNICIEN CE JOUR</div>
@@ -1236,7 +1241,8 @@ function seConnecter(){
 function lancerApp(){
   document.getElementById("login").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
-  document.getElementById("rdv-date").value=todayStr();
+  const rdvDateInit=document.getElementById("rdv-date");if(rdvDateInit)rdvDateInit.value=todayStr();
+  updateTechPlanning();
   document.getElementById("objectif-input").value=getObjectif();
   renderDashboard();
   renderModuleNav();
@@ -1701,11 +1707,15 @@ function creerRdv(){
   const adresse=document.getElementById("rdv-adresse").value.trim();
   const prix=document.getElementById("rdv-prix").value;
   if(!nom||!tel||!adresse||!prix){showNotif("Remplis tous les champs obligatoires");return;}
-  const rdv={id:Date.now(),clientNom:nom,clientTel:tel,adresse,type:document.getElementById("rdv-type").value,dateRdv:document.getElementById("rdv-date").value,heureRdv:document.getElementById("rdv-heure").value,technicien:document.getElementById("rdv-tech").value,prixVente:Number(prix),statut:"Confirme",notes:document.getElementById("rdv-notes").value.trim(),zone:document.getElementById("rdv-zone").value,creePar:"patron",creeAt:new Date().toISOString()};
+  const tech=document.getElementById("rdv-tech").value;
+  const aPlanifier=tech==="À planifier";
+  const rdv={id:Date.now(),clientNom:nom,clientTel:tel,adresse,type:document.getElementById("rdv-type").value,dateRdv:aPlanifier?"":document.getElementById("rdv-date").value,heureRdv:aPlanifier?"":document.getElementById("rdv-heure").value,datePriseContact:aPlanifier?todayStr():undefined,technicien:tech,prixVente:Number(prix),statut:"Confirme",notes:document.getElementById("rdv-notes").value.trim(),zone:document.getElementById("rdv-zone").value,creePar:"patron",canal:"Patron",creeAt:new Date().toISOString()};
   const rdvs=getRdvs();rdvs.push(rdv);saveRdvs(rdvs);
   ["rdv-prenom","rdv-nom","rdv-tel","rdv-adresse","rdv-prix","rdv-notes"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
-  document.getElementById("rdv-date").value=todayStr();
-  showNotif(rdv.technicien==="À planifier"?"RDV créé — "+nom+" en attente d'assignation":"RDV cree pour "+nom+" — "+rdv.technicien+" notifie !");
+  const rdvDateEl=document.getElementById("rdv-date");if(rdvDateEl)rdvDateEl.value=todayStr();
+  document.getElementById("rdv-tech").value="Technicien 1";
+  updateTechPlanning();
+  showNotif(aPlanifier?"✅ RDV créé — "+nom+" en attente de planification Dispatch":"✅ RDV créé pour "+nom+" — "+tech);
   renderDisposDispatch();renderPlanningJour();renderAPlanifierPatron();
 }
 
@@ -2919,8 +2929,17 @@ function updateTechPlanning(){
   const pl=document.getElementById('rdv-plan-list');
   const ca=document.getElementById('rdv-conflict-div');
   const cm=document.getElementById('rdv-conflict-msg');
-  if(!tech||!date||!pd)return;
-  if(tech==='À planifier'){pd.classList.add('hidden');if(ca)ca.classList.add('hidden');return;}
+  const dateDiv=document.getElementById('rdv-date-div');
+  const contactDiv=document.getElementById('rdv-contact-div');
+  const contactDateEl=document.getElementById('rdv-contact-date');
+  if(!tech||!pd)return;
+  if(tech==='À planifier'){
+    if(dateDiv)dateDiv.classList.add('hidden');
+    if(contactDiv){contactDiv.classList.remove('hidden');if(contactDateEl)contactDateEl.textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+    pd.classList.add('hidden');if(ca)ca.classList.add('hidden');return;
+  }
+  if(dateDiv)dateDiv.classList.remove('hidden');
+  if(contactDiv)contactDiv.classList.add('hidden');
   const rdvs=getTechDayRdvs(tech,date);
   if(rdvs.length){
     pd.classList.remove('hidden');
