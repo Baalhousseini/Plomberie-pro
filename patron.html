@@ -313,6 +313,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <button onclick="showPage('live')" id="nav-live" style="color:#dc2626;">🔴 Live</button>
     <button onclick="showPage('rh')" id="nav-rh">👥 RH</button>
     <button onclick="showPage('nps')" id="nav-nps">⭐ NPS</button>
+    <button onclick="showPage('mandants')" id="nav-mandants">🤝 Mandants</button>
   </div>
 
   <div class="content">
@@ -1307,9 +1308,9 @@ function logout(){
 }
 
 function showPage(p){
-  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
+  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps","mandants"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
   document.getElementById("page-"+p).classList.remove("hidden");
-  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps"][i]===p));
+  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps","mandants"][i]===p));
   if(p==="dashboard")renderDashboard();
   if(p==="dispatch"){renderDisposDispatch();renderPlanningJour();renderAPlanifierPatron();}
   if(p==="urgences")renderUrgences();
@@ -1326,6 +1327,7 @@ function showPage(p){
   if(p==="live"){startLiveFeed();}
   if(p==="rh")renderRHPage();
   if(p==="nps")renderNPS();
+  if(p==="mandants")renderMandants();
 }
 
 function showAnalytics(p){
@@ -3437,6 +3439,412 @@ function renderPrevision(){
         <div style="color:${a.color};font-weight:600;font-size:13px;">${a.msg}</div>
       </div>`).join('');
   }
+}
+</script>
+
+<!-- PAGE MANDANTS -->
+<div id="page-mandants" class="hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+    <div>
+      <div style="color:var(--blue);font-size:11px;letter-spacing:2px;font-weight:800;text-transform:uppercase;">🤝 PIPELINE MANDANTS</div>
+      <div style="color:var(--muted);font-size:12px;margin-top:2px;">Assureurs · Syndics · Gestionnaires · Bailleurs</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="toggleFormMandant()">+ Ajouter</button>
+      <button class="btn btn-blue" onclick="genererMandantsIA()" id="btn-gen-ia">🤖 Générer via IA</button>
+      <button class="btn btn-gray" onclick="exporterMandantsCSV()">⬇ Export CSV</button>
+    </div>
+  </div>
+
+  <!-- Pipeline funnel -->
+  <div id="mandants-pipeline" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:14px;"></div>
+
+  <!-- Filtres type -->
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+    <button class="btn btn-primary" id="mf-tous" onclick="filtrerMandants('tous',this)">Tous</button>
+    <button class="btn btn-gray" id="mf-ass" onclick="filtrerMandants('Assureur',this)">🏦 Assureurs</button>
+    <button class="btn btn-gray" id="mf-syn" onclick="filtrerMandants('Syndic',this)">🏢 Syndics</button>
+    <button class="btn btn-gray" id="mf-ges" onclick="filtrerMandants('Gestionnaire sinistres',this)">📋 Gestionnaires</button>
+    <button class="btn btn-gray" id="mf-bai" onclick="filtrerMandants('Bailleur social',this)">🏠 Bailleurs</button>
+    <button class="btn btn-gray" id="mf-pla" onclick="filtrerMandants('Plateforme',this)">🔧 Plateformes</button>
+  </div>
+
+  <!-- Formulaire ajout -->
+  <div id="form-mandant" class="hidden" style="background:#f0f9ff;border:1.5px solid #0ea5e9;border-radius:14px;padding:14px;margin-bottom:14px;">
+    <div style="color:#0369a1;font-size:11px;font-weight:800;letter-spacing:1.5px;margin-bottom:10px;">NOUVEAU MANDANT</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div class="form-field"><label>NOM SOCIÉTÉ *</label><input type="text" class="form-input" id="m-nom" placeholder="AXA France"></div>
+      <div class="form-field"><label>TYPE *</label>
+        <select class="form-select" id="m-type">
+          <option>Assureur</option><option>Syndic</option><option>Gestionnaire sinistres</option>
+          <option>Bailleur social</option><option>Plateforme</option><option>Autre</option>
+        </select>
+      </div>
+      <div class="form-field"><label>CONTACT (NOM)</label><input type="text" class="form-input" id="m-contact" placeholder="Directeur partenariats"></div>
+      <div class="form-field"><label>TÉLÉPHONE</label><input type="tel" class="form-input" id="m-tel" placeholder="01 XX XX XX XX"></div>
+      <div class="form-field"><label>EMAIL</label><input type="email" class="form-input" id="m-email" placeholder="partenaires@societe.fr"></div>
+      <div class="form-field"><label>SITE WEB</label><input type="text" class="form-input" id="m-site" placeholder="societe.fr"></div>
+    </div>
+    <div class="form-field"><label>SERVICE / DÉPARTEMENT</label><input type="text" class="form-input" id="m-service" placeholder="Direction Réseau Prestataires Dommages"></div>
+    <div class="form-field"><label>NOTE / STRATÉGIE D'APPROCHE</label><textarea class="form-textarea" id="m-notes" rows="2" placeholder="Comment les contacter, qui cibler..."></textarea></div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="btn btn-gray" onclick="toggleFormMandant()">Annuler</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="sauvegarderMandant()">Enregistrer</button>
+    </div>
+  </div>
+
+  <!-- Loading IA -->
+  <div id="mandants-ia-loading" class="hidden" style="background:#f5f3ff;border:1.5px solid #8b5cf6;border-radius:12px;padding:14px;margin-bottom:14px;text-align:center;">
+    <div style="color:#7c3aed;font-weight:700;font-size:13px;">🤖 L'IA recherche des mandants potentiels...</div>
+    <div style="color:#a78bfa;font-size:12px;margin-top:4px;">Analyse du marché en cours — 15-30 secondes</div>
+  </div>
+
+  <div id="liste-mandants"></div>
+
+  <!-- Modal détail mandant -->
+  <div id="modal-mandant" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:flex-end;justify-content:center;" onclick="if(event.target===this)fermerModalMandant()">
+    <div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;padding:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div id="modal-mandant-titre" style="font-weight:800;font-size:16px;color:var(--blue);"></div>
+        <button onclick="fermerModalMandant()" style="background:#f1f5f9;border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;">✕</button>
+      </div>
+      <div id="modal-mandant-body"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   MODULE MANDANTS — GreenFlow Technologies
+   ══════════════════════════════════════════ */
+
+var MANDANTS_BASE = [
+  // ── ASSUREURS ──
+  {id:1001,nom:"AXA France",type:"Assureur",secteur:"National",site:"axa.fr",service:"Direction Réseau Prestataires Dommages",tel:"01 47 74 10 00",email:"À rechercher sur axa.fr/pro",contact:"Responsable réseau réparateurs",potentiel:"Fort",approche:"Postuler via portail prestataires axa.fr/pro → onglet Devenir prestataire → Dégâts des eaux & plomberie. Préparer : assurance RC Pro, Kbis, certifications, références photos.",statut:"Prospect",notes:""},
+  {id:1002,nom:"MAIF",type:"Assureur",secteur:"National",site:"maif.fr",service:"Service Sinistres Habitation",tel:"05 49 73 73 73",email:"À rechercher sur maif.fr",contact:"Coordinateur réseau sinistres",potentiel:"Fort",approche:"MAIF gère ses sinistres via des prestataires agréés. Contacter leur direction sinistres habitation. Mettre en avant rapidité d'intervention et certifications.",statut:"Prospect",notes:""},
+  {id:1003,nom:"MACIF",type:"Assureur",secteur:"National",site:"macif.fr",service:"Direction Assistance & Sinistres",tel:"05 49 77 51 51",email:"À rechercher sur macif.fr",contact:"Direction partenariats prestataires",potentiel:"Fort",approche:"La MACIF cherche des artisans locaux réactifs. Envoyer dossier de candidature prestataire avec zone d'intervention, délais moyens, certifications.",statut:"Prospect",notes:""},
+  {id:1004,nom:"Allianz France",type:"Assureur",secteur:"National",site:"allianz.fr",service:"Réseau Experts & Prestataires",tel:"01 58 85 86 87",email:"À rechercher sur allianz.fr",contact:"Responsable réseau prestataires",potentiel:"Fort",approche:"Allianz dispose d'un réseau prestataires dommages. Postuler via allianz.fr section professionnels → devenir partenaire. Fort volume sinistres dégâts des eaux.",statut:"Prospect",notes:""},
+  {id:1005,nom:"Generali France",type:"Assureur",secteur:"National",site:"generali.fr",service:"Service Partenaires Dommages",tel:"01 58 38 70 00",email:"À rechercher sur generali.fr",contact:"Directeur partenariats",potentiel:"Moyen",approche:"Generali travaille avec des réseaux de prestataires agréés. Cibler leur direction sinistres. Préparer dossier avec photos chantiers, délais intervention, zone couverte.",statut:"Prospect",notes:""},
+  {id:1006,nom:"MMA (Covéa)",type:"Assureur",secteur:"National",site:"mma.fr",service:"Direction Sinistres Habitation",tel:"02 43 41 41 41",email:"À rechercher sur mma.fr",contact:"Gestionnaire réseau prestataires",potentiel:"Moyen",approche:"MMA (groupe Covéa avec MAAF/GMF) cherche prestataires urgence dégâts des eaux. Contacter leur direction technique sinistres.",statut:"Prospect",notes:""},
+  {id:1007,nom:"Groupama",type:"Assureur",secteur:"National",site:"groupama.fr",service:"Groupama Paris Val de Loire",tel:"01 44 56 77 77",email:"À rechercher sur groupama.fr",contact:"Responsable réseau prestataires IDF",potentiel:"Moyen",approche:"Groupama est décentralisé par région. Cibler la caisse régionale (Groupama Paris Val de Loire pour IDF). Contacter directement la direction sinistres locale.",statut:"Prospect",notes:""},
+  {id:1008,nom:"Pacifica (Crédit Agricole)",type:"Assureur",secteur:"National",site:"ca-pacifica.fr",service:"Direction Prestataires Sinistres",tel:"01 43 23 52 00",email:"À rechercher sur ca-pacifica.fr",contact:"Responsable réseau sinistres",potentiel:"Moyen",approche:"Pacifica gère les sinistres du Crédit Agricole. Contacter via la direction régionale du CA. Fort volume de contrats habitation. Mettre en avant rapidité 24h/7j.",statut:"Prospect",notes:""},
+  // ── GESTIONNAIRES DE SINISTRES ──
+  {id:2001,nom:"Sedgwick France",type:"Gestionnaire sinistres",secteur:"National",site:"sedgwick.com/fr",service:"Direction Opérationnelle France",tel:"01 55 34 45 34",email:"france@sedgwick.com",contact:"Directeur Opérations France",potentiel:"Fort",approche:"Sedgwick est le N°1 mondial de la gestion de sinistres. Ils sous-traitent massivement le dépannage. Envoyer candidature prestataire avec zone IDF, délais 2h, certifications RGE/GAZ.",statut:"Prospect",notes:""},
+  {id:2002,nom:"Crawford & Company",type:"Gestionnaire sinistres",secteur:"National",site:"crawco.fr",service:"Direction Technique Sinistres",tel:"01 49 01 49 01",email:"france@crawco.com",contact:"Responsable réseau prestataires",potentiel:"Fort",approche:"Crawford gère des milliers de sinistres/an pour les assureurs. Ils cherchent des prestataires plomberie fiables. Contacter leur direction technique.",statut:"Prospect",notes:""},
+  {id:2003,nom:"Stelliant Groupe",type:"Gestionnaire sinistres",secteur:"National",site:"stelliant.fr",service:"Direction Sinistres & Expertise",tel:"01 55 25 07 07",email:"contact@stelliant.fr",contact:"Direction partenariats prestataires",potentiel:"Fort",approche:"Stelliant gère des sinistres pour AXA, Allianz, MAIF. Très gros volume. Contacter leur pôle sinistres pour intégrer leur réseau d'urgentistes.",statut:"Prospect",notes:""},
+  {id:2004,nom:"Easyprotect",type:"Gestionnaire sinistres",secteur:"National",site:"easyprotect.fr",service:"Réseau Prestataires Urgences",tel:"01 70 70 08 00",email:"prestataires@easyprotect.fr",contact:"Coordinateur réseau urgences",potentiel:"Fort",approche:"Easyprotect spécialisé gestion sinistres habitation. Cherchent prestataires urgence 24h/7j. Envoyer dossier avec délai moyen d'arrivée et zone couverte.",statut:"Prospect",notes:""},
+  // ── PLATEFORMES DÉPANNAGE ──
+  {id:3001,nom:"Europ Assistance France",type:"Plateforme",secteur:"National",site:"europ-assistance.fr",service:"Réseau Prestataires Dépannage",tel:"01 41 85 85 85",email:"À rechercher sur europ-assistance.fr",contact:"Responsable réseau prestataires",potentiel:"Fort",approche:"Europ Assistance cherche des plombiers 24h/7j pour interventions d'urgence. Contacter leur direction réseau. Insister sur délai d'intervention < 2h en IDF.",statut:"Prospect",notes:""},
+  {id:3002,nom:"Mondial Assistance (AXA)",type:"Plateforme",secteur:"National",site:"mondial-assistance.fr",service:"Direction Réseau Prestataires",tel:"01 40 25 52 52",email:"À rechercher sur mondial-assistance.fr",contact:"Responsable partenariats prestataires",potentiel:"Fort",approche:"Mondial Assistance gère des urgences pour AXA. Très fort volume. Même approche qu'Europ Assistance. Préparer fiche prestataire avec zones, délais, tarifs.",statut:"Prospect",notes:""},
+  {id:3003,nom:"G2P (Groupe Prévention Protection)",type:"Plateforme",secteur:"National",site:"g2p.fr",service:"Direction Réseau Urgences",tel:"01 55 38 05 05",email:"contact@g2p.fr",contact:"Coordinateur réseau dépannage",potentiel:"Moyen",approche:"G2P intervient pour bailleurs, assureurs, syndics. Intégrer leur réseau = flux régulier de missions. Contacter leur direction des opérations.",statut:"Prospect",notes:""},
+  // ── SYNDICS DE COPROPRIÉTÉ ──
+  {id:4001,nom:"Foncia Groupe",type:"Syndic",secteur:"National",site:"foncia.fr",service:"Direction Technique Nationale",tel:"01 55 32 00 00",email:"technique@foncia.com",contact:"Responsable prestataires techniques",potentiel:"Fort",approche:"Foncia gère 2,4M lots. Fort besoin plomberie urgence. Contacter agences locales D'ABORD (plus facile qu'au national). Proposer contrat cadre par agence. Prix compétitif + réactivité.",statut:"Prospect",notes:""},
+  {id:4002,nom:"Nexity Gestion",type:"Syndic",secteur:"National",site:"nexity.fr",service:"Direction Technique & Maintenance",tel:"01 71 12 00 00",email:"technique@nexity.fr",contact:"Responsable prestataires syndic",potentiel:"Fort",approche:"Nexity = 1er promoteur/gestionnaire France. Leurs syndics gèrent des résidences entières. Proposer contrat annuel maintenance + urgences. Cibler le responsable technique de l'agence locale.",statut:"Prospect",notes:""},
+  {id:4003,nom:"Citya Immobilier",type:"Syndic",secteur:"National",site:"citya.fr",service:"Direction Technique Agences",tel:"02 47 71 95 00",email:"À rechercher sur citya.fr",contact:"Responsable technique local",potentiel:"Moyen",approche:"Citya est très décentralisé. Contacter directement l'agence locale de votre zone. Proposer tarifs clairs et délai d'intervention garanti. Référencer sur leur liste prestataires.",statut:"Prospect",notes:""},
+  {id:4004,nom:"Oralia",type:"Syndic",secteur:"National",site:"oralia.fr",service:"Service Technique Copropriétés",tel:"04 78 94 76 76",email:"technique@oralia.fr",contact:"Responsable maintenance prestataires",potentiel:"Moyen",approche:"Oralia gère principalement en province et périphérie IDF. Contact direct avec l'agence locale. Proposer convention de partenariat annuelle avec tarifs négociés.",statut:"Prospect",notes:""},
+  {id:4005,nom:"Sergic",type:"Syndic",secteur:"Nord France",site:"sergic.com",service:"Direction Technique",tel:"03 20 15 15 15",email:"technique@sergic.com",contact:"Responsable prestataires",potentiel:"Moyen",approche:"Sergic = Nord de France principalement. Si votre zone inclut le Nord, fort potentiel. Convention prestataire avec tarifs plafonnés en échange de volume garanti.",statut:"Prospect",notes:""},
+  {id:4006,nom:"Loiselet & Daigremont",type:"Syndic",secteur:"IDF",site:"loiselet-daigremont.fr",service:"Service Technique",tel:"01 40 26 31 31",email:"technique@loiselet-daigremont.fr",contact:"Responsable prestataires techniques",potentiel:"Fort",approche:"Spécialisé IDF/Paris intra-muros. Si vous couvrez Paris, très bon potentiel. Beaucoup d'immeubles haussmanniens = vieille plomberie = interventions fréquentes.",statut:"Prospect",notes:""},
+  // ── BAILLEURS SOCIAUX ──
+  {id:5001,nom:"Paris Habitat OPH",type:"Bailleur social",secteur:"Paris",site:"parishabitat.fr",service:"Direction de la Maintenance",tel:"01 42 76 57 00",email:"À rechercher sur parishabitat.fr",contact:"Responsable marchés maintenance",potentiel:"Fort",approche:"Paris Habitat = 120 000 logements à Paris. Répondre à leurs appels d'offres marché public (BOAMP/marchés publics). Se pré-qualifier comme PME locale. Fort volume plomberie.",statut:"Prospect",notes:""},
+  {id:5002,nom:"ICF Habitat (SNCF)",type:"Bailleur social",secteur:"National",site:"icf-habitat.fr",service:"Direction Technique & Maintenance",tel:"01 47 42 44 50",email:"À rechercher sur icf-habitat.fr",contact:"Responsable marchés prestataires",potentiel:"Moyen",approche:"ICF Habitat gère le parc immobilier SNCF. Répondre à leurs consultations marché. Disponible sur leur portail marchés. Insister sur certification et réactivité.",statut:"Prospect",notes:""},
+  {id:5003,nom:"Groupe 3F",type:"Bailleur social",secteur:"IDF",site:"3f.fr",service:"Direction du Patrimoine",tel:"01 40 40 22 00",email:"patrimoine@3f.fr",contact:"Responsable maintenance plomberie",potentiel:"Fort",approche:"3F (Action Logement) = 240 000 logements IDF. Très fort potentiel. Marchés publics annuels pour plomberie urgence et maintenance. BOAMP + profil acheteur 3F.",statut:"Prospect",notes:""},
+  {id:5004,nom:"Valophis Habitat",type:"Bailleur social",secteur:"IDF Est",site:"valophis.com",service:"Régie de Maintenance",tel:"01 56 72 20 00",email:"À rechercher sur valophis.com",contact:"Responsable prestataires maintenance",potentiel:"Moyen",approche:"Valophis gère 32 000 logements dans le Val-de-Marne. Zone bien définie. Répondre à leurs marchés maintenance. Contacter leur direction patrimoine pour pré-qualification.",statut:"Prospect",notes:""},
+  {id:5005,nom:"Seine-Saint-Denis Habitat",type:"Bailleur social",secteur:"Seine-Saint-Denis",site:"ssdhabitat.fr",service:"Direction Maintenance Patrimoine",tel:"01 49 36 25 25",email:"maintenance@ssdhabitat.fr",contact:"Responsable marchés techniques",potentiel:"Moyen",approche:"OPH du 93. Si vous couvrez le 93, très bon potentiel. Marchés publics annuels. Se pré-qualifier sur leur profil acheteur en ligne.",statut:"Prospect",notes:""},
+];
+
+var _filtreMandant = "tous";
+var _mandantEditId = null;
+
+function getMandants(){
+  var custom = JSON.parse(localStorage.getItem("pl_mandants") || "[]");
+  var map = {};
+  MANDANTS_BASE.forEach(m => { map[m.id] = Object.assign({}, m); });
+  custom.forEach(m => { map[m.id] = m; });
+  return Object.values(map).sort((a,b) => {
+    var order = {Partenaire:0, Négociation:1, "RDV planifié":2, Contacté:3, Prospect:4, Refusé:5};
+    return (order[a.statut]||4) - (order[b.statut]||4);
+  });
+}
+
+function saveMandants(mandants){
+  var custom = mandants.filter(m => m.id >= 9000 || _mandantChanged(m));
+  var v = JSON.stringify(custom);
+  localStorage.setItem("pl_mandants", v);
+  if(window.gfSync) gfSync("pl_mandants", v);
+}
+
+function _mandantChanged(m){
+  var base = MANDANTS_BASE.find(b => b.id === m.id);
+  if(!base) return true;
+  return JSON.stringify(m) !== JSON.stringify(Object.assign({}, base));
+}
+
+function toggleFormMandant(){
+  document.getElementById("form-mandant").classList.toggle("hidden");
+  _mandantEditId = null;
+  ["m-nom","m-service","m-contact","m-tel","m-email","m-site","m-notes"].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = "";
+  });
+}
+
+function sauvegarderMandant(){
+  const nom = document.getElementById("m-nom").value.trim();
+  if(!nom){ showNotif("Nom requis"); return; }
+  const all = getMandants();
+  const id = _mandantEditId || (Date.now() + 9000);
+  const m = {
+    id, nom,
+    type: document.getElementById("m-type").value,
+    secteur: "IDF",
+    site: document.getElementById("m-site").value.trim(),
+    service: document.getElementById("m-service").value.trim(),
+    tel: document.getElementById("m-tel").value.trim(),
+    email: document.getElementById("m-email").value.trim(),
+    contact: document.getElementById("m-contact").value.trim(),
+    potentiel: "Moyen",
+    approche: document.getElementById("m-notes").value.trim(),
+    statut: "Prospect",
+    notes: ""
+  };
+  const idx = all.findIndex(x => x.id === id);
+  if(idx >= 0) all[idx] = m; else all.push(m);
+  saveMandants(all);
+  toggleFormMandant();
+  renderMandants();
+  showNotif("Mandant enregistré !");
+}
+
+function changerStatutMandant(id, statut){
+  const all = getMandants();
+  const idx = all.findIndex(m => m.id === id);
+  if(idx < 0) return;
+  all[idx].statut = statut;
+  saveMandants(all);
+  renderMandants();
+  if(statut === "Partenaire") showNotif("🎉 Nouveau partenaire : " + all[idx].nom + " !");
+  else showNotif("Statut mis à jour → " + statut);
+}
+
+function supprimerMandant(id){
+  if(!confirm("Supprimer ce mandant ?")) return;
+  const all = getMandants().filter(m => m.id !== id);
+  saveMandants(all);
+  renderMandants();
+  showNotif("Supprimé");
+}
+
+function filtrerMandants(f, btn){
+  _filtreMandant = f;
+  document.querySelectorAll("#page-mandants .btn").forEach(b => {
+    if(b.id && b.id.startsWith("mf-")) b.className = "btn btn-gray";
+  });
+  if(btn) btn.className = "btn btn-primary";
+  renderMandants();
+}
+
+function renderMandants(){
+  const all = getMandants();
+  const STATUTS = ["Prospect","Contacté","RDV planifié","Négociation","Partenaire","Refusé"];
+  const COLORS = {Prospect:"#64748b",Contacté:"#2563eb","RDV planifié":"#7c3aed",Négociation:"#f97316",Partenaire:"#16a34a",Refusé:"#dc2626"};
+  const POTENTIEL = {Fort:"#16a34a",Moyen:"#f97316",Faible:"#dc2626"};
+  const TYPE_ICON = {Assureur:"🏦",Syndic:"🏢","Gestionnaire sinistres":"📋","Bailleur social":"🏠",Plateforme:"🔧",Autre:"🔗"};
+
+  // Pipeline
+  const pipe = document.getElementById("mandants-pipeline");
+  if(pipe){
+    pipe.innerHTML = STATUTS.map(s => {
+      const nb = all.filter(m => m.statut === s).length;
+      const ca = all.filter(m => m.statut === s).reduce((acc,m) => acc + (m.potentiel==="Fort"?5000:m.potentiel==="Moyen"?2000:500), 0);
+      return `<div style="background:#fff;border-radius:10px;padding:10px 8px;text-align:center;border:1.5px solid ${COLORS[s]}20;border-top:3px solid ${COLORS[s]};">
+        <div style="font-size:9px;font-weight:700;color:${COLORS[s]};text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">${s}</div>
+        <div style="font-size:22px;font-weight:800;color:${COLORS[s]};">${nb}</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:2px;">${ca > 0 ? "~"+ca.toLocaleString("fr-FR")+"€/m" : ""}</div>
+      </div>`;
+    }).join("");
+  }
+
+  // Liste
+  let rdvs = _filtreMandant === "tous" ? all : all.filter(m => m.type === _filtreMandant);
+  const partenaires = rdvs.filter(m => m.statut === "Partenaire").length;
+  const el = document.getElementById("liste-mandants");
+  if(!el) return;
+  if(!rdvs.length){ el.innerHTML = `<div class="empty-state"><div style="font-size:36px;margin-bottom:10px;">🤝</div>Aucun mandant — <button class="btn btn-primary" onclick="toggleFormMandant()">Ajouter</button></div>`; return; }
+
+  let html = partenaires > 0 ? `<div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#166534;font-weight:700;">🎉 ${partenaires} partenaire${partenaires>1?"s":""} actif${partenaires>1?"s":""} — CA mensuel estimé : ${(partenaires * 3500).toLocaleString("fr-FR")}€/mois potentiel</div>` : "";
+
+  rdvs.forEach(m => {
+    const sc = COLORS[m.statut] || "#64748b";
+    const pc = POTENTIEL[m.potentiel] || "#64748b";
+    const icon = TYPE_ICON[m.type] || "🔗";
+    html += `<div style="background:#fff;border:1px solid var(--border);border-left:4px solid ${sc};border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+            <span style="font-size:14px;">${icon}</span>
+            <span style="font-weight:800;font-size:14px;color:var(--blue);">${m.nom}</span>
+            <span style="background:${sc}18;color:${sc};border:1px solid ${sc}30;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;">${m.statut.toUpperCase()}</span>
+            <span style="background:${pc}18;color:${pc};border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;">● ${m.potentiel}</span>
+          </div>
+          <div style="color:var(--muted);font-size:12px;">${m.type} · ${m.secteur || "National"}</div>
+          ${m.service ? `<div style="color:var(--blue2);font-size:11px;margin-top:2px;">📌 ${m.service}</div>` : ""}
+          ${m.contact ? `<div style="color:var(--muted);font-size:11px;">👤 ${m.contact}</div>` : ""}
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">
+        ${m.tel && m.tel !== "À trouver" ? `<button class="btn btn-b" style="padding:5px 10px;font-size:11px;" onclick="window.open('tel:${m.tel}')">📞 Appeler</button>` : ""}
+        ${m.site ? `<button class="btn btn-b" style="padding:5px 10px;font-size:11px;" onclick="window.open('https://${m.site}','_blank')">🌐 Site</button>` : ""}
+        <button class="btn btn-blue" style="padding:5px 10px;font-size:11px;" onclick="ouvrirMandant(${m.id})">📋 Fiche + Email IA</button>
+        <select style="padding:4px 6px;border:1px solid var(--border);border-radius:8px;font-size:11px;background:#fff;cursor:pointer;" onchange="changerStatutMandant(${m.id},this.value)" onclick="event.stopPropagation()">
+          ${STATUTS.map(s => `<option value="${s}" ${s===m.statut?"selected":""}>${s}</option>`).join("")}
+        </select>
+        <button class="btn btn-r" style="padding:5px 10px;font-size:11px;" onclick="supprimerMandant(${m.id})">✕</button>
+      </div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function ouvrirMandant(id){
+  const m = getMandants().find(x => x.id === id);
+  if(!m) return;
+  const TYPE_ICON = {Assureur:"🏦",Syndic:"🏢","Gestionnaire sinistres":"📋","Bailleur social":"🏠",Plateforme:"🔧",Autre:"🔗"};
+  document.getElementById("modal-mandant-titre").textContent = (TYPE_ICON[m.type]||"🤝") + " " + m.nom;
+  document.getElementById("modal-mandant-body").innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+      <div style="background:#f8fafc;border-radius:8px;padding:10px;">
+        <div style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:4px;">TYPE</div>
+        <div style="font-weight:700;font-size:13px;">${m.type}</div>
+      </div>
+      <div style="background:#f8fafc;border-radius:8px;padding:10px;">
+        <div style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:4px;">POTENTIEL</div>
+        <div style="font-weight:700;font-size:13px;color:${m.potentiel==="Fort"?"#16a34a":m.potentiel==="Moyen"?"#f97316":"#dc2626"};">${m.potentiel}</div>
+      </div>
+    </div>
+    ${m.service ? `<div style="margin-bottom:8px;"><div style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:3px;">SERVICE</div><div style="font-size:13px;">${m.service}</div></div>` : ""}
+    ${m.contact ? `<div style="margin-bottom:8px;"><div style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:3px;">CONTACT</div><div style="font-size:13px;">${m.contact}</div></div>` : ""}
+    ${m.tel ? `<div style="margin-bottom:8px;"><div style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:3px;">TÉLÉPHONE</div><a href="tel:${m.tel}" style="font-size:13px;color:var(--blue2);font-weight:700;">${m.tel}</a></div>` : ""}
+    ${m.email ? `<div style="margin-bottom:8px;"><div style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:3px;">EMAIL</div><div style="font-size:13px;">${m.email}</div></div>` : ""}
+    ${m.site ? `<div style="margin-bottom:12px;"><div style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:3px;">SITE</div><a href="https://${m.site}" target="_blank" style="font-size:13px;color:var(--blue2);">${m.site}</a></div>` : ""}
+    <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px;margin-bottom:12px;">
+      <div style="font-size:9px;color:#0369a1;font-weight:700;letter-spacing:1px;margin-bottom:6px;">💡 STRATÉGIE D'APPROCHE</div>
+      <div style="font-size:12px;color:#0c4a6e;line-height:1.6;">${m.approche || "Aucune stratégie définie."}</div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:6px;">📝 NOTES PERSONNELLES</div>
+      <textarea id="modal-mandant-notes" class="form-textarea" rows="2" placeholder="Ajouter une note...">${m.notes||""}</textarea>
+      <button class="btn btn-gray" style="margin-top:6px;font-size:11px;padding:5px 12px;" onclick="sauvegarderNotesMandant(${m.id})">Sauvegarder note</button>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="genererEmailMandant(${m.id})" id="btn-email-mandant-${m.id}">✉️ Générer email IA</button>
+    </div>
+    <div id="email-ia-result-${m.id}" style="display:none;margin-top:10px;background:#f5f3ff;border:1.5px solid #8b5cf6;border-radius:10px;padding:12px;">
+      <div style="font-size:9px;color:#7c3aed;font-weight:700;letter-spacing:1px;margin-bottom:6px;">✉️ EMAIL GÉNÉRÉ PAR IA</div>
+      <div id="email-ia-text-${m.id}" style="font-size:12px;color:#1e1b4b;line-height:1.7;white-space:pre-wrap;"></div>
+      <button class="btn btn-gray" style="margin-top:8px;font-size:11px;" onclick="copierEmail(${m.id})">📋 Copier</button>
+    </div>
+  `;
+  document.getElementById("modal-mandant").classList.remove("hidden");
+}
+
+function fermerModalMandant(){
+  document.getElementById("modal-mandant").classList.add("hidden");
+}
+
+function sauvegarderNotesMandant(id){
+  const all = getMandants();
+  const idx = all.findIndex(m => m.id === id);
+  if(idx < 0) return;
+  all[idx].notes = document.getElementById("modal-mandant-notes").value;
+  saveMandants(all);
+  showNotif("Note sauvegardée");
+}
+
+async function genererEmailMandant(id){
+  const m = getMandants().find(x => x.id === id);
+  if(!m) return;
+  const btn = document.getElementById("btn-email-mandant-"+id);
+  if(btn){ btn.textContent = "⏳ Génération..."; btn.disabled = true; }
+  try {
+    const rdvs = getRdvs();
+    const interventions = rdvs.length;
+    const zones = [...new Set(rdvs.map(r => (r.adresse||"").split(" ").slice(-2).join(" ")))].slice(0,3).join(", ");
+    const res = await fetch("/api/generate-mandants", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        action: "email",
+        mandant: {nom: m.nom, type: m.type, service: m.service},
+        context: {interventions, zones, anciennete: "3 ans", certifications: "RGE, GAZ, RC Pro 2M€"}
+      })
+    });
+    if(!res.ok) throw new Error("API error");
+    const data = await res.json();
+    const emailDiv = document.getElementById("email-ia-result-"+id);
+    const emailText = document.getElementById("email-ia-text-"+id);
+    if(emailDiv && emailText){
+      emailText.textContent = data.email || "Erreur génération";
+      emailDiv.style.display = "block";
+    }
+  } catch(e) {
+    showNotif("Erreur API — vérifier clé ANTHROPIC_API_KEY dans Vercel");
+  } finally {
+    if(btn){ btn.textContent = "✉️ Générer email IA"; btn.disabled = false; }
+  }
+}
+
+function copierEmail(id){
+  const t = document.getElementById("email-ia-text-"+id);
+  if(t){ navigator.clipboard.writeText(t.textContent).then(() => showNotif("Email copié !")); }
+}
+
+async function genererMandantsIA(){
+  const btn = document.getElementById("btn-gen-ia");
+  const loading = document.getElementById("mandants-ia-loading");
+  if(btn){ btn.disabled = true; btn.textContent = "⏳ Génération..."; }
+  if(loading) loading.classList.remove("hidden");
+  try {
+    const rdvs = getRdvs();
+    const zones = [...new Set(rdvs.map(r => (r.adresse||"").split(",").pop()?.trim() || "IDF"))].slice(0,3).join(", ");
+    const res = await fetch("/api/generate-mandants", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({action: "prospects", zone: zones || "Île-de-France", existing: getMandants().map(m => m.nom)})
+    });
+    if(!res.ok) throw new Error("API error");
+    const data = await res.json();
+    if(data.mandants && Array.isArray(data.mandants)){
+      const all = getMandants();
+      var added = 0;
+      data.mandants.forEach(m => {
+        if(!all.find(x => x.nom.toLowerCase() === m.nom.toLowerCase())){
+          all.push(Object.assign({id: Date.now() + Math.random()*1000|0 + 9000, statut: "Prospect", notes: ""}, m));
+          added++;
+        }
+      });
+      saveMandants(all);
+      renderMandants();
+      showNotif(added + " nouveaux mandants ajoutés par l'IA !");
+    }
+  } catch(e) {
+    showNotif("Erreur API — vérifier clé ANTHROPIC_API_KEY dans Vercel");
+  } finally {
+    if(btn){ btn.disabled = false; btn.textContent = "🤖 Générer via IA"; }
+    if(loading) loading.classList.add("hidden");
+  }
+}
+
+function exporterMandantsCSV(){
+  const all = getMandants();
+  const bom = "﻿";
+  const headers = ["Nom","Type","Secteur","Statut","Potentiel","Contact","Tel","Email","Site","Service","Approche","Notes"];
+  const rows = all.map(m => [m.nom,m.type,m.secteur||"",m.statut,m.potentiel||"",m.contact||"",m.tel||"",m.email||"",m.site||"",m.service||"",'"'+(m.approche||"").replace(/"/g,"'")+ '"','"'+(m.notes||"").replace(/"/g,"'")+'"'].join(";"));
+  const csv = bom + headers.join(";") + "\n" + rows.join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv;charset=utf-8"}));
+  a.download = "mandants-greenflow-" + new Date().toISOString().slice(0,10) + ".csv";
+  a.click();
+  showNotif("CSV exporté !");
 }
 </script>
 
