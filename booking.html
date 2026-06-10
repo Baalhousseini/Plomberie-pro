@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0d2d52">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GreenFlow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>GreenFlow - Réserver une intervention</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif;}
+:root{
+  --blue:#0d2d52;
+  --blue2:#1a4a7a;
+  --green:#3a8c30;
+  --green2:#2d7324;
+  --border:#e2e8f0;
+  --bg:#f8fafc;
+  --text:#1a2537;
+  --muted:#64748b;
+  --shadow:0 2px 8px rgba(0,0,0,.08);
+}
+body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;}
+
+/* HEADER */
+.header{
+  background:linear-gradient(135deg,var(--blue),var(--blue2));
+  color:#fff;
+  width:100%;
+  padding:20px 20px 24px;
+  text-align:center;
+}
+.header-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;}
+.header-logo .logo-icon{font-size:28px;}
+.header-logo .logo-text{font-size:22px;font-weight:800;letter-spacing:.5px;}
+.header h1{font-size:17px;font-weight:700;margin-bottom:4px;}
+.header-sub{font-size:12px;opacity:.85;display:flex;align-items:center;justify-content:center;gap:8px;}
+.header-sub span{background:rgba(255,255,255,.15);border-radius:20px;padding:3px 10px;}
+
+/* MAIN CONTAINER */
+.container{width:100%;max-width:480px;padding:0 16px 40px;}
+
+/* PROGRESS BAR */
+.progress-wrap{padding:20px 0 8px;}
+.progress-labels{display:flex;justify-content:space-between;margin-bottom:6px;}
+.progress-label{font-size:11px;font-weight:600;color:var(--muted);transition:color .3s;}
+.progress-label.active{color:var(--green);}
+.progress-bar-bg{background:#e2e8f0;border-radius:99px;height:6px;width:100%;}
+.progress-bar-fill{height:6px;border-radius:99px;background:linear-gradient(90deg,var(--green),#5ab048);transition:width .4s ease;}
+
+/* STEP TITLE */
+.step-title{font-size:18px;font-weight:700;color:var(--blue);margin:20px 0 4px;}
+.step-sub{font-size:13px;color:var(--muted);margin-bottom:18px;}
+
+/* STEP CARD */
+.step{display:none;}
+.step.active{display:block;}
+
+/* TYPE GRID */
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.type-card{
+  border:2px solid var(--border);
+  border-radius:12px;
+  padding:14px 10px;
+  text-align:center;
+  cursor:pointer;
+  background:#fff;
+  transition:all .2s;
+  box-shadow:var(--shadow);
+}
+.type-card:hover{border-color:var(--green);background:#f0f9ee;}
+.type-card.selected{border-color:#7c3aed;background:#faf5ff;box-shadow:0 0 0 3px rgba(124,58,237,.15);}
+.type-card .tc-icon{font-size:28px;margin-bottom:6px;}
+.type-card .tc-label{font-size:12px;font-weight:600;color:var(--text);}
+
+/* DATE BUTTONS */
+.dates-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;scrollbar-width:none;}
+.dates-row::-webkit-scrollbar{display:none;}
+.date-btn{
+  flex:0 0 auto;
+  border:2px solid var(--border);
+  border-radius:10px;
+  padding:8px 12px;
+  text-align:center;
+  cursor:pointer;
+  background:#fff;
+  transition:all .2s;
+  min-width:60px;
+}
+.date-btn.selected{border-color:var(--green);background:#f0f9ee;color:var(--green);}
+.date-btn.past{opacity:.4;cursor:not-allowed;background:#f1f5f9;}
+.date-btn .db-day{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;}
+.date-btn .db-num{font-size:18px;font-weight:800;color:var(--text);}
+.date-btn.selected .db-day,.date-btn.selected .db-num{color:var(--green);}
+
+/* TIME CHIPS */
+.times-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.time-chip{
+  border:2px solid var(--border);
+  border-radius:20px;
+  padding:6px 14px;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  background:#fff;
+  transition:all .2s;
+  color:var(--text);
+}
+.time-chip:hover{border-color:var(--green);background:#f0f9ee;}
+.time-chip.selected{border-color:var(--green);background:var(--green);color:#fff;}
+
+/* FORM FIELDS */
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
+.field input,.field textarea{
+  width:100%;
+  border:2px solid var(--border);
+  border-radius:10px;
+  padding:11px 14px;
+  font-size:14px;
+  color:var(--text);
+  background:#fff;
+  transition:border-color .2s;
+  outline:none;
+  resize:none;
+}
+.field input:focus,.field textarea:focus{border-color:var(--green);}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:10px;margin-top:20px;}
+.btn-next{
+  flex:1;
+  background:linear-gradient(135deg,var(--green),var(--green2));
+  color:#fff;
+  border:none;
+  border-radius:12px;
+  padding:14px;
+  font-size:15px;
+  font-weight:700;
+  cursor:pointer;
+  transition:opacity .2s;
+}
+.btn-next:hover{opacity:.9;}
+.btn-back{
+  flex:0 0 auto;
+  background:#e2e8f0;
+  color:var(--muted);
+  border:none;
+  border-radius:12px;
+  padding:14px 18px;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  transition:background .2s;
+}
+.btn-back:hover{background:#cbd5e1;}
+
+/* CONFIRMATION */
+.confirm-screen{display:none;text-align:center;padding:30px 0;}
+.confirm-screen.active{display:block;}
+.confirm-icon{font-size:60px;margin-bottom:16px;}
+.confirm-ref{
+  background:linear-gradient(135deg,var(--blue),var(--blue2));
+  color:#fff;
+  border-radius:12px;
+  padding:14px 20px;
+  margin:16px 0;
+  font-size:20px;
+  font-weight:800;
+  letter-spacing:2px;
+}
+.confirm-recap{background:#fff;border-radius:12px;padding:16px;text-align:left;box-shadow:var(--shadow);margin-bottom:16px;}
+.recap-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.recap-row:last-child{border-bottom:none;}
+.recap-icon{font-size:18px;flex:0 0 24px;}
+.recap-info{}
+.recap-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;}
+.recap-val{font-size:14px;font-weight:600;color:var(--text);}
+.confirm-msg{
+  background:#f0f9ee;
+  border-radius:12px;
+  padding:14px;
+  font-size:13px;
+  color:var(--green2);
+  font-weight:600;
+  display:flex;align-items:center;gap:8px;
+}
+.new-rdv-btn{
+  width:100%;
+  background:linear-gradient(135deg,var(--blue),var(--blue2));
+  color:#fff;
+  border:none;
+  border-radius:12px;
+  padding:14px;
+  font-size:15px;
+  font-weight:700;
+  cursor:pointer;
+  margin-top:16px;
+  transition:opacity .2s;
+}
+.new-rdv-btn:hover{opacity:.9;}
+
+/* SELECTION INFO BAR */
+.sel-bar{
+  background:#fff;
+  border-radius:10px;
+  padding:10px 14px;
+  margin-bottom:14px;
+  font-size:12px;
+  color:var(--muted);
+  box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:8px;
+}
+.sel-bar strong{color:var(--text);}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">
+    <span class="logo-icon">🔧</span>
+    <span class="logo-text">GreenFlow</span>
+  </div>
+  <h1>Réserver une intervention</h1>
+  <div class="header-sub">
+    <span>⏱ Réponse sous 2h</span>
+    <span>✅ Techniciens certifiés</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-wrap">
+    <div class="progress-labels">
+      <span class="progress-label active" id="plabel-1">1. Type</span>
+      <span class="progress-label" id="plabel-2">2. Date &amp; Lieu</span>
+      <span class="progress-label" id="plabel-3">3. Vos infos</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-fill" style="width:33%"></div>
+    </div>
+  </div>
+
+  <!-- STEP 1 : TYPE -->
+  <div class="step active" id="step-1">
+    <div class="step-title">Quel type d'intervention ?</div>
+    <div class="step-sub">Sélectionnez la catégorie qui correspond à votre besoin.</div>
+    <div class="type-grid" id="type-grid">
+      <div class="type-card" onclick="selectType(this,'Fuite d\'eau')">
+        <div class="tc-icon">🔧</div>
+        <div class="tc-label">Fuite d'eau</div>
+      </div>
+      <div class="type-card" onclick="selectType(this,'Débouchage')">
+        <div class="tc-icon">🚿</div>
+        <div class="tc-label">Débouchage</div>
+      </div>
+      <div class="type-card" onclick="selectType(this,'Chaudière')">
+        <div class="tc-icon">🔥</div>
+        <div class="tc-label">Chaudière</div>
+      </div>
+      <div class="type-card" onclick="selectType(this,'Ballon eau chaude')">
+        <div class="tc-icon">💧</div>
+        <div class="tc-label">Ballon eau chaude</div>
+      </div>
+      <div class="type-card" onclick="selectType(this,'Robinetterie')">
+        <div class="tc-icon">🔩</div>
+        <div class="tc-label">Robinetterie</div>
+      </div>
+      <div class="type-card" onclick="selectType(this,'Installation sanitaire')">
+        <div class="tc-icon">🏗️</div>
+        <div class="tc-label">Installation sanitaire</div>
+      </div>
+      <div class="type-card" onclick="selectType(this,'Urgence')">
+        <div class="tc-icon">⚡</div>
+        <div class="tc-label">Urgence</div>
+      </div>
+      <div class="type-card" onclick="selectType(this,'Autre')">
+        <div class="tc-icon">❓</div>
+        <div class="tc-label">Autre</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-next" onclick="goStep(2)">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 : DATE + HEURE + ADRESSE -->
+  <div class="step" id="step-2">
+    <div class="step-title">Quand et où ?</div>
+    <div class="step-sub">Choisissez un créneau parmi les 7 prochains jours.</div>
+
+    <div class="sel-bar" id="sel-type-bar">📋 Type sélectionné : <strong id="sel-type-txt">—</strong></div>
+
+    <div class="field">
+      <label>Choisir une date</label>
+      <div class="dates-row" id="dates-row"></div>
+    </div>
+
+    <div class="field">
+      <label>Choisir un créneau horaire</label>
+      <div class="times-grid" id="times-grid"></div>
+    </div>
+
+    <div class="field">
+      <label>Adresse d'intervention</label>
+      <input type="text" id="input-adresse" placeholder="Ex: 12 rue de la Paix, 75001 Paris">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" onclick="goStep(1)">← Retour</button>
+      <button class="btn-next" onclick="goStep(3)">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 : INFOS CLIENT -->
+  <div class="step" id="step-3">
+    <div class="step-title">Vos informations</div>
+    <div class="step-sub">Nous vous contacterons pour confirmer le rendez-vous.</div>
+
+    <div class="sel-bar" id="sel-recap-bar">
+      📋 <strong id="sel-recap-txt">—</strong>
+    </div>
+
+    <div class="field">
+      <label>Nom complet</label>
+      <input type="text" id="input-nom" placeholder="Prénom Nom">
+    </div>
+    <div class="field">
+      <label>Téléphone</label>
+      <input type="tel" id="input-tel" placeholder="06 XX XX XX XX">
+    </div>
+    <div class="field">
+      <label>Description du problème</label>
+      <textarea id="input-desc" rows="4" placeholder="Décrivez votre problème en quelques mots..."></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" onclick="goStep(2)">← Retour</button>
+      <button class="btn-next" onclick="confirmerRdv()">✅ Confirmer le RDV</button>
+    </div>
+  </div>
+
+  <!-- CONFIRMATION -->
+  <div class="confirm-screen" id="confirm-screen">
+    <div class="confirm-icon">🎉</div>
+    <div style="font-size:20px;font-weight:800;color:var(--blue);margin-bottom:4px;">Demande envoyée !</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:8px;">Votre numéro de référence :</div>
+    <div class="confirm-ref" id="confirm-ref">GF-000000</div>
+
+    <div class="confirm-recap" id="confirm-recap"></div>
+
+    <div class="confirm-msg">
+      📞 Notre équipe vous rappelle sous 2h pour confirmer votre rendez-vous.
+    </div>
+
+    <button class="new-rdv-btn" onclick="nouveauRdv()">+ Prendre un autre rendez-vous</button>
+  </div>
+
+</div>
+
+<script>
+// Firebase sync
+var _fbBase = "https://plomberie-pro-7a56a-default-rtdb.europe-west1.firebasedatabase.app";
+function gfSync(key, val) {
+  try {
+    fetch(_fbBase+"/"+key+".json", {method:"PUT", body:JSON.stringify(val), headers:{"Content-Type":"application/json"}});
+  } catch(e) {}
+  try { new BroadcastChannel("gf_sync").postMessage({key, val}); } catch(e) {}
+}
+function saveRdvsBooking(rdvs) {
+  var v = JSON.stringify(rdvs);
+  localStorage.setItem("pl_rdvs", v);
+  gfSync("pl_rdvs", v);
+}
+function getRdvsBooking() {
+  return JSON.parse(localStorage.getItem("pl_rdvs") || "[]");
+}
+
+// State
+var selectedType = null;
+var selectedDate = null;
+var selectedHeure = null;
+
+// STEP NAVIGATION
+function goStep(n) {
+  if(n === 2) {
+    if(!selectedType) { alert("Veuillez sélectionner un type d'intervention."); return; }
+    document.getElementById("sel-type-txt").textContent = selectedType;
+    buildDates();
+    buildTimes();
+  }
+  if(n === 3) {
+    if(!selectedDate) { alert("Veuillez choisir une date."); return; }
+    if(!selectedHeure) { alert("Veuillez choisir un créneau horaire."); return; }
+    var adr = document.getElementById("input-adresse").value.trim();
+    if(!adr) { alert("Veuillez renseigner l'adresse d'intervention."); return; }
+    var jours = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
+    var d = new Date(selectedDate);
+    var dateLabel = jours[d.getDay()] + " " + d.getDate() + "/" + (d.getMonth()+1);
+    document.getElementById("sel-recap-txt").textContent = selectedType + " · " + dateLabel + " à " + selectedHeure + " · " + adr;
+  }
+
+  document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
+  document.getElementById("step-"+n).classList.add("active");
+
+  var fills = {1:"33%", 2:"66%", 3:"100%"};
+  document.getElementById("progress-fill").style.width = fills[n];
+
+  for(var i=1;i<=3;i++){
+    var lbl = document.getElementById("plabel-"+i);
+    lbl.classList.toggle("active", i <= n);
+  }
+
+  window.scrollTo(0,0);
+}
+
+// TYPE SELECTION
+function selectType(el, type) {
+  document.querySelectorAll(".type-card").forEach(c => c.classList.remove("selected"));
+  el.classList.add("selected");
+  selectedType = type;
+}
+
+// BUILD DATES (next 7 days)
+function buildDates() {
+  var jours = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
+  var container = document.getElementById("dates-row");
+  container.innerHTML = "";
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  for(var i=0;i<7;i++){
+    var d = new Date(today);
+    d.setDate(today.getDate()+i);
+    var isPast = false;
+    var btn = document.createElement("div");
+    btn.className = "date-btn" + (isPast ? " past" : "");
+    var iso = d.toISOString().split("T")[0];
+    btn.dataset.iso = iso;
+    btn.innerHTML = '<div class="db-day">'+jours[d.getDay()]+'</div><div class="db-num">'+d.getDate()+'</div>';
+    if(!isPast){
+      btn.onclick = function(){
+        document.querySelectorAll(".date-btn").forEach(b => b.classList.remove("selected"));
+        this.classList.add("selected");
+        selectedDate = this.dataset.iso;
+      };
+    }
+    container.appendChild(btn);
+  }
+}
+
+// BUILD TIMES (08h-18h each hour)
+function buildTimes() {
+  var container = document.getElementById("times-grid");
+  container.innerHTML = "";
+  for(var h=8;h<=18;h++){
+    var label = h+"h00";
+    var chip = document.createElement("div");
+    chip.className = "time-chip";
+    chip.textContent = label;
+    chip.dataset.h = label;
+    chip.onclick = function(){
+      document.querySelectorAll(".time-chip").forEach(c => c.classList.remove("selected"));
+      this.classList.add("selected");
+      selectedHeure = this.dataset.h;
+    };
+    container.appendChild(chip);
+  }
+}
+
+// CONFIRM RDV
+function confirmerRdv() {
+  var nom = document.getElementById("input-nom").value.trim();
+  var tel = document.getElementById("input-tel").value.trim();
+  var desc = document.getElementById("input-desc").value.trim();
+  var adresse = document.getElementById("input-adresse").value.trim();
+
+  if(!nom) { alert("Veuillez renseigner votre nom."); return; }
+  if(!tel) { alert("Veuillez renseigner votre téléphone."); return; }
+
+  var id = Date.now();
+  var ref = "GF-" + String(id).slice(-6);
+
+  var rdv = {
+    id: id,
+    clientNom: nom,
+    clientTel: tel,
+    adresse: adresse,
+    type: selectedType,
+    dateRdv: selectedDate,
+    heureRdv: selectedHeure,
+    technicien: "À planifier",
+    prixVente: 0,
+    statut: "Nouveau",
+    notes: desc,
+    canal: "Portail en ligne",
+    creePar: "client-web",
+    creeAt: new Date().toISOString()
+  };
+
+  var rdvs = getRdvsBooking();
+  rdvs.push(rdv);
+  saveRdvsBooking(rdvs);
+
+  // Afficher la confirmation
+  document.getElementById("confirm-ref").textContent = ref;
+
+  var jours = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
+  var d = new Date(selectedDate);
+  var dateLabel = jours[d.getDay()]+" "+d.getDate()+"/"+(d.getMonth()+1)+"/"+d.getFullYear();
+
+  document.getElementById("confirm-recap").innerHTML =
+    '<div class="recap-row"><div class="recap-icon">🔧</div><div class="recap-info"><div class="recap-label">Type</div><div class="recap-val">'+rdv.type+'</div></div></div>'+
+    '<div class="recap-row"><div class="recap-icon">📅</div><div class="recap-info"><div class="recap-label">Date</div><div class="recap-val">'+dateLabel+' à '+rdv.heureRdv+'</div></div></div>'+
+    '<div class="recap-row"><div class="recap-icon">📍</div><div class="recap-info"><div class="recap-label">Adresse</div><div class="recap-val">'+rdv.adresse+'</div></div></div>'+
+    '<div class="recap-row"><div class="recap-icon">👤</div><div class="recap-info"><div class="recap-label">Client</div><div class="recap-val">'+rdv.clientNom+' · '+rdv.clientTel+'</div></div></div>'+
+    (rdv.notes ? '<div class="recap-row"><div class="recap-icon">📝</div><div class="recap-info"><div class="recap-label">Description</div><div class="recap-val">'+rdv.notes+'</div></div></div>' : '');
+
+  document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
+  document.getElementById("confirm-screen").classList.add("active");
+  document.querySelector(".progress-wrap").style.display = "none";
+  window.scrollTo(0,0);
+}
+
+// NOUVEAU RDV
+function nouveauRdv() {
+  selectedType = null;
+  selectedDate = null;
+  selectedHeure = null;
+  document.querySelectorAll(".type-card").forEach(c => c.classList.remove("selected"));
+  document.getElementById("input-adresse").value = "";
+  document.getElementById("input-nom").value = "";
+  document.getElementById("input-tel").value = "";
+  document.getElementById("input-desc").value = "";
+  document.getElementById("confirm-screen").classList.remove("active");
+  document.querySelector(".progress-wrap").style.display = "block";
+  document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
+  document.getElementById("step-1").classList.add("active");
+  document.getElementById("progress-fill").style.width = "33%";
+  for(var i=1;i<=3;i++){
+    document.getElementById("plabel-"+i).classList.toggle("active", i===1);
+  }
+  window.scrollTo(0,0);
+}
+</script>
+
+<script>
+if('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+}
+</script>
+
+</body>
+</html>

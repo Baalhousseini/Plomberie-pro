@@ -3,6 +3,11 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0d2d52">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GreenFlow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>GreenFlow - Dispatch</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -288,6 +293,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <button class="nav-btn" onclick="showPage('clients',this)">Clients</button>
     <button class="nav-btn" onclick="showPage('appels',this)">📞 Appels</button>
     <button class="nav-btn" id="nav-stock" onclick="showPage('stock',this)">📦 Stock</button>
+    <button class="nav-btn" onclick="showPage('compta',this)">💶 Compta</button>
   </div>
 
   <div class="content">
@@ -751,6 +757,109 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div id="liste-infos"></div>
 </div>
 
+<!-- CLIENTS (CRM) -->
+<div id="page-clients" class="hidden">
+  <div style="margin-bottom:16px;">
+    <div style="color:#1a3a5c;font-size:11px;letter-spacing:2px;font-weight:700;">CRM CLIENTS</div>
+    <div style="color:#64748b;font-size:12px;margin-top:2px;">Base clients & historique</div>
+  </div>
+  <div id="crm-kpis" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;"></div>
+  <div id="liste-clients"></div>
+</div>
+
+<!-- APPELS -->
+<div id="page-appels" class="hidden">
+  <div style="margin-bottom:16px;">
+    <div style="color:#1a3a5c;font-size:11px;letter-spacing:2px;font-weight:700;">JOURNAL D'APPELS</div>
+    <div style="color:#64748b;font-size:12px;margin-top:2px;">Appels entrants et sortants</div>
+  </div>
+  <div class="card card-blue">
+    <div class="lbl">NOUVEL APPEL</div>
+    <div class="form-field"><label>NOM APPELANT</label><input type="text" class="form-input" id="appel-nom" placeholder="Jean Dupont"></div>
+    <div class="form-field"><label>TELEPHONE</label><input type="tel" class="form-input" id="appel-tel" placeholder="06 XX XX XX XX"></div>
+    <div class="form-field"><label>OBJET</label><input type="text" class="form-input" id="appel-objet" placeholder="Demande de RDV, renseignement..."></div>
+    <div class="form-field"><label>NOTE</label><textarea class="form-textarea" id="appel-note" rows="2" placeholder="Details..."></textarea></div>
+    <button class="btn btn-primary btn-full" onclick="enregistrerAppel()">Enregistrer l'appel</button>
+  </div>
+  <div style="margin-top:14px;" id="liste-appels"></div>
+</div>
+
+<!-- STOCK -->
+<div id="page-stock" class="hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+    <div>
+      <div style="color:#1a3a5c;font-size:11px;letter-spacing:2px;font-weight:700;">GESTION DU STOCK</div>
+      <div style="color:#64748b;font-size:12px;margin-top:2px;">Pieces et materiel</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-blue" onclick="genererBonCommande()">📦 Bon de commande</button>
+      <button class="btn btn-primary" onclick="toggleFormStock()">+ Ajouter</button>
+    </div>
+  </div>
+  <div id="form-stock" class="hidden">
+    <div class="card card-green">
+      <div class="lbl">NOUVELLE PIECE</div>
+      <div class="grid-2">
+        <div class="form-field"><label>NOM PIECE</label><input type="text" class="form-input" id="stock-nom" placeholder="Robinet d'arret 1/2"></div>
+        <div class="form-field"><label>REFERENCE</label><input type="text" class="form-input" id="stock-ref" placeholder="REX-1023"></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-field"><label>QUANTITE</label><input type="number" class="form-input" id="stock-qty" placeholder="10" min="0"></div>
+        <div class="form-field"><label>SEUIL MINIMUM</label><input type="number" class="form-input" id="stock-seuil" placeholder="3" min="0"></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-field"><label>FOURNISSEUR</label><input type="text" class="form-input" id="stock-fournisseur" placeholder="Rexel Paris 13"></div>
+        <div class="form-field"><label>REF. FOURNISSEUR</label><input type="text" class="form-input" id="stock-ref-fourn" placeholder="REX-1023"></div>
+      </div>
+      <div class="form-field"><label>PRIX UNITAIRE HT (EUR)</label><input type="number" class="form-input" id="stock-prix" placeholder="8.50" step="0.01" min="0"></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-gray" onclick="toggleFormStock()">Annuler</button>
+        <button class="btn btn-primary" style="flex:1;" onclick="sauvegarderStock()">Ajouter au stock</button>
+      </div>
+    </div>
+  </div>
+  <div id="liste-stock"></div>
+  <div id="bon-commande-preview" class="hidden" style="margin-top:14px;"></div>
+  <div style="margin-top:20px;">
+    <div class="lbl">CATALOGUE STANDARD</div>
+    <div id="catalogue-std" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px;"></div>
+  </div>
+  <div style="margin-top:20px;">
+    <div class="lbl">TABLEAU DES FOURNISSEURS</div>
+    <div id="liste-fournisseurs" style="margin-top:8px;"></div>
+  </div>
+</div>
+
+<!-- COMPTABILITE -->
+<div id="page-compta" class="hidden">
+  <div style="margin-bottom:16px;">
+    <div style="color:#1a3a5c;font-size:11px;letter-spacing:2px;font-weight:700;">COMPTABILITE</div>
+    <div style="color:#64748b;font-size:12px;margin-top:2px;">Tableau financier et exports</div>
+  </div>
+  <div id="compta-kpis" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;"></div>
+  <div class="card card-green" style="margin-bottom:12px;">
+    <div class="lbl">EXPORTS CSV</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+      <button class="btn btn-primary" onclick="exporterCSV('mois')">⬇ Exporter CSV mois en cours</button>
+      <button class="btn btn-gray" onclick="exporterCSV('mois-prec')">⬇ Export mois precedent</button>
+    </div>
+  </div>
+  <div class="card card-yellow" style="margin-bottom:12px;">
+    <div class="lbl">FACTURES AUTO</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text);">
+        <input type="checkbox" id="toggle-auto-facture" onchange="toggleAutoFacture(this.checked)" style="width:18px;height:18px;cursor:pointer;">
+        Automatiser : envoyer facture PDF des validation
+      </label>
+    </div>
+    <div id="liste-factures-auto"></div>
+  </div>
+  <div class="card card-blue">
+    <div class="lbl">RECAP MENSUEL (6 DERNIERS MOIS)</div>
+    <div id="tableau-mensuel" style="margin-top:8px;overflow-x:auto;"></div>
+  </div>
+</div>
+
   </div>
 </div>
 
@@ -778,6 +887,52 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 <div class="photo-fs hidden" id="photo-fs" onclick="closePhotoFs()">
   <img id="photo-fs-img" src="">
   <button class="photo-fs-close">Fermer</button>
+</div>
+
+<!-- MODAL CRM CLIENT -->
+<div class="modal-bg hidden" id="modal-crm-client">
+  <div class="modal-sheet" style="max-width:640px;margin:40px auto 0;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div>
+        <div style="color:#1a3a5c;font-size:10px;letter-spacing:2px;font-weight:700;">FICHE CLIENT</div>
+        <div style="font-size:18px;font-weight:800;margin-top:2px;color:#1a2537;" id="crm-modal-nom">—</div>
+      </div>
+      <button class="modal-close" onclick="fermerModalCrm()">x</button>
+    </div>
+    <div id="crm-modal-infos" style="margin-bottom:14px;"></div>
+    <div class="card" style="border-left:4px solid #1d4ed8;margin-bottom:12px;">
+      <div class="lbl">HISTORIQUE DES INTERVENTIONS</div>
+      <div id="crm-modal-historique" style="margin-top:8px;"></div>
+    </div>
+    <div class="card" style="border-left:4px solid #4a9c3f;margin-bottom:12px;">
+      <div class="lbl">NOTE LIBRE</div>
+      <textarea class="form-textarea" id="crm-modal-note" rows="3" placeholder="Informations utiles sur ce client..." style="margin-top:6px;"></textarea>
+      <button class="btn btn-primary" style="margin-top:8px;" onclick="sauvegarderNoteCrm()">Sauvegarder la note</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+      <button class="btn btn-primary" onclick="creerRdvDepuisClient()">+ Creer un RDV</button>
+      <button class="btn btn-blue" onclick="smsRelanceClient()">SMS de relance</button>
+      <button class="btn btn-gray" onclick="fermerModalCrm()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BON DE COMMANDE -->
+<div class="modal-bg hidden" id="modal-bon-commande">
+  <div class="modal-sheet" style="max-width:640px;margin:40px auto 0;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div>
+        <div style="color:#1a3a5c;font-size:10px;letter-spacing:2px;font-weight:700;">BON DE COMMANDE</div>
+        <div style="font-size:16px;font-weight:800;margin-top:2px;color:#1a2537;">Pieces en rupture / sous seuil</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-bon-commande')">x</button>
+    </div>
+    <div id="bc-content"></div>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button class="btn btn-primary" onclick="imprimerBonCommande()">🖨️ Imprimer BC</button>
+      <button class="btn btn-gray" onclick="closeModal('modal-bon-commande')">Fermer</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -2274,6 +2429,12 @@ async function envoyerSMS(tel,message){
     else if(d.success)showNotif('SMS envoyé à '+tel);
     else showNotif('Erreur SMS : '+d.error);
   }catch(e){showNotif('SMS indisponible — vérifiez la connexion');}
+}
+</script>
+
+<script>
+if('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 }
 </script>
 

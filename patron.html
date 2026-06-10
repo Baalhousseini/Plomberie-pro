@@ -3,6 +3,11 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0d2d52">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GreenFlow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>GreenFlow - Espace Patron</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -269,6 +274,15 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     </div>
   </div>
 
+  <div id="zone-selector" style="background:#0a2240;padding:6px 14px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:10px;">
+    <span style="color:rgba(255,255,255,0.5);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">ZONE</span>
+    <select id="zone-active" onchange="changerZone(this.value)" style="background:#132e4a;border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;outline:none;">
+      <option value="all">🌍 Toutes les zones</option>
+      <option value="paris-nord">Paris Nord</option>
+      <option value="paris-sud">Paris Sud</option>
+      <option value="banlieue">Banlieue</option>
+    </select>
+  </div>
   <div class="module-nav hidden" id="module-nav"></div>
 
   <!-- Alerte devis temps réel -->
@@ -297,6 +311,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <button onclick="showPage('agenda')" id="nav-agenda">📅 Agenda</button>
     <button onclick="showPage('contrats')" id="nav-contrats">📋 Contrats</button>
     <button onclick="showPage('live')" id="nav-live" style="color:#dc2626;">🔴 Live</button>
+    <button onclick="showPage('rh')" id="nav-rh">👥 RH</button>
+    <button onclick="showPage('nps')" id="nav-nps">⭐ NPS</button>
   </div>
 
   <div class="content">
@@ -425,6 +441,14 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
         <div id="rdv-travel-content"></div>
       </div>
       <div class="form-field"><label>PRIX DE VENTE (EUR) *</label><input type="number" class="form-input" id="rdv-prix" placeholder="250" style="color:var(--green);font-weight:700;font-size:18px;"></div>
+      <div class="form-field"><label>ZONE</label>
+        <select class="form-select" id="rdv-zone">
+          <option value="all">Non spécifiée</option>
+          <option value="paris-nord">Paris Nord</option>
+          <option value="paris-sud">Paris Sud</option>
+          <option value="banlieue">Banlieue</option>
+        </select>
+      </div>
       <div class="form-field"><label>NOTE POUR LE TECHNICIEN</label><textarea class="form-textarea" id="rdv-notes" rows="3" placeholder="Infos importantes, acces, probleme recurrent..."></textarea></div>
       <button class="btn btn-primary btn-full" onclick="creerRdv()">Creer le RDV et notifier le technicien</button>
     </div>
@@ -864,6 +888,206 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   </div>
 </div>
 
+<!-- PAGE RH -->
+<div id="page-rh" class="hidden">
+  <!-- Section A: Fiches techniciens -->
+  <div class="card b" style="margin-bottom:12px;">
+    <div class="lbl">FICHES TECHNICIENS</div>
+    <div id="rh-fiches"></div>
+  </div>
+  <!-- Section B: Planning hebdomadaire -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">PLANNING HEBDOMADAIRE</div>
+    <div id="rh-planning" style="overflow-x:auto;"></div>
+  </div>
+  <!-- Section C: Evaluations mensuelles -->
+  <div class="card g" style="margin-bottom:12px;">
+    <div class="lbl">EVALUATIONS MENSUELLES</div>
+    <div style="background:#f8fafc;border-radius:10px;padding:14px;margin-bottom:12px;">
+      <div class="g2" style="margin-bottom:8px;">
+        <div>
+          <label style="color:var(--muted);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px;">TECHNICIEN</label>
+          <select class="fs" id="eval-tech" style="margin-bottom:0;">
+            <option value="Technicien 1">Technicien 1</option>
+            <option value="Technicien 2">Technicien 2</option>
+          </select>
+        </div>
+        <div>
+          <label style="color:var(--muted);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px;">MOIS</label>
+          <input type="month" class="fi" id="eval-mois" style="margin-bottom:0;">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div>
+          <label style="color:var(--muted);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px;">PONCTUALITE (1-5)</label>
+          <input type="range" min="1" max="5" value="3" id="eval-ponc" style="width:100%;" oninput="updateEvalScore()">
+          <span id="eval-ponc-v" style="color:var(--green);font-weight:700;font-size:12px;">3/5</span>
+        </div>
+        <div>
+          <label style="color:var(--muted);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px;">QUALITE TRAVAIL (1-5)</label>
+          <input type="range" min="1" max="5" value="3" id="eval-qual" style="width:100%;" oninput="updateEvalScore()">
+          <span id="eval-qual-v" style="color:var(--green);font-weight:700;font-size:12px;">3/5</span>
+        </div>
+        <div>
+          <label style="color:var(--muted);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px;">COMMERCIAL (1-5)</label>
+          <input type="range" min="1" max="5" value="3" id="eval-comm" style="width:100%;" oninput="updateEvalScore()">
+          <span id="eval-comm-v" style="color:var(--green);font-weight:700;font-size:12px;">3/5</span>
+        </div>
+        <div>
+          <label style="color:var(--muted);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px;">ATTITUDE (1-5)</label>
+          <input type="range" min="1" max="5" value="3" id="eval-att" style="width:100%;" oninput="updateEvalScore()">
+          <span id="eval-att-v" style="color:var(--green);font-weight:700;font-size:12px;">3/5</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <div style="background:#dcfce7;border-radius:8px;padding:8px 14px;">
+          <span style="color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;">NOTE GLOBALE</span>
+          <div id="eval-global" style="color:var(--green);font-weight:800;font-size:22px;">12/20</div>
+        </div>
+      </div>
+      <textarea class="fi" id="eval-commentaire" rows="2" placeholder="Commentaire libre..." style="resize:none;margin-bottom:8px;"></textarea>
+      <button class="btn btn-g btn-full" onclick="sauvegarderEval()">Enregistrer l'évaluation</button>
+    </div>
+    <div id="rh-evaluations"></div>
+  </div>
+  <!-- Section D: Habilitations -->
+  <div class="card y" style="margin-bottom:12px;">
+    <div class="lbl">FORMATIONS & HABILITATIONS</div>
+    <div id="rh-habilitations"></div>
+  </div>
+</div>
+
+<!-- PAGE NPS -->
+<div id="page-nps" class="hidden">
+  <!-- Score global -->
+  <div class="kpi" style="margin-bottom:12px;text-align:center;">
+    <div class="kpil">SCORE NPS — 30 DERNIERS JOURS</div>
+    <div id="nps-score" class="kpiv" style="font-size:48px;margin:8px 0;">—</div>
+    <div id="nps-detail" style="opacity:0.75;font-size:12px;"></div>
+  </div>
+  <!-- Répartition -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">REPARTITION DES REPONSES</div>
+    <div id="nps-repartition"></div>
+  </div>
+  <!-- Par technicien -->
+  <div class="card b" style="margin-bottom:12px;">
+    <div class="lbl">SATISFACTION PAR TECHNICIEN</div>
+    <div id="nps-par-tech"></div>
+  </div>
+  <!-- Historique -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">20 DERNIERES REPONSES</div>
+    <div id="nps-historique"></div>
+  </div>
+  <!-- Formulaire ajout -->
+  <div class="card g">
+    <div class="lbl">AJOUTER UNE REPONSE MANUELLE</div>
+    <div style="margin-top:10px;">
+      <div class="g2">
+        <div>
+          <label style="color:var(--muted);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px;">CLIENT</label>
+          <input type="text" class="fi" id="nps-client" placeholder="Nom du client" style="margin-bottom:0;">
+        </div>
+        <div>
+          <label style="color:var(--muted);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px;">TECHNICIEN</label>
+          <select class="fs" id="nps-tech" style="margin-bottom:0;">
+            <option value="Technicien 1">Technicien 1</option>
+            <option value="Technicien 2">Technicien 2</option>
+          </select>
+        </div>
+      </div>
+      <label style="color:var(--muted);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px;margin-top:8px;">NOTE (1-10) : <span id="nps-note-val" style="color:var(--green);font-size:16px;font-weight:800;">5</span></label>
+      <input type="range" min="1" max="10" value="5" id="nps-note" style="width:100%;margin-bottom:8px;" oninput="document.getElementById('nps-note-val').textContent=this.value">
+      <div style="display:flex;gap:8px;justify-content:space-between;margin-bottom:8px;">
+        <span style="color:#dc2626;font-size:11px;font-weight:600;">Détracteurs 1-6</span>
+        <span style="color:#ca8a04;font-size:11px;font-weight:600;">Passifs 7-8</span>
+        <span style="color:#16a34a;font-size:11px;font-weight:600;">Promoteurs 9-10</span>
+      </div>
+      <textarea class="fi" id="nps-commentaire" rows="2" placeholder="Commentaire du client..." style="resize:none;margin-bottom:8px;"></textarea>
+      <button class="btn btn-g btn-full" onclick="sauvegarderNps()">Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE ANALYTICS -->
+<div id="page-analytics" class="hidden">
+  <div style="display:flex;gap:4px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;">
+    <button class="btn btn-b" id="atab-perf" onclick="showAnalytics('perf')">📈 Perf</button>
+    <button class="btn btn-gray" id="atab-rentab" onclick="showAnalytics('rentab')">💰 Rentab.</button>
+    <button class="btn btn-gray" id="atab-clients" onclick="showAnalytics('clients')">👥 Clients</button>
+    <button class="btn btn-gray" id="atab-equipe" onclick="showAnalytics('equipe')">🏆 Equipe</button>
+    <button class="btn btn-gray" id="atab-prevision" onclick="showAnalytics('prevision')">🔮 Prévision</button>
+  </div>
+  <!-- Onglet Performances -->
+  <div id="analytics-perf">
+    <div class="card" style="margin-bottom:12px;">
+      <div class="lbl">CA MENSUEL (12 MOIS)</div>
+      <div id="a-ca-mensuel" style="margin-top:10px;"></div>
+    </div>
+    <div class="card" style="margin-bottom:12px;">
+      <div class="lbl">INTERVENTIONS PAR TYPE</div>
+      <div id="a-types" style="margin-top:10px;"></div>
+    </div>
+    <div class="card">
+      <div class="lbl">TAUX DE TRANSFORMATION DEVIS</div>
+      <div id="a-devis-taux" style="margin-top:10px;"></div>
+    </div>
+  </div>
+  <!-- Onglet Rentabilite -->
+  <div id="analytics-rentab" class="hidden">
+    <div class="card" style="margin-bottom:12px;">
+      <div class="lbl">PANIER MOYEN PAR TYPE</div>
+      <div id="a-panier" style="margin-top:10px;"></div>
+    </div>
+    <div class="card">
+      <div class="lbl">CA PAR TECHNICIEN (MOIS EN COURS)</div>
+      <div id="a-ca-tech" style="margin-top:10px;"></div>
+    </div>
+  </div>
+  <!-- Onglet Clients -->
+  <div id="analytics-clients" class="hidden">
+    <div class="card" style="margin-bottom:12px;">
+      <div class="lbl">RETENTION & FIDELITE</div>
+      <div id="a-retention" style="margin-top:10px;"></div>
+    </div>
+    <div class="card">
+      <div class="lbl">TOP 10 CLIENTS</div>
+      <div id="a-top-clients" style="margin-top:10px;"></div>
+    </div>
+  </div>
+  <!-- Onglet Equipe -->
+  <div id="analytics-equipe" class="hidden">
+    <div class="card" style="margin-bottom:12px;">
+      <div class="lbl">PERFORMANCE EQUIPE (3 MOIS)</div>
+      <div id="a-equipe-perf" style="margin-top:10px;"></div>
+    </div>
+    <div class="card">
+      <div class="lbl">VENTES ADDITIONNELLES PAR TECH</div>
+      <div id="a-ventes-add" style="margin-top:10px;"></div>
+    </div>
+  </div>
+  <!-- Onglet Prévision -->
+  <div id="analytics-prevision" class="hidden">
+    <div class="card" style="margin-bottom:12px;">
+      <div class="lbl">PREVISION 4 SEMAINES</div>
+      <div id="a-prev-chart" style="margin-top:10px;"></div>
+    </div>
+    <div class="card b" style="margin-bottom:12px;">
+      <div class="lbl">RECOMMANDATIONS STAFFING</div>
+      <div id="a-prev-staffing" style="margin-top:10px;"></div>
+    </div>
+    <div class="card" style="margin-bottom:12px;">
+      <div class="lbl">TOP TYPES D'INTERVENTIONS PREVUS</div>
+      <div id="a-prev-types" style="margin-top:10px;"></div>
+    </div>
+    <div class="card r">
+      <div class="lbl">ALERTES METEO / SAISONNIERES</div>
+      <div id="a-prev-alertes" style="margin-top:10px;"></div>
+    </div>
+  </div>
+</div>
+
   </div>
 </div>
 
@@ -1063,9 +1287,9 @@ function logout(){
 }
 
 function showPage(p){
-  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
+  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
   document.getElementById("page-"+p).classList.remove("hidden");
-  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live"][i]===p));
+  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps"][i]===p));
   if(p==="dashboard")renderDashboard();
   if(p==="dispatch"){renderDisposDispatch();renderPlanningJour();renderAPlanifierPatron();}
   if(p==="urgences")renderUrgences();
@@ -1080,6 +1304,8 @@ function showPage(p){
   if(p==="agenda")renderAgenda();
   if(p==="contrats")renderContrats();
   if(p==="live"){startLiveFeed();}
+  if(p==="rh")renderRHPage();
+  if(p==="nps")renderNPS();
 }
 
 function showAnalytics(p){
@@ -1449,7 +1675,7 @@ function creerRdv(){
   const adresse=document.getElementById("rdv-adresse").value.trim();
   const prix=document.getElementById("rdv-prix").value;
   if(!nom||!tel||!adresse||!prix){showNotif("Remplis tous les champs obligatoires");return;}
-  const rdv={id:Date.now(),clientNom:nom,clientTel:tel,adresse,type:document.getElementById("rdv-type").value,dateRdv:document.getElementById("rdv-date").value,heureRdv:document.getElementById("rdv-heure").value,technicien:document.getElementById("rdv-tech").value,prixVente:Number(prix),statut:"Confirme",notes:document.getElementById("rdv-notes").value.trim(),creePar:"patron",creeAt:new Date().toISOString()};
+  const rdv={id:Date.now(),clientNom:nom,clientTel:tel,adresse,type:document.getElementById("rdv-type").value,dateRdv:document.getElementById("rdv-date").value,heureRdv:document.getElementById("rdv-heure").value,technicien:document.getElementById("rdv-tech").value,prixVente:Number(prix),statut:"Confirme",notes:document.getElementById("rdv-notes").value.trim(),zone:document.getElementById("rdv-zone").value,creePar:"patron",creeAt:new Date().toISOString()};
   const rdvs=getRdvs();rdvs.push(rdv);saveRdvs(rdvs);
   ["rdv-prenom","rdv-nom","rdv-tel","rdv-adresse","rdv-prix","rdv-notes"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
   document.getElementById("rdv-date").value=todayStr();
@@ -2667,6 +2893,12 @@ async function updateTravelInfo(){
   td.style.background=bg;td.style.borderColor=border;
   tc.innerHTML=`<div style="font-size:10px;font-weight:800;color:${col};letter-spacing:0.5px;margin-bottom:6px;">${ok?'✅':'⚠️'} TRAJET CALCULÉ</div><div style="font-size:12px;color:#374151;line-height:2;"><div>📍 <b>${prev.adresse.substring(0,35)}</b> — fin à <b>${prevEnd}</b></div><div>🚗 Trajet → <b>${mins} min</b></div><div>📍 <b>${adresse.substring(0,35)}</b> — arrivée min. <b style="color:${col};">${earliest}</b></div>${!ok?`<div style="background:#dc2626;color:#fff;border-radius:6px;padding:4px 10px;margin-top:4px;font-weight:700;font-size:11px;">RDV impossible à ${heure} — corrigé à ${earliest}</div>`:''}</div>`;
   if(!ok)document.getElementById('rdv-heure').value=earliest;
+}
+</script>
+
+<script>
+if('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 }
 </script>
 
