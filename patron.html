@@ -385,6 +385,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <div class="lbl">PLANNING DU JOUR</div>
     <div id="planning-jour"></div>
   </div>
+  <div id="card-a-planifier-patron" style="margin-bottom:12px;"></div>
   <div class="card green">
     <div class="lbl">CREER UN NOUVEAU RDV</div>
     <div style="margin-top:12px;">
@@ -409,6 +410,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
         <select class="form-select" id="rdv-tech" onchange="updateTechPlanning()">
           <option value="Technicien 1">Technicien 1</option>
           <option value="Technicien 2">Technicien 2</option>
+          <option value="À planifier">📋 À planifier</option>
         </select>
       </div>
       <div id="rdv-plan-div" class="hidden" style="margin-bottom:14px;">
@@ -458,6 +460,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
           <select class="form-select" id="urg-tech">
             <option value="Technicien 1">Technicien 1</option>
             <option value="Technicien 2">Technicien 2</option>
+            <option value="À planifier">📋 À planifier</option>
           </select>
         </div>
         <div class="form-field"><label>HEURE INTERVENTION</label><input type="time" class="form-input" id="urg-heure" value="09:00"></div>
@@ -1021,6 +1024,7 @@ function lancerApp(){
     }
     if(e.key==='pl_rdvs'){
       renderDisposDispatch();renderPlanningJour();renderDashboard();
+      renderAPlanifierPatron();updateNavBadges();
       if(!document.getElementById('page-agenda').classList.contains('hidden'))renderAgenda();
     }
     if(e.key==='pl_urgences'){
@@ -1063,7 +1067,7 @@ function showPage(p){
   document.getElementById("page-"+p).classList.remove("hidden");
   document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live"][i]===p));
   if(p==="dashboard")renderDashboard();
-  if(p==="dispatch"){renderDisposDispatch();renderPlanningJour();}
+  if(p==="dispatch"){renderDisposDispatch();renderPlanningJour();renderAPlanifierPatron();}
   if(p==="urgences")renderUrgences();
   if(p==="equipe")renderEquipe();
   if(p==="rapports")renderRapports();
@@ -1099,6 +1103,55 @@ function updateNavBadges(){
   const rapsNew=getRapports().filter(r=>r.statut==="En attente facturation").length;
   const btnR=document.getElementById("nav-rapports");
   if(btnR){btnR.textContent=rapsNew>0?`Rapports (${rapsNew})`:"Rapports";btnR.style.color=rapsNew>0?"#ea580c":"";}
+  const aP=getRdvs().filter(r=>r.technicien==="À planifier"&&r.statut!=="Termine"&&r.statut!=="Annule").length;
+  const btnD=document.getElementById("nav-dispatch");
+  if(btnD){btnD.textContent=aP>0?`Dispatch (📋 ${aP})`:"Dispatch";btnD.style.color=aP>0?"#7c3aed":"";}
+}
+
+function renderAPlanifierPatron(){
+  const ap=getRdvs().filter(r=>r.technicien==="À planifier"&&r.statut!=="Annule"&&r.statut!=="Termine");
+  const card=document.getElementById("card-a-planifier-patron");
+  if(!card)return;
+  if(!ap.length){card.innerHTML="";return;}
+  let html=`<div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:2px solid #8b5cf6;border-radius:14px;padding:14px;">
+    <div style="color:#7c3aed;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;">📋 À planifier — ${ap.length} RDV en attente d'assignation</div>`;
+  ap.forEach(r=>{
+    html+=`<div style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px;border:1px solid #ddd6fe;box-shadow:0 1px 4px rgba(139,92,246,0.08);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:13px;color:#1e1b4b;">${r.clientNom}</div>
+          <div style="color:#6d28d9;font-size:12px;font-weight:600;">${r.type}</div>
+          <div style="color:#64748b;font-size:11px;margin-top:2px;">📅 ${r.dateRdv} à ${r.heureRdv} &nbsp;·&nbsp; 📍 ${r.adresse}</div>
+          ${r.notes?`<div style="color:#7c3aed;font-size:11px;margin-top:2px;font-style:italic;">📝 ${r.notes}</div>`:""}
+        </div>
+        <div style="font-weight:800;color:#059669;font-size:15px;white-space:nowrap;">${r.prixVente} €</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;">
+        <span style="color:#64748b;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;">Assigner →</span>
+        ${Object.keys(TECH_C).map(tech=>{const tc=TECH_C[tech];return`<button class="btn" style="padding:5px 12px;font-size:11px;background:${tc.bg};color:${tc.c};border:1.5px solid ${tc.c};border-radius:8px;font-weight:700;" onclick="assignerRdvPatron(${r.id},'${tech}')">${tc.a} ${tech}</button>`;}).join("")}
+        <button class="btn btn-r" style="padding:5px 10px;font-size:11px;margin-left:auto;" onclick="supprimerRdvPatron(${r.id})">✕ Supprimer</button>
+      </div>
+    </div>`;
+  });
+  html+="</div>";
+  card.innerHTML=html;
+}
+
+function assignerRdvPatron(id,tech){
+  const rdvs=getRdvs();
+  const idx=rdvs.findIndex(r=>r.id===id);
+  if(idx<0)return;
+  rdvs[idx].technicien=tech;
+  saveRdvs(rdvs);
+  renderAPlanifierPatron();renderPlanningJour();updateNavBadges();
+  showNotif("RDV assigné à "+tech+" !");
+}
+
+function supprimerRdvPatron(id){
+  const rdvs=getRdvs().filter(r=>r.id!==id);
+  saveRdvs(rdvs);
+  renderAPlanifierPatron();renderPlanningJour();updateNavBadges();
+  showNotif("RDV supprimé");
 }
 
 function setPeriode(p,btn){
@@ -1400,8 +1453,8 @@ function creerRdv(){
   const rdvs=getRdvs();rdvs.push(rdv);saveRdvs(rdvs);
   ["rdv-prenom","rdv-nom","rdv-tel","rdv-adresse","rdv-prix","rdv-notes"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
   document.getElementById("rdv-date").value=todayStr();
-  showNotif("RDV cree pour "+nom+" — "+rdv.technicien+" notifie !");
-  renderDisposDispatch();renderPlanningJour();
+  showNotif(rdv.technicien==="À planifier"?"RDV créé — "+nom+" en attente d'assignation":"RDV cree pour "+nom+" — "+rdv.technicien+" notifie !");
+  renderDisposDispatch();renderPlanningJour();renderAPlanifierPatron();
 }
 
 // URGENCES
@@ -2560,6 +2613,7 @@ function updateTechPlanning(){
   const ca=document.getElementById('rdv-conflict-div');
   const cm=document.getElementById('rdv-conflict-msg');
   if(!tech||!date||!pd)return;
+  if(tech==='À planifier'){pd.classList.add('hidden');if(ca)ca.classList.add('hidden');return;}
   const rdvs=getTechDayRdvs(tech,date);
   if(rdvs.length){
     pd.classList.remove('hidden');
