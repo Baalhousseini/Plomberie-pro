@@ -425,48 +425,62 @@ function selectType(el, type) {
   selectedType = type;
 }
 
-// BUILD DATES (next 7 days)
+// BUILD DATES (next 14 days, no Sundays)
 function buildDates() {
   var jours = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
   var container = document.getElementById("dates-row");
   container.innerHTML = "";
   var today = new Date();
   today.setHours(0,0,0,0);
-  for(var i=0;i<7;i++){
+  var added = 0, offset = 0;
+  while(added < 10) {
     var d = new Date(today);
-    d.setDate(today.getDate()+i);
-    var isPast = false;
+    d.setDate(today.getDate() + offset);
+    offset++;
+    if(d.getDay() === 0) continue; // pas de dimanche
     var btn = document.createElement("div");
-    btn.className = "date-btn" + (isPast ? " past" : "");
     var iso = d.toISOString().split("T")[0];
+    btn.className = "date-btn";
     btn.dataset.iso = iso;
     btn.innerHTML = '<div class="db-day">'+jours[d.getDay()]+'</div><div class="db-num">'+d.getDate()+'</div>';
-    if(!isPast){
-      btn.onclick = function(){
-        document.querySelectorAll(".date-btn").forEach(b => b.classList.remove("selected"));
-        this.classList.add("selected");
-        selectedDate = this.dataset.iso;
-      };
-    }
+    btn.onclick = function(){
+      document.querySelectorAll(".date-btn").forEach(b => b.classList.remove("selected"));
+      this.classList.add("selected");
+      selectedDate = this.dataset.iso;
+      buildTimes(); // rebuild slots pour la date choisie
+    };
     container.appendChild(btn);
+    added++;
   }
 }
 
-// BUILD TIMES (08h-18h each hour)
+// BUILD TIMES (08h-18h) avec créneaux occupés grisés
 function buildTimes() {
   var container = document.getElementById("times-grid");
   container.innerHTML = "";
+  var rdvsExistants = [];
+  try { rdvsExistants = JSON.parse(localStorage.getItem('pl_rdvs')||'[]'); } catch(e){}
+  var occupe = {};
+  if(selectedDate) {
+    rdvsExistants.filter(r=>r.dateRdv===selectedDate).forEach(r=>{ if(r.heureRdv) occupe[r.heureRdv]=true; });
+  }
   for(var h=8;h<=18;h++){
     var label = h+"h00";
+    var pris = occupe[label];
     var chip = document.createElement("div");
-    chip.className = "time-chip";
-    chip.textContent = label;
+    chip.className = "time-chip" + (pris ? " past" : "");
+    chip.textContent = label + (pris ? " ✗" : "");
     chip.dataset.h = label;
-    chip.onclick = function(){
-      document.querySelectorAll(".time-chip").forEach(c => c.classList.remove("selected"));
-      this.classList.add("selected");
-      selectedHeure = this.dataset.h;
-    };
+    if(!pris){
+      chip.onclick = function(){
+        document.querySelectorAll(".time-chip").forEach(c => c.classList.remove("selected"));
+        this.classList.add("selected");
+        selectedHeure = this.dataset.h;
+      };
+    } else {
+      chip.style.opacity = "0.4";
+      chip.style.cursor = "not-allowed";
+    }
     container.appendChild(chip);
   }
 }
