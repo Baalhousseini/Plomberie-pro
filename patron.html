@@ -827,11 +827,11 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <div class="card r">
       <div class="lbl">16 — STOCK PIECES CRITIQUES</div>
       <div id="str-stock"></div>
-      <button class="btn btn-o" style="margin-top:10px;" onclick="toggleForm('form-stock')">+ Ajouter piece</button>
-      <div id="form-stock" class="hidden" style="margin-top:12px;">
-        <input type="text" class="fi" id="stock-nom" placeholder="Nom de la piece">
-        <div class="g2"><input type="number" class="fi" id="stock-qte" placeholder="Quantite actuelle"><input type="number" class="fi" id="stock-min" placeholder="Seuil minimum"></div>
-        <div style="display:flex;gap:8px;"><button class="btn btn-gray" onclick="toggleForm('form-stock')">Annuler</button><button class="btn btn-o" style="flex:1;" onclick="saveStock()">Ajouter</button></div>
+      <button class="btn btn-o" style="margin-top:10px;" onclick="toggleForm('form-stock-strat')">+ Ajouter piece</button>
+      <div id="form-stock-strat" class="hidden" style="margin-top:12px;">
+        <input type="text" class="fi" id="stock-strat-nom" placeholder="Nom de la piece">
+        <div class="g2"><input type="number" class="fi" id="stock-strat-qte" placeholder="Quantite actuelle"><input type="number" class="fi" id="stock-strat-min" placeholder="Seuil minimum"></div>
+        <div style="display:flex;gap:8px;"><button class="btn btn-gray" onclick="toggleForm('form-stock-strat')">Annuler</button><button class="btn btn-o" style="flex:1;" onclick="saveStockStrat()">Ajouter</button></div>
       </div>
     </div>
     <div class="card b">
@@ -1068,86 +1068,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   </div>
 </div>
 
-<!-- PAGE ANALYTICS -->
-<div id="page-analytics" class="hidden">
-  <div style="display:flex;gap:4px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;">
-    <button class="btn btn-b" id="atab-perf" onclick="showAnalytics('perf')">📈 Perf</button>
-    <button class="btn btn-gray" id="atab-rentab" onclick="showAnalytics('rentab')">💰 Rentab.</button>
-    <button class="btn btn-gray" id="atab-clients" onclick="showAnalytics('clients')">👥 Clients</button>
-    <button class="btn btn-gray" id="atab-equipe" onclick="showAnalytics('equipe')">🏆 Equipe</button>
-    <button class="btn btn-gray" id="atab-prevision" onclick="showAnalytics('prevision')">🔮 Prévision</button>
-  </div>
-  <!-- Onglet Performances -->
-  <div id="analytics-perf">
-    <div class="card" style="margin-bottom:12px;">
-      <div class="lbl">CA MENSUEL (12 MOIS)</div>
-      <div id="a-ca-mensuel" style="margin-top:10px;"></div>
-    </div>
-    <div class="card" style="margin-bottom:12px;">
-      <div class="lbl">INTERVENTIONS PAR TYPE</div>
-      <div id="a-types" style="margin-top:10px;"></div>
-    </div>
-    <div class="card">
-      <div class="lbl">TAUX DE TRANSFORMATION DEVIS</div>
-      <div id="a-devis-taux" style="margin-top:10px;"></div>
-    </div>
-  </div>
-  <!-- Onglet Rentabilite -->
-  <div id="analytics-rentab" class="hidden">
-    <div class="card" style="margin-bottom:12px;">
-      <div class="lbl">PANIER MOYEN PAR TYPE</div>
-      <div id="a-panier" style="margin-top:10px;"></div>
-    </div>
-    <div class="card">
-      <div class="lbl">CA PAR TECHNICIEN (MOIS EN COURS)</div>
-      <div id="a-ca-tech" style="margin-top:10px;"></div>
-    </div>
-  </div>
-  <!-- Onglet Clients -->
-  <div id="analytics-clients" class="hidden">
-    <div class="card" style="margin-bottom:12px;">
-      <div class="lbl">RETENTION & FIDELITE</div>
-      <div id="a-retention" style="margin-top:10px;"></div>
-    </div>
-    <div class="card">
-      <div class="lbl">TOP 10 CLIENTS</div>
-      <div id="a-top-clients" style="margin-top:10px;"></div>
-    </div>
-  </div>
-  <!-- Onglet Equipe -->
-  <div id="analytics-equipe" class="hidden">
-    <div class="card" style="margin-bottom:12px;">
-      <div class="lbl">PERFORMANCE EQUIPE (3 MOIS)</div>
-      <div id="a-equipe-perf" style="margin-top:10px;"></div>
-    </div>
-    <div class="card">
-      <div class="lbl">VENTES ADDITIONNELLES PAR TECH</div>
-      <div id="a-ventes-add" style="margin-top:10px;"></div>
-    </div>
-  </div>
-  <!-- Onglet Prévision -->
-  <div id="analytics-prevision" class="hidden">
-    <div class="card" style="margin-bottom:12px;">
-      <div class="lbl">PREVISION 4 SEMAINES</div>
-      <div id="a-prev-chart" style="margin-top:10px;"></div>
-    </div>
-    <div class="card b" style="margin-bottom:12px;">
-      <div class="lbl">RECOMMANDATIONS STAFFING</div>
-      <div id="a-prev-staffing" style="margin-top:10px;"></div>
-    </div>
-    <div class="card" style="margin-bottom:12px;">
-      <div class="lbl">TOP TYPES D'INTERVENTIONS PREVUS</div>
-      <div id="a-prev-types" style="margin-top:10px;"></div>
-    </div>
-    <div class="card r">
-      <div class="lbl">ALERTES METEO / SAISONNIERES</div>
-      <div id="a-prev-alertes" style="margin-top:10px;"></div>
-    </div>
-  </div>
-</div>
-
-  </div>
-</div>
 
 <!-- MODAL CONGE -->
 
@@ -2673,7 +2593,7 @@ function noter(){const c=el("note-client")?.value;const s=Number(el("note-score"
 function savePipe(){const c=el("pipe-client")?.value.trim();if(!c){notif("Nom requis");return;}const p=gPipe();p.unshift({client:c,type:el("pipe-type")?.value||"",montant:Number(el("pipe-montant")?.value||0),proba:Number(el("pipe-proba")?.value||50),statut:"En cours"});sPipe(p);toggleForm("form-pipe");["pipe-client","pipe-type","pipe-montant"].forEach(id=>el(id)&&(el(id).value=""));renderCommercial();notif("Opportunite ajoutee !");}
 function majPipe(i,s){const p=gPipe();p[i].statut=s;sPipe(p);renderCommercial();}
 function delPipe(i){const p=gPipe();p.splice(i,1);sPipe(p);renderCommercial();}
-function saveStock(){const n=el("stock-nom")?.value.trim();if(!n){notif("Nom requis");return;}const s=gStock();s.push({nom:n,qte:Number(el("stock-qte")?.value||0),min:Number(el("stock-min")?.value||1)});sStock(s);toggleForm("form-stock");["stock-nom","stock-qte","stock-min"].forEach(id=>el(id)&&(el(id).value=""));renderStrategie();notif("Piece ajoutee !");}
+function saveStockStrat(){const n=el("stock-strat-nom")?.value.trim();if(!n){notif("Nom requis");return;}const s=gStock();s.push({nom:n,qte:Number(el("stock-strat-qte")?.value||0),min:Number(el("stock-strat-min")?.value||1)});sStock(s);toggleForm("form-stock-strat");["stock-strat-nom","stock-strat-qte","stock-strat-min"].forEach(id=>el(id)&&(el(id).value=""));renderStrategie();notif("Piece ajoutee !");}
 function upStock(i,d){const s=gStock();s[i].qte=Math.max(0,s[i].qte+d);sStock(s);renderStrategie();}
 function delStock(i){const s=gStock();s.splice(i,1);sStock(s);renderStrategie();}
 function saveZone(){const n=el("zone-nom")?.value.trim();if(!n){notif("Nom requis");return;}const z=gZones();z.push({nom:n,note:el("zone-note")?.value.trim()||""});sZones(z);toggleForm("form-zone");["zone-nom","zone-note"].forEach(id=>el(id)&&(el(id).value=""));renderStrategie();notif("Zone ajoutee !");}
