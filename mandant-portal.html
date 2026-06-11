@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GreenFlow — Portail Mandant</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif;}
+:root{--blue:#0d2d52;--green:#3a8c30;--purple:#7c3aed;--bg:#f4f6f9;--card:#fff;--muted:#6b7a8f;--border:#dde3ec;--shadow:0 1px 4px rgba(13,45,82,.08),0 4px 16px rgba(13,45,82,.06);}
+body{background:var(--bg);color:#0d1b2e;min-height:100vh;}
+.hidden{display:none!important;}
+#login{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:var(--blue);}
+.box{background:#fff;border-radius:20px;padding:36px 28px;width:100%;max-width:380px;box-shadow:0 24px 64px rgba(0,0,0,.28);}
+.logo{text-align:center;margin-bottom:24px;}
+.logo-title{color:var(--blue);font-size:20px;font-weight:900;letter-spacing:-0.5px;}
+.logo-sub{color:var(--muted);font-size:12px;margin-top:4px;}
+.lbl{font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;display:block;}
+.inp{width:100%;background:#f7f9fc;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-size:15px;outline:none;color:#0d1b2e;margin-bottom:14px;}
+.inp:focus{border-color:var(--blue);}
+.btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;}
+.btn:hover{background:#1a4a7a;}
+.err{color:#dc2626;font-size:12px;text-align:center;margin-top:8px;}
+#app{max-width:900px;margin:0 auto;padding:16px;}
+.header{background:var(--blue);border-radius:14px;padding:16px 20px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.header-title{color:#fff;font-size:16px;font-weight:800;}
+.header-sub{color:rgba(255,255,255,.6);font-size:11px;margin-top:2px;}
+.logout{background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;}
+.card{background:var(--card);border-radius:14px;padding:16px;box-shadow:var(--shadow);margin-bottom:12px;}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px;}
+.kpi{border-radius:12px;padding:14px;}
+.kpi-lbl{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.kpi-val{font-size:22px;font-weight:800;}
+.section-title{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.rdv-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:8px;flex-wrap:wrap;}
+.rdv-row:last-child{border-bottom:none;}
+.badge{display:inline-block;border-radius:20px;padding:2px 10px;font-size:10px;font-weight:700;}
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.tab{border:none;border-radius:20px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;background:#e2e8f0;color:var(--muted);}
+.tab.active{background:var(--blue);color:#fff;}
+.bar{background:#e2e8f0;border-radius:4px;height:8px;overflow:hidden;margin-top:6px;}
+.bar-fill{height:8px;border-radius:4px;transition:width .4s;}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="box">
+    <div class="logo">
+      <div style="font-size:32px;margin-bottom:8px;">🔧</div>
+      <div class="logo-title">GreenFlow</div>
+      <div class="logo-sub">Portail Mandant — Accès sécurisé</div>
+    </div>
+    <label class="lbl">Votre organisation</label>
+    <select class="inp" id="sel-mandant">
+      <option value="">Choisir...</option>
+      <option>Leroy Merlin</option><option>Castorama</option><option>Brico Dépôt</option>
+      <option>Darty</option><option>AXA</option><option>HomeServe</option>
+      <option>Covéa</option><option>Allianz</option><option>Generali</option>
+      <option>MAIF</option><option>Pacifica</option><option>Groupama</option>
+      <option>Nexity</option><option>Foncia</option><option>Bouygues Immobilier</option>
+      <option>Bailleur social</option><option>EDF</option>
+    </select>
+    <label class="lbl">Code d'accès</label>
+    <input class="inp" type="password" id="inp-code" placeholder="Code fourni par GreenFlow" onkeydown="if(event.key==='Enter')connexion()">
+    <button class="btn" onclick="connexion()">Accéder à mon espace →</button>
+    <div class="err hidden" id="err-login">Code incorrect. Contactez GreenFlow.</div>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <div class="header">
+    <div>
+      <div class="header-title">🏢 Espace <span id="app-mandant-title"></span></div>
+      <div class="header-sub" id="app-periode"></div>
+    </div>
+    <button class="logout" onclick="deconnexion()">Déconnexion</button>
+  </div>
+
+  <div class="kpi-grid" id="app-kpis"></div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+      <div class="section-title" style="margin-bottom:0;">REMPLISSAGE VOLUME ENGAGÉ</div>
+      <div id="app-sla-badge"></div>
+    </div>
+    <div id="app-volume-bar"></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-mois" onclick="setTab('mois')">Ce mois</button>
+    <button class="tab" id="tab-sla" onclick="setTab('sla')">Suivi SLA</button>
+    <button class="tab" id="tab-historique" onclick="setTab('historique')">Historique</button>
+  </div>
+
+  <div id="tab-content"></div>
+</div>
+
+<script>
+var CODES={'Leroy Merlin':'LM2025','Castorama':'CASTO25','Brico Dépôt':'BD2025','Darty':'DARTY25',
+  'AXA':'AXA2025','HomeServe':'HS2025','Covéa':'COVEA25','Allianz':'ALZ25','Generali':'GEN25',
+  'MAIF':'MAIF25','Pacifica':'PAC25','Groupama':'GRP25','Nexity':'NEX25','Foncia':'FON25',
+  'Bouygues Immobilier':'BYG25','Bailleur social':'BAIL25','EDF':'EDF2025'};
+
+var _mandant='';var _tab='mois';var _rdvs=[];var _db_ready=false;
+
+function connexion(){
+  const m=document.getElementById('sel-mandant').value;
+  const c=document.getElementById('inp-code').value.trim();
+  const e=document.getElementById('err-login');
+  if(!m){e.textContent='Choisissez votre organisation.';e.classList.remove('hidden');return;}
+  if(!CODES[m]||c!==CODES[m]){e.classList.remove('hidden');return;}
+  e.classList.add('hidden');
+  _mandant=m;
+  document.getElementById('login').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('app-mandant-title').textContent=m;
+  const now=new Date();
+  document.getElementById('app-periode').textContent='Données en temps réel · '+['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'][now.getMonth()]+' '+now.getFullYear();
+  chargerDonnees();
+}
+
+function deconnexion(){
+  _mandant='';_rdvs=[];
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('login').classList.remove('hidden');
+  document.getElementById('inp-code').value='';
+}
+
+function chargerDonnees(){
+  if(typeof _db!=='undefined'&&_db){
+    _db.ref('greenflow/pl_rdvs').once('value').then(function(snap){
+      const val=snap.val();
+      _rdvs=val?Object.values(val).flat().filter(r=>r&&r.mandant===_mandant):[].filter(r=>r&&r.mandant===_mandant);
+      if(!Array.isArray(_rdvs))_rdvs=[];
+      afficher();
+    }).catch(function(){_rdvs=[];afficher();});
+  } else {
+    try{_rdvs=JSON.parse(localStorage.getItem('pl_rdvs')||'[]').filter(r=>r.mandant===_mandant);}catch(e){_rdvs=[];}
+    afficher();
+  }
+}
+
+function setTab(t){
+  _tab=t;
+  ['mois','sla','historique'].forEach(x=>{const b=document.getElementById('tab-'+x);if(b)b.classList.toggle('active',x===t);});
+  afficher();
+}
+
+function afficher(){
+  const now=new Date();
+  const rdvsMois=_rdvs.filter(r=>{if(!r.dateRdv)return false;const d=new Date(r.dateRdv);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  const rdvsTermines=rdvsMois.filter(r=>r.statut==='Terminé'||r.statut==='Termine');
+  const caReel=rdvsMois.reduce((s,r)=>s+(r.prixVente||0),0);
+
+  // Récupérer le contrat-cadre
+  var cc=null;
+  try{cc=JSON.parse(localStorage.getItem('pl_contrats_cadres')||'[]').find(c=>c.mandant===_mandant&&c.statut==='Actif');}catch(e){}
+  if(!cc&&typeof _db!=='undefined'&&_db){/* async ignored for simplicity */}
+
+  const volumeEngage=cc?cc.volumeMois:0;
+  const tarif=cc?cc.tarif:0;
+  const slaUrg=cc?cc.slaUrgence:4;
+  const slaStd=cc?cc.slaStandard:48;
+  const pct=volumeEngage>0?Math.min(100,Math.round(rdvsMois.length/volumeEngage*100)):0;
+
+  // KPIs
+  document.getElementById('app-kpis').innerHTML=[
+    {l:'INTERVENTIONS CE MOIS',v:rdvsMois.length+(volumeEngage?'/'+volumeEngage:''),c:'#0d2d52',bg:'#f0f4ff'},
+    {l:'TERMINÉES',v:rdvsTermines.length,c:'#3a8c30',bg:'#f0f9ee'},
+    {l:'CA CE MOIS',v:caReel.toLocaleString('fr')+'€',c:'#7c3aed',bg:'#faf5ff'},
+    {l:'SLA URGENCE',v:slaUrg+'h',c:'#ea580c',bg:'#fff7ed'},
+  ].map(k=>`<div class="kpi" style="background:${k.bg};border-left:3px solid ${k.c};"><div class="kpi-lbl" style="color:${k.c};">${k.l}</div><div class="kpi-val" style="color:${k.c};">${k.v}</div></div>`).join('');
+
+  // Barre volume
+  document.getElementById('app-volume-bar').innerHTML=volumeEngage?`
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px;"><span>Remplissage mensuel : <b style="color:#0d2d52;">${rdvsMois.length} / ${volumeEngage}</b></span><span style="font-weight:700;color:${pct>=80?'#3a8c30':pct>=50?'#d97706':'#dc2626'};">${pct}%</span></div>
+    <div class="bar"><div class="bar-fill" style="width:${pct}%;background:${pct>=80?'#3a8c30':pct>=50?'#d97706':'#dc2626'};"></div></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px;">CA engagé : ${(volumeEngage*tarif).toLocaleString('fr')}€ · CA réalisé : <b style="color:#7c3aed;">${caReel.toLocaleString('fr')}€</b></div>
+  `:`<div style="font-size:12px;color:var(--muted);">Aucun contrat-cadre actif — contactez GreenFlow pour négocier vos volumes.</div>`;
+
+  document.getElementById('app-sla-badge').innerHTML=`<span class="badge" style="background:#f0f4ff;color:#0d2d52;">⚡ Urgence ≤ ${slaUrg}h · Standard ≤ ${slaStd}h</span>`;
+
+  renderTab(rdvsMois,slaUrg,slaStd);
+}
+
+function renderTab(rdvsMois,slaUrg,slaStd){
+  const c=document.getElementById('tab-content');
+  if(_tab==='mois'){
+    if(!rdvsMois.length){c.innerHTML=`<div class="card" style="text-align:center;padding:40px;color:var(--muted);font-size:13px;">Aucune intervention ce mois.</div>`;return;}
+    const statColors={'Confirmé':'#0d9488','Confirme':'#0d9488','En route':'#d97706','Terminé':'#3a8c30','Termine':'#3a8c30','Annulé':'#dc2626','Planifié':'#6b7280'};
+    c.innerHTML=`<div class="card"><div class="section-title">INTERVENTIONS DU MOIS (${rdvsMois.length})</div>
+      ${rdvsMois.sort((a,b)=>new Date(b.dateRdv)-new Date(a.dateRdv)).map(r=>`<div class="rdv-row">
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:13px;">${r.clientNom}</div>
+          <div style="font-size:11px;color:var(--muted);">${r.adresse||'—'} · ${r.type||'—'}</div>
+        </div>
+        <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+          <span class="badge" style="background:${(statColors[r.statut]||'#6b7280')}20;color:${statColors[r.statut]||'#6b7280'};">${r.statut||'—'}</span>
+          <span style="font-size:11px;color:var(--muted);">${r.dateRdv||''} ${r.heureRdv||''}</span>
+          ${r.prixVente?`<span style="font-size:12px;font-weight:700;color:#7c3aed;">${r.prixVente}€</span>`:''}
+        </div>
+      </div>`).join('')}
+    </div>`;
+  }
+  else if(_tab==='sla'){
+    const urgences=rdvsMois.filter(r=>r.statut&&(r.statut.toLowerCase().includes('urgence')||r.type&&r.type.toLowerCase().includes('urgence')));
+    const slaOK=rdvsMois.filter(r=>r.statut==='Terminé'||r.statut==='Termine').length;
+    const total=rdvsMois.length;
+    const taux=total>0?Math.round(slaOK/total*100):100;
+    c.innerHTML=`<div class="card">
+      <div class="section-title">CONFORMITÉ SLA</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div style="background:#f0f9ee;border-radius:10px;padding:12px;border-left:3px solid #3a8c30;">
+          <div style="font-size:9px;font-weight:800;color:#3a8c30;letter-spacing:1px;margin-bottom:4px;">TAUX DE CONFORMITÉ</div>
+          <div style="font-size:24px;font-weight:800;color:#3a8c30;">${taux}%</div>
+        </div>
+        <div style="background:#fff7ed;border-radius:10px;padding:12px;border-left:3px solid #ea580c;">
+          <div style="font-size:9px;font-weight:800;color:#ea580c;letter-spacing:1px;margin-bottom:4px;">URGENCES CE MOIS</div>
+          <div style="font-size:24px;font-weight:800;color:#ea580c;">${urgences.length}</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);">
+        <div style="margin-bottom:6px;">• SLA Urgence contractuel : <b style="color:#0d2d52;">≤ ${slaUrg}h</b></div>
+        <div style="margin-bottom:6px;">• SLA Standard contractuel : <b style="color:#0d2d52;">≤ ${slaStd}h</b></div>
+        <div>• Interventions terminées ce mois : <b style="color:#3a8c30;">${slaOK} / ${total}</b></div>
+      </div>
+    </div>`;
+  }
+  else {
+    const now=new Date();
+    let html='<div class="card"><div class="section-title">HISTORIQUE 6 MOIS</div>';
+    for(let m=0;m<6;m++){
+      const mo=new Date(now.getFullYear(),now.getMonth()-m,1);
+      const moisNoms=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+      const rdvsMo=_rdvs.filter(r=>{if(!r.dateRdv)return false;const d=new Date(r.dateRdv);return d.getMonth()===mo.getMonth()&&d.getFullYear()===mo.getFullYear();});
+      const ca=rdvsMo.reduce((s,r)=>s+(r.prixVente||0),0);
+      html+=`<div class="rdv-row">
+        <div style="font-weight:700;font-size:13px;">${moisNoms[mo.getMonth()]} ${mo.getFullYear()}</div>
+        <div style="display:flex;gap:16px;font-size:12px;">
+          <span><b style="color:#0d2d52;">${rdvsMo.length}</b> interv.</span>
+          <span style="color:#7c3aed;font-weight:700;">${ca.toLocaleString('fr')}€</span>
+        </div>
+      </div>`;
+    }
+    html+='</div>';
+    c.innerHTML=html;
+  }
+}
+</script>
+</body>
+</html>
