@@ -238,6 +238,13 @@ function buildClients(){
     c.count=c.rdvs.length;
     const rapports=getRapports();
     c.caReel=rapports.filter(rp=>rp.clientNom===c.nom).reduce((s,r)=>s+(r.montantFinal||0),0);
+    // Mandant principal
+    const mandCounts={};
+    c.rdvs.forEach(r=>{if(r.mandant){mandCounts[r.mandant]=(mandCounts[r.mandant]||0)+1;}});
+    const topMand=Object.entries(mandCounts).sort((a,b)=>b[1]-a[1])[0];
+    c.mainMandant=topMand?topMand[0]:'';
+    c.caDirect=c.rdvs.filter(r=>!r.mandant).reduce((s,r)=>s+(r.prixVente||0),0);
+    c.caMandant=c.rdvs.filter(r=>!!r.mandant).reduce((s,r)=>s+(r.prixVente||0),0);
   });
   const clients=Object.values(map);
   const total=clients.length;
@@ -292,9 +299,9 @@ function renderClients(){
         ${ctags.length?`<div class="client-tags">${tagsHtml}</div>`:''}
       </div>
       <div class="client-stats">
-        <div class="client-ca">${c.ca}€</div>
+        <div class="client-ca" style="color:${c.mainMandant?'#7c3aed':'var(--green)'};">${c.ca}€</div>
         <div class="client-count">${c.count} intervention${c.count>1?'s':''}</div>
-        <div style="color:var(--muted);font-size:10px;margin-top:2px;">${c.lastDate||'—'}</div>
+        ${c.mainMandant?`<div style="background:#f3e8ff;color:#7c3aed;border-radius:4px;padding:1px 6px;font-size:9px;font-weight:700;margin-top:2px;">🏢 ${c.mainMandant}</div>`:`<div style="color:var(--muted);font-size:10px;margin-top:2px;">${c.lastDate||'—'}</div>`}
       </div>
     </div>`;
   }).join('');
@@ -313,7 +320,14 @@ function ouvrirFiche(tel){
     [c.ca+'€','CA total'],
     [moy+'€','Panier moyen'],
     [first,'Depuis'],
-  ].map(([v,l])=>`<div class="dkpi"><div class="dkpi-val">${v}</div><div class="dkpi-lbl">${l}</div></div>`).join('');
+  ].map(([v,l])=>`<div class="dkpi"><div class="dkpi-val">${v}</div><div class="dkpi-lbl">${l}</div></div>`).join('')+
+  (c.mainMandant?`<div style="background:#f3e8ff;border:1px solid #ddd6fe;border-radius:10px;padding:10px 14px;margin-top:10px;font-size:12px;">
+    <div style="color:#7c3aed;font-weight:700;margin-bottom:6px;">🏢 Client mandant — ${c.mainMandant}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div style="background:#fff;border-radius:8px;padding:8px;text-align:center;"><div style="font-weight:800;color:#15803d;">${c.caDirect}€</div><div style="font-size:10px;color:#64748b;">CA direct</div></div>
+      <div style="background:#fff;border-radius:8px;padding:8px;text-align:center;"><div style="font-weight:800;color:#7c3aed;">${c.caMandant}€</div><div style="font-size:10px;color:#64748b;">Via ${c.mainMandant}</div></div>
+    </div>
+  </div>`:'');
   const k=tel;
   const tagsStore=getTagsStore();
   const activeTags=tagsStore[k]||[];

@@ -486,16 +486,37 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
         <div class="lbl" style="color:#7c3aed;">PARTENAIRE / ASSURANCE (optionnel)</div>
         <div class="grid-2">
           <div class="form-field"><label>MANDANT</label>
-            <select class="form-select" id="rdv-mandant">
-              <option value="">Aucun (particulier)</option>
-              <option>AXA Assistance</option>
-              <option>HomeServe</option>
-              <option>Covéa</option>
-              <option>Allianz</option>
-              <option>Generali</option>
-              <option>MAIF</option>
-              <option>Autre assurance</option>
+            <select class="form-select" id="rdv-mandant" onchange="toggleMandantInfo(this.value)">
+              <option value="">Aucun — Client direct</option>
+              <optgroup label="🏠 Grande distribution">
+                <option>Leroy Merlin</option>
+                <option>Castorama</option>
+                <option>Brico Dépôt</option>
+                <option>Mr Bricolage</option>
+                <option>Bricomarché</option>
+                <option>Darty</option>
+              </optgroup>
+              <optgroup label="🏢 Assurances">
+                <option>AXA Assistance</option>
+                <option>HomeServe</option>
+                <option>Covéa</option>
+                <option>Allianz</option>
+                <option>Generali</option>
+                <option>MAIF</option>
+                <option>Pacifica (Crédit Agricole)</option>
+                <option>Groupama</option>
+              </optgroup>
+              <optgroup label="🏗️ Autres partenaires">
+                <option>Nexity</option>
+                <option>Foncia</option>
+                <option>Bouygues Immobilier</option>
+                <option>Bailleur social</option>
+                <option>Autre mandant</option>
+              </optgroup>
             </select>
+            <div id="mandant-info" style="display:none;background:#f3e8ff;border:1px solid #ddd6fe;border-radius:8px;padding:8px 12px;margin-top:6px;font-size:12px;color:#7c3aed;font-weight:600;">
+              ⚠️ RDV mandant — Le CA sera attribué au mandant, pas au client final. Renseignez bien le n° de bon de commande.
+            </div>
           </div>
           <div class="form-field"><label>N° BON DE COMMANDE</label><input type="text" class="form-input" id="rdv-bon-cmd" placeholder="BC-2024-XXXXX"></div>
         </div>
@@ -2963,6 +2984,8 @@ async function smsTyped(tel,type,data){
 function getClientTags(tel){try{var t=JSON.parse(localStorage.getItem('pl_crm_tags')||'{}');return t[tel]||[];}catch{return[];}}
 function clientHasContrat(tel){try{var c=JSON.parse(localStorage.getItem('pl_contrats')||'[]');return c.some(function(x){return x.clientTel===tel&&x.statut==='Actif';});}catch{return false;}}
 function slaHours(datePriseContact){if(!datePriseContact)return 0;var d=new Date(datePriseContact+'T09:00');return Math.floor((Date.now()-d.getTime())/3600000);}
+
+function toggleMandantInfo(val){var el=document.getElementById('mandant-info');if(el)el.style.display=val?'block':'none';}
 
 /* ========= PLANNING CALENDRIER SEMAINE ========= */
 var _planningWeekOffset=0;

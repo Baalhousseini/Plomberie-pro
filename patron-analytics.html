@@ -239,6 +239,10 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div class="card b"><div class="lbl">10 — PANIER MOYEN</div><div id="com-panier"></div></div>
   <div class="card o"><div class="lbl">11 — SAISONNALITE — CA PAR MOIS</div><div id="com-saison"></div></div>
   <div class="card y"><div class="lbl">12 — TOP 10 CLIENTS LES PLUS RENTABLES</div><div id="com-top"></div></div>
+  <div class="card" style="border-left:4px solid #7c3aed;background:#faf5ff;">
+    <div class="lbl" style="color:#7c3aed;">CA DIRECT vs MANDANTS — RÉPARTITION</div>
+    <div id="com-mandants"></div>
+  </div>
 </div>
 
 <!-- BENCHMARK 12M€ -->
@@ -505,9 +509,57 @@ function renderCommercial(){
   const noms=["","Jan","Fev","Mar","Avr","Mai","Jun","Jul","Aou","Sep","Oct","Nov","Dec"];
   const maxS=Math.max(...Object.values(parM).map(m=>m.ca),1);
   el("com-saison").innerHTML=Object.entries(parM).sort((a,b)=>b[1].ca-a[1].ca).map(([m,d])=>`<div class="br"><div class="bl">${noms[Number(m)]||m}</div><div class="bt"><div class="bf" style="width:${Math.round(d.ca/maxS*100)}%;background:#dbeafe;color:#1d4ed8;">${fmt(d.ca)} EUR</div></div><span style="color:var(--tl);font-size:10px;">${d.n}x</span></div>`).join("")||`<div class="empty">Pas assez de donnees</div>`;
-  const cli={};raps.forEach(r=>{if(!cli[r.clientNom])cli[r.clientNom]={ca:0,n:0,tel:r.clientTel};cli[r.clientNom].ca+=r.montantFinal||0;cli[r.clientNom].n++;});
+  // Build mandant lookup from rdvs
+  const _rdvs=JSON.parse(localStorage.getItem('pl_rdvs')||'[]');
+  const _rdvById={};_rdvs.forEach(r=>_rdvById[r.id]=r);
+  // Map clientNom → mandant source
+  const _cliMand={};
+  raps.forEach(r=>{
+    const rdv=_rdvById[r.rdvId]||{};
+    const mand=r.mandant||rdv.mandant||'';
+    if(!_cliMand[r.clientNom])_cliMand[r.clientNom]='';
+    if(mand&&!_cliMand[r.clientNom])_cliMand[r.clientNom]=mand;
+  });
+  const cli={};raps.forEach(r=>{
+    if(!cli[r.clientNom])cli[r.clientNom]={ca:0,n:0,tel:r.clientTel,mand:_cliMand[r.clientNom]||''};
+    cli[r.clientNom].ca+=r.montantFinal||0;cli[r.clientNom].n++;
+  });
   const top=Object.entries(cli).sort((a,b)=>b[1].ca-a[1].ca).slice(0,10);
-  el("com-top").innerHTML=top.length?top.map(([nom,d],i)=>`<div class="tr"><div style="display:flex;align-items:center;gap:10px;"><div style="width:22px;height:22px;border-radius:6px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;">${i+1}</div><div><div style="font-weight:600;font-size:13px;">${nom}</div><div style="color:var(--tl);font-size:11px;">${d.n} interv.</div></div></div><div style="text-align:right;"><div style="color:var(--green);font-weight:800;">${fmt(d.ca)} EUR</div><a href="tel:${d.tel}" style="color:var(--accent);font-size:11px;">${d.tel}</a></div></div>`).join(""):`<div class="empty">Aucun client</div>`;
+  el("com-top").innerHTML=top.length?top.map(([nom,d],i)=>`<div class="tr"><div style="display:flex;align-items:center;gap:10px;"><div style="width:22px;height:22px;border-radius:6px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;">${i+1}</div><div><div style="font-weight:600;font-size:13px;">${nom}${d.mand?`<span style="margin-left:6px;background:#f3e8ff;color:#7c3aed;border-radius:4px;padding:1px 6px;font-size:9px;font-weight:700;">via ${d.mand}</span>`:''}</div><div style="color:var(--tl);font-size:11px;">${d.n} interv.${d.mand?' · CA comptabilisé chez '+d.mand:''}</div></div></div><div style="text-align:right;"><div style="color:${d.mand?'#7c3aed':'var(--green)'};font-weight:800;">${fmt(d.ca)} EUR</div><a href="tel:${d.tel}" style="color:var(--accent);font-size:11px;">${d.tel}</a></div></div>`).join(""):`<div class="empty">Aucun client</div>`;
+
+  // Mandants breakdown
+  const mands={};
+  raps.forEach(r=>{
+    const rdv=_rdvById[r.rdvId]||{};
+    const mand=r.mandant||rdv.mandant||'';
+    if(mand){if(!mands[mand])mands[mand]={ca:0,n:0};mands[mand].ca+=r.montantFinal||0;mands[mand].n++;}
+  });
+  const caTotal=raps.reduce((s,r)=>s+(r.montantFinal||0),0);
+  const caMand=Object.values(mands).reduce((s,m)=>s+m.ca,0);
+  const caDirect=caTotal-caMand;
+  const pctMand=caTotal>0?Math.round(caMand/caTotal*100):0;
+  const pctDir=100-pctMand;
+  const topMands=Object.entries(mands).sort((a,b)=>b[1].ca-a[1].ca);
+  el("com-mandants").innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div style="background:#f0fdf4;border-radius:12px;padding:14px;text-align:center;border:2px solid #86efac;">
+        <div style="font-size:9px;color:#15803d;font-weight:700;letter-spacing:1px;margin-bottom:4px;">CA DIRECT</div>
+        <div style="font-size:22px;font-weight:800;color:#15803d;">${fmt(caDirect)} €</div>
+        <div style="font-size:11px;color:#15803d;font-weight:600;">${pctDir}% du CA total</div>
+      </div>
+      <div style="background:#faf5ff;border-radius:12px;padding:14px;text-align:center;border:2px solid #ddd6fe;">
+        <div style="font-size:9px;color:#7c3aed;font-weight:700;letter-spacing:1px;margin-bottom:4px;">CA MANDANTS</div>
+        <div style="font-size:22px;font-weight:800;color:#7c3aed;">${fmt(caMand)} €</div>
+        <div style="font-size:11px;color:#7c3aed;font-weight:600;">${pctMand}% du CA total</div>
+      </div>
+    </div>
+    <div style="background:#e2e8f0;border-radius:100px;height:10px;margin-bottom:14px;">
+      <div style="background:linear-gradient(90deg,#16a34a ${pctDir}%,#7c3aed ${pctDir}%);height:10px;border-radius:100px;"></div>
+    </div>
+    ${topMands.length?`<div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#7c3aed;margin-bottom:8px;">DÉTAIL PAR MANDANT</div>`+topMands.map(([m,d])=>{
+      const pct=caTotal>0?Math.round(d.ca/caTotal*100):0;
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #ede9fe;"><div><div style="font-weight:700;font-size:13px;color:#1a2537;">🏢 ${m}</div><div style="color:#64748b;font-size:11px;">${d.n} interventions · ${pct}% du CA</div></div><div style="text-align:right;"><div style="color:#7c3aed;font-weight:800;font-size:15px;">${fmt(d.ca)} €</div><div style="color:#64748b;font-size:11px;">Ticket moy. ${d.n?fmt(Math.round(d.ca/d.n)):0} €</div></div></div>`;
+    }).join(""):`<div style="text-align:center;color:#94a3b8;font-size:12px;padding:16px 0;">Aucun RDV mandant enregistré — utilisez le champ Mandant lors de la création des RDV</div>`}`;
 }
 
 // STRATEGIE

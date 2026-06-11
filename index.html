@@ -1436,6 +1436,7 @@ function soumettre(){
       id:rapportId,rdvId:currentRdv.id,clientNom:currentRdv.clientNom,
       clientTel:currentRdv.clientTel,adresse:currentRdv.adresse,
       type:currentRdv.type,technicien:currentUser.nom,
+      mandant:currentRdv.mandant||'',canal:currentRdv.canal||'',
       heureDebut,heureFin,date:todayStr(),statutRdv:statutRdvCurrent,
       description:desc,montantFinal:Number(document.getElementById("montantFinal").value),
       prixInitial:currentRdv.prixVente,
