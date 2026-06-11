@@ -278,22 +278,16 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   </div>
 
   <div class="nav">
-    <button class="nav-btn active" onclick="showPage('dashboard',this)">Tableau</button>
-    <button class="nav-btn" onclick="showPage('dispos',this)">Dispos</button>
-    <button class="nav-btn" onclick="showPage('urgences',this)" id="nav-urgences">Urgences</button>
+    <button class="nav-btn active" onclick="showPage('dashboard',this)">📊 Tableau</button>
+    <button class="nav-btn" onclick="showPage('dispos',this)">👷 Équipe</button>
+    <button class="nav-btn" onclick="showPage('urgences',this)" id="nav-urgences">🚨 Urgences</button>
     <button class="nav-btn" onclick="showPage('nouveau-rdv',this)">+ RDV</button>
-    <button class="nav-btn" onclick="showPage('tous-rdv',this)" id="nav-tous-rdv">Tous les RDV</button>
-    <button class="nav-btn" onclick="showPage('validation',this)">Validation</button>
-    <button class="nav-btn" onclick="showPage('rapports',this)">Rapports</button>
-    <button class="nav-btn" onclick="showPage('sav',this)">SAV</button>
-    <button class="nav-btn" id="nav-devis" onclick="showPage('devis',this)">Devis</button>
-    <button class="nav-btn" onclick="showPage('facturation',this)">Facturation</button>
-    <button class="nav-btn" onclick="showPage('procedures',this)">Procedures</button>
-    <button class="nav-btn" onclick="showPage('infos',this)">Infos</button>
-    <button class="nav-btn" onclick="showPage('clients',this)">Clients</button>
+    <button class="nav-btn" onclick="showPage('tous-rdv',this)" id="nav-tous-rdv">📋 Tous RDV</button>
+    <button class="nav-btn" onclick="showPage('validation',this)">✅ Validation</button>
+    <button class="nav-btn" onclick="showPage('rapports',this)">📝 Rapports</button>
+    <button class="nav-btn" onclick="showPage('sav',this)">🔁 SAV</button>
+    <button class="nav-btn" id="nav-devis" onclick="showPage('devis',this)">💼 Devis</button>
     <button class="nav-btn" onclick="showPage('appels',this)">📞 Appels</button>
-    <button class="nav-btn" id="nav-stock" onclick="showPage('stock',this)">📦 Stock</button>
-    <button class="nav-btn" onclick="showPage('compta',this)">💶 Compta</button>
   </div>
 
   <div class="content">
@@ -2689,16 +2683,11 @@ document.body.appendChild(n);setTimeout(function(){n.remove();},3500);
 
 var MODULE_CURRENT='dispatch.html';
 var MODULES=[
-  {file:'index.html',label:'Technicien',icon:'👷',roles:['TECHNICIEN','PATRON']},
   {file:'dispatch.html',label:'Dispatch',icon:'📋',roles:['DISPATCH','PATRON']},
   {file:'patron.html',label:'Patron',icon:'👔',roles:['PATRON']},
   {file:'patron-analytics.html',label:'Analytics',icon:'📊',roles:['PATRON']},
-  {file:'secretaire.html',label:'Secrétaire',icon:'🗂️',roles:['PATRON','DISPATCH']},
-  {file:'crm.html',label:'CRM',icon:'👥',roles:['PATRON','DISPATCH']},
-  {file:'contrats.html',label:'Contrats',icon:'📋',roles:['PATRON','DISPATCH']},
-  {file:'booking.html',label:'Booking',icon:'🌐',roles:['PATRON']},
+  {file:'index.html',label:'Vue Technicien',icon:'👷',roles:['PATRON']},
   {file:'suivi.html',label:'Suivi client',icon:'📍',roles:['PATRON','DISPATCH']},
-  {file:'mandant-portal.html',label:'Portail mandant',icon:'🏢',roles:['PATRON']},
 ];
 function naviguerVers(f){if(f===MODULE_CURRENT)return;var b=location.href.substring(0,location.href.lastIndexOf('/')+1);location.href=b+f;}
 function getCurrentRoleDispatch(){var id=localStorage.getItem("pl_dispatch_session");if(!id)return null;return(CREDS[id]&&CREDS[id].role==="patron")?"PATRON":"DISPATCH";}
