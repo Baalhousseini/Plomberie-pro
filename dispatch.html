@@ -1217,8 +1217,17 @@ function renderTousRdvs(){
 function marquerRdvTermine(id){
   var rdvs=getRdvs();
   var idx=rdvs.findIndex(function(r){return r.id===id;});
-  if(idx>=0){rdvs[idx].statut='Termine';saveRdvs(rdvs);}
-  renderTousRdvs();actualiserTout();showNotif('RDV marqué terminé !');
+  if(idx<0){renderTousRdvs();actualiserTout();return;}
+  rdvs[idx].statut='Termine';
+  rdvs[idx].termineAt=new Date().toISOString();
+  saveRdvs(rdvs);
+  renderTousRdvs();actualiserTout();showNotif('✅ RDV marqué terminé !');
+  var rdv=rdvs[idx];
+  if(rdv.clientTel){
+    smsTyped(rdv.clientTel,'termine',{
+      clientNom:rdv.clientNom,technicien:rdv.technicien
+    });
+  }
 }
 
 function supprimerRdv(id){
@@ -1231,9 +1240,17 @@ function assignerRdv(id,tech){
   var idx=rdvs.findIndex(function(r){return r.id===id;});
   if(idx<0)return;
   rdvs[idx].technicien=tech;
+  rdvs[idx].statut='Confirme';
   saveRdvs(rdvs);
   renderTousRdvs();actualiserTout();
   showNotif('RDV assigné à '+tech+' !');
+  var rdv=rdvs[idx];
+  if(rdv.clientTel){
+    smsTyped(rdv.clientTel,'confirmation',{
+      clientNom:rdv.clientNom,dateRdv:rdv.dateRdv,
+      heureRdv:rdv.heureRdv,technicien:tech,adresse:rdv.adresse
+    });
+  }
 }
 
 function renderAPlanifier(){
@@ -2880,12 +2897,22 @@ function renderAppels(){
 async function envoyerSMS(tel,message){
   if(!tel)return;
   try{
-    var r=await fetch('/api/send-sms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:tel,message:message})});
+    var r=await fetch('/api/sms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:tel,message:message})});
     var d=await r.json();
     if(d.demo)showNotif('SMS (mode démo) — configurez Twilio pour envoyer réellement');
-    else if(d.success)showNotif('SMS envoyé à '+tel);
-    else showNotif('Erreur SMS : '+d.error);
+    else if(d.success)showNotif('📱 SMS envoyé à '+tel);
+    else showNotif('Erreur SMS : '+(d.error||'inconnue'));
   }catch(e){showNotif('SMS indisponible — vérifiez la connexion');}
+}
+
+async function smsTyped(tel,type,data){
+  if(!tel)return;
+  try{
+    var r=await fetch('/api/sms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:tel,type:type,data:data||{}})});
+    var d=await r.json();
+    if(d.success)showNotif('📱 SMS '+type+' envoyé');
+    else if(d.demo)showNotif('SMS (mode démo)');
+  }catch(e){console.warn('SMS typed error',e);}
 }
 </script>
 
