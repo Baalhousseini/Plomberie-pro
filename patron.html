@@ -2690,6 +2690,10 @@ const MODULES_NAV=[
   {file:'patron.html',label:'Patron',icon:'👔',roles:['PATRON']},
   {file:'patron-analytics.html',label:'Analytics',icon:'📊',roles:['PATRON']},
   {file:'secretaire.html',label:'Secrétaire',icon:'🗂️',roles:['PATRON']},
+  {file:'crm.html',label:'CRM',icon:'👥',roles:['PATRON']},
+  {file:'contrats.html',label:'Contrats',icon:'📋',roles:['PATRON']},
+  {file:'suivi.html',label:'Suivi client',icon:'📍',roles:['PATRON']},
+  {file:'mandant-portal.html',label:'Portail mandants',icon:'🏢',roles:['PATRON']},
 ];
 function naviguerVers(f){if(f===MODULE_CURRENT)return;const b=location.href.substring(0,location.href.lastIndexOf('/')+1);location.href=b+f;}
 function renderModuleNav(){
