@@ -288,6 +288,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <button class="nav-btn" onclick="showPage('sav',this)">🔁 SAV</button>
     <button class="nav-btn" id="nav-devis" onclick="showPage('devis',this)">💼 Devis</button>
     <button class="nav-btn" onclick="showPage('appels',this)">📞 Appels</button>
+    <button class="nav-btn" onclick="showPage('procedures',this)">📌 Procédures</button>
   </div>
 
   <div class="content">
@@ -2165,9 +2166,8 @@ function renderValidation(){
       html+='<textarea class="comment-input" id="cv-'+i+'" placeholder="Commentaire avant validation..."></textarea>';
 
   html+='<div style="display:flex;gap:8px;flex-wrap:wrap;">';
-  html+='<button class="btn btn-green" onclick="validerRapport(\''+r.clientNom+'\',\''+r.date+'\','+i+')">Valider</button>';
-  html+='<button class="btn btn-orange" onclick="ouvrirObat(\''+r.clientNom+'\',\''+r.clientTel+'\',\''+r.adresse+'\',\''+r.type+'\',\''+r.date+'\',\''+r.technicien+'\',\''+r.heureDebut+'\',\''+r.heureFin+'\','+r.montantFinal+',\''+(r.description||"").substring(0,80).replace(/\x27/g," ")+'\')">Obat</button>';
-  html+='<button class="btn btn-red" onclick="refuserRapport(\''+r.clientNom+'\',\''+r.date+'\','+i+')">Refuser</button>';
+  html+='<button class="btn btn-green" onclick="validerRapport(\''+r.clientNom+'\',\''+r.date+'\','+i+')">✅ Valider</button>';
+  html+='<button class="btn btn-red" onclick="refuserRapport(\''+r.clientNom+'\',\''+r.date+'\','+i+')">❌ Refuser</button>';
   html+='</div></div>';
 }
 
@@ -2232,8 +2232,8 @@ if(ap.length){html+='<div style="margin-top:12px;"><div class="lbl">APRES</div><
 if(r.description) html+='<div style="margin-top:12px;"><div class="lbl">DESCRIPTION</div><div class="desc-box">'+r.description+'</div></div>';
 if(r.totalPrimes>0) html+='<div style="margin-top:12px;"><div class="lbl">PRIME TECH</div><div style="color:#a16207;font-weight:700;">'+r.totalPrimes+' EUR</div></div>';
 html+='<div class="actions-row">';
-html+='<button class="btn btn-primary" onclick="ouvrirObat(\''+r.clientNom+'\',\''+r.clientTel+'\',\''+r.adresse+'\',\''+r.type+'\',\''+r.date+'\',\''+r.technicien+'\',\''+r.heureDebut+'\',\''+r.heureFin+'\','+r.montantFinal+',\''+(r.description||"").substring(0,80).replace(/\x27/g," ")+'\')">Preparer Obat</button>';
-if(r.statut!=="Paye") html+='<button class="btn btn-green" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Paye\')">Paye</button>';
+html+='<button class="btn btn-primary" onclick="genererDevisPDF(getRapports().filter(function(x){return x.clientNom===\''+r.clientNom+'\'})[0]||{clientNom:\''+r.clientNom+'\',clientTel:\''+r.clientTel+'\',adresse:\''+r.adresse+'\',type:\''+r.type+'\',date:\''+r.date+'\',technicien:\''+r.technicien+'\',montantFinal:'+r.montantFinal+'})">🧾 Facture PDF</button>';
+if(r.statut!=="Paye") html+='<button class="btn btn-green" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Paye\')">💶 Payé</button>';
 if(r.statut==="En attente facturation"||r.statut==="Valide") html+='<button class="btn btn-orange" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Facture\')">Facture</button>';
 html+='</div></div>';
 }
@@ -2600,13 +2600,15 @@ var bar=document.getElementById('pip-obj-bar');if(bar)bar.style.width=pct+'%';
 }
 
 var PROCEDURES=[
-{titre:"Creer un nouveau RDV",etapes:["Verifier la dispo du technicien dans l'onglet Dispos ou Tableau","Aller dans + RDV","Remplir nom, telephone, adresse, type d'intervention","Choisir date, heure et technicien disponible","Indiquer le prix de vente","Ajouter une note si infos importantes (acces, etage, code…)","Valider : le technicien est notifie automatiquement"]},
-{titre:"Assigner selon la disponibilite",etapes:["Toujours verifier le statut du technicien avant d'assigner","Vert = Disponible : on peut assigner","Orange = En intervention : verifier son planning, assigner apres son RDV en cours","Rouge = Indisponible : assigner a l'autre technicien","Regarder le planning du jour pour eviter les chevauchements"]},
-{titre:"Gerer une urgence",etapes:["Aller dans l'onglet Urgences","Cliquer + Nouvelle urgence","Remplir les infos client et le type d'urgence","Assigner au technicien le plus proche / disponible","Le chrono demarre automatiquement","Une fois l'intervention faite, cliquer Resolu","Si besoin, convertir l'urgence en RDV planifie"]},
-{titre:"Valider un rapport d'intervention",etapes:["Aller dans l'onglet Validation","Verifier les photos avant / apres","Lire la description des travaux","Verifier le montant","Si tout est bon : cliquer Valider","Si probleme : ajouter un commentaire et cliquer Refuser","Le rapport valide passe en facturation"]},
-{titre:"Gerer un dossier SAV",etapes:["Aller dans l'onglet SAV","Cliquer + Nouveau SAV","Remplir client, type de probleme et description","Indiquer si c'est sous garantie ou non","Assigner le technicien concerne","Suivre le dossier jusqu'a resolution","Cliquer Resolu une fois le probleme regle"]},
-{titre:"Decaler un RDV et prevenir le client",etapes:["Identifier le RDV a decaler dans le planning","Appeler le client pour proposer un nouveau creneau","Verifier la dispo du technicien sur le nouveau creneau","Modifier la date/heure du RDV","Confirmer le nouveau creneau au client par telephone","Prevenir le technicien du changement"]},
-{titre:"Preparer une facture (Obat)",etapes:["Aller dans Facturation ou Rapports","Cliquer sur Preparer Obat / Obat","Copier les infos generees","Ouvrir le logiciel Obat","Coller et creer la facture","Revenir et marquer le rapport comme Facture"]}
+{titre:"Créer un nouveau RDV",etapes:["Vérifier la dispo du technicien dans l'onglet Équipe","Aller dans + RDV","Remplir nom, téléphone, adresse, type d'intervention","Choisir date, heure et technicien disponible","Indiquer le prix de vente","Si intervention via mandant (Leroy Merlin, AXA...) : sélectionner le mandant dans le champ dédié","Ajouter une note si infos importantes (accès, étage, code...)","Valider : SMS de confirmation envoyé automatiquement au client"]},
+{titre:"Assigner un RDV en attente",etapes:["Dans le Tableau, les RDV 'À planifier' apparaissent en violet en haut","Vérifier le statut du technicien : vert = Disponible, orange = En intervention","Cliquer sur le bouton du technicien voulu sur la carte RDV","Le RDV passe à 'Confirmé' et le SMS de confirmation part automatiquement","Si aucun tech n'est dispo, laisser en attente et planifier au retour"]},
+{titre:"Gérer une urgence",etapes:["Aller dans l'onglet Urgences","Cliquer + Nouvelle urgence","Remplir les infos client et le type d'urgence","Assigner au technicien le plus proche / disponible","Le chrono SLA démarre automatiquement (objectif : <4h)","Une fois l'intervention faite, cliquer Résolu","Si besoin, convertir l'urgence en RDV planifié"]},
+{titre:"Valider un rapport d'intervention",etapes:["Aller dans l'onglet Validation","Vérifier les photos avant / après","Lire la description des travaux","Vérifier le montant facturé","Si tout est bon : cliquer Valider — le rapport est prêt pour facturation","Si problème : ajouter un commentaire et cliquer Refuser — le tech est notifié","Les rapports validés sont visibles dans l'onglet Rapports du patron"]},
+{titre:"Émettre une facture (module interne)",etapes:["Aller dans l'onglet Rapports","Trouver le rapport validé à facturer","Cliquer sur le bouton Facture PDF — la facture se génère dans le navigateur","Imprimer ou sauvegarder en PDF directement depuis le navigateur","Marquer le rapport comme Facturé","Pour les mandants (HomeServe, AXA...) : la facturation mensuelle groupée est dans l'espace Patron > Contrats-cadres > Facturation"]},
+{titre:"Gérer un dossier SAV",etapes:["Aller dans l'onglet SAV","Cliquer + Nouveau SAV","Remplir client, type de problème et description","Indiquer si c'est sous garantie ou non","Assigner le technicien concerné","Suivre le dossier jusqu'à résolution","Cliquer Résolu une fois le problème réglé"]},
+{titre:"Décaler un RDV et prévenir le client",etapes:["Identifier le RDV à décaler dans le planning","Appeler le client pour proposer un nouveau créneau","Vérifier la dispo du technicien sur le nouveau créneau","Modifier la date/heure du RDV directement sur la carte","Confirmer le nouveau créneau au client par téléphone","Prévenir le technicien du changement via le chat interne"]},
+{titre:"Créer et envoyer un devis",etapes:["Aller dans l'onglet Devis","Cliquer + Nouveau devis","Remplir les infos client et les lignes de travaux","Cliquer Aperçu PDF pour générer le devis","Copier le lien de signature et l'envoyer au client par SMS ou email","Le client signe depuis son téléphone sur devis-sign.html","Le devis signé remonte automatiquement dans les rapports"]},
+{titre:"Intervention via mandant (HomeServe, AXA...)",etapes:["Lors de la création du RDV, sélectionner le mandant dans la liste déroulante","Mettre dans Notes : le numéro de dossier mandant et le bon de commande","Le CA sera automatiquement comptabilisé séparément dans les analytics","En fin de mois, le patron génère la facture mensuelle globale depuis Patron > Contrats-cadres","Vérifier que le rapport mentionne bien le mandant avant validation"]}
 ];
 
 function renderProcedures(){
