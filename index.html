@@ -66,11 +66,16 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 .user-name{color:#fff;font-weight:700;font-size:13px;line-height:1.2;}
 .user-role{color:rgba(255,255,255,0.45);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
 
-/* ── MODULE NAV ── */
-.module-nav{background:#0a2240;display:flex;gap:4px;padding:8px 14px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid rgba(255,255,255,0.06);}
-.module-nav::-webkit-scrollbar{display:none;}
-.mnav-btn{flex-shrink:0;background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:7px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.18s;white-space:nowrap;}
-.mnav-btn.active,.mnav-btn:hover{background:#3a8c30;border-color:#3a8c30;color:#fff;}
+/* ── APP SWITCHER ── */
+.app-sw{position:relative;}
+.app-sw-btn{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:10px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.18s;white-space:nowrap;}
+.app-sw-btn:hover{background:rgba(255,255,255,0.18);}
+.app-sw-drop{position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:10px;box-shadow:0 8px 32px rgba(0,0,0,0.18);z-index:200;min-width:240px;display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.app-sw-drop.hidden{display:none!important;}
+.app-sw-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;cursor:pointer;font-size:11px;font-weight:700;color:#1e293b;text-align:center;transition:all 0.15s;}
+.app-sw-item:hover{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;}
+.app-sw-item.active{background:#dcfce7;border-color:#86efac;color:#166534;}
+.app-sw-icon{font-size:22px;line-height:1;}
 
 /* ── INNER NAV TABS ── */
 .nav{background:#fff;border-bottom:2px solid var(--border);display:flex;overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
@@ -397,6 +402,14 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
       <text x="75" y="52" font-family="Arial,sans-serif" font-size="22" font-weight="900" fill="#7bc144">flow</text>
     </svg>
     <div class="header-right">
+      <div class="app-sw" id="app-sw">
+        <button class="app-sw-btn" id="app-sw-btn" style="display:none;" onclick="toggleAppSw()">
+          <span style="font-size:15px;line-height:1;">⊞</span>
+          <span id="app-sw-label">Applications</span>
+          <span style="font-size:9px;opacity:0.6;">▾</span>
+        </button>
+        <div class="app-sw-drop hidden" id="app-sw-drop"></div>
+      </div>
       <div class="ca-box">
         <div class="ca-amount" id="headerCA">0 EUR</div>
         <div class="ca-label">AUJOURD'HUI</div>
@@ -442,8 +455,6 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
     <span id="urgent-text">INTERVENTION URGENTE</span>
     <button class="urgent-close" onclick="fermerUrgent()">×</button>
   </div>
-
-  <div class="module-nav hidden" id="module-nav"></div>
 
   <div class="nav">
     <button class="active" onclick="showPage('agenda')">Agenda</button>
@@ -1639,12 +1650,17 @@ const MODULES=[
   {file:'mandant-portal.html',label:'Portail mandants',icon:'🏢',roles:['PATRON']},
 ];
 function naviguerVers(f){if(f===MODULE_CURRENT)return;const b=location.href.substring(0,location.href.lastIndexOf('/')+1);location.href=b+f;}
+function toggleAppSw(){const d=document.getElementById('app-sw-drop');if(d)d.classList.toggle('hidden');}
+document.addEventListener('click',function(e){const sw=document.getElementById('app-sw');if(sw&&!sw.contains(e.target)){const d=document.getElementById('app-sw-drop');if(d)d.classList.add('hidden');}});
 function renderModuleNav(){
-  const nav=document.getElementById('module-nav');if(!nav)return;
+  const btn=document.getElementById('app-sw-btn');
+  const drop=document.getElementById('app-sw-drop');
+  if(!btn||!drop)return;
   const role=currentUser?currentUser.role:null;if(!role)return;
-  const v=MODULES.filter(m=>m.roles.includes(role));if(v.length<=1)return;
-  nav.classList.remove('hidden');
-  nav.innerHTML=v.map(m=>`<button class="mnav-btn${m.file===MODULE_CURRENT?' active':''}" onclick="naviguerVers('${m.file}')">${m.icon} ${m.label}</button>`).join('');
+  const v=MODULES.filter(m=>m.roles.includes(role));
+  if(v.length<=1){btn.style.display='none';return;}
+  btn.style.display='flex';
+  drop.innerHTML=v.map(m=>`<div class="app-sw-item${m.file===MODULE_CURRENT?' active':''}" onclick="naviguerVers('${m.file}');document.getElementById('app-sw-drop').classList.add('hidden')"><span class="app-sw-icon">${m.icon}</span><span>${m.label}</span></div>`).join('');
 }
 
 /* ---- RECAP JOURNEE ---- */
