@@ -63,9 +63,15 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 .module-nav::-webkit-scrollbar{display:none;}
 .mnav-btn{flex-shrink:0;background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:7px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.18s;white-space:nowrap;}
 .mnav-btn.active,.mnav-btn:hover{background:#3a8c30;border-color:#3a8c30;color:#fff;}
-.nav{background:#fff;border-bottom:2px solid var(--border);display:flex;overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
-.nav button{flex:1;min-width:80px;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;padding:13px 8px;color:var(--muted);cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;transition:all 0.18s;font-family:'Inter',sans-serif;letter-spacing:0.2px;}
+.nav{background:#fff;border-bottom:2px solid var(--border);display:flex;overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,0.04);scrollbar-width:none;}
+.nav::-webkit-scrollbar{display:none;}
+.nav button{flex-shrink:0;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;padding:11px 16px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap;transition:all 0.18s;font-family:'Inter',sans-serif;}
 .nav button.active{color:var(--green);border-bottom-color:var(--green);}
+.nav-groups{background:var(--blue);display:flex;overflow-x:auto;padding:6px 12px;gap:6px;scrollbar-width:none;border-bottom:1px solid rgba(255,255,255,0.08);}
+.nav-groups::-webkit-scrollbar{display:none;}
+.ng-btn{flex-shrink:0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.65);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;transition:all 0.18s;}
+.ng-btn.active{background:#3a8c30;border-color:#3a8c30;color:#fff;}
+.ng-btn:hover{background:rgba(255,255,255,0.18);color:#fff;}
 .content{max-width:700px;margin:0 auto;padding:16px;}
 .card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow);}
 .card.g{border-left:4px solid var(--green);}
@@ -294,31 +300,16 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <button onclick="document.getElementById('devis-alerte-banner').classList.add('hidden')" style="background:transparent;border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.6);border-radius:8px;padding:8px 10px;font-size:16px;cursor:pointer;margin-left:4px;line-height:1;">×</button>
   </div>
 
-  <div class="nav">
-    <button class="active" onclick="showPage('dashboard')">Dashboard</button>
-    <button onclick="showPage('dispatch')" id="nav-dispatch">Dispatch</button>
-    <button onclick="showPage('urgences')" id="nav-urgences">Urgences</button>
-    <button onclick="showPage('equipe')">Equipe</button>
-    <button onclick="showPage('rapports')" id="nav-rapports">Rapports</button>
-    <button onclick="showPage('business')" id="nav-business">Business</button>
-    <button onclick="showPage('primes')">Primes</button>
-    <button onclick="showPage('params')">Params</button>
-    <button onclick="showPage('devis')" id="nav-devis">Devis</button>
-    <button onclick="showPage('crm')" id="nav-crm">CRM</button>
-    <button onclick="showPage('analytics')" id="nav-analytics">📊 Analytics</button>
-    <button onclick="showPage('agenda')" id="nav-agenda">📅 Agenda</button>
-    <button onclick="showPage('contrats')" id="nav-contrats">📋 Contrats</button>
-    <button onclick="showPage('live')" id="nav-live" style="color:#dc2626;">🔴 Live</button>
-    <button onclick="showPage('rh')" id="nav-rh">👥 RH</button>
-    <button onclick="showPage('nps')" id="nav-nps">⭐ NPS</button>
-    <button onclick="showPage('mandants')" id="nav-mandants">🤝 Mandants</button>
-    <button onclick="showPage('contrats-cadres')" id="nav-contrats-cadres" style="color:#7c3aed;font-weight:800;">📄 Contrats-cadres</button>
-    <button onclick="showPage('stock')" id="nav-stock">📦 Stock</button>
-    <button onclick="showPage('sous-traitants')" id="nav-sous-traitants">🔧 Sous-traitants</button>
-    <button onclick="showPage('appels-offres')" id="nav-appels-offres">📬 Appels d'offres</button>
-    <button onclick="showPage('organigramme')" id="nav-organigramme">🏢 Organigramme</button>
-    <button onclick="showPage('planning-long')" id="nav-planning-long">📆 Planning 3 mois</button>
+  <div class="nav-groups" id="nav-groups">
+    <button class="ng-btn" id="ng-home" onclick="showPage('dashboard')">🏠</button>
+    <button class="ng-btn active" data-group="ops" onclick="showGroup('ops')">📋 Opérations</button>
+    <button class="ng-btn" data-group="finances" onclick="showGroup('finances')">💶 Finances</button>
+    <button class="ng-btn" data-group="commercial" onclick="showGroup('commercial')">📈 Commercial</button>
+    <button class="ng-btn" data-group="equipe" onclick="showGroup('equipe')">👥 Équipe</button>
+    <button class="ng-btn" data-group="ressources" onclick="showGroup('ressources')">📦 Ressources</button>
+    <button class="ng-btn" id="ng-params" onclick="showPage('params')">⚙️</button>
   </div>
+  <div class="nav" id="sub-nav"></div>
 
   <div class="content">
 
@@ -1179,6 +1170,10 @@ function lancerApp(){
   document.getElementById("objectif-input").value=getObjectif();
   renderDashboard();
   renderModuleNav();
+  showGroup('ops');
+  document.getElementById('ng-home')?.classList.add('active');
+  document.querySelectorAll('.ng-btn[data-group]').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sub-nav').innerHTML='';
   updateNavBadges();
   if(window.gfListen)gfListen((key,val)=>{
     localStorage.setItem(key,val);
@@ -1246,10 +1241,79 @@ function logout(){
   document.getElementById("app").classList.add("hidden");
 }
 
+const NAV_GROUPS={
+  ops:[
+    {p:'dispatch',label:'Dispatch',id:'nav-dispatch'},
+    {p:'urgences',label:'Urgences',id:'nav-urgences'},
+    {p:'live',label:'🔴 Live',id:'nav-live',style:'color:#dc2626'},
+    {p:'agenda',label:'📅 Agenda',id:'nav-agenda'},
+  ],
+  finances:[
+    {p:'rapports',label:'Rapports',id:'nav-rapports'},
+    {p:'business',label:'Business',id:'nav-business'},
+    {p:'devis',label:'Devis',id:'nav-devis'},
+    {p:'contrats',label:'📋 Contrats',id:'nav-contrats'},
+    {p:'contrats-cadres',label:'📄 Mandants',id:'nav-contrats-cadres'},
+  ],
+  commercial:[
+    {p:'analytics',label:'📊 Analytics',id:'nav-analytics'},
+    {p:'crm',label:'CRM',id:'nav-crm'},
+    {p:'nps',label:'⭐ NPS',id:'nav-nps'},
+    {p:'mandants',label:'🤝 Prospects',id:'nav-mandants'},
+  ],
+  equipe:[
+    {p:'equipe',label:'Équipe',id:'nav-equipe'},
+    {p:'rh',label:'👥 RH',id:'nav-rh'},
+    {p:'primes',label:'Primes',id:'nav-primes'},
+    {p:'organigramme',label:'🏢 Organigramme',id:'nav-organigramme'},
+    {p:'planning-long',label:'📆 Planning',id:'nav-planning-long'},
+  ],
+  ressources:[
+    {p:'stock',label:'📦 Stock',id:'nav-stock'},
+    {p:'sous-traitants',label:'🔧 Sous-traitants',id:'nav-sous-traitants'},
+    {p:'appels-offres',label:'📬 Appels d\'offres',id:'nav-appels-offres'},
+  ],
+};
+let _currentPage='dashboard',_currentGroup=null;
+function getPageGroup(p){for(const[g,items]of Object.entries(NAV_GROUPS)){if(items.some(i=>i.p===p))return g;}return null;}
+function showGroup(g){
+  _currentGroup=g;
+  document.querySelectorAll('.ng-btn[data-group]').forEach(b=>b.classList.toggle('active',b.dataset.group===g));
+  document.getElementById('ng-home').classList.remove('active');
+  document.getElementById('ng-params').classList.remove('active');
+  const nav=document.getElementById('sub-nav');
+  const items=NAV_GROUPS[g]||[];
+  nav.innerHTML=items.map(item=>{
+    const active=item.p===_currentPage?' active':'';
+    const st=item.style?` style="${item.style}"`:'';
+    return`<button class="${active}" onclick="showPage('${item.p}')" id="${item.id}"${st}>${item.label}</button>`;
+  }).join('');
+  // Automatically show first item of group if current page not in this group
+  if(!items.some(i=>i.p===_currentPage)&&items.length) showPage(items[0].p);
+}
 function showPage(p){
+  _currentPage=p;
+  const g=getPageGroup(p);
+  if(g){
+    _currentGroup=g;
+    document.querySelectorAll('.ng-btn[data-group]').forEach(b=>b.classList.toggle('active',b.dataset.group===g));
+    document.getElementById('ng-home')?.classList.remove('active');
+    document.getElementById('ng-params')?.classList.remove('active');
+    const nav=document.getElementById('sub-nav');
+    const items=NAV_GROUPS[g]||[];
+    nav.innerHTML=items.map(item=>{
+      const active=item.p===p?' active':'';
+      const st=item.style?` style="${item.style}"`:'';
+      return`<button class="${active}" onclick="showPage('${item.p}')" id="${item.id}"${st}>${item.label}</button>`;
+    }).join('');
+  } else {
+    document.querySelectorAll('.ng-btn[data-group]').forEach(b=>b.classList.remove('active'));
+    document.getElementById('sub-nav').innerHTML='';
+    if(p==='dashboard') document.getElementById('ng-home')?.classList.add('active');
+    if(p==='params') document.getElementById('ng-params')?.classList.add('active');
+  }
   ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps","mandants","contrats-cadres","stock","sous-traitants","appels-offres","organigramme","planning-long"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
-  document.getElementById("page-"+p).classList.remove("hidden");
-  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps","mandants","contrats-cadres","stock","sous-traitants","appels-offres","organigramme","planning-long"][i]===p));
+  const pageEl=document.getElementById("page-"+p);if(pageEl)pageEl.classList.remove("hidden");
   if(p==="dashboard")renderDashboard();
   if(p==="dispatch"){renderDisposDispatch();renderPlanningJour();renderAPlanifierPatron();}
   if(p==="urgences")renderUrgences();
@@ -1289,8 +1353,7 @@ function showAnalytics(p){
 function updateNavBadges(){
   const u=getUrgences().filter(x=>x.statut!=="Resolu").length;
   const btnU=document.getElementById("nav-urgences");
-  btnU.textContent=u>0?`Urgences (${u})`:"Urgences";
-  btnU.style.color=u>0?"#ef4444":"";
+  if(btnU){btnU.textContent=u>0?`Urgences (${u})`:"Urgences";btnU.style.color=u>0?"#ef4444":"";}
   const devisNew=getDevis().filter(d=>d.statut==="Nouveau").length;
   const btnDevis=document.getElementById("nav-devis");
   if(btnDevis){btnDevis.textContent=devisNew>0?`Devis (${devisNew})`:"Devis";btnDevis.style.color=devisNew>0?"#2563eb":"";}
@@ -1300,6 +1363,9 @@ function updateNavBadges(){
   const aP=getRdvs().filter(r=>r.technicien==="À planifier"&&r.statut!=="Termine"&&r.statut!=="Annule").length;
   const btnD=document.getElementById("nav-dispatch");
   if(btnD){btnD.textContent=aP>0?`Dispatch (📋 ${aP})`:"Dispatch";btnD.style.color=aP>0?"#7c3aed":"";}
+  // Update group button badge for urgences
+  const grpOps=document.querySelector('.ng-btn[data-group="ops"]');
+  if(grpOps) grpOps.textContent=u>0?`📋 Opérations (${u})`:'📋 Opérations';
 }
 
 function renderAPlanifierPatron(){
