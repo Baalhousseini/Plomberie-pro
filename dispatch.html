@@ -199,8 +199,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:100;overflow-y:auto;}
 .modal-sheet{background:#fff;border-radius:20px 20px 0 0;min-height:60vh;padding:22px 16px 40px;margin-top:80px;}
 .modal-close{background:#f1f5f9;border:none;color:var(--muted);border-radius:8px;width:34px;height:34px;font-size:18px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;}
-.obat-box{background:#f7f9fc;border:2px solid var(--border);border-radius:10px;padding:14px;}
-.obat-text{font-family:'Courier New',monospace;font-size:12px;white-space:pre-wrap;color:var(--text);line-height:1.8;}
 
 /* ── PHOTO FULLSCREEN ── */
 .photo-fs{position:fixed;inset:0;background:rgba(0,0,0,0.93);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;}
@@ -801,26 +799,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   </div>
 </div>
 
-<!-- MODAL OBAT -->
-
-<div class="modal-bg hidden" id="modal-obat">
-  <div class="modal-sheet">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-      <div>
-        <div style="color:#1a3a5c;font-size:11px;letter-spacing:2px;font-weight:700;">EXPORT OBAT</div>
-        <div style="font-size:17px;font-weight:800;margin-top:2px;color:#1a2537;" id="obat-nom"></div>
-      </div>
-      <button class="modal-close" onclick="closeModal('modal-obat')">x</button>
-    </div>
-    <div style="color:#64748b;font-size:13px;margin-bottom:12px;">Copie ces infos dans Obat pour creer la facture</div>
-    <div class="obat-box"><div class="obat-text" id="obat-text"></div></div>
-    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
-      <button class="btn btn-primary btn-full" onclick="copierObat()">Copier pour Obat</button>
-      <button class="btn btn-green" onclick="marquerFacture()">Marquer facture</button>
-      <button class="btn btn-gray" onclick="closeModal('modal-obat')">Fermer</button>
-    </div>
-  </div>
-</div>
 
 <div class="photo-fs hidden" id="photo-fs" onclick="closePhotoFs()">
   <img id="photo-fs-img" src="">
@@ -2250,18 +2228,6 @@ if(i>=0){r[i].statut=statut;saveRapports(r);}
 renderRapports();showNotif("Statut: "+statut);
 }
 
-function ouvrirObat(nom,tel,adresse,type,date,tech,debut,fin,montant,desc){
-document.getElementById("obat-nom").textContent=nom;
-document.getElementById("obat-text").textContent=
-"CLIENT\nNom : "+nom+"\nTel : "+tel+"\nAdresse : "+adresse+
-"\n\nINTERVENTION\nType : "+type+"\nDate : "+date+"\nTechnicien : "+tech+"\nDuree : "+debut+" a "+fin+
-"\n\nFACTURATION\nMontant HT : "+Math.round(montant/1.2)+" EUR\nTVA 20% : "+Math.round(montant-montant/1.2)+" EUR\nMontant TTC : "+montant+" EUR\n\nTRAVAUX\n"+desc;
-document.getElementById("modal-obat").classList.remove("hidden");
-}
-
-function copierObat(){navigator.clipboard.writeText(document.getElementById("obat-text").textContent);showNotif("Copie ! Colle dans Obat");}
-function marquerFacture(){closeModal("modal-obat");showNotif("Marque comme facture !");}
-
 function toggleFormSav(){document.getElementById("form-sav").classList.toggle("hidden");}
 
 function sauvegarderSav(){
@@ -2450,7 +2416,7 @@ document.getElementById("stats-fact").innerHTML=[
 var numFact=function(r){var d=(r.date||todayStr()).replace(/-/g,'');return 'FAC-'+d+'-'+String(r.id||Date.now()).slice(-4);}
 var hAF=aF.length?aF.map(function(r){
 var n=numFact(r);
-return '<div class="fact-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;"><div><div style="font-weight:700;font-size:14px;color:#1a2537;">'+r.clientNom+'</div><div style="color:#64748b;font-size:12px;">'+r.type+' — '+r.date+'</div><div style="color:#94a3b8;font-size:11px;">'+n+' · '+r.technicien+'</div></div><div style="text-align:right;"><div style="color:#1a3a5c;font-weight:800;font-size:18px;">'+r.montantFinal+' €</div>'+(r.modeEncaissement?'<div style="color:#16a34a;font-size:10px;font-weight:700;">'+r.modeEncaissement+'</div>':'')+'</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-primary" style="font-size:11px;" onclick="genererFacturePDF(getRapports().find(function(x){return x.id==='+r.id+';}))">🖨️ Facture PDF</button><button class="btn btn-primary" onclick="ouvrirObat(\''+r.clientNom+'\',\''+r.clientTel+'\',\''+r.adresse+'\',\''+r.type+'\',\''+r.date+'\',\''+r.technicien+'\',\''+r.heureDebut+'\',\''+r.heureFin+'\','+r.montantFinal+',\''+(r.description||"").substring(0,80).replace(/\x27/g," ")+'\')">Obat</button><button class="btn btn-orange" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Facture\')">Facturé</button></div></div>';
+return '<div class="fact-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;"><div><div style="font-weight:700;font-size:14px;color:#1a2537;">'+r.clientNom+'</div><div style="color:#64748b;font-size:12px;">'+r.type+' — '+r.date+'</div><div style="color:#94a3b8;font-size:11px;">'+n+' · '+r.technicien+'</div></div><div style="text-align:right;"><div style="color:#1a3a5c;font-weight:800;font-size:18px;">'+r.montantFinal+' €</div>'+(r.modeEncaissement?'<div style="color:#16a34a;font-size:10px;font-weight:700;">'+r.modeEncaissement+'</div>':'')+'</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-primary" style="font-size:11px;" onclick="genererFacturePDF(getRapports().find(function(x){return x.id==='+r.id+';}))">🖨️ Facture PDF</button><button class="btn btn-orange" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Facture\')">Facturé</button></div></div>';
 }).join(""):'<div style="color:#94a3b8;font-size:13px;padding:16px 0;">Tout est facture !</div>';
 document.getElementById("liste-a-facturer").innerHTML=hAF;
 

@@ -210,8 +210,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:100;overflow-y:auto;}
 .modal-sheet{background:#fff;border-radius:20px 20px 0 0;min-height:60vh;padding:22px 16px 40px;margin-top:80px;}
 .modal-close{background:#f1f5f9;border:none;color:var(--muted);border-radius:8px;width:34px;height:34px;font-size:18px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;}
-.obat-box{background:#f7f9fc;border:2px solid var(--border);border-radius:10px;padding:14px;}
-.obat-text{font-family:'Courier New',monospace;font-size:12px;white-space:pre-wrap;color:var(--text);line-height:1.8;}
 
 /* ── PHOTO FULLSCREEN ── */
 .photo-fs{position:fixed;inset:0;background:rgba(0,0,0,0.93);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;}
@@ -1151,24 +1149,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   </div>
 </div>
 
-<!-- MODAL OBAT -->
-
-<div class="modal-bg hidden" id="modal-obat">
-  <div class="modal-sheet">
-    <div class="modal-header">
-      <div><div class="modal-title">EXPORT OBAT</div><div class="modal-subtitle" id="obat-nom"></div></div>
-      <button class="modal-close" onclick="closeModal('modal-obat')">x</button>
-    </div>
-    <div style="color:var(--text-light);font-size:13px;margin-bottom:12px;">Copie ces infos dans Obat pour creer la facture</div>
-    <div class="obat-box"><div class="obat-text" id="obat-text"></div></div>
-    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
-      <button class="btn btn-primary btn-full" onclick="copierObat()">Copier pour Obat</button>
-      <button class="btn btn-green" onclick="marquerFacture()">Marquer facture</button>
-      <button class="btn btn-gray" onclick="closeModal('modal-obat')">Fermer</button>
-    </div>
-  </div>
-</div>
-
 <!-- MODAL CONGE -->
 
 <div class="modal-bg hidden" id="modal-conge">
@@ -1219,7 +1199,7 @@ const SOURCES=["Bouche a oreille","Google","Leboncoin","Recommandation","Reseaux
 const todayStr=()=>new Date().toISOString().split("T")[0];
 const moisStr=()=>new Date().toISOString().slice(0,7);
 const anneeStr=()=>new Date().getFullYear().toString();
-let periode="jour",filtreRapport="tous",obatIdx=null,semaineOffset=0;
+let periode="jour",filtreRapport="tous",semaineOffset=0;
 let agendaFiltre="auj",agendaTech="tous";
 
 const getRdvs=()=>JSON.parse(localStorage.getItem("pl_rdvs")||"[]");
@@ -1944,9 +1924,8 @@ function renderRapports(){
       <textarea class="comment-input" id="comment-${i}" placeholder="Commentaire avant validation..."></textarea>
 
   <div style="display:flex;gap:8px;flex-wrap:wrap;">
-    <button class="btn btn-green" onclick="validerRap(${i})">Valider et facturer</button>
-    <button class="btn btn-orange" onclick="ouvrirObat(getRapports().filter(r=>r.statut==='En attente facturation')[${i}],null)">Preparer Obat</button>
-    <button class="btn btn-red" onclick="refuserRap(${i})">Refuser</button>
+    <button class="btn btn-green" onclick="validerRap(${i})">✅ Valider</button>
+    <button class="btn btn-red" onclick="refuserRap(${i})">❌ Refuser</button>
   </div>
 </div>`;
 
@@ -1969,8 +1948,8 @@ ${(r.photosApres||[]).length?`<div style="margin-top:12px;"><div class="lbl">PHO
 ${r.description?`<div style="margin-top:12px;"><div class="lbl">DESCRIPTION</div><div class="desc-box">${r.description}</div></div>`:""}
 ${r.totalPrimes>0?`<div style="margin-top:12px;"><div class="lbl">PRIME TECHNICIEN</div><div style="color:#eab308;font-weight:800;">${r.totalPrimes} EUR</div></div>`:""}
 <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
-<button class="btn btn-green" onclick="ouvrirObat(getRapports().sort((a,b)=>b.soumisLe?.localeCompare(a.soumisLe))[${i}],${i})">Preparer Obat</button>
-${r.statut!=='Paye'?`<button class="btn btn-orange" onclick="changerStatutRap(${i},'Paye')">Marquer paye</button>`:""}
+<button class="btn btn-primary" onclick="genererFacturePDF(getRapports().sort((a,b)=>b.soumisLe?.localeCompare(a.soumisLe))[${i}])">🧾 Facture PDF</button>
+${r.statut!=='Paye'?`<button class="btn btn-orange" onclick="changerStatutRap(${i},'Paye')">💶 Payé</button>`:""}
 </div>
 </div>`:""} </div>`;
 }).join("");
@@ -2141,41 +2120,16 @@ saveConges(conges);closeModal("modal-conge");renderEquipe();showNotif("Absence e
 }
 function supprimerConge(i){const c=getConges();c.splice(i,1);saveConges(c);renderEquipe();}
 
-// OBAT
-function ouvrirObat(r,idx){
-if(!r||typeof r!=="object")return;
-obatIdx=idx;
-document.getElementById("obat-nom").textContent=r.clientNom;
-document.getElementById("obat-text").textContent=
-`CLIENT
-Nom : ${r.clientNom}
-Tel : ${r.clientTel}
-Adresse : ${r.adresse}
-
-INTERVENTION
-Type : ${r.type}
-Date : ${r.date}
-Technicien : ${r.technicien}
-Duree : ${r.heureDebut} a ${r.heureFin}
-
-FACTURATION
-Montant HT : ${Math.round((r.montantFinal||0)/1.2)} EUR
-TVA 20% : ${Math.round((r.montantFinal||0)-(r.montantFinal||0)/1.2)} EUR
-Montant TTC : ${r.montantFinal} EUR
-
-TRAVAUX
-${r.description||"Voir rapport"}
-
-VENTES ADDITIONNELLES
-${(r.ventes||[]).map(v=>v.label).join(", ")||"Aucune"}`;
-document.getElementById("modal-obat").classList.remove("hidden");
-}
-
-function copierObat(){navigator.clipboard.writeText(document.getElementById("obat-text").textContent);showNotif("Copie ! Colle dans Obat");}
-function marquerFacture(){
-if(obatIdx===null)return;
-const raps=getRapports().sort((a,b)=>b.soumisLe?.localeCompare(a.soumisLe));
-raps[obatIdx].statut="Facture";saveRapports(raps);closeModal("modal-obat");renderRapports();showNotif("Marque comme facture !");
+// FACTURATION PDF
+function genererFacturePDF(r){
+if(!r){showNotif('Rapport introuvable');return;}
+var num='FAC-'+(r.date||todayStr()).replace(/-/g,'')+'-'+String(r.id||Date.now()).slice(-4);
+var ht=Math.round((r.montantFinal||0)/1.1*100)/100;
+var tva=Math.round(((r.montantFinal||0)-ht)*100)/100;
+var w=window.open('','_blank','width=900,height=700');
+if(!w)return;
+w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Facture '+num+'</title><style>body{font-family:Arial,sans-serif;margin:0;padding:30px;color:#0d1b2e;font-size:13px;}@media print{@page{size:A4;margin:1cm;}body{padding:15px;}}.header{display:flex;justify-content:space-between;border-bottom:3px solid #0d2d52;padding-bottom:20px;margin-bottom:24px;}.logo{font-size:26px;font-weight:900;}.logo span{color:#3a8c30;}table{width:100%;border-collapse:collapse;}th{background:#f7f9fc;padding:10px;text-align:left;font-size:11px;letter-spacing:1px;font-weight:700;color:#64748b;text-transform:uppercase;}td{padding:8px 10px;}</style></head><body><div class="header"><div><div class="logo">Green<span>Flow</span></div><div style="font-size:11px;color:#64748b;margin-top:4px;">Plomberie · Chauffage · Sanitaire</div></div><div style="text-align:right;"><div style="font-size:10px;color:#64748b;letter-spacing:2px;font-weight:700;">FACTURE</div><div style="font-size:22px;font-weight:900;color:#0d2d52;margin-top:4px;">'+num+'</div><div style="font-size:11px;color:#64748b;margin-top:4px;">'+r.date+'</div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-bottom:24px;"><div><div style="font-size:10px;letter-spacing:2px;font-weight:700;color:#64748b;margin-bottom:8px;">CLIENT</div><div style="font-weight:700;font-size:14px;">'+r.clientNom+'</div><div>'+r.clientTel+'</div><div style="color:#64748b;">'+r.adresse+'</div></div><div><div style="font-size:10px;letter-spacing:2px;font-weight:700;color:#64748b;margin-bottom:8px;">TECHNICIEN</div><div>'+r.technicien+'</div><div style="color:#64748b;">'+r.heureDebut+' — '+r.heureFin+'</div></div></div><table><thead><tr><th>Prestation</th><th style="text-align:right;">Montant HT</th><th style="text-align:right;">TVA 10%</th><th style="text-align:right;">TTC</th></tr></thead><tbody><tr><td>'+r.type+(r.description?' — '+r.description.substring(0,80):'')+'</td><td style="text-align:right;">'+ht.toLocaleString("fr-FR")+'€</td><td style="text-align:right;">'+tva.toLocaleString("fr-FR")+'€</td><td style="text-align:right;font-weight:700;">'+r.montantFinal.toLocaleString("fr-FR")+'€</td></tr></tbody><tfoot><tr><td colspan="3" style="text-align:right;padding:10px;font-weight:800;font-size:15px;">TOTAL TTC</td><td style="text-align:right;font-size:18px;font-weight:900;color:#0d2d52;padding:10px;">'+r.montantFinal.toLocaleString("fr-FR")+'€</td></tr></tfoot></table></body></html>');
+w.document.close();setTimeout(function(){w.print();},400);
 }
 
 // MODALS
