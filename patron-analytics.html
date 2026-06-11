@@ -164,8 +164,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <button class="active" onclick="showPage('finances')">💰 Finances</button>
     <button onclick="showPage('rh')">👥 RH</button>
     <button onclick="showPage('commercial')">📈 Commercial</button>
+    <button onclick="showPage('benchmark')">🏆 Benchmark</button>
     <button onclick="showPage('strategie')">🎯 Strategie</button>
-    <button onclick="showPage('mandants')">🤝 Mandants</button>
   </div>
 
   <div class="content">
@@ -241,50 +241,23 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div class="card y"><div class="lbl">12 — TOP 10 CLIENTS LES PLUS RENTABLES</div><div id="com-top"></div></div>
 </div>
 
-<!-- MANDANTS -->
-<div id="page-mandants" class="hidden">
+<!-- BENCHMARK 12M€ -->
+<div id="page-benchmark" class="hidden">
   <div class="card g">
-    <div class="lbl">🎯 PLATEFORMES D'AGRÉMENT — PRIORITÉ ABSOLUE</div>
-    <div style="background:#f0fdf4;border-radius:10px;padding:12px;margin-bottom:8px;font-size:12px;color:#166534;font-weight:600;">
-      ⚡ Inscription gratuite — accès à tous les réseaux assureurs en une fois
-    </div>
-    <div id="mandants-plateformes"></div>
+    <div class="lbl">KPIs OPÉRATIONNELS RÉELS</div>
+    <div id="bm-kpis" class="g2" style="gap:8px;"></div>
   </div>
   <div class="card b">
-    <div class="lbl">🏢 ASSUREURS — SERVICE RÉSEAU PRESTATAIRES</div>
-    <div id="mandants-assureurs"></div>
-  </div>
-  <div class="card y">
-    <div class="lbl">🏘 SYNDICS & GESTIONNAIRES IDF</div>
-    <div id="mandants-syndics"></div>
-  </div>
-  <div class="card o">
-    <div class="lbl">🏗 BAILLEURS SOCIAUX IDF</div>
-    <div id="mandants-bailleurs"></div>
+    <div class="lbl">BENCHMARK VS OBJECTIF 12M€</div>
+    <div id="bm-table"></div>
   </div>
   <div class="card p">
-    <div class="lbl">📋 MON PIPELINE MANDANTS</div>
-    <div id="mandants-pipeline"></div>
-    <button class="btn btn-g" style="margin-top:10px;width:100%;" onclick="toggleForm('form-mandant')">+ Ajouter un contact</button>
-    <div id="form-mandant" class="hidden" style="margin-top:12px;">
-      <input type="text" class="fi" id="mand-nom" placeholder="Nom de la société">
-      <input type="text" class="fi" id="mand-contact" placeholder="Nom du contact (optionnel)">
-      <input type="tel" class="fi" id="mand-tel" placeholder="Téléphone">
-      <input type="email" class="fi" id="mand-email" placeholder="Email (optionnel)">
-      <select class="fs" id="mand-statut">
-        <option value="Prospect">📋 Prospect — à contacter</option>
-        <option value="Contacté">📞 Contacté — en attente retour</option>
-        <option value="RDV">📅 RDV planifié</option>
-        <option value="Négociation">🤝 En négociation</option>
-        <option value="Partenaire">✅ Partenaire actif</option>
-        <option value="Refusé">❌ Refusé</option>
-      </select>
-      <textarea class="fi" id="mand-notes" placeholder="Notes (interlocuteur, suite à donner...)" rows="2" style="resize:none;height:60px;"></textarea>
-      <div style="display:flex;gap:8px;">
-        <button class="btn btn-gray" onclick="toggleForm('form-mandant')">Annuler</button>
-        <button class="btn btn-g" style="flex:1;" onclick="saveMandant()">Enregistrer</button>
-      </div>
-    </div>
+    <div class="lbl">🎯 ROADMAP — TOP 5 ACTIONS PRIORITAIRES</div>
+    <div id="bm-roadmap"></div>
+  </div>
+  <div class="card y">
+    <div class="lbl">📊 CONTRATS MAINTENANCE — PROGRESSION</div>
+    <div id="bm-contrats"></div>
   </div>
 </div>
 
@@ -439,14 +412,14 @@ function logout(){
 }
 
 function showPage(p){
-  ["finances","rh","commercial","strategie","mandants"].forEach(x=>el("page-"+x).classList.add("hidden"));
+  ["finances","rh","commercial","benchmark","strategie"].forEach(x=>el("page-"+x).classList.add("hidden"));
   el("page-"+p).classList.remove("hidden");
-  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["finances","rh","commercial","strategie","mandants"][i]===p));
+  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["finances","rh","commercial","benchmark","strategie"][i]===p));
   if(p==="finances")renderFinances();
   if(p==="rh")renderRH();
   if(p==="commercial")renderCommercial();
+  if(p==="benchmark")renderBenchmark();
   if(p==="strategie")renderStrategie();
-  if(p==="mandants")renderMandants();
 }
 
 function toggleForm(id){el(id).classList.toggle("hidden");}
@@ -591,179 +564,86 @@ function delConc(i){const c=gConc();c.splice(i,1);sConc(c);renderStrategie();}
 function saveAlerte(){const s=el("ale-seuil")?.value;const c=el("ale-contact")?.value.trim();if(!s||!c){notif("Remplis seuil et contact");return;}const a=gAlertes();a.push({type:el("ale-type")?.value,seuil:s,contact:c});sAlertes(a);el("ale-seuil").value="";el("ale-contact").value="";renderStrategie();notif("Alerte activee !");}
 function delAlerte(i){const a=gAlertes();a.splice(i,1);sAlertes(a);renderStrategie();}
 
-// MANDANTS
-var MANDANTS_BASE=[
-  // ─── PLATEFORMES & RÉSEAUX ARTISANS (priorité absolue) ───
-  {id:"imh",categorie:"plateforme",nom:"IMH — Inter Mutuelles Habitat",contact:"Service Réseau Artisans",
-   tel:"05 49 77 73 73",email:"",site:"imahabitat.eu",
-   approche:"C'est LA porte d'entrée pour MAIF + MACIF + mutuelles alliées. IMH gère 1 600+ artisans en France. Formulaire artisan en ligne sur imahabitat.eu rubrique 'Vous êtes un artisan'. Documents requis : Kbis -3 mois, URSSAF -6 mois, RC Pro, assurance décennale, RGE si applicable.",
-   potentiel:"Fort",statut:"Prospect"},
-  {id:"fidelia",categorie:"plateforme",nom:"Fidélia Assistance — Covéa (MAAF / MMA / GMF)",contact:"Responsable Direction Réseaux Prestataires",
-   tel:"01 47 11 25 20",email:"conseil.commercial@fidelia-assistance.fr",site:"fidelia-assistance.fr",
-   approche:"Fidélia = accès simultané à MAAF + MMA + GMF (groupe Covéa), 4 000 prestataires agréés, 11,6 millions d'assurés. Utiliser le formulaire 'Devenir prestataire' sur fidelia-assistance.fr ou email direct conseil.commercial@fidelia-assistance.fr. Appel : mar–ven 9h–13h.",
-   potentiel:"Fort",statut:"Prospect"},
-  {id:"europ",categorie:"plateforme",nom:"Europ Assistance France",contact:"Service Partenaires Réseau",
-   tel:"01 41 85 90 72",email:"relation.clients@europ-assistance.fr",site:"europ-assistance.fr",
-   approche:"50 000 prestataires en France. Gère les urgences habitation pour Generali + partiellement AXA. Formulaire 'Devenir fournisseur' sur europ-assistance.fr/devenir-fournisseur ou appel direct au 01 41 85 90 72 (Service Partenaires, lun–ven 9h–18h).",
-   potentiel:"Fort",statut:"Prospect"},
-  {id:"darva",categorie:"plateforme",nom:"Darva / Sinapps IRD",contact:"Service Partenaires",
-   tel:"05 49 77 14 14",email:"accueil@darva.com",site:"darva.net",
-   approche:"Darva est la plateforme technique (pas un mandataire direct). Les assureurs qui utilisent Sinapps IRD : AXA, Allianz, MAIF, MACIF, Groupama, MMA, GMF, Matmut, Covéa, Pacifica, BPCE. S'inscrire via les assureurs eux-mêmes, contacter Darva pour comprendre le processus d'intégration. Lun–ven 9h–12h30 / 13h30–17h.",
-   potentiel:"Fort",statut:"Prospect"},
-  {id:"homeserve",categorie:"plateforme",nom:"HomeServe France",contact:"Coordinateur Réseau Régional IDF",
-   tel:"",email:"",site:"homeserve.fr",
-   approche:"HomeServe a 4 000+ artisans en France. Formulaire 'Rejoindre notre réseau' sur groupe.homeserve.fr/rejoindre-notre-reseau. Un consultant local rappelle pour évaluation. Siège : 9 rue Anna Marly, 69365 Lyon.",
-   potentiel:"Moyen",statut:"Prospect"},
-  {id:"camif",categorie:"plateforme",nom:"Camif Habitat",contact:"Responsable Réseau Artisans IDF",
-   tel:"05 49 34 55 55",email:"",site:"camif-habitat.fr",
-   approche:"Réseau de 3 000+ artisans. Formulaire de candidature artisan sur camif-habitat.fr/recrutement-artisan. Un responsable régional IDF te contacte. Bon volume de rénovation + maintenance.",
-   potentiel:"Moyen",statut:"Prospect"},
-  // ─── ASSUREURS ───
-  {id:"ima",categorie:"assureur",nom:"Groupe IMA — Inter Mutuelles Assistance",contact:"Service Réseau Prestataires Habitation",
-   tel:"05 48 20 48 20",email:"",site:"ima.eu",
-   approche:"IMA gère l'assistance habitation pour MACIF, MAIF, MATMUT et autres mutuelles. Siège : 118 avenue de Paris, 79033 Niort Cedex 9. Pour devenir prestataire artisan, passer directement par IMH (imahabitat.eu) qui est la filiale dédiée réseau artisans. Appeler le 05 48 20 48 20 pour orientation.",
-   potentiel:"Fort",statut:"Prospect"},
-  {id:"allianz",categorie:"assureur",nom:"Allianz Partners France",contact:"Responsable Réseau Prestataires Habitat",
-   tel:"01 40 25 52 95",email:"",site:"allianz-partners.com",
-   approche:"Allianz Partners (ex-Mondial Assistance) gère les urgences habitation Allianz. Formulaire officiel 'Devenir prestataire' sur allianz-partners.com/fr_FR/formulaire-devenir-prestataire.html. Réponse sous 45 jours. Siège : 7 rue Dora Maar, 93400 Saint-Ouen.",
-   potentiel:"Fort",statut:"Prospect"},
-  {id:"axa",categorie:"assureur",nom:"AXA Partners France",contact:"Service Réseau Habitat",
-   tel:"01 55 92 26 92",email:"",site:"axapartners.fr",
-   approche:"AXA Partners gère les urgences habitation AXA (24h/24). Contacter via l'espace professionnel sur axapartners.fr. Mettre en avant la réactivité < 2h en IDF et disponibilité 24h/24. Siège : 6 rue André Gide, 92321 Châtillon Cedex.",
-   potentiel:"Fort",statut:"Prospect"},
-  {id:"groupama",categorie:"assureur",nom:"Groupama Île-de-France",contact:"Direction Sinistres Habitation",
-   tel:"01 45 16 71 90",email:"",site:"groupama.fr",
-   approche:"Groupama IDF : appeler le 01 45 16 71 90 ('Allô Travaux Pro'), demander le responsable réseau artisans IDF. Groupama a 1 700 artisans certifiés gérés régionalement. Mettre en avant certifications RGE + volume interventions IDF.",
-   potentiel:"Moyen",statut:"Prospect"},
-  {id:"maif",categorie:"assureur",nom:"MAIF — Sinistres Habitation",contact:"Réseau Réparateurs Partenaires",
-   tel:"09 72 72 15 15",email:"",site:"maif.fr",
-   approche:"MAIF délègue son réseau artisans à IMH (imahabitat.eu). Ne pas appeler le service client général — postuler directement via le formulaire artisan IMH. Le 09 72 72 15 15 peut orienter vers le bon service si besoin.",
-   potentiel:"Moyen",statut:"Prospect"},
-  {id:"macif",categorie:"assureur",nom:"MACIF — Assistance Habitation",contact:"Service Réseau Prestataires",
-   tel:"09 69 39 49 49",email:"",site:"macif.fr",
-   approche:"MACIF délègue aussi son réseau à IMH. Passer par imahabitat.eu pour le formulaire artisan. Urgences assurés : 0 800 774 774. Le 09 69 39 49 49 peut orienter si besoin.",
-   potentiel:"Moyen",statut:"Prospect"},
-  {id:"matmut",categorie:"assureur",nom:"Matmut — Sinistres Habitation",contact:"Direction Sinistres Habitation",
-   tel:"02 35 03 68 68",email:"",site:"matmut.fr",
-   approche:"Pas de formulaire prestataire en ligne. Contacter le 02 35 03 68 68 (lun–ven 8h45–17h45) et demander le 'responsable réseau réparateurs' ou la 'direction sinistres habitation'. Siège : 66 rue de Sotteville, 76100 Rouen.",
-   potentiel:"Moyen",statut:"Prospect"},
-  {id:"covea",categorie:"assureur",nom:"Covéa — MAAF / MMA / GMF",contact:"Via Fidélia Assistance",
-   tel:"01 47 11 25 20",email:"conseil.commercial@fidelia-assistance.fr",site:"fidelia-assistance.fr",
-   approche:"Pour Covéa (MAAF + MMA + GMF), passer exclusivement par Fidélia Assistance qui gère leur réseau 4 000 artisans. Contact : 01 47 11 25 20 (mar–ven 9h–13h) ou conseil.commercial@fidelia-assistance.fr. MMA sinistres direct : 09 809 809 11.",
-   potentiel:"Fort",statut:"Prospect"},
-  {id:"generali",categorie:"assureur",nom:"Generali France — Via Europ Assistance",contact:"Service Prestataires",
-   tel:"01 41 85 90 72",email:"relation.clients@europ-assistance.fr",site:"europ-assistance.fr",
-   approche:"Generali externalise son assistance habitation à Europ Assistance. Pour devenir prestataire Generali, passer par Europ Assistance : formulaire sur europ-assistance.fr/devenir-fournisseur ou appel 01 41 85 90 72. Urgences Generali habitation : 01 41 85 81 19.",
-   potentiel:"Moyen",statut:"Prospect"},
-  // ─── SYNDICS IDF ───
-  {id:"foncia-idf",categorie:"syndic",nom:"Foncia Île-de-France",contact:"Responsable Technique Agence",
-   tel:"01 55 52 55 01",email:"courriers@foncia-entreprise.fr",site:"foncia.com",
-   approche:"Pas de formulaire national — contacter les agences locales directement. Demander le 'responsable technique de copropriété'. Proposer un contrat-cadre maintenance + urgences. La filiale maintenance s'appelle Tech-Way (tech-way.fr). Siège : Tour Initiale, 1 Terrasse Bellini, La Défense.",
-   potentiel:"Fort",statut:"Prospect"},
-  {id:"nexity-ger",categorie:"syndic",nom:"Nexity Gérance",contact:"Gestionnaire Technique Copropriété",
-   tel:"0 800 739 739",email:"",site:"nexity.fr",
-   approche:"Contacter les agences Nexity locales en IDF, demander le 'gestionnaire de copropriété' ou le 'responsable technique'. Pas de formulaire prestataire centralisé — démarche agence par agence. Siège : 19 rue de Vienne, Paris 8e.",
-   potentiel:"Fort",statut:"Prospect"},
-  {id:"oralia",categorie:"syndic",nom:"Oralia — Groupe BNP Paribas RE",contact:"Gestionnaire Technique / Responsable Agence",
-   tel:"01 53 21 23 00",email:"",site:"oralia.fr",
-   approche:"Réseau d'agences indépendantes. Contacter l'agence Oralia Lescallier : 106 rue d'Amsterdam, 75009 Paris — 01 53 21 23 00. Chaque agence choisit ses artisans locaux. Copropriétés haut de gamme IDF.",
-   potentiel:"Moyen",statut:"Prospect"},
-  {id:"citya",categorie:"syndic",nom:"Citya Immobilier IDF",contact:"Responsable Technique",
-   tel:"01 43 41 20 00",email:"",site:"citya.fr",
-   approche:"Citya en forte expansion en IDF. Contacter les agences locales et proposer un partenariat avec tarifs préférentiels. Mettre en avant la rapidité d'intervention et la disponibilité 24h/24.",
-   potentiel:"Moyen",statut:"Prospect"},
-  // ─── BAILLEURS SOCIAUX ───
-  {id:"3f",categorie:"bailleur",nom:"Immobilière 3F — Groupe Action Logement",contact:"Service Relations Prestataires",
-   tel:"01 40 77 15 15",email:"",site:"groupe3f.fr",
-   approche:"3F est le bailleur le plus transparent : formulaire prestataire en ligne sur groupe3f.fr/3f/achats-et-commandes/formulaire-prestataires. Remplir avant d'appeler. Contacter aussi le service relations prestataires via groupe3f.fr. 100 000+ logements IDF. Siège : 159 rue Nationale, Paris 13e.",
-   potentiel:"Moyen",statut:"Prospect"},
-  {id:"paris-habitat",categorie:"bailleur",nom:"Paris Habitat OPH",contact:"Direction des Achats / Marchés Travaux",
-   tel:"01 71 37 00 00",email:"contact@parishabitat.fr",site:"parishabitat.fr",
-   approche:"Soumettre la fiche fournisseur en ligne sur parishabitat.fr/contact/fiche-fournisseur. Surveiller aussi les appels d'offres sur marches-publics.parishabitat.fr. Pour urgences hors marchés, contacter les agences de proximité. 120 000 logements Paris. Urgences locataires : 0 800 00 20 22.",
-   potentiel:"Moyen",statut:"Prospect"},
-  {id:"icf",categorie:"bailleur",nom:"ICF Habitat La Sablière — IDF",contact:"Direction des Achats / Marchés Travaux",
-   tel:"09 70 25 12 12",email:"communication-sabliere@icfhabitat.fr",site:"icfhabitat.fr",
-   approche:"ICF Habitat La Sablière gère 35 000 logements en IDF. Appeler le 09 70 25 12 12, demander la 'Direction des Achats' ou le 'Service Marchés Travaux'. Siège : 24 rue de Paradis, 75010 Paris.",
-   potentiel:"Moyen",statut:"Prospect"},
-  {id:"cdc-habitat",categorie:"bailleur",nom:"CDC Habitat — Caisse des Dépôts",contact:"Service Contrats et Achats",
-   tel:"01 55 03 30 00",email:"communication@cdc-habitat.fr",site:"cdc-habitat.fr",
-   approche:"300 000 logements en France. Portail marchés : cdc-ha.cdc-habitat.fr. S'inscrire pour participer aux appels d'offres. Siège : 33 avenue Pierre Mendès-France, 75013 Paris. Appel lun–ven 9h–20h.",
-   potentiel:"Moyen",statut:"Prospect"},
-];
+// BENCHMARK 12M€
+function renderBenchmark(){
+  const raps=R();
+  const rdvs=JSON.parse(localStorage.getItem('pl_rdvs')||'[]');
+  const contrats=JSON.parse(localStorage.getItem('pl_contrats')||'[]').filter(c=>c.statut==='Actif');
+  const mois=moisStr();
 
-function gMandants(){return JSON.parse(localStorage.getItem('pl_mandants_perso')||'[]');}
-function sMandants(d){var v=JSON.stringify(d);localStorage.setItem('pl_mandants_perso',v);if(window.gfSync)gfSync('pl_mandants_perso',v);}
-function getMandants(){
-  var perso=gMandants();
-  var merged=JSON.parse(JSON.stringify(MANDANTS_BASE));
-  perso.forEach(function(p){
-    var idx=merged.findIndex(function(m){return m.id===p.id;});
-    if(idx>=0)Object.assign(merged[idx],p);else merged.push(p);
-  });
-  return merged;
+  // TPI — Taux Premier Passage
+  const rapsTotal=raps.length;
+  const rapsSolved=raps.filter(r=>r.checklistScore&&r.checklistScore.split('/')[0]===r.checklistScore.split('/')[1]).length;
+  const tpi=rapsTotal?Math.round(rapsSolved/rapsTotal*100):0;
+  const tpiColor=tpi>=85?'#15803d':tpi>=70?'#c2410c':'#b91c1c';
+
+  // Délai moyen (jours entre datePriseContact et dateRdv)
+  const rdvsAvecDelai=rdvs.filter(r=>r.datePriseContact&&r.dateRdv&&r.dateRdv!==r.datePriseContact);
+  const delaiMoyJours=rdvsAvecDelai.length?rdvsAvecDelai.reduce((s,r)=>{
+    const diff=(new Date(r.dateRdv)-new Date(r.datePriseContact))/86400000;
+    return s+(diff>0?diff:0);
+  },0)/rdvsAvecDelai.length:0;
+  const delaiH=Math.round(delaiMoyJours*24);
+  const delaiColor=delaiH<=4?'#15803d':delaiH<=24?'#c2410c':'#b91c1c';
+
+  // CA par technicien (annualisé)
+  const techs=['Technicien 1','Technicien 2'];
+  const caTechs=techs.map(t=>raps.filter(r=>r.technicien===t).reduce((s,r)=>s+(r.montantFinal||0),0));
+  const caParTech=Math.round(caTechs.reduce((s,c)=>s+c,0)/Math.max(techs.length,1));
+
+  // Taux retour client
+  const telMap={};
+  rdvs.forEach(r=>{if(r.clientTel){const k=r.clientTel.replace(/\s/g,'');if(!telMap[k])telMap[k]=0;telMap[k]++;}});
+  const totalClients=Object.keys(telMap).length;
+  const retourClients=Object.values(telMap).filter(n=>n>=2).length;
+  const tauxRetour=totalClients?Math.round(retourClients/totalClients*100):0;
+  const retourColor=tauxRetour>=40?'#15803d':tauxRetour>=25?'#c2410c':'#b91c1c';
+
+  el('bm-kpis').innerHTML=[
+    ['TPI',tpi+'%','Taux Premier Passage',tpiColor],
+    ['Délai',delaiH>0?delaiH+'h':'—','Contact → Intervention',delaiColor],
+    ['CA/Tech',fmt(caParTech)+'€','Panier total moyen',caParTech>=150000?'#15803d':'#c2410c'],
+    ['Retour',tauxRetour+'%','Clients 2+ visites',retourColor],
+  ].map(([v,sub,l,c])=>`<div class="sc" style="border-left:3px solid ${c};"><div class="lbl">${l.toUpperCase()}</div><div class="sv" style="color:${c};font-size:22px;">${v}</div><div style="font-size:11px;color:var(--muted);">${sub}</div></div>`).join('');
+
+  const rows=[
+    ['TPI (premier passage)',tpi+'%','> 85%',tpi>=85?'🟢':tpi>=70?'🟡':'🔴'],
+    ['Délai urgence',delaiH>0?delaiH+'h':'—','< 4h',delaiH<=4?'🟢':delaiH<=24?'🟡':'🔴'],
+    ['CA par technicien',fmt(caParTech)+'€','>150k€/an',caParTech>=150000?'🟢':caParTech>=80000?'🟡':'🔴'],
+    ['Taux retour client',tauxRetour+'%','>40%',tauxRetour>=40?'🟢':tauxRetour>=25?'🟡':'🔴'],
+    ['Contrats maintenance',contrats.length,'200 cible',contrats.length>=200?'🟢':contrats.length>=50?'🟡':'🔴'],
+  ];
+  el('bm-table').innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr>${['KPI','Actuel','Objectif 12M€','Statut'].map(h=>`<th style="text-align:left;color:var(--muted);font-size:9px;font-weight:700;text-transform:uppercase;padding:6px 4px;border-bottom:1px solid var(--border);">${h}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map(([k,v,o,s])=>`<tr><td style="padding:8px 4px;font-weight:600;">${k}</td><td style="padding:8px 4px;font-weight:800;">${v}</td><td style="padding:8px 4px;color:var(--muted);">${o}</td><td style="padding:8px 4px;font-size:16px;">${s}</td></tr>`).join('')}</tbody>
+  </table>`;
+
+  const gRoadmap=()=>JSON.parse(localStorage.getItem('pl_roadmap')||'{}');
+  const sRoadmap=v=>localStorage.setItem('pl_roadmap',JSON.stringify(v));
+  const road=gRoadmap();
+  const actions=[
+    ['booking','booking.html en ligne','→ +25% volume sans appel supplémentaire'],
+    ['sms','SMS automatiques Twilio','→ -40% no-shows, +12pts NPS'],
+    ['contrats','50 contrats maintenance','→ +10k€/mois récurrent stable'],
+    ['qualipac','Certification QualiPAC RGE','→ Accès MaPrimeRénov\' + CEE'],
+    ['homeserve','Rejoindre réseau HomeServe/IZI EDF','→ Flux garanti 200+ interventions/mois'],
+  ];
+  el('bm-roadmap').innerHTML=actions.map(([k,t,d])=>{
+    const s=road[k]||'todo';
+    return`<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <button onclick="toggleRoadmap('${k}')" style="font-size:18px;background:none;border:none;cursor:pointer;flex-shrink:0;margin-top:-2px;">${s==='done'?'✅':s==='doing'?'🔄':'⬜'}</button>
+      <div style="flex:1;"><div style="font-weight:700;font-size:13px;">${t}</div><div style="font-size:11px;color:var(--muted);">${d}</div></div>
+    </div>`;
+  }).join('');
+
+  window._toggleRoadmapFn=(k)=>{const r=gRoadmap();const s=r[k]||'todo';r[k]=s==='todo'?'doing':s==='doing'?'done':'todo';sRoadmap(r);renderBenchmark();};
+
+  const mrr=contrats.reduce((s,c)=>s+(c.periodicite==='mensuel'?c.tarif:(c.tarif||0)/12),0);
+  const pct200=Math.min(100,Math.round(contrats.length/200*100));
+  el('bm-contrats').innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px;"><span><strong>${contrats.length}</strong> contrats actifs</span><span style="color:#7c3aed;font-weight:700;">MRR : ${Math.round(mrr)}€/mois</span></div><div class="pb"><div class="pf" style="width:${pct200}%;background:#7c3aed;"></div></div><div style="font-size:11px;color:var(--muted);margin-top:4px;">${pct200}% de l'objectif 200 — ARR potentiel à 200 contrats : ${Math.round(mrr/Math.max(contrats.length,1)*200*12)}€/an</div>`;
 }
-function saveMandant(){
-  var nom=el('mand-nom')?.value.trim();
-  if(!nom){notif('Nom requis');return;}
-  var perso=gMandants();
-  perso.unshift({id:'custom-'+Date.now(),categorie:'custom',nom:nom,contact:el('mand-contact')?.value.trim()||'',tel:el('mand-tel')?.value.trim()||'',email:el('mand-email')?.value.trim()||'',site:'',approche:el('mand-notes')?.value.trim()||'',potentiel:'Moyen',statut:el('mand-statut')?.value||'Prospect'});
-  sMandants(perso);
-  toggleForm('form-mandant');
-  ['mand-nom','mand-contact','mand-tel','mand-email','mand-notes'].forEach(id=>el(id)&&(el(id).value=''));
-  renderMandants();
-  notif('Contact ajouté !');
-}
-function majStatutMandant(id,statut){
-  var perso=gMandants();
-  var idx=perso.findIndex(function(p){return p.id===id;});
-  if(idx>=0){perso[idx].statut=statut;}else{var base=MANDANTS_BASE.find(function(m){return m.id===id;});if(base){var copy=JSON.parse(JSON.stringify(base));copy.statut=statut;perso.push(copy);}else return;}
-  sMandants(perso);
-  renderMandants();
-  notif('Statut mis à jour');
-}
-function renderMandants(){
-  var all=getMandants();
-  var statCols={'Prospect':'#94a3b8','Contacté':'#2d6a9f','RDV':'#7c3aed','Négociation':'#ea580c','Partenaire':'#16a34a','Refusé':'#dc2626'};
-  var statBg={'Prospect':'#f1f5f9','Contacté':'#dbeafe','RDV':'#ede9fe','Négociation':'#fff7ed','Partenaire':'#dcfce7','Refusé':'#fee2e2'};
-  function card(m){
-    var col=statCols[m.statut]||'#94a3b8';
-    var bg=statBg[m.statut]||'#f1f5f9';
-    var potCol=m.potentiel==='Fort'?'#16a34a':m.potentiel==='Moyen'?'#ca8a04':'#94a3b8';
-    return '<div style="background:#f8fafc;border-radius:12px;padding:12px;margin-bottom:10px;border-left:3px solid '+col+';">'
-      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">'
-      +'<div style="flex:1;">'
-      +'<div style="font-weight:800;font-size:13px;color:#0d1b2e;">'+m.nom+'</div>'
-      +(m.contact?'<div style="font-size:11px;color:#6b7a8f;margin-top:1px;">'+m.contact+'</div>':'')
-      +'</div>'
-      +'<span style="background:'+bg+';color:'+col+';font-size:9px;font-weight:800;padding:2px 8px;border-radius:5px;white-space:nowrap;margin-left:8px;">'+m.statut+'</span>'
-      +'</div>'
-      +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">'
-      +(m.tel?'<a href="tel:'+m.tel+'" style="background:#0d2d52;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">📞 '+m.tel+'</a>':'')
-      +(m.email?'<a href="mailto:'+m.email+'" style="background:#1a4a7a;color:#fff;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">✉️ Email</a>':'')
-      +(m.site?'<a href="https://'+m.site+'" target="_blank" style="background:#f1f5f9;color:#475569;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">🌐 Site</a>':'')
-      +'</div>'
-      +'<div style="font-size:11px;color:#475569;background:#fff;border-radius:8px;padding:8px 10px;margin-bottom:8px;line-height:1.5;">'+m.approche+'</div>'
-      +'<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;">'
-      +'<span style="color:'+potCol+';font-size:10px;font-weight:700;">● Potentiel '+m.potentiel+'</span>'
-      +'<div style="flex:1;"></div>'
-      +'<select onchange="majStatutMandant(\''+m.id+'\',this.value)" style="background:#f7f9fc;border:1px solid #dde3ec;border-radius:7px;padding:4px 8px;font-size:10px;font-weight:600;color:#0d1b2e;cursor:pointer;">'
-      +['Prospect','Contacté','RDV','Négociation','Partenaire','Refusé'].map(function(s){return'<option value="'+s+'"'+(m.statut===s?' selected':'')+'>'+s+'</option>';}).join('')
-      +'</select>'
-      +'</div>'
-      +'</div>';
-  }
-  var plateformes=all.filter(function(m){return m.categorie==='plateforme';});
-  var assureurs=all.filter(function(m){return m.categorie==='assureur';});
-  var syndics=all.filter(function(m){return m.categorie==='syndic';});
-  var bailleurs=all.filter(function(m){return m.categorie==='bailleur'||m.categorie==='custom';});
-  el('mandants-plateformes').innerHTML=plateformes.map(card).join('');
-  el('mandants-assureurs').innerHTML=assureurs.map(card).join('');
-  el('mandants-syndics').innerHTML=syndics.map(card).join('');
-  el('mandants-bailleurs').innerHTML=bailleurs.map(card).join('');
-  var perso=gMandants().filter(function(m){return m.categorie==='custom';});
-  var pipe=el('mandants-pipeline');
-  if(pipe)pipe.innerHTML=perso.length?perso.map(card).join(''):'<div style="text-align:center;padding:16px;color:#94a3b8;font-size:12px;">Aucun contact perso — ajoute tes relances ci-dessous</div>';
-}
+
+window.toggleRoadmap=function(k){if(window._toggleRoadmapFn)window._toggleRoadmapFn(k);}
 
 var MODULE_CURRENT='patron-analytics.html';
 var MODULES_NAV=[
@@ -771,7 +651,10 @@ var MODULES_NAV=[
   {file:'dispatch.html',label:'Dispatch',icon:'📋',roles:['DISPATCH','PATRON']},
   {file:'patron.html',label:'Patron',icon:'👔',roles:['PATRON']},
   {file:'patron-analytics.html',label:'Analytics',icon:'📊',roles:['PATRON']},
-  {file:'secretaire.html',label:'Secrétaire',icon:'🗂️',roles:['PATRON']},
+  {file:'secretaire.html',label:'Secrétariat',icon:'🗂️',roles:['PATRON','DISPATCH']},
+  {file:'crm.html',label:'CRM',icon:'👥',roles:['PATRON']},
+  {file:'contrats.html',label:'Contrats',icon:'📋',roles:['PATRON']},
+  {file:'booking.html',label:'Booking',icon:'🌐',roles:['PATRON']},
 ];
 function naviguerVers(f){if(f===MODULE_CURRENT)return;var b=location.href.substring(0,location.href.lastIndexOf('/')+1);location.href=b+f;}
 function getCurrentRoleAnalytics(){var id=localStorage.getItem("pl_analytics_session");if(!id)return null;return id==="patron"?"PATRON":"DISPATCH";}
