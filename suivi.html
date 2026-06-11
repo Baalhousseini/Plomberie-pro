@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d2d52">
+<title>Suivi intervention — GreenFlow Technologies</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif;}
+:root{
+  --blue:#0d2d52;
+  --blue2:#1a4a7a;
+  --green:#3a8c30;
+  --green-light:#5ab048;
+  --bg:#f4f6f9;
+  --card:#fff;
+  --border:#dde3ec;
+  --text:#0d1b2e;
+  --muted:#6b7a8f;
+  --shadow:0 1px 4px rgba(13,45,82,0.08),0 4px 16px rgba(13,45,82,0.06);
+  --shadow-lg:0 4px 24px rgba(13,45,82,0.14);
+}
+body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+.hidden{display:none!important;}
+
+/* HERO */
+.hero{background:var(--blue);padding:28px 20px 32px;text-align:center;}
+.hero-logo svg{display:block;margin:0 auto;}
+.hero-title{color:#fff;font-size:20px;font-weight:800;margin-top:14px;letter-spacing:-0.3px;}
+.hero-sub{color:rgba(255,255,255,0.55);font-size:13px;margin-top:4px;}
+
+/* FORM */
+.form-wrap{max-width:480px;margin:0 auto;padding:24px 16px 0;}
+.form-card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:24px 20px;}
+.form-label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1.1px;text-transform:uppercase;margin-bottom:8px;display:block;}
+.tel-input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:13px 14px;font-size:16px;color:var(--text);background:#f7f9fc;outline:none;transition:border-color 0.2s;}
+.tel-input:focus{border-color:var(--blue2);}
+.btn-search{width:100%;margin-top:14px;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.2s;letter-spacing:0.2px;}
+.btn-search:hover{background:var(--blue2);}
+.btn-search:active{transform:scale(0.98);}
+.btn-search:disabled{opacity:0.6;cursor:not-allowed;}
+
+/* RESULTS */
+.results{max-width:480px;margin:0 auto;padding:20px 16px;}
+
+/* NOT FOUND */
+.not-found{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:28px 20px;text-align:center;}
+.not-found-icon{font-size:40px;margin-bottom:12px;}
+.not-found-title{font-weight:700;font-size:16px;color:var(--text);margin-bottom:6px;}
+.not-found-sub{color:var(--muted);font-size:13px;margin-bottom:18px;line-height:1.5;}
+.btn-tel{display:inline-flex;align-items:center;gap:7px;background:var(--green);color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;transition:background 0.2s;}
+.btn-tel:hover{background:var(--green-light);}
+
+/* MAIN RDV CARD */
+.rdv-card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px;}
+.rdv-card-head{background:var(--blue);padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between;}
+.rdv-ref{color:rgba(255,255,255,0.6);font-size:11px;font-weight:600;letter-spacing:0.8px;}
+.rdv-card-body{padding:18px;}
+.rdv-type{font-size:17px;font-weight:800;color:var(--text);margin-bottom:14px;line-height:1.3;}
+
+/* STATUS BADGE */
+.badge{display:inline-block;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px;}
+.badge-attente{background:#fff3e0;color:#d97706;}
+.badge-confirme{background:#e0eaf7;color:#1a4a7a;}
+.badge-encours{background:#dcfce7;color:#166534;animation:pulse 1.8s infinite;}
+.badge-termine{background:#dcfce7;color:#166534;}
+.badge-annule{background:#fee2e2;color:#b91c1c;}
+.badge-default{background:#f1f5f9;color:#475569;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.65;}}
+
+/* INFO ROWS */
+.info-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;}
+.info-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.info-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;line-height:1;}
+.info-val{font-size:14px;font-weight:600;color:var(--text);margin-top:2px;line-height:1.4;}
+.info-val.muted{color:var(--muted);font-weight:500;font-style:italic;}
+.info-group{flex:1;}
+.divider{height:1px;background:var(--border);margin:14px 0;}
+.notes-box{background:#f7f9fc;border-radius:8px;padding:10px 12px;font-size:13px;color:var(--muted);line-height:1.5;margin-top:4px;}
+.btn-contact{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--green);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;margin-top:16px;transition:background 0.2s;}
+.btn-contact:hover{background:var(--green-light);}
+
+/* TIMELINE */
+.timeline-card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:18px;margin-bottom:16px;}
+.timeline-title{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:16px;}
+.timeline{display:flex;align-items:flex-start;gap:0;}
+.tl-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;}
+.tl-step:not(:last-child)::after{content:'';position:absolute;top:13px;left:50%;width:100%;height:2px;background:var(--border);z-index:0;}
+.tl-step.done:not(:last-child)::after,.tl-step.active:not(:last-child)::after{background:var(--green);}
+.tl-dot{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;position:relative;z-index:1;flex-shrink:0;}
+.tl-step.done .tl-dot{background:var(--green);border-color:var(--green);color:#fff;}
+.tl-step.active .tl-dot{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 0 0 3px rgba(13,45,82,0.15);}
+.tl-label{font-size:10px;font-weight:600;color:var(--muted);text-align:center;margin-top:6px;line-height:1.3;max-width:60px;}
+.tl-step.done .tl-label,.tl-step.active .tl-label{color:var(--text);}
+
+/* HISTORY */
+.history-title{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:12px;}
+.hist-item{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+.hist-icon{font-size:20px;flex-shrink:0;}
+.hist-body{flex:1;min-width:0;}
+.hist-type{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hist-date{font-size:11px;color:var(--muted);margin-top:2px;}
+.hist-badge{flex-shrink:0;}
+
+/* SPINNER */
+.spinner-wrap{text-align:center;padding:32px 0;}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spinner-label{color:var(--muted);font-size:13px;margin-top:10px;}
+
+/* ERROR */
+.error-card{background:#fff5f5;border:1.5px solid #fecaca;border-radius:12px;padding:16px;color:#b91c1c;font-size:13px;font-weight:600;text-align:center;}
+
+/* FOOTER */
+footer{margin-top:auto;padding:20px 16px;text-align:center;color:var(--muted);font-size:11px;letter-spacing:0.3px;border-top:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-logo">
+    <svg width="180" height="63" viewBox="0 0 200 70" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="gGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#7bc144"/>
+          <stop offset="100%" style="stop-color:#4a9c3f"/>
+        </linearGradient>
+        <linearGradient id="gBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#4a8fc8"/>
+          <stop offset="100%" style="stop-color:#2d6a9f"/>
+        </linearGradient>
+      </defs>
+      <ellipse cx="95" cy="18" rx="4" ry="8" fill="url(#gBlue)" transform="rotate(-20,95,18)"/>
+      <ellipse cx="105" cy="12" rx="4" ry="9" fill="url(#gGreen)" transform="rotate(5,105,12)"/>
+      <ellipse cx="115" cy="18" rx="4" ry="7" fill="url(#gGreen)" transform="rotate(25,115,18)"/>
+      <path d="M88,28 Q100,20 112,28" stroke="url(#gBlue)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <text x="10" y="52" font-family="Arial,sans-serif" font-size="22" font-weight="900" fill="#ffffff">green</text>
+      <text x="75" y="52" font-family="Arial,sans-serif" font-size="22" font-weight="900" fill="#7bc144">flow</text>
+      <text x="28" y="65" font-family="Arial,sans-serif" font-size="10" font-weight="600" fill="rgba(255,255,255,0.45)" letter-spacing="3">TECHNOLOGIES</text>
+    </svg>
+  </div>
+  <div class="hero-title">Suivez votre intervention</div>
+  <div class="hero-sub">Entrez votre numéro de téléphone pour consulter votre dossier</div>
+</div>
+
+<div class="form-wrap">
+  <div class="form-card">
+    <label class="form-label" for="telInput">Votre numéro de téléphone</label>
+    <input class="tel-input" type="tel" id="telInput" placeholder="06 12 34 56 78" autocomplete="tel" inputmode="tel">
+    <button class="btn-search" id="btnSearch" onclick="rechercherDossier()">Suivre mon dossier</button>
+  </div>
+</div>
+
+<div class="results hidden" id="results"></div>
+
+<footer>© GreenFlow Technologies — Plomberie · Chauffage · Sanitaire · Nouvelle-Aquitaine</footer>
+
+<script>
+var CONTACT_TEL = '05 56 00 00 00';
+var CONTACT_HREF = 'tel:+33556000000';
+
+function normTel(t){
+  if(!t) return '';
+  t = String(t).replace(/[\s.\-()]/g,'');
+  if(t.startsWith('+33')) t = '0' + t.slice(3);
+  if(t.startsWith('0033')) t = '0' + t.slice(4);
+  return t;
+}
+
+function fmtDate(d){
+  if(!d) return null;
+  var dt = new Date(d);
+  if(isNaN(dt.getTime())) return d;
+  return dt.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+
+function fmtHeure(h){
+  if(!h) return null;
+  return h.replace(/(\d{2})(\d{2})/,'$1h$2') || h;
+}
+
+function badgeHtml(statut){
+  var s = (statut||'').toLowerCase().replace(/[éè]/g,'e').replace(/\s+/g,'');
+  var cls, label;
+  if(s==='enattente'||s==='attente'){cls='badge-attente';label='En attente';}
+  else if(s==='confirme'||s==='confirmé'){cls='badge-confirme';label='Confirmé';}
+  else if(s==='encours'||s==='en cours'){cls='badge-encours';label='En cours';}
+  else if(s==='termine'||s==='terminé'){cls='badge-termine';label='Terminé';}
+  else if(s==='annule'||s==='annulé'){cls='badge-annule';label='Annulé';}
+  else{cls='badge-default';label=statut||'—';}
+  return '<span class="badge '+cls+'">'+label+'</span>';
+}
+
+function tlStep(statut){
+  var s = (statut||'').toLowerCase().replace(/[éè]/g,'e').replace(/\s+/g,'');
+  if(s==='enattente'||s==='attente') return 0;
+  if(s==='confirme'||s==='confirmé') return 1;
+  if(s==='encours'||s==='en cours') return 2;
+  if(s==='termine'||s==='terminé') return 3;
+  return 0;
+}
+
+function timelineHtml(statut){
+  var cur = tlStep(statut);
+  var steps = [
+    {label:'Prise de<br>contact', icon:'📋'},
+    {label:'Planifié', icon:'📅'},
+    {label:'En route', icon:'🚐'},
+    {label:'Terminé', icon:'✅'}
+  ];
+  var html = '<div class="timeline-card"><div class="timeline-title">Avancement</div><div class="timeline">';
+  steps.forEach(function(st, i){
+    var cls = i < cur ? 'done' : (i===cur ? 'active' : '');
+    var icon = i < cur ? '✓' : st.icon;
+    html += '<div class="tl-step '+cls+'"><div class="tl-dot">'+icon+'</div><div class="tl-label">'+st.label+'</div></div>';
+  });
+  html += '</div></div>';
+  return html;
+}
+
+function rdvCardHtml(rdv, isPrimary){
+  var typeLabel = rdv.type || rdv.typeIntervention || 'Intervention';
+  var date = rdv.date || rdv.dateRdv || null;
+  var heure = rdv.heure || rdv.heureRdv || null;
+  var tech = rdv.technicien || rdv.nomTechnicien || null;
+  var adresse = rdv.adresse || rdv.adresseClient || '';
+  var notes = rdv.notes || rdv.commentaire || '';
+  var ref = rdv.id || rdv.ref || '';
+
+  var dateStr = date ? fmtDate(date) : null;
+  var heureStr = heure ? fmtHeure(heure) : null;
+  var dateDisplay = dateStr ? (dateStr + (heureStr ? ' à ' + heureStr : '')) : 'À planifier';
+
+  var html = '<div class="rdv-card">';
+  html += '<div class="rdv-card-head">';
+  html += '<span class="rdv-ref">'+(ref ? 'Réf. '+ref : 'Dossier')+'</span>';
+  html += badgeHtml(rdv.statut);
+  html += '</div>';
+  html += '<div class="rdv-card-body">';
+  html += '<div class="rdv-type">'+typeLabel+'</div>';
+
+  html += '<div class="info-row"><span class="info-icon">📅</span><div class="info-group"><div class="info-label">Date & heure</div><div class="info-val'+(date?'':' muted')+'">'+dateDisplay+'</div></div></div>';
+  html += '<div class="info-row"><span class="info-icon">👷</span><div class="info-group"><div class="info-label">Technicien</div><div class="info-val'+(tech?'':' muted')+'">'+(tech||'En cours d\'assignation')+'</div></div></div>';
+  if(adresse){
+    html += '<div class="info-row"><span class="info-icon">📍</span><div class="info-group"><div class="info-label">Adresse</div><div class="info-val">'+adresse+'</div></div></div>';
+  }
+  if(notes){
+    html += '<div class="divider"></div>';
+    html += '<div class="info-row"><span class="info-icon">📝</span><div class="info-group"><div class="info-label">Notes</div><div class="notes-box">'+notes+'</div></div></div>';
+  }
+
+  html += '<a href="'+CONTACT_HREF+'" class="btn-contact">📞 Nous contacter</a>';
+  html += '</div></div>';
+  return html;
+}
+
+function histItemHtml(rdv){
+  var typeLabel = rdv.type || rdv.typeIntervention || 'Intervention';
+  var date = rdv.date || rdv.dateRdv || null;
+  var dateStr = date ? fmtDate(date) : 'Date inconnue';
+  return '<div class="hist-item"><div class="hist-icon">🔧</div><div class="hist-body"><div class="hist-type">'+typeLabel+'</div><div class="hist-date">'+dateStr+'</div></div><div class="hist-badge">'+badgeHtml(rdv.statut)+'</div></div>';
+}
+
+function scoreRdv(rdv){
+  var statut = (rdv.statut||'').toLowerCase().replace(/[éè]/g,'e').replace(/\s+/g,'');
+  var order = {encours:0,'en cours':0,confirme:1,confirmé:1,enattente:2,attente:2,termine:3,terminé:3,annule:4,annulé:4};
+  var prio = order[statut];
+  if(prio===undefined) prio=5;
+  var d = rdv.date || rdv.dateRdv || '';
+  return prio * 1e12 - (d ? new Date(d).getTime() : 0);
+}
+
+function rechercherDossier(){
+  var raw = document.getElementById('telInput').value.trim();
+  if(!raw){
+    document.getElementById('telInput').focus();
+    return;
+  }
+  var tel = normTel(raw);
+  if(tel.length < 8){
+    showResults('<div class="error-card">Numéro de téléphone invalide. Vérifiez et réessayez.</div>');
+    return;
+  }
+
+  document.getElementById('btnSearch').disabled = true;
+  showResults('<div class="spinner-wrap"><div class="spinner"></div><div class="spinner-label">Recherche en cours…</div></div>');
+
+  if(!_db){
+    document.getElementById('btnSearch').disabled = false;
+    showResults('<div class="error-card">Service temporairement indisponible.<br>Appelez-nous au <strong>'+CONTACT_TEL+'</strong>.</div>');
+    return;
+  }
+
+  _db.ref('greenflow/pl_rdvs').once('value').then(function(snap){
+    document.getElementById('btnSearch').disabled = false;
+    var data = snap.val();
+    if(!data){
+      showNotFound();
+      return;
+    }
+
+    var all = [];
+    if(Array.isArray(data)){
+      data.forEach(function(r,i){ if(r){ r._fbKey=i; all.push(r); }});
+    } else {
+      Object.keys(data).forEach(function(k){ var r=data[k]; if(r){ r._fbKey=k; all.push(r); }});
+    }
+
+    var matched = all.filter(function(r){
+      var ct = r.clientTel || r.telephone || r.tel || r.clientPhone || '';
+      return normTel(ct) === tel;
+    });
+
+    if(matched.length===0){
+      showNotFound();
+      return;
+    }
+
+    matched.sort(function(a,b){ return scoreRdv(a)-scoreRdv(b); });
+
+    var primary = matched[0];
+    var history = matched.slice(1,4);
+
+    var html = '';
+    html += rdvCardHtml(primary, true);
+    html += timelineHtml(primary.statut);
+
+    if(history.length>0){
+      html += '<div class="history-title">Interventions précédentes</div>';
+      history.forEach(function(r){ html += histItemHtml(r); });
+    }
+
+    showResults(html);
+  }).catch(function(err){
+    document.getElementById('btnSearch').disabled = false;
+    showResults('<div class="error-card">Erreur lors de la recherche. Réessayez ou appelez le <strong>'+CONTACT_TEL+'</strong>.</div>');
+  });
+}
+
+function showNotFound(){
+  showResults('<div class="not-found"><div class="not-found-icon">🔍</div><div class="not-found-title">Aucun dossier trouvé</div><div class="not-found-sub">Aucune intervention n\'est associée à ce numéro.<br>Vérifiez le numéro ou contactez-nous.</div><a href="'+CONTACT_HREF+'" class="btn-tel">📞 '+CONTACT_TEL+'</a></div>');
+}
+
+function showResults(html){
+  var el = document.getElementById('results');
+  el.innerHTML = html;
+  el.classList.remove('hidden');
+  el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+document.getElementById('telInput').addEventListener('keydown',function(e){
+  if(e.key==='Enter') rechercherDossier();
+});
+
+/* Suppress Firebase status badge on this public page */
+document.addEventListener('DOMContentLoaded',function(){
+  var obs = new MutationObserver(function(){
+    document.querySelectorAll('body > div').forEach(function(el){
+      var s = el.style.cssText||'';
+      if(s.includes('position:fixed')&&s.includes('bottom')&&el.textContent.includes('Firebase')){
+        el.style.display='none';
+      }
+    });
+  });
+  obs.observe(document.body,{childList:true});
+  setTimeout(function(){obs.disconnect();},3000);
+});
+</script>
+</body>
+</html>
