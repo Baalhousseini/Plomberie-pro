@@ -2687,7 +2687,10 @@ var MODULES=[
   {file:'dispatch.html',label:'Dispatch',icon:'📋',roles:['DISPATCH','PATRON']},
   {file:'patron.html',label:'Patron',icon:'👔',roles:['PATRON']},
   {file:'patron-analytics.html',label:'Analytics',icon:'📊',roles:['PATRON']},
-  {file:'secretaire.html',label:'Secrétaire',icon:'🗂️',roles:['PATRON']},
+  {file:'secretaire.html',label:'Secrétaire',icon:'🗂️',roles:['PATRON','DISPATCH']},
+  {file:'crm.html',label:'CRM',icon:'👥',roles:['PATRON','DISPATCH']},
+  {file:'contrats.html',label:'Contrats',icon:'📋',roles:['PATRON','DISPATCH']},
+  {file:'booking.html',label:'Booking',icon:'🌐',roles:['PATRON']},
 ];
 function naviguerVers(f){if(f===MODULE_CURRENT)return;var b=location.href.substring(0,location.href.lastIndexOf('/')+1);location.href=b+f;}
 function getCurrentRoleDispatch(){var id=localStorage.getItem("pl_dispatch_session");if(!id)return null;return(CREDS[id]&&CREDS[id].role==="patron")?"PATRON":"DISPATCH";}
