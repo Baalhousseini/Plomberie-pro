@@ -315,6 +315,11 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <button onclick="showPage('nps')" id="nav-nps">⭐ NPS</button>
     <button onclick="showPage('mandants')" id="nav-mandants">🤝 Mandants</button>
     <button onclick="showPage('contrats-cadres')" id="nav-contrats-cadres" style="color:#7c3aed;font-weight:800;">📄 Contrats-cadres</button>
+    <button onclick="showPage('stock')" id="nav-stock">📦 Stock</button>
+    <button onclick="showPage('sous-traitants')" id="nav-sous-traitants">🔧 Sous-traitants</button>
+    <button onclick="showPage('appels-offres')" id="nav-appels-offres">📬 Appels d'offres</button>
+    <button onclick="showPage('organigramme')" id="nav-organigramme">🏢 Organigramme</button>
+    <button onclick="showPage('planning-long')" id="nav-planning-long">📆 Planning 3 mois</button>
   </div>
 
   <div class="content">
@@ -1342,9 +1347,9 @@ function logout(){
 }
 
 function showPage(p){
-  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps","mandants","contrats-cadres"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
+  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps","mandants","contrats-cadres","stock","sous-traitants","appels-offres","organigramme","planning-long"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
   document.getElementById("page-"+p).classList.remove("hidden");
-  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps","mandants","contrats-cadres"][i]===p));
+  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps","mandants","contrats-cadres","stock","sous-traitants","appels-offres","organigramme","planning-long"][i]===p));
   if(p==="dashboard")renderDashboard();
   if(p==="dispatch"){renderDisposDispatch();renderPlanningJour();renderAPlanifierPatron();}
   if(p==="urgences")renderUrgences();
@@ -1363,6 +1368,11 @@ function showPage(p){
   if(p==="nps")renderNPS();
   if(p==="mandants")renderMandants();
   if(p==="contrats-cadres")renderContratsCadres();
+  if(p==="stock")renderStock();
+  if(p==="sous-traitants")renderST();
+  if(p==="appels-offres")renderAO();
+  if(p==="organigramme")renderOrga();
+  if(p==="planning-long")renderPlanningLong();
 }
 
 function showAnalytics(p){
@@ -4315,6 +4325,573 @@ function exportCC(){
   a.download='contrats-cadres-'+new Date().toISOString().slice(0,10)+'.csv';
   a.click();
   showNotif('Export CSV téléchargé !');
+}
+</script>
+
+<!-- ===== PAGE STOCK ===== -->
+<div id="page-stock" class="hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+    <div>
+      <div style="color:#0d2d52;font-size:11px;letter-spacing:2px;font-weight:800;">📦 STOCK PIÈCES DÉTACHÉES</div>
+      <div style="color:var(--muted);font-size:12px;margin-top:2px;">Inventaire · Alertes · Commandes</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-primary" onclick="toggleFormStock()">+ Ajouter pièce</button>
+      <button class="btn btn-gray" onclick="exportStock()">⬇ CSV</button>
+    </div>
+  </div>
+  <div id="stock-kpis" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;"></div>
+  <div id="form-stock" class="hidden" style="background:#f0f9ee;border:1.5px solid #3a8c30;border-radius:14px;padding:16px;margin-bottom:14px;">
+    <div style="color:#3a8c30;font-size:11px;font-weight:800;letter-spacing:1px;margin-bottom:12px;">NOUVELLE PIÈCE</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-field"><label>DÉSIGNATION *</label><input class="form-input" id="st-nom" placeholder="Ex: Joint torique 20mm"></div>
+      <div class="form-field"><label>RÉFÉRENCE</label><input class="form-input" id="st-ref" placeholder="Ex: JT-020"></div>
+      <div class="form-field"><label>CATÉGORIE</label>
+        <select class="form-select" id="st-cat">
+          <option>Joints & Raccords</option><option>Robinetterie</option><option>Tuyauterie</option>
+          <option>Chauffe-eau</option><option>WC & Sanitaire</option><option>Outils</option><option>Autre</option>
+        </select>
+      </div>
+      <div class="form-field"><label>FOURNISSEUR</label><input class="form-input" id="st-fournisseur" placeholder="Ex: CGED, Rexel..."></div>
+      <div class="form-field"><label>QUANTITÉ EN STOCK</label><input type="number" class="form-input" id="st-qte" placeholder="0" min="0"></div>
+      <div class="form-field"><label>SEUIL D'ALERTE</label><input type="number" class="form-input" id="st-seuil" placeholder="5" min="0"></div>
+      <div class="form-field"><label>PRIX UNITAIRE HT (€)</label><input type="number" class="form-input" id="st-prix" placeholder="0.00" step="0.01" min="0"></div>
+      <div class="form-field"><label>EMPLACEMENT</label><input class="form-input" id="st-emplacement" placeholder="Ex: Étagère A3"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button class="btn btn-green" onclick="sauvegarderStock()">Enregistrer</button>
+      <button class="btn btn-gray" onclick="toggleFormStock()">Annuler</button>
+    </div>
+  </div>
+  <div id="stock-alertes" style="margin-bottom:12px;"></div>
+  <div id="stock-liste"></div>
+</div>
+
+<!-- ===== PAGE SOUS-TRAITANTS ===== -->
+<div id="page-sous-traitants" class="hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+    <div>
+      <div style="color:#0d2d52;font-size:11px;letter-spacing:2px;font-weight:800;">🔧 SOUS-TRAITANTS</div>
+      <div style="color:var(--muted);font-size:12px;margin-top:2px;">Réseau partenaires · Zones · Performances</div>
+    </div>
+    <button class="btn btn-primary" onclick="toggleFormST()">+ Ajouter</button>
+  </div>
+  <div id="st-kpis" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div>
+  <div id="form-st" class="hidden" style="background:#f0f4ff;border:1.5px solid #1a4a7a;border-radius:14px;padding:16px;margin-bottom:14px;">
+    <div style="color:#0d2d52;font-size:11px;font-weight:800;letter-spacing:1px;margin-bottom:12px;">NOUVEAU SOUS-TRAITANT</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-field"><label>NOM / SOCIÉTÉ *</label><input class="form-input" id="stt-nom" placeholder="Ex: SOS Plomb IDF"></div>
+      <div class="form-field"><label>SPÉCIALITÉ</label>
+        <select class="form-select" id="stt-specialite">
+          <option>Plomberie générale</option><option>Chauffage / PAC</option><option>Urgences nuit</option>
+          <option>Gros travaux</option><option>Débouchage</option><option>Gaz</option>
+        </select>
+      </div>
+      <div class="form-field"><label>ZONE(S) COUVERTE(S)</label><input class="form-input" id="stt-zone" placeholder="Ex: 93, 94, 77"></div>
+      <div class="form-field"><label>TARIF JOURNALIER (€)</label><input type="number" class="form-input" id="stt-tarif" placeholder="350"></div>
+      <div class="form-field"><label>CONTACT</label><input class="form-input" id="stt-contact" placeholder="Prénom Nom"></div>
+      <div class="form-field"><label>TÉLÉPHONE *</label><input class="form-input" id="stt-tel" placeholder="06..."></div>
+      <div class="form-field"><label>EMAIL</label><input class="form-input" id="stt-email" placeholder="contact@..."></div>
+      <div class="form-field"><label>STATUT</label>
+        <select class="form-select" id="stt-statut">
+          <option value="Actif">Actif</option><option value="Essai">Période d'essai</option>
+          <option value="Suspendu">Suspendu</option><option value="Blacklisté">Blacklisté</option>
+        </select>
+      </div>
+      <div class="form-field" style="grid-column:1/-1;"><label>CERTIFICATIONS / NOTES</label><textarea class="form-textarea" id="stt-notes" rows="2" placeholder="Habilitation gaz, certifications, conditions..."></textarea></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button class="btn btn-primary" onclick="sauvegarderST()">Enregistrer</button>
+      <button class="btn btn-gray" onclick="toggleFormST()">Annuler</button>
+    </div>
+  </div>
+  <div id="st-liste"></div>
+</div>
+
+<!-- ===== PAGE APPELS D'OFFRES ===== -->
+<div id="page-appels-offres" class="hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+    <div>
+      <div style="color:#0d2d52;font-size:11px;letter-spacing:2px;font-weight:800;">📬 APPELS D'OFFRES</div>
+      <div style="color:var(--muted);font-size:12px;margin-top:2px;">Réponses mandants · Suivi candidatures</div>
+    </div>
+    <button class="btn btn-primary" onclick="toggleFormAO()">+ Nouvel AO</button>
+  </div>
+  <div id="ao-kpis" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;"></div>
+  <div id="form-ao" class="hidden" style="background:#fff7ed;border:1.5px solid #ea580c;border-radius:14px;padding:16px;margin-bottom:14px;">
+    <div style="color:#ea580c;font-size:11px;font-weight:800;letter-spacing:1px;margin-bottom:12px;">NOUVEL APPEL D'OFFRES</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-field"><label>MANDANT / ORGANISME *</label><input class="form-input" id="ao-mandant" placeholder="Ex: HomeServe, EDF, Mairie de Paris"></div>
+      <div class="form-field"><label>INTITULÉ</label><input class="form-input" id="ao-titre" placeholder="Ex: Contrat maintenance plomberie 2025"></div>
+      <div class="form-field"><label>MONTANT ESTIMÉ (€/an)</label><input type="number" class="form-input" id="ao-montant" placeholder="500000"></div>
+      <div class="form-field"><label>DATE LIMITE RÉPONSE</label><input type="date" class="form-input" id="ao-deadline"></div>
+      <div class="form-field"><label>STATUT</label>
+        <select class="form-select" id="ao-statut">
+          <option value="En cours">En cours de rédaction</option>
+          <option value="Soumis">Soumis</option>
+          <option value="Gagné">Gagné ✅</option>
+          <option value="Perdu">Perdu ❌</option>
+          <option value="Abandonné">Abandonné</option>
+        </select>
+      </div>
+      <div class="form-field"><label>RESPONSABLE</label><input class="form-input" id="ao-resp" placeholder="Qui gère cet AO ?"></div>
+    </div>
+    <div style="margin-top:10px;">
+      <div style="font-size:11px;font-weight:800;color:#ea580c;letter-spacing:1px;margin-bottom:8px;">CHECKLIST DOCUMENTS</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;" id="ao-checklist-items">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" id="ao-chk-kbis"> Kbis (-3 mois)</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" id="ao-chk-urssaf"> Attestation URSSAF</label>
+        <label style="display:flex;align-items:center;gap=6px;font-size:12px;cursor:pointer;"><input type="checkbox" id="ao-chk-assurance"> Attestation RC Pro</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" id="ao-chk-qualibat"> Qualibat / Qualipac</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" id="ao-chk-refs"> Références clients</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" id="ao-chk-memoire"> Mémoire technique</label>
+      </div>
+    </div>
+    <div class="form-field" style="margin-top:10px;"><label>NOTES</label><textarea class="form-textarea" id="ao-notes" rows="2" placeholder="Contacts, conditions, points de vigilance..."></textarea></div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button class="btn" style="background:#ea580c;color:#fff;" onclick="sauvegarderAO()">Enregistrer</button>
+      <button class="btn btn-gray" onclick="toggleFormAO()">Annuler</button>
+    </div>
+  </div>
+  <div id="ao-liste"></div>
+</div>
+
+<!-- ===== PAGE ORGANIGRAMME ===== -->
+<div id="page-organigramme" class="hidden">
+  <div style="margin-bottom:14px;">
+    <div style="color:#0d2d52;font-size:11px;letter-spacing:2px;font-weight:800;">🏢 ORGANIGRAMME & POSTES</div>
+    <div style="color:var(--muted);font-size:12px;margin-top:2px;">Rôles · Tâches obligatoires · KPIs · Coût vs CA</div>
+  </div>
+  <div id="orga-kpis" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;"></div>
+  <div id="orga-chart"></div>
+</div>
+
+<!-- ===== PAGE PLANNING LONG TERME ===== -->
+<div id="page-planning-long" class="hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+    <div>
+      <div style="color:#0d2d52;font-size:11px;letter-spacing:2px;font-weight:800;">📆 PLANNING 3 MOIS</div>
+      <div style="color:var(--muted);font-size:12px;margin-top:2px;" id="pl-periode-label"></div>
+    </div>
+    <div style="display:flex;gap:6px;">
+      <button class="btn btn-gray" id="pl-prev" onclick="movePL(-1)">◀</button>
+      <button class="btn btn-gray" onclick="movePL(0)">Aujourd'hui</button>
+      <button class="btn btn-gray" id="pl-next" onclick="movePL(1)">▶</button>
+    </div>
+  </div>
+  <div id="pl-kpis" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div>
+  <div id="pl-grid" style="overflow-x:auto;"></div>
+</div>
+
+<script>
+/* ===========================
+   STOCK PIÈCES DÉTACHÉES
+=========================== */
+function getStock(){try{return JSON.parse(localStorage.getItem('pl_stock_pieces')||'[]');}catch(e){return[];}}
+function saveStock(a){const s=JSON.stringify(a);localStorage.setItem('pl_stock_pieces',s);if(window.gfSync)gfSync('pl_stock_pieces',s);}
+
+function toggleFormStock(){document.getElementById('form-stock').classList.toggle('hidden');}
+
+function sauvegarderStock(){
+  const nom=document.getElementById('st-nom').value.trim();
+  if(!nom){showNotif('Désignation obligatoire');return;}
+  const piece={
+    id:Date.now(),
+    nom,ref:document.getElementById('st-ref').value.trim(),
+    categorie:document.getElementById('st-cat').value,
+    fournisseur:document.getElementById('st-fournisseur').value.trim(),
+    qte:parseInt(document.getElementById('st-qte').value)||0,
+    seuil:parseInt(document.getElementById('st-seuil').value)||5,
+    prix:parseFloat(document.getElementById('st-prix').value)||0,
+    emplacement:document.getElementById('st-emplacement').value.trim(),
+    creeAt:new Date().toISOString()
+  };
+  const arr=getStock();arr.push(piece);saveStock(arr);
+  ['st-nom','st-ref','st-fournisseur','st-qte','st-seuil','st-prix','st-emplacement'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  toggleFormStock();renderStock();showNotif('✅ Pièce ajoutée — '+nom);
+}
+
+function ajusterStock(id,delta){
+  const arr=getStock();const i=arr.findIndex(x=>x.id===id);
+  if(i<0)return;arr[i].qte=Math.max(0,arr[i].qte+delta);
+  saveStock(arr);renderStock();
+}
+
+function supprimerPiece(id){
+  if(!confirm('Supprimer cette pièce ?'))return;
+  saveStock(getStock().filter(x=>x.id!==id));renderStock();showNotif('Pièce supprimée');
+}
+
+function renderStock(){
+  const all=getStock();
+  const valeur=all.reduce((s,p)=>s+p.qte*p.prix,0);
+  const alertes=all.filter(p=>p.qte<=p.seuil);
+  const ruptures=all.filter(p=>p.qte===0);
+  document.getElementById('stock-kpis').innerHTML=[
+    {l:'VALEUR TOTALE STOCK',v:valeur.toLocaleString('fr',{minimumFractionDigits:0})+'€',c:'#0d2d52',bg:'#f0f4ff'},
+    {l:'RÉFÉRENCES',v:all.length,c:'#3a8c30',bg:'#f0f9ee'},
+    {l:'ALERTES SEUIL',v:alertes.length,c:alertes.length?'#d97706':'#3a8c30',bg:alertes.length?'#fef3c7':'#f0f9ee'},
+    {l:'RUPTURES DE STOCK',v:ruptures.length,c:ruptures.length?'#dc2626':'#3a8c30',bg:ruptures.length?'#fef2f2':'#f0f9ee'},
+  ].map(k=>`<div style="background:${k.bg};border-radius:12px;padding:12px;border-left:3px solid ${k.c};"><div style="color:${k.c};font-size:9px;font-weight:800;letter-spacing:1px;margin-bottom:4px;">${k.l}</div><div style="color:${k.c};font-size:20px;font-weight:800;">${k.v}</div></div>`).join('');
+
+  const alertDiv=document.getElementById('stock-alertes');
+  if(alertes.length){
+    alertDiv.innerHTML=`<div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#92400e;">
+      ⚠️ <b>${alertes.length} pièce${alertes.length>1?'s':''} sous le seuil d'alerte :</b> ${alertes.map(p=>p.nom+(p.qte===0?' (rupture)':' ('+p.qte+' restant'+( p.qte>1?'s':'')+')')).join(' · ')}
+    </div>`;
+  } else alertDiv.innerHTML='';
+
+  if(!all.length){document.getElementById('stock-liste').innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted);font-size:13px;">Aucune pièce en stock.<br>Ajoute tes premières références.</div>`;return;}
+
+  const cats=[...new Set(all.map(p=>p.categorie))];
+  document.getElementById('stock-liste').innerHTML=cats.map(cat=>{
+    const pieces=all.filter(p=>p.categorie===cat);
+    return `<div style="margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:800;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;padding-left:4px;">📂 ${cat}</div>
+      ${pieces.map(p=>{
+        const alerte=p.qte<=p.seuil;const rupture=p.qte===0;
+        return `<div style="background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:6px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;border-left:3px solid ${rupture?'#dc2626':alerte?'#f59e0b':'#3a8c30'};">
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;color:var(--blue);font-size:13px;">${p.nom} ${p.ref?`<span style="color:var(--muted);font-size:11px;font-weight:400;">[${p.ref}]</span>`:''}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">${p.fournisseur?p.fournisseur+' · ':''}${p.emplacement||''} · ${p.prix>0?p.prix+'€/u · ':''}<span style="color:${rupture?'#dc2626':alerte?'#d97706':'var(--muted)'};">Seuil: ${p.seuil}</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button class="btn btn-gray" style="padding:4px 8px;font-size:16px;line-height:1;" onclick="ajusterStock(${p.id},-1)">−</button>
+            <div style="min-width:32px;text-align:center;font-size:18px;font-weight:800;color:${rupture?'#dc2626':alerte?'#d97706':'#0d2d52'};">${p.qte}</div>
+            <button class="btn btn-gray" style="padding:4px 8px;font-size:16px;line-height:1;" onclick="ajusterStock(${p.id},1)">+</button>
+            <button class="btn btn-gray" style="padding:4px 8px;font-size:11px;color:#dc2626;" onclick="supprimerPiece(${p.id})">🗑</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function exportStock(){
+  const a=getStock();if(!a.length){showNotif('Aucune pièce');return;}
+  const bom='﻿';
+  const h=['Désignation','Référence','Catégorie','Fournisseur','Qté','Seuil','Prix HT','Valeur','Emplacement'];
+  const r=a.map(p=>[p.nom,p.ref||'',p.categorie,p.fournisseur||'',p.qte,p.seuil,p.prix,p.qte*p.prix,p.emplacement||''].join(';'));
+  const csv=bom+h.join(';')+'\n'+r.join('\n');
+  const el=document.createElement('a');
+  el.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  el.download='stock-'+new Date().toISOString().slice(0,10)+'.csv';el.click();
+  showNotif('Export téléchargé !');
+}
+
+/* ===========================
+   SOUS-TRAITANTS
+=========================== */
+function getST(){try{return JSON.parse(localStorage.getItem('pl_sous_traitants')||'[]');}catch(e){return[];}}
+function saveST(a){const s=JSON.stringify(a);localStorage.setItem('pl_sous_traitants',s);if(window.gfSync)gfSync('pl_sous_traitants',s);}
+function toggleFormST(){document.getElementById('form-st').classList.toggle('hidden');}
+
+function sauvegarderST(){
+  const nom=document.getElementById('stt-nom').value.trim();
+  const tel=document.getElementById('stt-tel').value.trim();
+  if(!nom||!tel){showNotif('Nom et téléphone obligatoires');return;}
+  const st={
+    id:Date.now(),nom,
+    specialite:document.getElementById('stt-specialite').value,
+    zone:document.getElementById('stt-zone').value.trim(),
+    tarif:parseFloat(document.getElementById('stt-tarif').value)||0,
+    contact:document.getElementById('stt-contact').value.trim(),
+    tel,email:document.getElementById('stt-email').value.trim(),
+    statut:document.getElementById('stt-statut').value,
+    notes:document.getElementById('stt-notes').value.trim(),
+    interventions:0,note:0,creeAt:new Date().toISOString()
+  };
+  const arr=getST();arr.push(st);saveST(arr);
+  ['stt-nom','stt-zone','stt-tarif','stt-contact','stt-tel','stt-email','stt-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  toggleFormST();renderST();showNotif('✅ Sous-traitant ajouté — '+nom);
+}
+
+function noterST(id){
+  const n=prompt('Note de 1 à 5 pour ce sous-traitant ?');
+  if(!n||isNaN(n)||n<1||n>5)return;
+  const arr=getST();const i=arr.findIndex(x=>x.id===id);
+  if(i<0)return;arr[i].note=parseFloat(n);saveST(arr);renderST();
+  showNotif('Note enregistrée');
+}
+
+function supprimerST(id){
+  if(!confirm('Supprimer ce sous-traitant ?'))return;
+  saveST(getST().filter(x=>x.id!==id));renderST();showNotif('Supprimé');
+}
+
+function renderST(){
+  const all=getST();
+  const actifs=all.filter(s=>s.statut==='Actif').length;
+  const zones=[...new Set(all.flatMap(s=>s.zone.split(',').map(z=>z.trim())))].filter(Boolean);
+  document.getElementById('st-kpis').innerHTML=[
+    {l:'SOUS-TRAITANTS ACTIFS',v:actifs,c:'#0d2d52',bg:'#f0f4ff'},
+    {l:'ZONES COUVERTES',v:zones.length,c:'#3a8c30',bg:'#f0f9ee'},
+    {l:'TOTAL RÉSEAU',v:all.length,c:'#7c3aed',bg:'#faf5ff'},
+  ].map(k=>`<div style="background:${k.bg};border-radius:12px;padding:12px;border-left:3px solid ${k.c};"><div style="color:${k.c};font-size:9px;font-weight:800;letter-spacing:1px;margin-bottom:4px;">${k.l}</div><div style="color:${k.c};font-size:22px;font-weight:800;">${k.v}</div></div>`).join('');
+
+  if(!all.length){document.getElementById('st-liste').innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted);font-size:13px;">Aucun sous-traitant.<br>Ajoute ton réseau partenaires.</div>`;return;}
+  const sc={Actif:'#16a34a',Essai:'#d97706',Suspendu:'#ea580c',Blacklisté:'#dc2626'};
+  document.getElementById('st-liste').innerHTML=all.map(s=>`<div style="background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);border-left:4px solid ${sc[s.statut]||'#6b7280'};">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+          <div style="font-size:15px;font-weight:800;color:var(--blue);">${s.nom}</div>
+          <div style="background:${(sc[s.statut]||'#6b7280')}20;color:${sc[s.statut]||'#6b7280'};border-radius:20px;padding:2px 10px;font-size:10px;font-weight:700;">${s.statut}</div>
+          ${s.note?`<div style="color:#f59e0b;font-size:12px;">${'★'.repeat(Math.round(s.note))}${'☆'.repeat(5-Math.round(s.note))} ${s.note}/5</div>`:''}
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-bottom:4px;">
+          <span>🔧 ${s.specialite}</span>
+          ${s.zone?`<span>📍 ${s.zone}</span>`:''}
+          ${s.tarif?`<span>💶 ${s.tarif}€/j</span>`:''}
+        </div>
+        ${s.contact?`<div style="font-size:11px;color:var(--muted);">👤 ${s.contact}</div>`:''}
+        ${s.notes?`<div style="font-size:11px;color:var(--muted);margin-top:4px;font-style:italic;">${s.notes}</div>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+        ${s.tel?`<a href="tel:${s.tel}" style="background:#0d2d52;color:#fff;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;text-decoration:none;">📞 ${s.tel}</a>`:''}
+        <div style="display:flex;gap:4px;">
+          <button class="btn btn-gray" style="padding:4px 8px;font-size:10px;" onclick="noterST(${s.id})">⭐ Noter</button>
+          <button class="btn btn-gray" style="padding:4px 8px;font-size:10px;color:#dc2626;" onclick="supprimerST(${s.id})">🗑</button>
+        </div>
+      </div>
+    </div>
+  </div>`).join('');
+}
+
+/* ===========================
+   APPELS D'OFFRES
+=========================== */
+function getAO(){try{return JSON.parse(localStorage.getItem('pl_appels_offres')||'[]');}catch(e){return[];}}
+function saveAO(a){const s=JSON.stringify(a);localStorage.setItem('pl_appels_offres',s);if(window.gfSync)gfSync('pl_appels_offres',s);}
+function toggleFormAO(){
+  const f=document.getElementById('form-ao');f.classList.toggle('hidden');
+  if(!f.classList.contains('hidden')){const d=document.getElementById('ao-deadline');if(d&&!d.value){const dt=new Date();dt.setMonth(dt.getMonth()+1);d.value=dt.toISOString().slice(0,10);}}
+}
+
+function sauvegarderAO(){
+  const mandant=document.getElementById('ao-mandant').value.trim();
+  if(!mandant){showNotif('Mandant obligatoire');return;}
+  const chklist={kbis:document.getElementById('ao-chk-kbis').checked,urssaf:document.getElementById('ao-chk-urssaf').checked,assurance:document.getElementById('ao-chk-assurance').checked,qualibat:document.getElementById('ao-chk-qualibat').checked,refs:document.getElementById('ao-chk-refs').checked,memoire:document.getElementById('ao-chk-memoire').checked};
+  const ao={
+    id:Date.now(),mandant,
+    titre:document.getElementById('ao-titre').value.trim(),
+    montant:parseFloat(document.getElementById('ao-montant').value)||0,
+    deadline:document.getElementById('ao-deadline').value,
+    statut:document.getElementById('ao-statut').value,
+    responsable:document.getElementById('ao-resp').value.trim(),
+    notes:document.getElementById('ao-notes').value.trim(),
+    checklist:chklist,creeAt:new Date().toISOString()
+  };
+  const arr=getAO();arr.push(ao);saveAO(arr);
+  ['ao-mandant','ao-titre','ao-montant','ao-resp','ao-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['ao-chk-kbis','ao-chk-urssaf','ao-chk-assurance','ao-chk-qualibat','ao-chk-refs','ao-chk-memoire'].forEach(id=>{const e=document.getElementById(id);if(e)e.checked=false;});
+  toggleFormAO();renderAO();showNotif('✅ AO enregistré — '+mandant);
+}
+
+function changerStatutAO(id,statut){
+  const arr=getAO();const i=arr.findIndex(x=>x.id===id);if(i<0)return;
+  arr[i].statut=statut;saveAO(arr);renderAO();
+}
+
+function supprimerAO(id){
+  if(!confirm('Supprimer cet appel d\'offres ?'))return;
+  saveAO(getAO().filter(x=>x.id!==id));renderAO();
+}
+
+function renderAO(){
+  const all=getAO();
+  const gains=all.filter(a=>a.statut==='Gagné');
+  const enCours=all.filter(a=>['En cours','Soumis'].includes(a.statut));
+  const caGagne=gains.reduce((s,a)=>s+a.montant,0);
+  const caPipeline=enCours.reduce((s,a)=>s+a.montant,0);
+  const tauxConversion=all.filter(a=>['Gagné','Perdu'].includes(a.statut)).length>0
+    ?Math.round(gains.length/all.filter(a=>['Gagné','Perdu'].includes(a.statut)).length*100):0;
+
+  document.getElementById('ao-kpis').innerHTML=[
+    {l:'CA APPELS GAGNÉS',v:caGagne.toLocaleString('fr')+'€',c:'#16a34a',bg:'#f0f9ee'},
+    {l:'CA PIPELINE',v:caPipeline.toLocaleString('fr')+'€',c:'#d97706',bg:'#fef3c7'},
+    {l:'TAUX DE CONVERSION',v:tauxConversion+'%',c:'#0d2d52',bg:'#f0f4ff'},
+    {l:'EN COURS',v:enCours.length,c:'#7c3aed',bg:'#faf5ff'},
+  ].map(k=>`<div style="background:${k.bg};border-radius:12px;padding:12px;border-left:3px solid ${k.c};"><div style="color:${k.c};font-size:9px;font-weight:800;letter-spacing:1px;margin-bottom:4px;">${k.l}</div><div style="color:${k.c};font-size:20px;font-weight:800;">${k.v}</div></div>`).join('');
+
+  if(!all.length){document.getElementById('ao-liste').innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted);font-size:13px;">Aucun appel d'offres.<br>Commence à répondre aux mandants.</div>`;return;}
+
+  const sc={Gagné:'#16a34a',Soumis:'#0d9488','En cours':'#d97706',Perdu:'#dc2626',Abandonné:'#6b7280'};
+  const urgents=all.filter(a=>a.deadline&&(new Date(a.deadline)-new Date())<7*24*3600*1000&&new Date(a.deadline)>new Date()&&a.statut==='En cours');
+  let html='';
+  if(urgents.length) html+=`<div style="background:#fef2f2;border:1px solid #dc2626;border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#991b1b;">🚨 <b>Deadline ≤ 7 jours :</b> ${urgents.map(a=>a.mandant+(a.titre?' — '+a.titre:'')).join(' · ')}</div>`;
+
+  const stages=['En cours','Soumis','Gagné','Perdu','Abandonné'];
+  html+=stages.map(st=>{
+    const items=all.filter(a=>a.statut===st);
+    if(!items.length)return '';
+    return `<div style="margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:800;color:${sc[st]};letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;padding-left:4px;">● ${st} (${items.length})</div>
+      ${items.map(a=>{
+        const chk=a.checklist||{};const done=Object.values(chk).filter(Boolean).length;const total=Object.keys(chk).length;
+        const jours=a.deadline?Math.ceil((new Date(a.deadline)-new Date())/86400000):null;
+        return `<div style="background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow);border-left:4px solid ${sc[st]||'#6b7280'};">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:800;color:var(--blue);font-size:14px;">${a.mandant}</div>
+              ${a.titre?`<div style="font-size:12px;color:var(--muted);margin-top:2px;">${a.titre}</div>`:''}
+              <div style="display:flex;gap:12px;margin-top:6px;font-size:11px;color:var(--muted);flex-wrap:wrap;">
+                ${a.montant?`<span>💶 <b style="color:var(--text);">${a.montant.toLocaleString('fr')}€/an</b></span>`:''}
+                ${jours!==null?`<span>📅 <b style="color:${jours<=7?'#dc2626':jours<=14?'#d97706':'var(--text)'};">${jours>0?jours+' jours':'Expiré'}</b></span>`:''}
+                ${a.responsable?`<span>👤 ${a.responsable}</span>`:''}
+              </div>
+              ${total>0?`<div style="font-size:11px;color:var(--muted);margin-top:4px;">Docs : ${done}/${total} ✓</div>`:''}
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+              <select style="font-size:11px;border-radius:6px;border:1px solid var(--border);padding:3px 6px;background:#fff;" onchange="changerStatutAO(${a.id},this.value)">
+                ${stages.map(s=>`<option value="${s}"${s===a.statut?' selected':''}>${s}</option>`).join('')}
+              </select>
+              <button class="btn btn-gray" style="font-size:10px;padding:3px 8px;color:#dc2626;" onclick="supprimerAO(${a.id})">🗑</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+  document.getElementById('ao-liste').innerHTML=html;
+}
+
+/* ===========================
+   ORGANIGRAMME
+=========================== */
+const POSTES=[
+  {id:'dg',titre:'Directeur Général',icone:'👑',couleur:'#0d2d52',niveau:0,parent:null,
+    taches:['Signer les contrats-cadres mandants','Définir la stratégie et les objectifs CA','Valider les recrutements','Piloter les KPIs hebdomadaires','Représentation externe'],
+    kpis:['CA total vs objectif','Marge nette %','NPS global','Nb contrats-cadres actifs']},
+  {id:'commercial',titre:'Responsable Commercial',icone:'📈',couleur:'#7c3aed',niveau:1,parent:'dg',
+    taches:['Prospecter HomeServe, EDF, AXA, MAIF','Envoyer rapports mensuels aux mandants','Négocier les renouvellements et hausses tarifaires','Répondre aux appels d\'offres','Suivre le taux de remplissage des volumes engagés'],
+    kpis:['CA mandants signés','Nb contrats-cadres en négociation','Taux de conversion AO','Taux remplissage volume mensuel']},
+  {id:'ops',titre:'Responsable Opérations',icone:'⚙️',couleur:'#1a4a7a',niveau:1,parent:'dg',
+    taches:['Gérer le planning des 30+ techniciens','Garantir le respect des SLA contractuels','Contrôle qualité des rapports mandants','Gérer le stock pièces et commandes fournisseurs','Traiter les escalades et incidents'],
+    kpis:['Taux SLA respecté %','Nb rapports en retard','Valeur stock','Taux techniciens disponibles']},
+  {id:'dispatch1',titre:'Dispatch (Jour)',icone:'📡',couleur:'#0d9488',niveau:2,parent:'ops',
+    taches:['Traiter les demandes HomeServe/EDF sous SLA 4h','Affecter chaque ticket au bon technicien','Envoyer SMS confirmation + en route','Clôturer les interventions dans le système','Surveiller le tableau Live'],
+    kpis:['Délai moyen d\'affectation','Nb SLA ratés','Interventions traitées/jour','Taux de clôture même jour']},
+  {id:'dispatch2',titre:'Dispatch (Soir/WE)',icone:'🌙',couleur:'#0d9488',niveau:2,parent:'ops',
+    taches:['Urgences nuit et week-end','Gestion astreinte techniciens','Coordination sous-traitants urgentistes','Rapports de nuit'],
+    kpis:['Nb urgences traitées','Délai moyen urgence','Taux sous-traitants activés']},
+  {id:'secretaire',titre:'Secrétaire Administrative',icone:'📋',couleur:'#d97706',niveau:2,parent:'ops',
+    taches:['Émettre les factures mensuelles mandants','Relancer les impayés (HomeServe 30j, EDF 45j)','Gérer les contrats maintenance clients','Répondre aux appels entrants','Gérer congés et absences techniciens'],
+    kpis:['Nb factures émises/mois','Délai moyen encaissement','Taux impayés %','Nb appels traités/jour']},
+  {id:'sav',titre:'Chargé(e) Clientèle / SAV',icone:'⭐',couleur:'#ea580c',niveau:2,parent:'ops',
+    taches:['Appeler chaque client J+1 (NPS obligatoire HomeServe)','Traiter les réclamations sous 48h','Alimenter le CRM avec les retours','Gérer les garanties et retours d\'intervention'],
+    kpis:['NPS moyen','Taux réclamations résolues <48h','Nb appels satisfaction/semaine']},
+  {id:'rh',titre:'RH / Recrutement',icone:'👥',couleur:'#6b7280',niveau:2,parent:'dg',
+    taches:['Recruter 8-10 techniciens/an (turn-over 25%)','Gérer habilitations gaz et certifications PGN','Paie et notes de frais','Calcul et versement des primes','Suivi des formations'],
+    kpis:['Délai moyen recrutement','Taux de turn-over','Nb habilitations à jour','Coût masse salariale vs CA']},
+  {id:'chef-tech',titre:'Chef Technique',icone:'🔨',couleur:'#3a8c30',niveau:2,parent:'ops',
+    taches:['Valider les rapports avant envoi mandant (24h)','Former les nouveaux techniciens aux protocoles','Gérer commandes fournisseurs','Contrôle qualité sur chantiers','Devis gros travaux >1500€'],
+    kpis:['Nb rapports validés/semaine','Taux retours pour correction','Stock immobilisé €','Marge gros travaux %']},
+];
+
+function renderOrga(){
+  const emps=JSON.parse(localStorage.getItem('pl_fiches_emp')||'[]');
+  const masseSalariale=emps.reduce((s,e)=>s+(parseFloat(e.salaire)||0),0);
+  const ca=getRdvs().filter(r=>r.dateRdv&&new Date(r.dateRdv).getFullYear()===new Date().getFullYear()).reduce((s,r)=>s+(r.prixVente||0),0);
+
+  document.getElementById('orga-kpis').innerHTML=[
+    {l:'POSTES DÉFINIS',v:POSTES.length,c:'#0d2d52',bg:'#f0f4ff'},
+    {l:'MASSE SALARIALE/MOIS',v:masseSalariale.toLocaleString('fr')+'€',c:'#dc2626',bg:'#fef2f2'},
+    {l:'RATIO CHARGES/CA',v:ca>0?Math.round(masseSalariale*12/ca*100)+'%':'—',c:'#d97706',bg:'#fef3c7'},
+  ].map(k=>`<div style="background:${k.bg};border-radius:12px;padding:12px;border-left:3px solid ${k.c};"><div style="color:${k.c};font-size:9px;font-weight:800;letter-spacing:1px;margin-bottom:4px;">${k.l}</div><div style="color:${k.c};font-size:22px;font-weight:800;">${k.v}</div></div>`).join('');
+
+  const niveaux=[0,1,2];
+  document.getElementById('orga-chart').innerHTML=niveaux.map(niv=>{
+    const postes=POSTES.filter(p=>p.niveau===niv);
+    return `<div style="margin-bottom:16px;">
+      ${niv===0?'':niv===1?`<div style="text-align:center;font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:1px;">DIRECTION</div>`:`<div style="text-align:center;font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:1px;">BUREAU OPÉRATIONNEL</div>`}
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;">
+        ${postes.map(p=>`<div style="background:#fff;border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);border-top:3px solid ${p.couleur};">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <div style="width:38px;height:38px;border-radius:10px;background:${p.couleur}20;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${p.icone}</div>
+            <div><div style="font-weight:800;color:${p.couleur};font-size:13px;">${p.titre}</div><div style="font-size:10px;color:var(--muted);">Niveau ${p.niveau===0?'Direction':p.niveau===1?'Cadre':'Bureau'}</div></div>
+          </div>
+          <div style="margin-bottom:8px;">
+            <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:4px;">TÂCHES OBLIGATOIRES</div>
+            ${p.taches.map(t=>`<div style="font-size:11px;color:var(--text);padding:2px 0;display:flex;gap:6px;align-items:flex-start;"><span style="color:${p.couleur};margin-top:2px;flex-shrink:0;">▸</span>${t}</div>`).join('')}
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;">
+            <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:4px;">KPIs À SUIVRE</div>
+            ${p.kpis.map(k=>`<div style="font-size:10px;color:var(--text);padding:1px 0;display:flex;gap:6px;align-items:flex-start;"><span style="color:#f59e0b;flex-shrink:0;">◆</span>${k}</div>`).join('')}
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ===========================
+   PLANNING 3 MOIS
+=========================== */
+var _plOffset=0;
+
+function movePL(dir){
+  if(dir===0)_plOffset=0;else _plOffset+=dir;
+  renderPlanningLong();
+}
+
+function renderPlanningLong(){
+  const rdvs=getRdvs();
+  const today=new Date();
+  const startBase=new Date(today.getFullYear(),today.getMonth()+_plOffset,1);
+  const moisNoms=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  const moisFull=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+  document.getElementById('pl-periode-label').textContent=`${moisFull[startBase.getMonth()]} ${startBase.getFullYear()} — ${moisFull[(startBase.getMonth()+2)%12]} ${startBase.getFullYear()+(startBase.getMonth()>9?1:0)}`;
+
+  // KPIs 3 mois
+  let total3=0,ca3=0,mandant3=0;
+  for(let m=0;m<3;m++){
+    const mo=new Date(startBase.getFullYear(),startBase.getMonth()+m,1);
+    const rdvsMo=rdvs.filter(r=>{if(!r.dateRdv)return false;const d=new Date(r.dateRdv);return d.getMonth()===mo.getMonth()&&d.getFullYear()===mo.getFullYear();});
+    total3+=rdvsMo.length;
+    ca3+=rdvsMo.reduce((s,r)=>s+(r.prixVente||0),0);
+    mandant3+=rdvsMo.filter(r=>r.mandant).length;
+  }
+  document.getElementById('pl-kpis').innerHTML=[
+    {l:'INTERVENTIONS (3 MOIS)',v:total3,c:'#0d2d52',bg:'#f0f4ff'},
+    {l:'CA PRÉVISIONNEL (3 MOIS)',v:ca3.toLocaleString('fr')+'€',c:'#3a8c30',bg:'#f0f9ee'},
+    {l:'VIA MANDANTS',v:mandant3,c:'#7c3aed',bg:'#faf5ff'},
+  ].map(k=>`<div style="background:${k.bg};border-radius:12px;padding:12px;border-left:3px solid ${k.c};"><div style="color:${k.c};font-size:9px;font-weight:800;letter-spacing:1px;margin-bottom:4px;">${k.l}</div><div style="color:${k.c};font-size:22px;font-weight:800;">${k.v}</div></div>`).join('');
+
+  // Grille 3 mois
+  let html='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;min-width:600px;">';
+  for(let m=0;m<3;m++){
+    const mo=new Date(startBase.getFullYear(),startBase.getMonth()+m,1);
+    const daysInMonth=new Date(mo.getFullYear(),mo.getMonth()+1,0).getDate();
+    const firstDay=(new Date(mo.getFullYear(),mo.getMonth(),1).getDay()+6)%7;
+    const rdvsMo=rdvs.filter(r=>{if(!r.dateRdv)return false;const d=new Date(r.dateRdv);return d.getMonth()===mo.getMonth()&&d.getFullYear()===mo.getFullYear();});
+    const byDay={};rdvsMo.forEach(r=>{const j=new Date(r.dateRdv).getDate();byDay[j]=(byDay[j]||0)+1;});
+
+    html+=`<div style="background:#fff;border-radius:14px;padding:14px;box-shadow:var(--shadow);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-weight:800;color:var(--blue);font-size:13px;">${moisFull[mo.getMonth()]} ${mo.getFullYear()}</div>
+        <div style="font-size:11px;color:var(--muted);">${rdvsMo.length} RDV</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;">
+        ${['L','M','M','J','V','S','D'].map(j=>`<div style="font-size:9px;font-weight:700;color:var(--muted);padding:2px;">${j}</div>`).join('')}
+        ${Array(firstDay).fill('<div></div>').join('')}
+        ${Array.from({length:daysInMonth},(_,i)=>{
+          const d=i+1;const n=byDay[d]||0;
+          const isToday=today.getDate()===d&&today.getMonth()===mo.getMonth()&&today.getFullYear()===mo.getFullYear();
+          const bg=n>=5?'#0d2d52':n>=3?'#1a4a7a':n>=1?'#dbeafe':'transparent';
+          const color=n>=3?'#fff':n>=1?'#0d2d52':'var(--muted)';
+          return `<div style="background:${isToday?'#3a8c30':bg};color:${isToday?'#fff':color};border-radius:4px;padding:3px 0;font-size:10px;font-weight:${n>0||isToday?'700':'400'};cursor:${n>0?'pointer':'default'};" title="${n>0?n+' RDV':''}">${d}${n>0?`<div style="font-size:8px;">${n}</div>`:''}</div>`;
+        }).join('')}
+      </div>
+      <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px;font-size:11px;display:flex;justify-content:space-between;color:var(--muted);">
+        <span>CA: <b style="color:var(--green);">${rdvsMo.reduce((s,r)=>s+(r.prixVente||0),0).toLocaleString('fr')}€</b></span>
+        <span>Mandants: <b style="color:#7c3aed;">${rdvsMo.filter(r=>r.mandant).length}</b></span>
+      </div>
+    </div>`;
+  }
+  html+='</div>';
+  document.getElementById('pl-grid').innerHTML=html;
 }
 </script>
 

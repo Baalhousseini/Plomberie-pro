@@ -9,7 +9,8 @@ const SYNC_KEYS = [
   'pl_rdvs','pl_rapports','pl_devis','pl_dispos',
   'pl_chat','pl_urgences','pl_primes','pl_savs',
   'pl_pipe','pl_stock','pl_zones','pl_conc',
-  'pl_notes','pl_alertes','pl_conges','pl_session','pl_contrats_cadres'
+  'pl_notes','pl_alertes','pl_conges','pl_session','pl_contrats_cadres',
+  'pl_stock_pieces','pl_sous_traitants','pl_appels_offres'
 ];
 
 // BroadcastChannel pour sync même appareil / même navigateur
