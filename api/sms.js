@@ -8,8 +8,28 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { to, type, data = {} } = req.body || {};
-  if (!to || !type) return res.status(400).json({ error: 'Missing to or type' });
+  const { to, type, data = {}, message: rawMessage } = req.body || {};
+  if (!to) return res.status(400).json({ error: 'Missing to' });
+
+  // Support raw message format {to, message} as fallback
+  if (!type && rawMessage) {
+    if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
+      return res.json({ success: false, demo: true, message: 'SMS not configured', body: rawMessage });
+    }
+    try {
+      const twilio = require('twilio');
+      const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+      let phone = String(to).replace(/[\s\-\.]/g, '');
+      if (phone.startsWith('0')) phone = '+33' + phone.slice(1);
+      if (!phone.startsWith('+')) phone = '+33' + phone;
+      const msg = await client.messages.create({ body: rawMessage, from: process.env.TWILIO_FROM_NUMBER, to: phone });
+      return res.json({ success: true, sid: msg.sid });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
+  if (!type) return res.status(400).json({ error: 'Missing type or message' });
 
   const templates = {
     confirmation: `Bonjour ${data.clientNom || ''}, votre RDV GreenFlow est confirmé le ${data.date || ''} à ${data.heure || ''}. Adresse : ${data.adresse || ''}. Réf : ${data.ref || ''}. Annulation : 05 56 XX XX XX`,

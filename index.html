@@ -1114,7 +1114,7 @@ function carteBodyHtml(r,isToday,isDone){
       <a href="${mapsUrl}" target="_blank" style="flex-shrink:0;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap;">🗺️ Y aller</a>
     </div>
   </div>
-  <div class="info-item"><div class="lbl">TELEPHONE</div><div class="info-val"><a href="tel:${r.clientTel}" style="color:var(--blue2);font-weight:700;font-size:15px;">📞 ${r.clientTel}</a></div></div>
+  <div class="info-item"><div class="lbl">TELEPHONE</div><div class="info-val" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><a href="tel:${r.clientTel}" style="color:var(--blue2);font-weight:700;font-size:15px;">📞 ${r.clientTel}</a>${(()=>{try{const c=JSON.parse(localStorage.getItem('pl_contrats')||'[]');const h=c.some(x=>x.clientTel===r.clientTel&&x.statut==='Actif');return h?'<span style="background:#f0fdf4;color:#16a34a;border:1px solid #86efac;border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;">📋 Contrat actif</span>':'';}catch(e){return '';}})()}</div></div>
   ${r.notes?`<div class="info-item"><div class="lbl">NOTE DISPATCH</div><div class="notes-box">${r.notes}</div></div>`:""}
   ${histHtml}
   <div class="prix-box">
@@ -1493,6 +1493,11 @@ function soumettre(){
       if(txt)txt.textContent='Disponible';
     }
 
+    // SMS terminé au client
+    if(currentRdv.clientTel){
+      const refT='INT-'+String(currentRdv.id).slice(-5);
+      envoyerSMSTech(currentRdv.clientTel,'termine',{ref:refT,montant:Number(document.getElementById("montantFinal").value)||''});
+    }
     showEtape("succes");
     if(totalPrimes>0){
       document.getElementById("prime-win").classList.remove("hidden");
@@ -1798,6 +1803,12 @@ function checkUrgences(){
 function fermerUrgent(){const b=document.getElementById('urgent-banner');if(b)b.classList.add('hidden');}
 
 /* ---- DÉMARRER INTERVENTION ---- */
+async function envoyerSMSTech(tel,type,data){
+  if(!tel)return;
+  try{
+    await fetch('/api/sms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:tel,type:type,data:data||{}})});
+  }catch(e){}
+}
 function demarrerIntervention(rdvId){
   const rdvs=getRdvs();
   const r=rdvs.find(x=>x.id===rdvId);
@@ -1805,6 +1816,11 @@ function demarrerIntervention(rdvId){
   r.statut='En cours';
   r.heureDebut=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
   saveRdvs(rdvs);
+  // SMS en route automatique
+  if(r.clientTel){
+    const ref=r.id?'INT-'+String(r.id).slice(-5):'';
+    envoyerSMSTech(r.clientTel,'en_route',{technicien:currentUser?currentUser.nom:'',ref,eta:'30-45 min'});
+  }
   // Mettre à jour dispo tech
   const dispos=JSON.parse(localStorage.getItem('pl_dispos')||'{}');
   if(currentUser){
@@ -1819,7 +1835,7 @@ function demarrerIntervention(rdvId){
   if(interBtn)interBtn.classList.add('sbar-active');
   renderRdv();
   renderKpiTech();
-  showNotif('Intervention démarrée — '+r.clientNom);
+  showNotif('🚗 En route vers '+r.clientNom+' — SMS envoyé');
 }
 
 /* ---- TERMINER ET OUVRIR RAPPORT ---- */
