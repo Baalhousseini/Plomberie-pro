@@ -451,6 +451,39 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
         </select>
       </div>
       <div class="form-field"><label>NOTE POUR LE TECHNICIEN</label><textarea class="form-textarea" id="rdv-notes" rows="3" placeholder="Infos importantes, acces, probleme recurrent..."></textarea></div>
+      <div class="form-field">
+        <label>MANDANT (si intervention via partenaire)</label>
+        <select class="form-select" id="rdv-mandant" onchange="toggleMandantInfo(this.value)">
+          <option value="">— Aucun (client direct) —</option>
+          <optgroup label="Grande distribution">
+            <option value="Leroy Merlin">Leroy Merlin</option>
+            <option value="Castorama">Castorama</option>
+            <option value="Brico Dépôt">Brico Dépôt</option>
+            <option value="Mr Bricolage">Mr Bricolage</option>
+            <option value="Bricomarché">Bricomarché</option>
+            <option value="Darty">Darty</option>
+          </optgroup>
+          <optgroup label="Assurances">
+            <option value="AXA">AXA</option>
+            <option value="HomeServe">HomeServe</option>
+            <option value="Covéa">Covéa</option>
+            <option value="Allianz">Allianz</option>
+            <option value="Generali">Generali</option>
+            <option value="MAIF">MAIF</option>
+            <option value="Pacifica">Pacifica</option>
+            <option value="Groupama">Groupama</option>
+          </optgroup>
+          <optgroup label="Autres">
+            <option value="Nexity">Nexity</option>
+            <option value="Foncia">Foncia</option>
+            <option value="Bouygues">Bouygues</option>
+            <option value="Bailleur social">Bailleur social</option>
+          </optgroup>
+        </select>
+        <div id="mandant-info" style="display:none;margin-top:8px;background:#f5f3ff;border:1px solid #7c3aed;border-radius:8px;padding:10px 12px;font-size:12px;color:#5b21b6;">
+          ⚠️ <strong>Intervention mandant</strong> — Le CA sera comptabilisé séparément. Le nom client que tu saisis est le bénéficiaire final, le mandant est le donneur d'ordre.
+        </div>
+      </div>
       <button class="btn btn-primary btn-full" onclick="creerRdv()">Creer le RDV et notifier le technicien</button>
     </div>
   </div>
@@ -1690,6 +1723,11 @@ function renderPlanningJour(){
   }).join("");
 }
 
+function toggleMandantInfo(val){
+  const d=document.getElementById("mandant-info");
+  if(d) d.style.display=val?"block":"none";
+}
+
 function creerRdv(){
   const prenom=(document.getElementById("rdv-prenom")?.value||"").trim();
   const nomF=document.getElementById("rdv-nom").value.trim();
@@ -1698,9 +1736,11 @@ function creerRdv(){
   const adresse=document.getElementById("rdv-adresse").value.trim();
   const prix=document.getElementById("rdv-prix").value;
   if(!nom||!tel||!adresse||!prix){showNotif("Remplis tous les champs obligatoires");return;}
-  const rdv={id:Date.now(),clientNom:nom,clientTel:tel,adresse,type:document.getElementById("rdv-type").value,dateRdv:document.getElementById("rdv-date").value,heureRdv:document.getElementById("rdv-heure").value,technicien:document.getElementById("rdv-tech").value,prixVente:Number(prix),statut:"Confirme",notes:document.getElementById("rdv-notes").value.trim(),zone:document.getElementById("rdv-zone").value,creePar:"patron",creeAt:new Date().toISOString()};
+  const rdv={id:Date.now(),clientNom:nom,clientTel:tel,adresse,type:document.getElementById("rdv-type").value,dateRdv:document.getElementById("rdv-date").value,heureRdv:document.getElementById("rdv-heure").value,technicien:document.getElementById("rdv-tech").value,prixVente:Number(prix),statut:"Confirme",notes:document.getElementById("rdv-notes").value.trim(),zone:document.getElementById("rdv-zone").value,mandant:document.getElementById("rdv-mandant")?.value||"",creePar:"patron",creeAt:new Date().toISOString()};
   const rdvs=getRdvs();rdvs.push(rdv);saveRdvs(rdvs);
   ["rdv-prenom","rdv-nom","rdv-tel","rdv-adresse","rdv-prix","rdv-notes"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
+  const msel=document.getElementById("rdv-mandant");if(msel)msel.value="";
+  const minfo=document.getElementById("mandant-info");if(minfo)minfo.style.display="none";
   document.getElementById("rdv-date").value=todayStr();
   showNotif(rdv.technicien==="À planifier"?"RDV créé — "+nom+" en attente d'assignation":"RDV cree pour "+nom+" — "+rdv.technicien+" notifie !");
   renderDisposDispatch();renderPlanningJour();renderAPlanifierPatron();
