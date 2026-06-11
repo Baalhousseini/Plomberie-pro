@@ -59,9 +59,15 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 .module-nav::-webkit-scrollbar{display:none;}
 .mnav-btn{flex-shrink:0;background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:7px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.18s;white-space:nowrap;}
 .mnav-btn.active,.mnav-btn:hover{background:#3a8c30;border-color:#3a8c30;color:#fff;}
-.nav{background:#fff;border-bottom:2px solid var(--border);display:flex;overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
-.nav button{flex:1;min-width:80px;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;padding:13px 8px;color:var(--muted);cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;transition:all 0.18s;font-family:'Inter',sans-serif;letter-spacing:0.2px;}
+.nav{background:#fff;border-bottom:2px solid var(--border);display:flex;overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,0.04);scrollbar-width:none;}
+.nav::-webkit-scrollbar{display:none;}
+.nav button{flex-shrink:0;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;padding:11px 16px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap;transition:all 0.18s;font-family:'Inter',sans-serif;}
 .nav button.active{color:var(--green);border-bottom-color:var(--green);}
+.nav-groups{background:var(--blue);display:flex;overflow-x:auto;padding:6px 12px;gap:6px;scrollbar-width:none;border-bottom:1px solid rgba(255,255,255,0.08);}
+.nav-groups::-webkit-scrollbar{display:none;}
+.ng-btn{flex-shrink:0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.65);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;transition:all 0.18s;}
+.ng-btn.active{background:#3a8c30;border-color:#3a8c30;color:#fff;}
+.ng-btn:hover{background:rgba(255,255,255,0.18);color:#fff;}
 .content{max-width:700px;margin:0 auto;padding:16px;}
 .card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow);}
 .card.g{border-left:4px solid var(--green);}
@@ -271,23 +277,19 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div id="urgence-bar" class="urgence-bar hidden">
     <div class="urgence-dot"></div>
     <span id="urgence-bar-text">⚡ URGENCE ACTIVE</span>
-    <button class="urgence-bar-btn" onclick="showPage('urgences',document.querySelectorAll('.nav-btn')[2])">Voir →</button>
+    <button class="urgence-bar-btn" onclick="showPage('urgences')">Voir →</button>
     <button class="urgence-bar-close" onclick="document.getElementById('urgence-bar').classList.add('hidden')">×</button>
   </div>
 
-  <div class="nav">
-    <button class="nav-btn active" onclick="showPage('dashboard',this)">📊 Tableau</button>
-    <button class="nav-btn" onclick="showPage('dispos',this)">👷 Équipe</button>
-    <button class="nav-btn" onclick="showPage('urgences',this)" id="nav-urgences">🚨 Urgences</button>
-    <button class="nav-btn" onclick="showPage('nouveau-rdv',this)">+ RDV</button>
-    <button class="nav-btn" onclick="showPage('tous-rdv',this)" id="nav-tous-rdv">📋 Tous RDV</button>
-    <button class="nav-btn" onclick="showPage('validation',this)">✅ Validation</button>
-    <button class="nav-btn" onclick="showPage('rapports',this)">📝 Rapports</button>
-    <button class="nav-btn" onclick="showPage('sav',this)">🔁 SAV</button>
-    <button class="nav-btn" id="nav-devis" onclick="showPage('devis',this)">💼 Devis</button>
-    <button class="nav-btn" onclick="showPage('appels',this)">📞 Appels</button>
-    <button class="nav-btn" onclick="showPage('procedures',this)">📌 Procédures</button>
+  <div class="nav-groups" id="nav-groups-d">
+    <button class="ng-btn active" id="ng-tableau" onclick="showPage('dashboard')">📊 Tableau</button>
+    <button class="ng-btn" id="ng-urgences" onclick="showPage('urgences')">🚨 Urgences</button>
+    <button class="ng-btn" data-group="rdv" onclick="showGroupD('rdv')">📅 Planning</button>
+    <button class="ng-btn" data-group="suivi" onclick="showGroupD('suivi')">📋 Suivi</button>
+    <button class="ng-btn" data-group="commercial" onclick="showGroupD('commercial')">💼 Commercial</button>
+    <button class="ng-btn" id="ng-procedures" onclick="showPage('procedures')">📌</button>
   </div>
+  <div class="nav" id="sub-nav-d"></div>
 
   <div class="content">
 
@@ -971,6 +973,8 @@ function lancerApp(){
   actualiserTout();
   renderDashboard();
   renderModuleNav();
+  document.getElementById('ng-tableau')?.classList.add('active');
+  document.getElementById('sub-nav-d').innerHTML='';
   demarrerHorloge();
   // Afficher le nom de l'opérateur dans le header
   if(currentOperateur){
@@ -1310,12 +1314,63 @@ function updateNavBadges(){
   if(btnR){btnR.textContent=aP>0?"Tous RDV (📋 "+aP+")":"Tous les RDV";btnR.style.color=aP>0?"#7c3aed":"";}
 }
 
-function showPage(page,btn){
+var NAV_GROUPS_D={
+  rdv:[
+    {p:'nouveau-rdv',label:'+ Nouveau RDV'},
+    {p:'tous-rdv',label:'📋 Tous RDV',id:'nav-tous-rdv'},
+    {p:'dispos',label:'👷 Équipe'},
+  ],
+  suivi:[
+    {p:'validation',label:'✅ Validation'},
+    {p:'rapports',label:'📝 Rapports'},
+    {p:'sav',label:'🔁 SAV'},
+  ],
+  commercial:[
+    {p:'devis',label:'💼 Devis',id:'nav-devis'},
+    {p:'appels',label:'📞 Appels'},
+  ],
+};
+var _dpPage='dashboard',_dpGroup=null;
+function getPageGroupD(p){for(var g in NAV_GROUPS_D){if(NAV_GROUPS_D[g].some(function(i){return i.p===p;}))return g;}return null;}
+function showGroupD(g){
+  _dpGroup=g;
+  document.querySelectorAll('#nav-groups-d .ng-btn').forEach(function(b){b.classList.remove('active');});
+  var gb=document.querySelector('#nav-groups-d [data-group="'+g+'"]');
+  if(gb)gb.classList.add('active');
+  var nav=document.getElementById('sub-nav-d');
+  var items=NAV_GROUPS_D[g]||[];
+  nav.innerHTML=items.map(function(item){
+    var active=item.p===_dpPage?' active':'';
+    var id=item.id?' id="'+item.id+'"':'';
+    return'<button class="'+active+'" onclick="showPage(\''+item.p+'\')"'+id+'>'+item.label+'</button>';
+  }).join('');
+  if(!items.some(function(i){return i.p===_dpPage;})&&items.length)showPage(items[0].p);
+}
+function showPage(page){
   var pages=["dashboard","dispos","urgences","nouveau-rdv","tous-rdv","validation","rapports","sav","devis","facturation","procedures","infos","clients","appels","stock","compta"];
-  for(var i=0;i<pages.length;i++) document.getElementById("page-"+pages[i]).classList.add("hidden");
-  document.getElementById("page-"+page).classList.remove("hidden");
-  document.querySelectorAll(".nav-btn").forEach(function(b){b.classList.remove("active");});
-  if(btn) btn.classList.add("active");
+  for(var i=0;i<pages.length;i++){var el=document.getElementById("page-"+pages[i]);if(el)el.classList.add("hidden");}
+  var pageEl=document.getElementById("page-"+page);if(pageEl)pageEl.classList.remove("hidden");
+  _dpPage=page;
+  var g=getPageGroupD(page);
+  var allNg=document.querySelectorAll('#nav-groups-d .ng-btn');
+  allNg.forEach(function(b){b.classList.remove('active');});
+  if(g){
+    _dpGroup=g;
+    var gb=document.querySelector('#nav-groups-d [data-group="'+g+'"]');
+    if(gb)gb.classList.add('active');
+    var nav=document.getElementById('sub-nav-d');
+    var items=NAV_GROUPS_D[g]||[];
+    nav.innerHTML=items.map(function(item){
+      var active=item.p===page?' active':'';
+      var id=item.id?' id="'+item.id+'"':'';
+      return'<button class="'+active+'" onclick="showPage(\''+item.p+'\')"'+id+'>'+item.label+'</button>';
+    }).join('');
+  } else {
+    document.getElementById('sub-nav-d').innerHTML='';
+    if(page==='dashboard')document.getElementById('ng-tableau')?.classList.add('active');
+    if(page==='urgences')document.getElementById('ng-urgences')?.classList.add('active');
+    if(page==='procedures')document.getElementById('ng-procedures')?.classList.add('active');
+  }
   if(page==="dashboard")renderDashboard();
   if(page==="dispos"){actualiserDispos();renderPlanningJour();initDispatchCarte();}
   if(page==="urgences")renderUrgences();
@@ -1690,7 +1745,7 @@ function creerRdvDepuisClient(){
   if(!_crmClientCourant)return;
   fermerModalCrm();
   var c=_crmClientCourant;
-  showPage('nouveau-rdv',null);
+  showPage('nouveau-rdv');
   setTimeout(function(){
     var p=c.nom.split(' ');
     var prenomEl=document.getElementById('rdv-prenom');
@@ -1935,7 +1990,7 @@ async function autoAssignTech(){
 }
 
 // Alias for convenience
-function showPageDispatch(page){showPage(page,null);}
+function showPageDispatch(page){showPage(page);}
 
 function getHeureNow(){var n=new Date();return ("0"+n.getHours()).slice(-2)+":"+("0"+n.getMinutes()).slice(-2);}
 
@@ -1963,7 +2018,7 @@ function actualiserDispos(){
     html+="<div style=\"display:flex;align-items:center;margin-top:2px;\"><span style=\"width:8px;height:8px;border-radius:50%;background:"+color+";display:inline-block;margin-right:5px;\"></span><span style=\"color:"+color+";font-weight:700;font-size:12px;\">" +d.statut+"</span></div>";
     if(ago!==null) html+="<div style=\"color:#94a3b8;font-size:10px;\">" +(ago<1?"maintenant":ago+"min")+" </div>";
     html+="</div></div>";
-    html+="<button class=\"btn btn-primary\" style=\"font-size:11px;padding:7px 12px;\" onclick=\"showPage('nouveau-rdv',null);document.getElementById('rdv-tech').value='"+nom+"'\" >+ RDV</button>";
+    html+="<button class=\"btn btn-primary\" style=\"font-size:11px;padding:7px 12px;\" onclick=\"showPage('nouveau-rdv');document.getElementById('rdv-tech').value='"+nom+"'\" >+ RDV</button>";
     html+="</div>";
     if(rdvsAuj.length>0){
       html+="<div style=\"background:#f8fafc;border-radius:10px;padding:10px 12px;border:1px solid #e2e8f0;\">";
@@ -2362,7 +2417,7 @@ function sauvegarderDevisPro(){
 }
 function convertirDevisEnRdv(idx){
   var devis=getDevis();var d=devis[idx];if(!d)return;
-  showPage('nouveau-rdv',null);
+  showPage('nouveau-rdv');
   setTimeout(function(){
     var set=function(id,v){var e=document.getElementById(id);if(e)e.value=v;};
     var parts=d.clientNom.split(' ');
@@ -2486,9 +2541,9 @@ return '<div style="display:flex;justify-content:space-between;align-items:cente
 
 // A traiter
 var todo=[];
-if(devis.length>0) todo.push([devis.length+" demande(s) de devis","#1d4ed8","showPage('devis',document.querySelectorAll('.nav-btn')[7])"]);
-if(savs.length>0) todo.push([savs.length+" dossier(s) SAV ouvert(s)","#1d4ed8","showPage('sav',document.querySelectorAll('.nav-btn')[6])"]);
-if(aValider.length>0) todo.push([aValider.length+" rapport(s) a valider","#a16207","showPage('validation',document.querySelectorAll('.nav-btn')[4])"]);
+if(devis.length>0) todo.push([devis.length+" demande(s) de devis","#1d4ed8","showPage('devis')"]);
+if(savs.length>0) todo.push([savs.length+" dossier(s) SAV ouvert(s)","#1d4ed8","showPage('sav')"]);
+if(aValider.length>0) todo.push([aValider.length+" rapport(s) a valider","#a16207","showPage('validation')"]);
 if(todo.length===0){
 document.getElementById("dash-todo").innerHTML='<div style="color:#94a3b8;font-size:13px;padding:8px 0;text-align:center;">Rien a traiter, tout est a jour !</div>';
 } else {
