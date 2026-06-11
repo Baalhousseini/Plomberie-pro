@@ -68,6 +68,12 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 .app-sw-item:hover{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;}
 .app-sw-item.active{background:#dcfce7;border-color:#86efac;color:#166534;}
 .app-sw-icon{font-size:22px;line-height:1;}
+.ct-fcard{flex:1;border:2px solid #e2e8f0;border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;transition:all 0.18s;position:relative;background:#f8fafc;}
+.ct-fcard.ct-fcard-sel{border-color:#3a8c30;background:#f0fdf4;}
+.ct-fcard-title{font-size:11px;font-weight:800;color:#0d2d52;letter-spacing:0.5px;}
+.ct-fcard-price{font-size:17px;font-weight:800;color:#3a8c30;margin:4px 0;}
+.ct-fcard-sub{font-size:9px;color:#64748b;line-height:1.3;}
+.ct-fcard-badge{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#3a8c30;color:#fff;font-size:8px;font-weight:700;padding:2px 7px;border-radius:10px;white-space:nowrap;letter-spacing:0.3px;}
 .nav{background:#fff;border-bottom:2px solid var(--border);display:flex;overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,0.04);scrollbar-width:none;}
 .nav::-webkit-scrollbar{display:none;}
 .nav button{flex-shrink:0;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;padding:11px 16px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap;transition:all 0.18s;font-family:'Inter',sans-serif;}
@@ -625,48 +631,60 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   </div>
   <div id="contrats-kpi" class="g3" style="margin-bottom:14px;"></div>
   <div id="form-contrat" class="hidden">
-    <div class="card green" style="margin-bottom:12px;">
-      <div class="lbl" style="color:var(--green);">CRÉER UN CONTRAT</div>
-      <div class="grid-2">
-        <div class="form-field"><label>NOM CLIENT</label><input type="text" class="form-input" id="ct-client" placeholder="Jean Dupont"></div>
-        <div class="form-field"><label>TÉLÉPHONE</label><input type="tel" class="form-input" id="ct-tel" placeholder="06 XX XX XX XX"></div>
+    <div class="card" style="margin-bottom:12px;border-top:3px solid var(--green);">
+      <div class="lbl" style="color:var(--green);">NOUVEAU CONTRAT D'ENTRETIEN</div>
+      <div class="g2">
+        <div><input type="text" class="fi" id="ct-client" placeholder="Nom du client"></div>
+        <div><input type="tel" class="fi" id="ct-tel" placeholder="Téléphone"></div>
       </div>
-      <div class="form-field"><label>ADRESSE</label><input type="text" class="form-input" id="ct-adresse" placeholder="12 rue des Fleurs, Saintes"></div>
-      <div class="grid-2">
-        <div class="form-field"><label>TYPE DE CONTRAT</label>
-          <select class="form-select" id="ct-type">
-            <option>Entretien chaudière</option>
-            <option>Contrat plomberie complète</option>
-            <option>Entretien VMC</option>
-            <option>Pack sécurité eau</option>
-            <option>Contrat multiservices</option>
-          </select>
+      <input type="text" class="fi" id="ct-adresse" placeholder="Adresse d'intervention">
+      <div class="lbl" style="margin-top:4px;">ÉQUIPEMENT</div>
+      <select class="fi" id="ct-equip" onchange="calcPrixContrat()">
+        <option value="">— Choisir l'équipement —</option>
+        <option value="Chaudière">🔥 Chaudière (gaz / fioul / condensation) </option>
+        <option value="Pompe à chaleur">♨️ Pompe à chaleur (PAC air/eau)</option>
+        <option value="Climatisation">❄️ Climatisation (PAC air/air)</option>
+        <option value="Ballon thermodynamique">💧 Ballon thermodynamique</option>
+        <option value="Adoucisseur d'eau">🚰 Adoucisseur d'eau</option>
+      </select>
+      <div class="lbl" style="margin-top:4px;">FORMULE</div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <div class="ct-fcard" id="ctf-Essentiel" onclick="selectFormule('Essentiel')">
+          <div class="ct-fcard-title">ESSENTIEL</div>
+          <div class="ct-fcard-price" id="ctfp-Essentiel">149€/an</div>
+          <div class="ct-fcard-sub">Entretien annuel</div>
         </div>
-        <div class="form-field"><label>TECHNICIEN ATTITRÉ</label>
-          <select class="form-select" id="ct-tech">
-            <option>Technicien 1</option><option>Technicien 2</option>
-          </select>
+        <div class="ct-fcard ct-fcard-sel" id="ctf-Confort" onclick="selectFormule('Confort')">
+          <div class="ct-fcard-badge">Le + choisi</div>
+          <div class="ct-fcard-title">CONFORT</div>
+          <div class="ct-fcard-price" id="ctfp-Confort">199€/an</div>
+          <div class="ct-fcard-sub">+ priorité panne</div>
+        </div>
+        <div class="ct-fcard" id="ctf-Premium" onclick="selectFormule('Premium')">
+          <div class="ct-fcard-title">PREMIUM ⭐</div>
+          <div class="ct-fcard-price" id="ctfp-Premium">279€/an</div>
+          <div class="ct-fcard-sub">+ remise pièces</div>
         </div>
       </div>
-      <div class="grid-2">
-        <div class="form-field"><label>FRÉQUENCE</label>
-          <select class="form-select" id="ct-freq">
-            <option value="mensuel">Mensuel</option>
-            <option value="trimestriel">Trimestriel</option>
-            <option value="annuel" selected>Annuel</option>
-          </select>
+      <input type="hidden" id="ct-formule" value="Confort">
+      <input type="hidden" id="ct-montant">
+      <div class="g2">
+        <div>
+          <div class="lbl" style="font-size:9px;">TECHNICIEN ATTITRÉ</div>
+          <select class="fi" id="ct-tech"><option>Technicien 1</option><option>Technicien 2</option></select>
         </div>
-        <div class="form-field"><label>MONTANT (€/an)</label>
-          <input type="number" class="form-input" id="ct-montant" placeholder="199" min="0">
+        <div>
+          <div class="lbl" style="font-size:9px;">DATE DÉBUT</div>
+          <input type="date" class="fi" id="ct-debut">
         </div>
       </div>
-      <div class="grid-2">
-        <div class="form-field"><label>DATE DÉBUT</label><input type="date" class="form-input" id="ct-debut"></div>
-        <div class="form-field"><label>DATE PROCHAINE VISITE</label><input type="date" class="form-input" id="ct-prochaine"></div>
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:11px;color:#15803d;font-weight:600;">Montant annuel TTC</div>
+        <div style="font-size:20px;font-weight:800;color:#15803d;" id="ct-prix-display">—</div>
       </div>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-gray" onclick="toggleFormContrat()">Annuler</button>
-        <button class="btn btn-g" style="flex:1;" onclick="sauvegarderContrat()">Créer le contrat</button>
+        <button class="btn btn-g" style="flex:1;" onclick="sauvegarderContrat()">✅ Créer le contrat</button>
       </div>
     </div>
   </div>
@@ -2284,19 +2302,52 @@ function toggleFormContrat(){
   if(!f.classList.contains('hidden')){
     var today=todayStr();
     document.getElementById('ct-debut').value=today;
-    var proch=new Date();proch.setFullYear(proch.getFullYear()+1);
-    document.getElementById('ct-prochaine').value=proch.toISOString().slice(0,10);
   }
+}
+var PRIX_CONTRATS={
+  'Chaudière':{Essentiel:149,Confort:199,Premium:279},
+  'Pompe à chaleur':{Essentiel:189,Confort:249,Premium:329},
+  'Climatisation':{Essentiel:139,Confort:199,Premium:269},
+  'Ballon thermodynamique':{Essentiel:129,Confort:179,Premium:249},
+  "Adoucisseur d'eau":{Essentiel:119,Confort:169,Premium:219},
+};
+function calcPrixContrat(){
+  var equip=document.getElementById('ct-equip').value;
+  var formule=document.getElementById('ct-formule').value||'Confort';
+  ['Essentiel','Confort','Premium'].forEach(function(f){
+    var prices=PRIX_CONTRATS[equip]||{};
+    var el=document.getElementById('ctfp-'+f);
+    if(el)el.textContent=prices[f]?prices[f]+'€/an':'—';
+  });
+  var prix=(PRIX_CONTRATS[equip]||{})[formule]||null;
+  var disp=document.getElementById('ct-prix-display');
+  if(disp)disp.textContent=prix?prix+'€/an':'—';
+  var inp=document.getElementById('ct-montant');
+  if(inp)inp.value=prix||'';
+}
+function selectFormule(f){
+  var inp=document.getElementById('ct-formule');if(inp)inp.value=f;
+  ['Essentiel','Confort','Premium'].forEach(function(x){
+    var card=document.getElementById('ctf-'+x);
+    if(card)card.classList.toggle('ct-fcard-sel',x===f);
+  });
+  calcPrixContrat();
 }
 function sauvegarderContrat(){
   var client=document.getElementById('ct-client').value.trim();
-  var montant=Number(document.getElementById('ct-montant').value||0);
-  if(!client||!montant){showNotif('Client et montant requis');return;}
+  var equip=document.getElementById('ct-equip').value;
+  var formule=document.getElementById('ct-formule').value||'Confort';
+  if(!client||!equip){showNotif('Client et équipement requis');return;}
+  var montant=(PRIX_CONTRATS[equip]||{})[formule]||0;
+  if(!montant){showNotif('Sélectionne un équipement');return;}
+  var debut=document.getElementById('ct-debut').value||new Date().toISOString().slice(0,10);
+  var proch=new Date(debut);proch.setFullYear(proch.getFullYear()+1);
   var c=getContrats();
-  c.unshift({id:Date.now(),client:client,tel:document.getElementById('ct-tel').value.trim(),adresse:document.getElementById('ct-adresse').value.trim(),type:document.getElementById('ct-type').value,tech:document.getElementById('ct-tech').value,freq:document.getElementById('ct-freq').value,montant:montant,debut:document.getElementById('ct-debut').value,prochaine:document.getElementById('ct-prochaine').value,statut:'Actif',creeAt:new Date().toISOString()});
+  c.unshift({id:Date.now(),client:client,tel:document.getElementById('ct-tel').value.trim(),adresse:document.getElementById('ct-adresse').value.trim(),equipement:equip,formule:formule,type:formule+' — '+equip,tech:document.getElementById('ct-tech').value,freq:'annuel',montant:montant,debut:debut,prochaine:proch.toISOString().slice(0,10),statut:'Actif',creeAt:new Date().toISOString()});
   saveContrats(c);
   document.getElementById('form-contrat').classList.add('hidden');
-  renderContrats();showNotif('Contrat créé pour '+client+' — '+montant+'€/an');
+  renderContrats();
+  showNotif('Contrat '+formule+' créé pour '+client+' — '+montant+'€/an');
 }
 function resilierContrat(id){
   var c=getContrats();var idx=c.findIndex(function(x){return x.id===id;});
@@ -2323,7 +2374,8 @@ function renderContrats(){
     return'<div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid '+(isActif?urgent?'#f97316':'#16a34a':'#94a3b8')+';border-radius:14px;padding:14px 16px;margin-bottom:10px;">'
     +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">'
     +'<div><div style="font-weight:700;font-size:14px;">'+c.client+'</div>'
-    +'<div style="color:#64748b;font-size:12px;">'+c.type+' · '+c.tech+'</div>'
+    +(c.formule?'<span style="display:inline-block;background:'+(c.formule==='Premium'?'#fefce8':c.formule==='Confort'?'#eff6ff':'#f0fdf4')+';color:'+(c.formule==='Premium'?'#92400e':c.formule==='Confort'?'#1d4ed8':'#166534')+';font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px;margin-right:4px;">'+c.formule+'</span>':'')+
+    '<div style="color:#64748b;font-size:12px;">'+(c.equipement||c.type)+' · '+c.tech+'</div>'
     +(c.tel?'<a href="tel:'+c.tel+'" style="color:#2563eb;font-size:12px;">'+c.tel+'</a>':'')+'</div>'
     +'<div style="text-align:right;"><div style="color:#16a34a;font-weight:900;font-size:16px;">'+c.montant.toLocaleString('fr-FR')+'€/an</div>'
     +'<div style="font-size:10px;color:#94a3b8;">'+c.freq+'</div>'

@@ -76,6 +76,12 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 .app-sw-item:hover{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;}
 .app-sw-item.active{background:#dcfce7;border-color:#86efac;color:#166534;}
 .app-sw-icon{font-size:22px;line-height:1;}
+.ct-fcard{flex:1;border:2px solid #e2e8f0;border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;transition:all 0.18s;position:relative;background:#f8fafc;}
+.ct-fcard.ct-fcard-sel{border-color:var(--green);background:#f0fdf4;}
+.ct-fcard-title{font-size:11px;font-weight:800;color:var(--blue);letter-spacing:0.5px;}
+.ct-fcard-price{font-size:17px;font-weight:800;color:var(--green);margin:4px 0;}
+.ct-fcard-sub{font-size:9px;color:#64748b;line-height:1.3;}
+.ct-fcard-badge{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-size:8px;font-weight:700;padding:2px 7px;border-radius:10px;white-space:nowrap;}
 
 /* ── INNER NAV TABS ── */
 .nav{background:#fff;border-bottom:2px solid var(--border);display:flex;overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
@@ -461,6 +467,7 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
     <button onclick="showPage('semaine')">Semaine</button>
     <button onclick="showPage('perf')">Performances</button>
     <button onclick="showPage('historique')">Historique</button>
+    <button onclick="showPage('contrats')">📋 Contrats</button>
   </div>
 
   <div class="content">
