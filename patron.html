@@ -1213,7 +1213,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 <script>
 // CONFIG
 const USERS={patron:{pin:"2580"},dispatch:{pin:"1470"}};
-const TECH_C={"Technicien 1":{color:"#2d6a9f",avatar:"T1"},"Technicien 2":{color:"#4a9c3f",avatar:"T2"}};
+const TECH_C={"Technicien 1":{c:"#2d6a9f",a:"T1",bg:"#dbeafe",color:"#2d6a9f",avatar:"T1"},"Technicien 2":{c:"#4a9c3f",a:"T2",bg:"#dcfce7",color:"#4a9c3f",avatar:"T2"}};
 const STATUT_C={"Disponible":"#4a9c3f","En intervention":"#f97316","Pause":"#eab308","Indisponible":"#ef4444"};
 const SOURCES=["Bouche a oreille","Google","Leboncoin","Recommandation","Reseaux sociaux","Autre"];
 const todayStr=()=>new Date().toISOString().split("T")[0];
@@ -1479,7 +1479,7 @@ function renderDashboard(){
 <div class="sc" style="border-left:4px solid var(--green)"><div class="lbl">CA DU JOUR</div><div class="sv" style="color:var(--green)">${caAuj.toLocaleString('fr-FR')} €</div></div>
 <div class="sc" style="border-left:4px solid #1d4ed8"><div class="lbl">RDV AUJOURD'HUI</div><div class="sv" style="color:#1d4ed8">${rdvsAuj.length}</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">${rdvsTermines} terminés · ${tauxConv}% conv.</div></div>
 <div class="sc" style="border-left:4px solid ${urgActives>0?'#dc2626':'#16a34a'}"><div class="lbl">URGENCES</div><div class="sv" style="color:${urgActives>0?'#dc2626':'#16a34a'}">${urgActives}</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">${urgActives>0?'actives':'Aucune active'}</div></div>
-<div class="sc" style="border-left:4px solid #7c3aed"><div class="lbl">TECHS DISPOS</div><div class="sv" style="color:#7c3aed">${techDispos}/2</div></div>`;
+<div class="sc" style="border-left:4px solid #7c3aed"><div class="lbl">TECHS DISPOS</div><div class="sv" style="color:#7c3aed">${techDispos}/${Object.keys(TECH_C).length}</div></div>`;
   // Header CA avec progression objectif jour
   const objAnnuel=parseInt(localStorage.getItem('pl_objectif')||'1000000');
   const objJour=Math.round(objAnnuel/365);

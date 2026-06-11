@@ -959,7 +959,7 @@ function lancerApp(){
     }
     if(e.key==='pl_urgences'&&currentUser){
       const urgs=JSON.parse(e.newValue||'[]');
-      const recentes=urgs.filter(u=>u.technicien===currentUser&&u.statut==='Active'&&(Date.now()-u.id)<120000);
+      const recentes=urgs.filter(u=>u.technicien===currentUser.nom&&u.statut==='Active'&&(Date.now()-u.id)<120000);
       if(recentes.length){
         showNotif('🚨 URGENCE ASSIGNÉE : '+recentes[0].clientNom+' — '+recentes[0].type);
         renderRdv();
@@ -974,7 +974,7 @@ function lancerApp(){
       const positions=JSON.parse(localStorage.getItem('pl_positions')||'{}');
       const dispos=JSON.parse(localStorage.getItem('pl_dispos')||'{}');
       const statut=(dispos[currentUser]||{}).statut||'Disponible';
-      positions[currentUser]={lat:pos.coords.latitude,lng:pos.coords.longitude,statut,updatedAt:new Date().toISOString(),precision:Math.round(pos.coords.accuracy)};
+      positions[currentUser.nom]={lat:pos.coords.latitude,lng:pos.coords.longitude,statut,updatedAt:new Date().toISOString(),precision:Math.round(pos.coords.accuracy)};
       const v=JSON.stringify(positions);
       localStorage.setItem('pl_positions',v);
       if(window.gfSync)gfSync('pl_positions',v);
@@ -1446,6 +1446,7 @@ function soumettre(){
       satisfaction,retourRequis,
       checklistScore:checksDone+"/6",
       modeEncaissement:(document.getElementById('enc-mode')||{}).value||'',
+      mandant:currentRdv.mandant||'',canal:currentRdv.canal||'Terrain',
       signature:getSignatureData(),
       soumisLe:new Date().toISOString(),statut:"En attente facturation"
     };

@@ -394,6 +394,7 @@ const sAlertes=v=>localStorage.setItem("pl_alertes",JSON.stringify(v));
 const moisStr=()=>new Date().toISOString().slice(0,7);
 const fmt=n=>Number(n).toLocaleString("fr-FR");
 const el=id=>document.getElementById(id);
+const getTechNoms=()=>{try{const e=JSON.parse(localStorage.getItem('pl_fiches_emp')||'[]');if(e.length)return e.map(t=>t.nom).filter(Boolean);}catch(err){}return['Technicien 1','Technicien 2'];};
 
 // AUTH
 document.querySelectorAll(".pin-input").forEach((e,i,arr)=>{
@@ -492,13 +493,13 @@ function renderRH(){
   const sal=Number(el("rh-salaire")?.value||2500);
   const heu=Number(el("rh-heures")?.value||151);
   const cH=Math.round(sal*1.45/heu);
-  el("rh-cout").innerHTML=["Technicien 1","Technicien 2"].map(nom=>{
+  el("rh-cout").innerHTML=getTechNoms().map(nom=>{
     const mes=raps.filter(r=>r.technicien===nom&&r.date?.startsWith(mois));
     const ca=mes.reduce((s,r)=>s+(r.montantFinal||0),0);
     const rent=Math.round(ca/(sal*1.45)*100);
     return`<div class="tr"><div><div style="font-weight:700;">${nom}</div><div style="color:var(--tl);font-size:12px;">CA: ${fmt(ca)} EUR</div></div><div style="text-align:right;"><div style="color:var(--green);font-weight:800;font-size:16px;">${cH} EUR/h</div><span class="bdg ${rent>=150?"bdg-g":rent>=100?"bdg-y":"bdg-r"}">${rent}% rentable</span></div></div>`;
   }).join("");
-  el("rh-prod").innerHTML=["Technicien 1","Technicien 2"].map(nom=>{
+  el("rh-prod").innerHTML=getTechNoms().map(nom=>{
     const mes=raps.filter(r=>r.technicien===nom&&r.heureDebut&&r.heureFin);
     if(!mes.length)return`<div class="tr"><span>${nom}</span><span style="color:var(--tl);">Pas de donnee</span></div>`;
     const durees=mes.map(r=>{const[dh,dm]=r.heureDebut.split(":").map(Number),[fh,fm]=r.heureFin.split(":").map(Number);return(fh*60+fm)-(dh*60+dm);}).filter(d=>d>0);
@@ -508,7 +509,7 @@ function renderRH(){
   const conges=CONGES();
   const jours=conges.reduce((s,c)=>s+Math.max(0,Math.ceil((new Date(c.fin)-new Date(c.debut))/86400000)+1),0);
   el("rh-abs").innerHTML=`<div class="g3"><div class="sc"><div class="lbl">JOURS ABS.</div><div class="sv" style="color:var(--ora);">${jours}</div></div><div class="sc"><div class="lbl">TAUX</div><div class="sv" style="color:var(--ora);">${Math.round(jours/22*100)}%</div></div><div class="sc"><div class="lbl">CONGES</div><div class="sv" style="color:var(--accent);">${conges.length}</div></div></div>`;
-  el("rh-eval").innerHTML=["Technicien 1","Technicien 2"].map(nom=>{
+  el("rh-eval").innerHTML=getTechNoms().map(nom=>{
     const mes=raps.filter(r=>r.technicien===nom&&r.date?.startsWith(mois));
     const ca=mes.reduce((s,r)=>s+(r.montantFinal||0),0);
     const ventes=mes.reduce((s,r)=>s+(r.ventes?.length||0),0);
@@ -527,7 +528,7 @@ function renderCommercial(){
   const caE=pipe.filter(p=>p.statut!=="Perdu").reduce((s,p)=>s+Math.round((p.montant||0)*p.proba/100),0);
   el("com-pipeline").innerHTML=`<div style="background:#f0f9f0;border-radius:10px;padding:12px;margin-bottom:12px;display:flex;justify-content:space-between;"><span style="color:var(--green);font-size:12px;font-weight:600;">CA pipeline estime</span><span style="color:var(--green);font-weight:800;font-size:18px;">${fmt(caE)} EUR</span></div>${pipe.length?pipe.map((p,i)=>`<div style="background:#f8fafc;border-radius:10px;padding:12px;margin-bottom:8px;border-left:3px solid ${p.proba>=75?"#4a9c3f":p.proba>=50?"#2d6a9f":"#f97316"};"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><div><div style="font-weight:700;font-size:13px;">${p.client}</div><div style="color:var(--tl);font-size:12px;">${p.type}</div></div><div style="text-align:right;"><div style="color:var(--green);font-weight:800;">${fmt(p.montant)} EUR</div><span class="bdg ${p.proba>=75?"bdg-g":p.proba>=50?"bdg-b":"bdg-o"}">${p.proba}%</span></div></div><div style="display:flex;gap:6px;"><button class="btn btn-g" style="padding:5px 10px;font-size:11px;" onclick="majPipe(${i},'Gagne')">Gagne</button><button class="btn btn-gray" style="padding:5px 10px;font-size:11px;" onclick="majPipe(${i},'Perdu')">Perdu</button><button class="btn btn-gray" style="padding:5px 10px;font-size:11px;" onclick="delPipe(${i})">Suppr.</button></div></div>`).join(""):`<div class="empty">Aucune opportunite</div>`}`;
   const pM=raps.length?Math.round(raps.reduce((s,r)=>s+(r.montantFinal||0),0)/raps.length):0;
-  el("com-panier").innerHTML=`<div style="text-align:center;padding:16px 0;"><div style="color:var(--green);font-weight:800;font-size:32px;">${fmt(pM)} EUR</div><div style="color:var(--tl);font-size:12px;">panier moyen global</div></div>${["Technicien 1","Technicien 2"].map(nom=>{const mes=raps.filter(r=>r.technicien===nom);const p=mes.length?Math.round(mes.reduce((s,r)=>s+(r.montantFinal||0),0)/mes.length):0;return`<div class="tr"><span style="font-weight:600;">${nom}</span><div><span style="color:var(--green);font-weight:700;">${fmt(p)} EUR</span><span style="color:var(--tl);font-size:11px;margin-left:8px;">${mes.length} interv.</span></div></div>`;}).join("")}`;
+  el("com-panier").innerHTML=`<div style="text-align:center;padding:16px 0;"><div style="color:var(--green);font-weight:800;font-size:32px;">${fmt(pM)} EUR</div><div style="color:var(--tl);font-size:12px;">panier moyen global</div></div>${getTechNoms().map(nom=>{const mes=raps.filter(r=>r.technicien===nom);const p=mes.length?Math.round(mes.reduce((s,r)=>s+(r.montantFinal||0),0)/mes.length):0;return`<div class="tr"><span style="font-weight:600;">${nom}</span><div><span style="color:var(--green);font-weight:700;">${fmt(p)} EUR</span><span style="color:var(--tl);font-size:11px;margin-left:8px;">${mes.length} interv.</span></div></div>`;}).join("")}`;
   const parM={};raps.forEach(r=>{const m=r.date?.slice(5,7);if(m){if(!parM[m])parM[m]={ca:0,n:0};parM[m].ca+=r.montantFinal||0;parM[m].n++;}});
   const noms=["","Jan","Fev","Mar","Avr","Mai","Jun","Jul","Aou","Sep","Oct","Nov","Dec"];
   const maxS=Math.max(...Object.values(parM).map(m=>m.ca),1);
