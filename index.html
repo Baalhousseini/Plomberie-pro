@@ -1729,6 +1729,16 @@ function sauvegarderContratTech(){
   var arr=getContratsTech();
   arr.unshift({id:Date.now(),client:client,tel:document.getElementById('tct-tel').value.trim(),adresse:document.getElementById('tct-adresse').value.trim(),equipement:equip,formule:formule,type:formule+' — '+equip,tech:techNom,freq:'annuel',montant:montant,debut:debut,prochaine:proch.toISOString().slice(0,10),statut:'Actif',creeAt:new Date().toISOString()});
   saveContratsTech(arr);
+  // Créer RDV entretien annuel automatique
+  (function(){
+    var rdvs=JSON.parse(localStorage.getItem('pl_rdvs')||'[]');
+    var proch=arr[0].prochaine;
+    var deja=rdvs.find(function(r){return r.clientNom===arr[0].client&&r.dateRdv===proch&&r.type&&r.type.indexOf('Entretien')>=0;});
+    if(!deja){
+      rdvs.push({id:Date.now()+1,clientNom:arr[0].client,clientTel:arr[0].tel,adresse:arr[0].adresse,type:'Entretien '+arr[0].equipement+' (Contrat '+arr[0].formule+')',dateRdv:proch,heureRdv:'09:00',technicien:arr[0].tech||'',prix:0,statut:'À planifier',notes:'RDV annuel automatique — contrat '+arr[0].formule,contratId:arr[0].id,creeAt:new Date().toISOString()});
+      var v=JSON.stringify(rdvs);localStorage.setItem('pl_rdvs',v);if(window.gfSync)gfSync('pl_rdvs',v);
+    }
+  })();
   ['tct-client','tct-tel','tct-adresse'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('tct-equip').value='';
   document.getElementById('tct-formule').value='Confort';
