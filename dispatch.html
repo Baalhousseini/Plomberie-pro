@@ -2795,7 +2795,7 @@ if(s){
 
 // Mise à jour temps réel quand Firebase pousse des données
 window.addEventListener('storage',function(e){
-  if(!['pl_rdvs','pl_urgences','pl_rapports','pl_dispos'].includes(e.key))return;
+  if(!['pl_rdvs','pl_urgences','pl_rapports','pl_dispos','pl_positions','pl_contrats','pl_passation'].includes(e.key))return;
   if(document.getElementById("app")&&!document.getElementById("app").classList.contains("hidden")){
     actualiserTout();
   }

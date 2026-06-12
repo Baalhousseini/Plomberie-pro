@@ -1024,7 +1024,7 @@ function lancerApp(){
     }
     if(e.key==='pl_chat')pollChat();
   });
-  // GPS tracking — partage position toutes les 60 secondes
+  // GPS tracking — partage position toutes les 30 secondes
   function partagerPosition(){
     if(!currentUser||!navigator.geolocation)return;
     navigator.geolocation.getCurrentPosition(pos=>{
@@ -1036,10 +1036,10 @@ function lancerApp(){
       localStorage.setItem('pl_positions',v);
       if(window.gfSync)gfSync('pl_positions',v);
     },err=>{},
-    {enableHighAccuracy:true,timeout:10000,maximumAge:30000});
+    {enableHighAccuracy:true,timeout:10000,maximumAge:15000});
   }
   partagerPosition();
-  setInterval(partagerPosition,60000);
+  setInterval(partagerPosition,30000);
 }
 
 function logout(){
