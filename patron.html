@@ -232,6 +232,12 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 .photo-fs{position:fixed;inset:0;background:rgba(0,0,0,0.93);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;}
 .photo-fs img{max-width:95vw;max-height:80vh;border-radius:12px;object-fit:contain;}
 .photo-fs-close{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:9px 24px;font-size:13px;font-weight:700;cursor:pointer;margin-top:16px;font-family:'Inter',sans-serif;}
+.gantt-row{display:flex;align-items:stretch;margin-bottom:4px;min-height:44px;}
+.gantt-label{width:60px;flex-shrink:0;display:flex;align-items:center;font-size:11px;font-weight:700;color:#0d2d52;padding-right:8px;}
+.gantt-track{flex:1;position:relative;background:#f1f5f9;border-radius:8px;overflow:hidden;}
+.gantt-slot{position:absolute;top:4px;bottom:4px;border-radius:6px;display:flex;align-items:center;padding:0 6px;font-size:9px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+.gantt-hour{position:absolute;top:0;bottom:0;border-left:1px solid #e2e8f0;display:flex;align-items:flex-end;padding-bottom:2px;}
+.gantt-hour-lbl{font-size:8px;color:#94a3b8;padding-left:2px;}
 </style>
 <link href='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css' rel='stylesheet' />
 <script src='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js'></script>
@@ -389,6 +395,13 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div class="card b" id="suivi-live-card" style="margin-bottom:12px;">
     <div class="lbl">SUIVI LIVE — TECHNICIENS</div>
     <div id="suivi-live"></div>
+  </div>
+  <div class="card" style="border-left:4px solid #16a34a;margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div class="lbl" style="margin-bottom:0;color:#16a34a;">BILAN DU JOUR</div>
+      <button class="btn btn-gray" style="font-size:10px;padding:5px 10px;" onclick="copierRapportJour()">📋 Copier</button>
+    </div>
+    <div id="rapport-jour"></div>
   </div>
   <div class="card">
     <div class="lbl">CA PAR TYPE D'INTERVENTION</div>
@@ -621,6 +634,35 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   </div>
   <div id="agenda-stats" class="g3" style="margin-bottom:12px;"></div>
   <div id="agenda-liste"></div>
+</div>
+
+<!-- GANTT PLANNING -->
+<div id="page-gantt" class="hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <div style="font-weight:700;color:#0d2d52;font-size:13px;">Planning du jour — Vue horaire</div>
+    <input type="date" id="gantt-date" class="fi" style="width:auto;" onchange="renderGantt()">
+  </div>
+  <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+    <div id="gantt-container" style="min-width:600px;"></div>
+  </div>
+</div>
+
+<!-- PASSATION -->
+<div id="page-passation" class="hidden">
+  <div style="font-weight:700;color:#0d2d52;font-size:13px;margin-bottom:12px;">📝 Passation de service</div>
+  <div class="card" style="border-top:3px solid var(--blue2);margin-bottom:14px;">
+    <textarea id="passation-input" class="fi" placeholder="Note pour l'équipe : RDVs en attente, clients urgents, infos importantes..." style="height:80px;resize:none;"></textarea>
+    <button class="btn btn-primary btn-full" onclick="ajouterPassation()">Enregistrer la note</button>
+  </div>
+  <div class="lbl">NOTES DE SERVICE</div>
+  <div id="liste-passation"></div>
+</div>
+
+<!-- RAPPELS -->
+<div id="page-rappels" class="hidden">
+  <div style="font-weight:700;color:#0d2d52;font-size:13px;margin-bottom:4px;">🔔 Rappels &amp; relances</div>
+  <div style="color:#64748b;font-size:11px;margin-bottom:14px;">Calculé automatiquement — devis, contrats, rapports</div>
+  <div id="rappels-list"></div>
 </div>
 
 <!-- CONTRATS ENTRETIEN -->
@@ -1276,6 +1318,9 @@ const NAV_GROUPS={
     {p:'urgences',label:'Urgences',id:'nav-urgences'},
     {p:'live',label:'🔴 Live',id:'nav-live',style:'color:#dc2626'},
     {p:'agenda',label:'📅 Agenda',id:'nav-agenda'},
+    {p:'gantt',label:'📅 Gantt',id:'nav-gantt'},
+    {p:'passation',label:'📝 Passation',id:'nav-passation'},
+    {p:'rappels',label:'🔔 Rappels',id:'nav-rappels'},
   ],
   finances:[
     {p:'rapports',label:'Rapports',id:'nav-rapports'},
@@ -1341,7 +1386,7 @@ function showPage(p){
     if(p==='dashboard') document.getElementById('ng-home')?.classList.add('active');
     if(p==='params') document.getElementById('ng-params')?.classList.add('active');
   }
-  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps","mandants","contrats-cadres","stock","sous-traitants","appels-offres","organigramme","planning-long"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
+  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps","mandants","contrats-cadres","stock","sous-traitants","appels-offres","organigramme","planning-long","gantt","passation","rappels"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
   const pageEl=document.getElementById("page-"+p);if(pageEl)pageEl.classList.remove("hidden");
   if(p==="dashboard")renderDashboard();
   if(p==="dispatch"){renderDisposDispatch();renderPlanningJour();renderAPlanifierPatron();}
@@ -1366,6 +1411,9 @@ function showPage(p){
   if(p==="appels-offres")renderAO();
   if(p==="organigramme")renderOrga();
   if(p==="planning-long")renderPlanningLong();
+  if(p==='gantt')renderGantt();
+  if(p==='passation')renderPassation();
+  if(p==='rappels')renderRappels();
 }
 
 function showAnalytics(p){
@@ -1508,6 +1556,7 @@ function renderDashboard(){
   const byType={};raps.forEach(r=>{byType[r.type]=(byType[r.type]||0)+(r.montantFinal||0);});
   const maxT=Math.max(...Object.values(byType),1);
   document.getElementById("ca-par-type").innerHTML=Object.entries(byType).sort((a,b)=>b[1]-a[1]).map(([t,c])=>`<div class="bar-row"><div class="bar-label">${t.substring(0,16)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/maxT*100)}%;background:#dcfce7;color:#15803d;">${c} EUR</div></div></div>`).join("")||`<div style="color:var(--text-light);font-size:13px;padding:12px 0;">Aucune donnee</div>`;
+  renderRapportJour();
 }
 
 function renderCA7j(){
@@ -2345,6 +2394,16 @@ function sauvegarderContrat(){
   var c=getContrats();
   c.unshift({id:Date.now(),client:client,tel:document.getElementById('ct-tel').value.trim(),adresse:document.getElementById('ct-adresse').value.trim(),equipement:equip,formule:formule,type:formule+' — '+equip,tech:document.getElementById('ct-tech').value,freq:'annuel',montant:montant,debut:debut,prochaine:proch.toISOString().slice(0,10),statut:'Actif',creeAt:new Date().toISOString()});
   saveContrats(c);
+  // Créer RDV entretien annuel automatique
+  (function(){
+    var rdvs=getRdvs();
+    var proch=c[0].prochaine;
+    var deja=rdvs.find(function(r){return r.clientNom===c[0].client&&r.dateRdv===proch&&r.type&&r.type.indexOf('Entretien')>=0;});
+    if(!deja){
+      rdvs.push({id:Date.now()+1,clientNom:c[0].client,clientTel:c[0].tel,adresse:c[0].adresse,type:'Entretien '+c[0].equipement+' (Contrat '+c[0].formule+')',dateRdv:proch,heureRdv:'09:00',technicien:c[0].tech||'',prix:0,statut:'À planifier',notes:'RDV annuel automatique — contrat '+c[0].formule,contratId:c[0].id,creeAt:new Date().toISOString()});
+      saveRdvs(rdvs);
+    }
+  })();
   document.getElementById('form-contrat').classList.add('hidden');
   renderContrats();
   showNotif('Contrat '+formule+' créé pour '+client+' — '+montant+'€/an');
@@ -2731,6 +2790,118 @@ function saveConc(){const n=el("conc-nom")?.value.trim();if(!n){notif("Nom requi
 function delConc(i){const c=gConc();c.splice(i,1);sConc(c);renderStrategie();}
 function saveAlerte(){const s=el("ale-seuil")?.value;const c=el("ale-contact")?.value.trim();if(!s||!c){notif("Remplis seuil et contact");return;}const a=gAlertes();a.push({type:el("ale-type")?.value,seuil:s,contact:c});sAlertes(a);el("ale-seuil").value="";el("ale-contact").value="";renderStrategie();notif("Alerte activee !");}
 function delAlerte(i){const a=gAlertes();a.splice(i,1);sAlertes(a);renderStrategie();}
+
+// ── GANTT PLANNING ──
+function renderGantt(){
+  var dateEl=document.getElementById('gantt-date');
+  if(!dateEl)return;
+  if(!dateEl.value)dateEl.value=todayStr();
+  var date=dateEl.value;
+  var rdvs=getRdvs().filter(function(r){return r.dateRdv===date&&r.statut!=='Annule';});
+  var techs=Object.keys(TECH_C);
+  var START=8,END=19,TOTAL=END-START;
+  var html='<div style="display:flex;margin-bottom:6px;"><div style="width:60px;flex-shrink:0;"></div><div style="flex:1;position:relative;height:16px;">';
+  for(var h=START;h<=END;h++){var pct=((h-START)/TOTAL*100).toFixed(1);html+='<div class="gantt-hour" style="left:'+pct+'%"><span class="gantt-hour-lbl">'+h+'h</span></div>';}
+  html+='</div></div>';
+  techs.forEach(function(nom){
+    var tc=TECH_C[nom]||{c:'#64748b',a:'?'};
+    var myRdvs=rdvs.filter(function(r){return r.technicien===nom;});
+    html+='<div class="gantt-row"><div class="gantt-label" style="color:'+tc.c+'">'+nom.replace('Technicien ','T')+'</div><div class="gantt-track">';
+    for(var h=START;h<END;h++){var p=((h-START)/TOTAL*100).toFixed(1);html+='<div class="gantt-hour" style="left:'+p+'%"></div>';}
+    myRdvs.forEach(function(r){
+      if(!r.heureRdv)return;
+      var parts=r.heureRdv.split(':');
+      var hS=parseInt(parts[0])+(parseInt(parts[1]||0)/60);
+      if(hS<START||hS>=END)return;
+      var dur=(r.duree||90)/60;
+      var left=((hS-START)/TOTAL*100).toFixed(1);
+      var width=Math.min(dur/TOTAL*100,100-parseFloat(left)).toFixed(1);
+      var col=r.statut==='Termine'?'#16a34a':r.statut==='En cours'?'#f97316':'#1a4a7a';
+      html+='<div class="gantt-slot" title="'+r.clientNom+' — '+r.type+'" style="left:'+left+'%;width:'+width+'%;background:'+col+';">'+r.heureRdv+' '+(r.clientNom||'').split(' ')[0]+'</div>';
+    });
+    if(!myRdvs.length)html+='<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#cbd5e1;font-size:10px;">Libre</div>';
+    html+='</div></div>';
+  });
+  var gc=document.getElementById('gantt-container');if(gc)gc.innerHTML=html;
+}
+
+// ── PASSATION DE SERVICE ──
+function getPassation(){try{return JSON.parse(localStorage.getItem('pl_passation')||'[]');}catch(e){return[];}}
+function savePassation(arr){var s=JSON.stringify(arr);localStorage.setItem('pl_passation',s);if(window.gfSync)gfSync('pl_passation',s);}
+function ajouterPassation(){
+  var txt=document.getElementById('passation-input').value.trim();
+  if(!txt){showNotif('Écris une note');return;}
+  var arr=getPassation();
+  arr.unshift({id:Date.now(),texte:txt,auteur:'Patron',ts:new Date().toISOString()});
+  if(arr.length>30)arr=arr.slice(0,30);
+  savePassation(arr);
+  document.getElementById('passation-input').value='';
+  renderPassation();showNotif('Note enregistrée');
+}
+function renderPassation(){
+  var arr=getPassation();
+  var el=document.getElementById('liste-passation');if(!el)return;
+  if(!arr.length){el.innerHTML='<div style="text-align:center;padding:20px;color:#94a3b8;font-size:12px;">Aucune note de passation</div>';return;}
+  el.innerHTML=arr.map(function(n){
+    var d=new Date(n.ts);
+    var label=d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    return'<div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid var(--blue2);border-radius:12px;padding:12px 14px;margin-bottom:8px;">'
+    +'<div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;font-weight:700;color:#1d4ed8;">'+n.auteur+'</span><span style="font-size:10px;color:#94a3b8;">'+label+'</span></div>'
+    +'<div style="font-size:13px;color:#1e293b;line-height:1.5;">'+n.texte+'</div></div>';
+  }).join('');
+}
+
+// ── RAPPELS & RELANCES ──
+function renderRappels(){
+  var el=document.getElementById('rappels-list');if(!el)return;
+  var today=todayStr();
+  var items=[];
+  getDevis().filter(function(d){return d.statut!=='Traite'&&d.statut!=='Accepte'&&d.date&&d.date<new Date(Date.now()-3*864e5).toISOString().slice(0,10);}).forEach(function(d){
+    items.push({urgence:d.date<new Date(Date.now()-7*864e5).toISOString().slice(0,10),titre:'Devis sans réponse — '+d.clientNom,detail:(d.type||'')+' · Envoyé le '+d.date,tel:d.clientTel,color:'#f97316'});
+  });
+  getRapports().filter(function(r){return r.statut==='En attente facturation'&&r.date&&r.date<new Date(Date.now()-2*864e5).toISOString().slice(0,10);}).forEach(function(r){
+    items.push({urgence:false,titre:'À facturer — '+(r.clientNom||''),detail:(r.type||'')+' · '+r.date,tel:r.clientTel,color:'#7c3aed'});
+  });
+  getContrats().filter(function(c){return c.statut==='Actif'&&c.prochaine&&c.prochaine<=new Date(Date.now()+30*864e5).toISOString().slice(0,10)&&c.prochaine>=today;}).forEach(function(c){
+    var j=Math.round((new Date(c.prochaine)-new Date(today))/864e5);
+    items.push({urgence:j<=7,titre:'Visite contrat dans '+j+'j — '+c.client,detail:(c.equipement||c.type||'')+' · '+(c.formule||''),tel:c.tel,color:'#0d9488'});
+  });
+  if(!items.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#94a3b8;font-size:12px;">✅ Rien à relancer aujourd\'hui !</div>';return;}
+  el.innerHTML=items.map(function(it){
+    return'<div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid '+it.color+';border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">'
+    +'<div><div style="font-weight:700;font-size:13px;color:#1e293b;">'+(it.urgence?'🔴 ':'')+it.titre+'</div>'
+    +'<div style="font-size:11px;color:#64748b;margin-top:2px;">'+it.detail+'</div></div>'
+    +(it.tel?'<a href="tel:'+it.tel+'" class="btn btn-g" style="font-size:11px;padding:6px 10px;text-decoration:none;white-space:nowrap;">📞</a>':'')
+    +'</div>';
+  }).join('');
+}
+
+// ── RAPPORT FIN DE JOURNÉE ──
+function renderRapportJour(){
+  var el=document.getElementById('rapport-jour');if(!el)return;
+  var today=todayStr();
+  var rdvs=getRdvs().filter(function(r){return r.dateRdv===today;});
+  var termines=rdvs.filter(function(r){return r.statut==='Termine';});
+  var ca=termines.reduce(function(s,r){return s+(r.prixVente||r.prix||0);},0);
+  var urgences=JSON.parse(localStorage.getItem('pl_urgences')||'[]').filter(function(u){return u.date&&u.date.slice(0,10)===today;});
+  var contrats=getContrats().filter(function(c){return c.creeAt&&c.creeAt.slice(0,10)===today;});
+  el.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+  +[['RDV terminés',termines.length+' / '+rdvs.length,'#16a34a'],
+    ['CA réalisé',ca.toLocaleString('fr-FR')+'€','#2563eb'],
+    ['Urgences',urgences.length,'#dc2626'],
+    ['Contrats signés',contrats.length,'#0d9488']
+  ].map(function(x){return'<div style="background:#f8fafc;border-radius:10px;padding:10px;text-align:center;"><div style="font-size:9px;color:#64748b;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;">'+x[0]+'</div><div style="font-size:20px;font-weight:800;color:'+x[2]+';margin-top:4px;">'+x[1]+'</div></div>';}).join('')
+  +'</div>';
+}
+function copierRapportJour(){
+  var today=todayStr();
+  var rdvs=getRdvs().filter(function(r){return r.dateRdv===today;});
+  var termines=rdvs.filter(function(r){return r.statut==='Termine';});
+  var ca=termines.reduce(function(s,r){return s+(r.prixVente||r.prix||0);},0);
+  var contrats=getContrats().filter(function(c){return c.creeAt&&c.creeAt.slice(0,10)===today;});
+  var txt='📊 BILAN GREENFLOW — '+today+'\n✅ RDV terminés : '+termines.length+' / '+rdvs.length+'\n💶 CA réalisé : '+ca.toLocaleString('fr-FR')+'€\n📋 Contrats signés : '+contrats.length+'\n— GreenFlow';
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){showNotif('Bilan copié !');});}else{showNotif(txt);}
+}
 
 const MODULE_CURRENT='patron.html';
 const MODULES_NAV=[

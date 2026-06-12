@@ -218,6 +218,12 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 
 /* ── LOGIN SUB ── */
 .login-sub{color:var(--muted);font-size:13px;text-align:center;margin-bottom:20px;}
+.gantt-row{display:flex;align-items:stretch;margin-bottom:4px;min-height:44px;}
+.gantt-label{width:60px;flex-shrink:0;display:flex;align-items:center;font-size:11px;font-weight:700;color:#0d2d52;padding-right:8px;}
+.gantt-track{flex:1;position:relative;background:#f1f5f9;border-radius:8px;overflow:hidden;}
+.gantt-slot{position:absolute;top:4px;bottom:4px;border-radius:6px;display:flex;align-items:center;padding:0 6px;font-size:9px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+.gantt-hour{position:absolute;top:0;bottom:0;border-left:1px solid #e2e8f0;display:flex;align-items:flex-end;padding-bottom:2px;}
+.gantt-hour-lbl{font-size:8px;color:#94a3b8;padding-left:2px;}
 </style>
 
 </head>
@@ -370,6 +376,13 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div class="card" style="margin-bottom:12px;">
     <div class="lbl">PERFORMANCE OPÉRATEURS — AUJOURD'HUI</div>
     <div id="kpi-operateurs"></div>
+  </div>
+  <div class="card" style="margin-bottom:12px;border-left:4px solid #16a34a;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div class="lbl" style="margin-bottom:0;color:#16a34a;">BILAN DE LA JOURNÉE</div>
+      <button class="btn btn-gray" style="font-size:10px;padding:5px 10px;" onclick="copierRapportJour()">📋 Copier</button>
+    </div>
+    <div id="rapport-jour"></div>
   </div>
 </div>
 
@@ -807,6 +820,32 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <div class="lbl">RECAP MENSUEL (6 DERNIERS MOIS)</div>
     <div id="tableau-mensuel" style="margin-top:8px;overflow-x:auto;"></div>
   </div>
+</div>
+
+<div id="page-gantt" class="hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <div style="font-weight:700;color:#0d2d52;font-size:13px;">Planning du jour — Vue horaire</div>
+    <input type="date" id="gantt-date" class="fi" style="width:auto;" onchange="renderGantt()">
+  </div>
+  <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+    <div id="gantt-container" style="min-width:600px;"></div>
+  </div>
+</div>
+
+<div id="page-passation" class="hidden">
+  <div style="font-weight:700;color:#0d2d52;font-size:13px;margin-bottom:12px;">📝 Passation de service</div>
+  <div class="card" style="border-top:3px solid var(--blue2);margin-bottom:14px;">
+    <textarea id="passation-input" class="fi" placeholder="Note pour l'équipe suivante : RDVs en attente, clients urgents, infos importantes..." style="height:80px;resize:none;"></textarea>
+    <button class="btn btn-primary btn-full" onclick="ajouterPassation()">Enregistrer la note</button>
+  </div>
+  <div class="lbl">NOTES DE SERVICE</div>
+  <div id="liste-passation"></div>
+</div>
+
+<div id="page-rappels" class="hidden">
+  <div style="font-weight:700;color:#0d2d52;font-size:13px;margin-bottom:4px;">🔔 Rappels &amp; relances</div>
+  <div style="color:#64748b;font-size:11px;margin-bottom:14px;">Calculé automatiquement depuis devis, contrats et rapports</div>
+  <div id="rappels-list"></div>
 </div>
 
   </div>
@@ -1330,11 +1369,14 @@ var NAV_GROUPS_D={
     {p:'nouveau-rdv',label:'+ Nouveau RDV'},
     {p:'tous-rdv',label:'📋 Tous RDV',id:'nav-tous-rdv'},
     {p:'dispos',label:'👷 Équipe'},
+    {p:'gantt',label:'📅 Gantt',id:'nav-gantt'},
   ],
   suivi:[
     {p:'validation',label:'✅ Validation'},
     {p:'rapports',label:'📝 Rapports'},
     {p:'sav',label:'🔁 SAV'},
+    {p:'passation',label:'📝 Passation',id:'nav-passation'},
+    {p:'rappels',label:'🔔 Rappels',id:'nav-rappels'},
   ],
   commercial:[
     {p:'devis',label:'💼 Devis',id:'nav-devis'},
@@ -1358,7 +1400,7 @@ function showGroupD(g){
   if(!items.some(function(i){return i.p===_dpPage;})&&items.length)showPage(items[0].p);
 }
 function showPage(page){
-  var pages=["dashboard","dispos","urgences","nouveau-rdv","tous-rdv","validation","rapports","sav","devis","facturation","procedures","infos","clients","appels","stock","compta"];
+  var pages=["dashboard","dispos","urgences","nouveau-rdv","tous-rdv","validation","rapports","sav","devis","facturation","procedures","infos","clients","appels","stock","compta","gantt","passation","rappels"];
   for(var i=0;i<pages.length;i++){var el=document.getElementById("page-"+pages[i]);if(el)el.classList.add("hidden");}
   var pageEl=document.getElementById("page-"+page);if(pageEl)pageEl.classList.remove("hidden");
   _dpPage=page;
@@ -1397,6 +1439,9 @@ function showPage(page){
   if(page==="appels")renderAppels();
   if(page==="stock")renderStock();
   if(page==="compta")renderCompta();
+  if(page==='gantt')renderGantt();
+  if(page==='passation')renderPassation();
+  if(page==='rappels')renderRappels();
 }
 
 // STOCK PIÈCES
@@ -2564,6 +2609,7 @@ return '<div onclick="'+t[2]+'" style="display:flex;justify-content:space-betwee
 }
 renderKpiOperateurs();
 renderPipelineCA();
+renderRapportJour();
 }
 
 // CARTE GPS DISPATCH
@@ -2942,6 +2988,144 @@ async function smsTyped(tel,type,data){
     if(d.success)showNotif('📱 SMS '+type+' envoyé');
     else if(d.demo)showNotif('SMS (mode démo)');
   }catch(e){console.warn('SMS typed error',e);}
+}
+
+/* ── FEATURE 1 — GANTT ── */
+function getTechs(){return Object.keys(TECH_C).map(function(nom){return {nom:nom};});}
+function renderGantt(){
+  var dateEl=document.getElementById('gantt-date');
+  if(!dateEl)return;
+  if(!dateEl.value)dateEl.value=todayStr();
+  var date=dateEl.value;
+  var rdvs=getRdvs().filter(function(r){return r.dateRdv===date&&r.statut!=='Annule';});
+  var techs=getTechs().map(function(t){return t.nom;});
+  var START=8,END=19,TOTAL=END-START;
+  var html='<div style="display:flex;margin-bottom:6px;">';
+  html+='<div style="width:60px;flex-shrink:0;"></div>';
+  html+='<div style="flex:1;position:relative;height:16px;">';
+  for(var h=START;h<=END;h++){
+    var pct=((h-START)/TOTAL*100).toFixed(1);
+    html+='<div class="gantt-hour" style="left:'+pct+'%"><span class="gantt-hour-lbl">'+h+'h</span></div>';
+  }
+  html+='</div></div>';
+  if(!techs.length){html+='<div style="color:#94a3b8;text-align:center;padding:20px;">Aucun technicien</div>';}
+  techs.forEach(function(nom){
+    var tc=TECH_C[nom]||{c:'#64748b',bg:'#f1f5f9',a:'?'};
+    var myRdvs=rdvs.filter(function(r){return r.technicien===nom;});
+    html+='<div class="gantt-row">';
+    html+='<div class="gantt-label" style="color:'+tc.c+'">'+nom.replace('Technicien ','T')+'</div>';
+    html+='<div class="gantt-track">';
+    for(var h2=START;h2<END;h2++){
+      var p=((h2-START)/TOTAL*100).toFixed(1);
+      html+='<div class="gantt-hour" style="left:'+p+'%"></div>';
+    }
+    myRdvs.forEach(function(r){
+      if(!r.heureRdv)return;
+      var parts=r.heureRdv.split(':');
+      var hStart=parseInt(parts[0])+(parseInt(parts[1]||0)/60);
+      if(hStart<START||hStart>=END)return;
+      var dur=(r.duree||90)/60;
+      var left=((hStart-START)/TOTAL*100).toFixed(1);
+      var width=(dur/TOTAL*100).toFixed(1);
+      var col=r.statut==='Termine'?'#16a34a':r.statut==='En cours'?'#f97316':'#1a4a7a';
+      html+='<div class="gantt-slot" title="'+r.clientNom+' — '+r.type+'" style="left:'+left+'%;width:'+width+'%;background:'+col+';">'+r.heureRdv+' '+r.clientNom.split(' ')[0]+'</div>';
+    });
+    if(!myRdvs.length){html+='<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#cbd5e1;font-size:10px;">Libre</div>';}
+    html+='</div></div>';
+  });
+  var gc=document.getElementById('gantt-container');
+  if(gc)gc.innerHTML=html;
+}
+
+/* ── FEATURE 2 — PASSATION DE SERVICE ── */
+function getPassation(){try{return JSON.parse(localStorage.getItem('pl_passation')||'[]');}catch(e){return[];}}
+function savePassation(arr){var s=JSON.stringify(arr);localStorage.setItem('pl_passation',s);if(window.gfSync)gfSync('pl_passation',s);}
+function ajouterPassation(){
+  var txt=document.getElementById('passation-input').value.trim();
+  if(!txt){showNotif('Écris une note');return;}
+  var arr=getPassation();
+  arr.unshift({id:Date.now(),texte:txt,auteur:currentOperateur?currentOperateur.nom:'Dispatch',ts:new Date().toISOString()});
+  if(arr.length>30)arr=arr.slice(0,30);
+  savePassation(arr);
+  document.getElementById('passation-input').value='';
+  renderPassation();
+  showNotif('Note enregistrée');
+}
+function renderPassation(){
+  var arr=getPassation();
+  var el=document.getElementById('liste-passation');if(!el)return;
+  if(!arr.length){el.innerHTML='<div style="text-align:center;padding:20px;color:#94a3b8;font-size:12px;">Aucune note — commence la passation ici</div>';return;}
+  el.innerHTML=arr.map(function(n){
+    var d=new Date(n.ts);
+    var label=d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    return'<div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid var(--blue2);border-radius:12px;padding:12px 14px;margin-bottom:8px;">'
+    +'<div style="display:flex;justify-content:space-between;margin-bottom:6px;">'
+    +'<span style="font-size:11px;font-weight:700;color:#1d4ed8;">'+n.auteur+'</span>'
+    +'<span style="font-size:10px;color:#94a3b8;">'+label+'</span>'
+    +'</div>'
+    +'<div style="font-size:13px;color:#1e293b;line-height:1.5;">'+n.texte+'</div>'
+    +'</div>';
+  }).join('');
+}
+
+/* ── FEATURE 3 — RAPPELS & RELANCES ── */
+function renderRappels(){
+  var el=document.getElementById('rappels-list');if(!el)return;
+  var today=todayStr();
+  var items=[];
+  // Devis sans réponse depuis 3j
+  var devis=getDevis().filter(function(d){return d.statut!=='Traite'&&d.statut!=='Accepte'&&d.date&&d.date<new Date(Date.now()-3*864e5).toISOString().slice(0,10);});
+  devis.forEach(function(d){items.push({type:'devis',urgence:d.date<new Date(Date.now()-7*864e5).toISOString().slice(0,10),titre:'Devis sans réponse — '+d.clientNom,detail:d.type+' · Envoyé le '+d.date,tel:d.clientTel,color:'#f97316'});});
+  // Rapports en attente facturation depuis 2j
+  var raps=getRapports().filter(function(r){return r.statut==='En attente facturation'&&r.date&&r.date<new Date(Date.now()-2*864e5).toISOString().slice(0,10);});
+  raps.forEach(function(r){items.push({type:'facture',urgence:false,titre:'À facturer — '+r.clientNom,detail:r.type+' · '+r.date,tel:r.clientTel,color:'#7c3aed'});});
+  // Contrats avec visite dans moins de 30j
+  var contrats=typeof getContrats==='function'?getContrats().filter(function(c){return c.statut==='Actif'&&c.prochaine&&c.prochaine<=new Date(Date.now()+30*864e5).toISOString().slice(0,10)&&c.prochaine>=today;}):[];
+  contrats.forEach(function(c){var j=Math.round((new Date(c.prochaine)-new Date(today))/864e5);items.push({type:'contrat',urgence:j<=7,titre:'Visite contrat dans '+j+'j — '+c.client,detail:(c.equipement||c.type)+' · '+(c.formule||''),tel:c.tel,color:'#0d9488'});});
+  if(!items.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#94a3b8;font-size:12px;">✅ Rien à relancer aujourd\'hui !</div>';return;}
+  el.innerHTML=items.map(function(it){
+    return'<div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid '+it.color+';border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">'
+    +'<div><div style="font-weight:700;font-size:13px;color:#1e293b;">'+(it.urgence?'🔴 ':'')+it.titre+'</div>'
+    +'<div style="font-size:11px;color:#64748b;margin-top:2px;">'+it.detail+'</div></div>'
+    +(it.tel?'<a href="tel:'+it.tel+'" class="btn btn-primary" style="font-size:11px;padding:6px 10px;text-decoration:none;white-space:nowrap;">📞 Appeler</a>':'')
+    +'</div>';
+  }).join('');
+}
+
+/* ── FEATURE 5 — RAPPORT DE FIN DE JOURNÉE ── */
+function renderRapportJour(){
+  var el=document.getElementById('rapport-jour');if(!el)return;
+  var today=todayStr();
+  var rdvs=getRdvs().filter(function(r){return r.dateRdv===today;});
+  var termines=rdvs.filter(function(r){return r.statut==='Termine';});
+  var ca=termines.reduce(function(s,r){return s+(r.prixVente||r.prix||0);},0);
+  var urgences=JSON.parse(localStorage.getItem('pl_urgences')||'[]').filter(function(u){return u.date&&u.date.slice(0,10)===today;});
+  var raps=getRapports().filter(function(r){return r.date===today;});
+  var attente=raps.filter(function(r){return r.statut==='En attente facturation';});
+  el.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+  +[['RDV terminés',termines.length+' / '+rdvs.length,'#16a34a'],
+    ['CA réalisé',ca.toLocaleString('fr-FR')+'€','#2563eb'],
+    ['Urgences',urgences.length,'#dc2626'],
+    ['À facturer',attente.length,'#f97316']
+  ].map(function(x){return'<div style="background:#f8fafc;border-radius:10px;padding:10px;text-align:center;"><div style="font-size:9px;color:#64748b;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;">'+x[0]+'</div><div style="font-size:20px;font-weight:800;color:'+x[2]+';margin-top:4px;">'+x[1]+'</div></div>';}).join('')
+  +'</div>';
+}
+function copierRapportJour(){
+  var today=todayStr();
+  var rdvs=getRdvs().filter(function(r){return r.dateRdv===today;});
+  var termines=rdvs.filter(function(r){return r.statut==='Termine';});
+  var ca=termines.reduce(function(s,r){return s+(r.prixVente||r.prix||0);},0);
+  var urgences=JSON.parse(localStorage.getItem('pl_urgences')||'[]').filter(function(u){return u.date&&u.date.slice(0,10)===today;});
+  var raps=getRapports().filter(function(r){return r.date===today;});
+  var attente=raps.filter(function(r){return r.statut==='En attente facturation';});
+  var txt='📊 BILAN DISPATCH — '+today+'\n'
+  +'✅ RDV terminés : '+termines.length+' / '+rdvs.length+'\n'
+  +'💶 CA réalisé : '+ca.toLocaleString('fr-FR')+'€\n'
+  +'🚨 Urgences : '+urgences.length+'\n'
+  +'📋 À facturer : '+attente.length+'\n'
+  +'— GreenFlow Dispatch';
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){showNotif('Bilan copié !');});}
+  else{showNotif(txt);}
 }
 </script>
 
