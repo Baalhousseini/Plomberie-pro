@@ -2963,10 +2963,24 @@ function renderAppels(){
   if(!appels.length){d.innerHTML='<div class="empty">Aucun appel enregistré</div>';return;}
   var resultatLabel={rdv_cree:'✅ RDV créé',rappel:'📞 À rappeler',devis_envoye:'📋 Devis',info:'ℹ️ Info',hors_zone:'🚫 Hors zone',annulation:'❌ Annulation'};
   var resultatCol={rdv_cree:'#16a34a',rappel:'#1d4ed8',devis_envoye:'#7c3aed',info:'#6b7a8f',hors_zone:'#dc2626',annulation:'#dc2626'};
-  d.innerHTML=appels.slice(0,30).map(function(a){
-    var col=resultatCol[a.resultat]||'#6b7a8f';
-    var lbl=resultatLabel[a.resultat]||a.resultat;
-    return '<div class="fact-card" style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:700;font-size:13px;">'+a.nom+(a.tel?' <span style="color:var(--muted);font-size:11px;">'+a.tel+'</span>':'')+'</div><div style="font-size:11px;color:var(--muted);">'+a.date+' '+a.heure+' · '+a.objet+' · '+(a.duree||0)+'min · '+a.operateur+'</div>'+(a.note?'<div style="font-size:11px;color:var(--muted);font-style:italic;margin-top:2px;">'+a.note.substring(0,60)+'</div>':'')+'</div><span style="background:'+col+'15;color:'+col+';font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;white-space:nowrap;">'+lbl+'</span></div></div>';
+  d.innerHTML=appels.slice(0,50).map(function(a){
+    var isAircall=a.source==='aircall';
+    var col=isAircall?'#0d2d52':(resultatCol[a.resultat]||'#6b7a8f');
+    var lbl=isAircall?'🤖 IA':'';
+    if(!isAircall)lbl=resultatLabel[a.resultat]||a.resultat;
+    var memoHtml=a.memo?'<div style="background:#f0f9ff;border-left:3px solid #0d2d52;padding:6px 10px;border-radius:0 6px 6px 0;font-size:11px;color:#1e3a5f;margin-top:6px;white-space:pre-line;">'+a.memo+'</div>':'';
+    var transHtml=(!a.memo&&a.transcript)?'<div style="font-size:11px;color:var(--muted);font-style:italic;margin-top:4px;">'+a.transcript.substring(0,120)+'…</div>':'';
+    var noteHtml=(!a.memo&&!a.transcript&&a.note)?'<div style="font-size:11px;color:var(--muted);font-style:italic;margin-top:2px;">'+a.note.substring(0,80)+'</div>':'';
+    var durLabel=(a.duree||0)+'min';
+    return '<div class="fact-card" style="margin-bottom:8px;">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
+      +'<div style="flex:1;">'
+      +'<div style="font-weight:700;font-size:13px;">'+a.nom+(a.tel?' <span style="color:var(--muted);font-size:11px;">'+a.tel+'</span>':'')+'</div>'
+      +'<div style="font-size:11px;color:var(--muted);">'+a.date+' '+a.heure+' · '+durLabel+' · '+a.operateur+'</div>'
+      +memoHtml+transHtml+noteHtml
+      +'</div>'
+      +'<span style="background:'+col+'15;color:'+col+';font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;white-space:nowrap;margin-left:8px;">'+lbl+'</span>'
+      +'</div></div>';
   }).join('');
 }
 

@@ -637,6 +637,26 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div id="agenda-liste"></div>
 </div>
 
+<!-- APPELS IA -->
+<div id="page-appels" class="hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+    <div>
+      <div style="color:#0d2d52;font-size:11px;letter-spacing:2px;font-weight:700;">📞 APPELS — MÉMOS IA</div>
+      <div style="color:#64748b;font-size:12px;margin-top:2px;">Historique & transcriptions Aircall</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <select class="form-select" id="appels-filtre" onchange="renderAppelsPatron()" style="font-size:12px;padding:6px 10px;">
+        <option value="all">Tous les appels</option>
+        <option value="aircall">Aircall (IA)</option>
+        <option value="manual">Saisis manuellement</option>
+        <option value="today">Aujourd'hui</option>
+      </select>
+    </div>
+  </div>
+  <div id="appels-patron-kpi" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;"></div>
+  <div id="appels-patron-liste"></div>
+</div>
+
 <!-- GANTT PLANNING -->
 <div id="page-gantt" class="hidden">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -1319,6 +1339,7 @@ const NAV_GROUPS={
     {p:'urgences',label:'Urgences',id:'nav-urgences'},
     {p:'live',label:'🔴 Live',id:'nav-live',style:'color:#dc2626'},
     {p:'agenda',label:'📅 Agenda',id:'nav-agenda'},
+    {p:'appels',label:'📞 Appels',id:'nav-appels'},
     {p:'gantt',label:'📅 Gantt',id:'nav-gantt'},
     {p:'passation',label:'📝 Passation',id:'nav-passation'},
     {p:'rappels',label:'🔔 Rappels',id:'nav-rappels'},
@@ -1387,7 +1408,7 @@ function showPage(p){
     if(p==='dashboard') document.getElementById('ng-home')?.classList.add('active');
     if(p==='params') document.getElementById('ng-params')?.classList.add('active');
   }
-  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps","mandants","contrats-cadres","stock","sous-traitants","appels-offres","organigramme","planning-long","gantt","passation","rappels"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
+  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps","mandants","contrats-cadres","stock","sous-traitants","appels-offres","organigramme","planning-long","gantt","passation","rappels","appels"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
   const pageEl=document.getElementById("page-"+p);if(pageEl)pageEl.classList.remove("hidden");
   if(p==="dashboard")renderDashboard();
   if(p==="dispatch"){renderDisposDispatch();renderPlanningJour();renderAPlanifierPatron();}
@@ -1415,6 +1436,7 @@ function showPage(p){
   if(p==='gantt')renderGantt();
   if(p==='passation')renderPassation();
   if(p==='rappels')renderRappels();
+  if(p==='appels')renderAppelsPatron();
 }
 
 function showAnalytics(p){
@@ -2902,6 +2924,52 @@ function copierRapportJour(){
   var contrats=getContrats().filter(function(c){return c.creeAt&&c.creeAt.slice(0,10)===today;});
   var txt='📊 BILAN GREENFLOW — '+today+'\n✅ RDV terminés : '+termines.length+' / '+rdvs.length+'\n💶 CA réalisé : '+ca.toLocaleString('fr-FR')+'€\n📋 Contrats signés : '+contrats.length+'\n— GreenFlow';
   if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){showNotif('Bilan copié !');});}else{showNotif(txt);}
+}
+
+function renderAppelsPatron(){
+  const appels=JSON.parse(localStorage.getItem('pl_appels')||'[]');
+  const today=new Date().toISOString().split('T')[0];
+  const filtre=(document.getElementById('appels-filtre')||{}).value||'all';
+  let liste=appels;
+  if(filtre==='aircall')liste=appels.filter(a=>a.source==='aircall');
+  else if(filtre==='manual')liste=appels.filter(a=>a.source!=='aircall');
+  else if(filtre==='today')liste=appels.filter(a=>a.date===today);
+
+  const auj=appels.filter(a=>a.date===today);
+  const avecMemo=appels.filter(a=>a.memo).length;
+  const dureeTotal=auj.reduce((s,a)=>s+(a.duree||0),0);
+
+  const kpi=document.getElementById('appels-patron-kpi');
+  if(kpi)kpi.innerHTML=[
+    ['📞','Total appels',appels.length,''],
+    ['🤖','Mémos IA',avecMemo,'dkpi-green'],
+    ['📅','Aujourd\'hui',auj.length,''],
+    ['⏱','Durée moy.',auj.length?Math.round(dureeTotal/auj.length)+'min':'—','']
+  ].map(([ic,lb,v,cl])=>`<div class="dkpi"><div class="dkpi-val ${cl}">${v}</div><div class="dkpi-lbl">${lb}</div></div>`).join('');
+
+  const el=document.getElementById('appels-patron-liste');
+  if(!el)return;
+  if(!liste.length){el.innerHTML='<div class="empty">Aucun appel enregistré</div>';return;}
+  el.innerHTML=liste.slice(0,100).map(a=>{
+    const isAircall=a.source==='aircall';
+    const badge=isAircall?'<span style="background:#0d2d5215;color:#0d2d52;font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px;">🤖 Aircall</span>':'<span style="background:#64748b15;color:#64748b;font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px;">Manuel</span>';
+    const memoHtml=a.memo?`<div style="background:#f0f9ff;border-left:3px solid #0d2d52;padding:8px 12px;border-radius:0 8px 8px 0;font-size:12px;color:#1e3a5f;margin-top:8px;white-space:pre-line;line-height:1.5;">${a.memo}</div>`:'';
+    const transHtml=(!a.memo&&a.transcript)?`<div style="background:#f8fafc;border-radius:8px;padding:8px 10px;font-size:11px;color:#64748b;font-style:italic;margin-top:6px;max-height:60px;overflow:hidden;">${a.transcript.substring(0,200)}…</div>`:'';
+    const noteHtml=(!a.memo&&!a.transcript&&a.note)?`<div style="font-size:11px;color:#64748b;font-style:italic;margin-top:4px;">${a.note.substring(0,100)}</div>`:'';
+    const recHtml=a.recordingUrl?`<a href="${a.recordingUrl}" target="_blank" style="font-size:10px;color:#0d2d52;text-decoration:none;">▶ Écouter l'enregistrement</a>`:'';
+    const dir=a.direction==='inbound'?'📲 Entrant':'📤 Sortant';
+    return `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:6px;">
+        <div>
+          <div style="font-weight:700;font-size:14px;">${a.nom||a.clientNom||'Inconnu'} <span style="font-weight:400;color:#64748b;font-size:12px;">${a.tel||a.clientTel||''}</span></div>
+          <div style="font-size:11px;color:#64748b;margin-top:2px;">${dir} · ${a.date} ${a.heure} · ${a.duree||0}min · ${a.operateur||a.agent||''}</div>
+          ${recHtml}
+        </div>
+        ${badge}
+      </div>
+      ${memoHtml}${transHtml}${noteHtml}
+    </div>`;
+  }).join('');
 }
 
 const MODULE_CURRENT='patron.html';
