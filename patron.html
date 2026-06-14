@@ -5399,7 +5399,7 @@ async function sendAI(){
     const data=await r.json();
     typing.remove();
 
-    if(data.error){addAIMsg('bot','⚠️ Erreur : '+data.error);return;}
+    if(data.error){addAIMsg('bot','⚠️ Erreur : '+data.error+(data.debug?' | Debug: '+JSON.stringify(data.debug):''));return;}
 
     // Extract text response
     let replyText='';
