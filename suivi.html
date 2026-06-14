@@ -160,8 +160,17 @@ footer{margin-top:auto;padding:20px 16px;text-align:center;color:var(--muted);fo
 <footer>© GreenFlow Technologies — Plomberie · Chauffage · Sanitaire · Nouvelle-Aquitaine</footer>
 
 <script>
-var CONTACT_TEL = '05 56 00 00 00';
-var CONTACT_HREF = 'tel:+33556000000';
+var CONTACT_TEL = localStorage.getItem('pl_tel_pro') || '—';
+var CONTACT_HREF = 'tel:' + (localStorage.getItem('pl_tel_pro_raw') || '');
+// Sync depuis Firebase si disponible
+document.addEventListener('DOMContentLoaded', function(){
+  if(typeof _db !== 'undefined' && _db){
+    _db.ref('greenflow/pl_tel_pro').once('value', function(snap){
+      var v = snap.val();
+      if(v && v.tel){ CONTACT_TEL = v.tel; CONTACT_HREF = 'tel:' + v.raw; }
+    });
+  }
+});
 
 function normTel(t){
   if(!t) return '';

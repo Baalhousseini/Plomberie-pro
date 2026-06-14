@@ -1014,6 +1014,14 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <div id="liste-techs"></div>
     <button class="btn btn-green" style="margin-top:12px;" onclick="showModalTech()">+ Ajouter technicien</button>
   </div>
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">COORDONNÉES SOCIÉTÉ (affichées sur suivi.html)</div>
+    <div class="form-field" style="margin-top:10px;">
+      <label>Téléphone pro (ex: 01 23 45 67 89)</label>
+      <input type="tel" class="form-input" id="tel-pro-input" placeholder="01 23 45 67 89">
+    </div>
+    <button class="btn btn-green btn-full" onclick="sauvegarderTelPro()">Sauvegarder le numéro</button>
+  </div>
   <div class="card">
     <div class="lbl">OBJECTIF ANNUEL (EUR)</div>
     <div class="form-field" style="margin-top:10px;">
@@ -2191,6 +2199,23 @@ document.getElementById("liste-prix").innerHTML=Object.entries(prix).map(([type,
 
 const techs=getTechs();
 document.getElementById("liste-techs").innerHTML=techs.map((t,i)=>` <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);"> <div><div style="font-weight:600;font-size:13px;">${t.nom}</div><div style="color:var(--text-light);font-size:12px;">${t.specialite} — ID: ${t.id} — PIN: ${t.pin}</div></div> <button class="btn btn-red" style="padding:6px 10px;font-size:11px;" onclick="supprimerTech(${i})">Suppr.</button> </div>`).join("");
+
+// Pré-remplir téléphone pro
+const telProEl=document.getElementById('tel-pro-input');
+if(telProEl){const stored=localStorage.getItem('pl_tel_pro');if(stored)telProEl.value=stored;}
+}
+
+function sauvegarderTelPro(){
+  const el=document.getElementById('tel-pro-input');
+  if(!el)return;
+  const tel=el.value.trim();
+  if(!tel){showNotif('Entre un numéro valide');return;}
+  const raw=tel.replace(/[\s.\-]/g,'').replace(/^0/,'+33');
+  const v=JSON.stringify({tel,raw});
+  localStorage.setItem('pl_tel_pro',tel);
+  localStorage.setItem('pl_tel_pro_raw',raw);
+  if(window._db)window._db.ref('greenflow/pl_tel_pro').set({tel,raw});
+  showNotif('Numéro pro sauvegardé — visible sur suivi.html');
 }
 
 function sauvegarderPrix(){
