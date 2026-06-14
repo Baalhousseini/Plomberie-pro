@@ -647,8 +647,24 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
     <div id="liste-contrats-tech"></div>
   </div>
 
+  <!-- À FAIRE TECH -->
+<div id="page-todo" class="hidden" style="padding-bottom:80px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px 8px;">
+    <div>
+      <div style="font-size:11px;font-weight:800;color:#0d2d52;letter-spacing:2px;text-transform:uppercase;">✅ MES TÂCHES</div>
+      <div style="color:#64748b;font-size:11px;margin-top:2px;" id="todo-tech-subtitle">Chargement...</div>
+    </div>
+    <button onclick="renderToDoTech()" style="background:#f1f5f9;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;color:#0d2d52;cursor:pointer;">↻</button>
+  </div>
+  <div style="padding:0 16px;" id="todo-tech-container"></div>
+</div>
+
   <!-- BOTTOM NAV -->
   <nav class="bottom-nav" id="bottom-nav">
+    <button class="bnav-btn" id="bnav-todo" onclick="showPage('todo')">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span id="bnav-todo-label">À faire</span>
+    </button>
     <button class="bnav-btn active" id="bnav-agenda" onclick="showPage('agenda')">
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       <span>Agenda</span>
@@ -988,7 +1004,7 @@ function lancerApp(){
   av.textContent=currentUser.avatar;
   document.getElementById("headerNom").textContent=currentUser.nom;
   updateCA();renderRdv();renderTabsBadges();renderPerf();renderSemaine();renderHistorique();
-  renderKPI();checkUrgences();renderRecapJournee();renderTeamDispos();renderKpiTech();
+  renderKPI();checkUrgences();renderRecapJournee();renderTeamDispos();renderKpiTech();updateTodoBadgeTech();
   verifierAlertes();
   document.getElementById("chat-fab").classList.remove("hidden");
   renderModuleNav();
@@ -1050,7 +1066,7 @@ function logout(){
 }
 
 function showPage(page){
-  ["agenda","semaine","perf","historique","contrats"].forEach(p=>document.getElementById("page-"+p).classList.add("hidden"));
+  ["agenda","semaine","perf","historique","contrats","todo"].forEach(p=>document.getElementById("page-"+p).classList.add("hidden"));
   document.getElementById("page-"+page).classList.remove("hidden");
   document.querySelectorAll(".bnav-btn").forEach(b=>b.classList.remove("active"));
   const ab=document.getElementById("bnav-"+page);if(ab)ab.classList.add("active");
@@ -1061,6 +1077,7 @@ function showPage(page){
   if(page==="semaine")renderSemaine();
   if(page==="historique")renderHistorique();
   if(page==="contrats")renderContratsTech();
+  if(page==="todo")renderToDoTech();
 }
 
 function showVue(vue,btn){
@@ -1582,6 +1599,118 @@ function closeModal(id){
   renderRdv();
 }
 
+// ── À FAIRE TECH ──
+function renderToDoTech(){
+  var today=todayStr();
+  var nomTech=localStorage.getItem('pl_tech_nom')||'';
+  var rdvs=getRdvs();
+  var rdvsMoi=rdvs.filter(function(r){return !nomTech||r.technicien===nomTech||r.technicien==='À planifier';});
+  var urgences=JSON.parse(localStorage.getItem('pl_urgences')||'[]');
+  var rapports=JSON.parse(localStorage.getItem('pl_rapports')||'[]');
+  var chat=JSON.parse(localStorage.getItem('pl_chat')||'[]');
+  var msgs=chat.filter(function(m){return m.role==='DISPATCH'&&!m.lu;});
+
+  var sections=[
+    {
+      color:'#2563eb',icon:'📅',titre:'Interventions du jour',
+      items:rdvsMoi.filter(function(r){return r.dateRdv===today&&r.statut!=='Termine'&&r.statut!=='Annule';}),
+      render:function(r){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
+        +'<div><div style="font-weight:700;font-size:13px;">'+r.clientNom+'</div>'
+        +'<div style="font-size:11px;color:#64748b;">'+(r.heureRdv||'—')+' · '+r.type+'</div>'
+        +'<div style="font-size:11px;color:#64748b;">'+(r.adresse||'Adresse non renseignée')+'</div></div>'
+        +'<button onclick="showPage(\'agenda\')" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">Démarrer →</button>'
+        +'</div>';},
+      empty:'Aucune intervention aujourd\'hui'
+    },
+    {
+      color:'#dc2626',icon:'🚨',titre:'Urgences assignées',
+      items:urgences.filter(function(u){return u.statut!=='Resolu'&&u.statut!=='Résolu'&&(!nomTech||u.technicien===nomTech);}),
+      render:function(u){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
+        +'<div><div style="font-weight:700;font-size:13px;">'+u.clientNom+'</div>'
+        +'<div style="font-size:11px;color:#64748b;">'+u.type+' · '+(u.adresse||'—')+'</div>'
+        +(u.tel?'<div style="font-size:11px;color:#dc2626;font-weight:700;">'+u.tel+'</div>':'')+'</div>'
+        +(u.tel?'<a href="tel:'+u.tel+'" style="background:#dc2626;color:#fff;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;text-decoration:none;">📞 Appeler</a>':'')
+        +'</div>';},
+      empty:'Aucune urgence assignée ✓'
+    },
+    {
+      color:'#f59e0b',icon:'📝',titre:'Rapports à remplir',
+      items:rdvsMoi.filter(function(r){
+        if(r.statut!=='Termine'&&r.statut!=='En cours')return false;
+        var rap=rapports.find(function(rp){return rp.clientNom===r.clientNom&&rp.date===r.dateRdv;});
+        return !rap;
+      }),
+      render:function(r){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
+        +'<div><div style="font-weight:700;font-size:13px;">'+r.clientNom+'</div>'
+        +'<div style="font-size:11px;color:#64748b;">'+r.type+' · '+r.dateRdv+'</div></div>'
+        +'<button onclick="showPage(\'agenda\')" style="background:#f59e0b;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">Rapport →</button>'
+        +'</div>';},
+      empty:'Tous les rapports sont remplis ✓'
+    },
+    {
+      color:'#7c3aed',icon:'💬',titre:'Messages dispatch non lus',
+      items:msgs,
+      render:function(m){return '<div><div style="font-weight:700;font-size:13px;">'+(m.from||'Dispatch')+'</div>'
+        +'<div style="font-size:12px;color:#64748b;">'+(m.text||'').slice(0,60)+'</div></div>';},
+      empty:'Aucun message non lu ✓'
+    },
+    {
+      color:'#0891b2',icon:'📅',titre:'Prochains RDV (cette semaine)',
+      items:(function(){
+        var cutoff=new Date(Date.now()+7*86400000).toISOString().split('T')[0];
+        return rdvsMoi.filter(function(r){return r.dateRdv>today&&r.dateRdv<=cutoff&&r.statut!=='Annule'&&r.statut!=='Termine';});
+      })(),
+      render:function(r){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
+        +'<div><div style="font-weight:700;font-size:13px;">'+r.clientNom+'</div>'
+        +'<div style="font-size:11px;color:#64748b;">'+r.dateRdv+' '+(r.heureRdv||'')+' · '+r.type+'</div>'
+        +'<div style="font-size:11px;color:#64748b;">'+(r.adresse||'')+'</div></div>'
+        +'<span style="font-size:10px;background:#e0f2fe;color:#0891b2;padding:3px 8px;border-radius:6px;font-weight:700;">'+r.statut+'</span>'
+        +'</div>';},
+      empty:'Aucun RDV cette semaine ✓'
+    }
+  ];
+
+  var urgentCount=sections[0].items.length+sections[1].items.length+sections[2].items.length;
+  var sub=document.getElementById('todo-tech-subtitle');
+  if(sub)sub.textContent=urgentCount>0?urgentCount+' action'+(urgentCount>1?'s':'')+' urgente'+(urgentCount>1?'s':''):'Bonne journée ✓';
+  updateTodoBadgeTech(sections);
+
+  var c=document.getElementById('todo-tech-container');if(!c)return;
+  c.innerHTML=sections.map(function(sec){
+    var bg=sec.color+'12';var border=sec.color+'40';
+    return '<div style="background:'+bg+';border:1.5px solid '+border+';border-left:4px solid '+sec.color+';border-radius:12px;padding:14px;margin-bottom:12px;">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:'+(sec.items.length?'12px':'0')+';"><div style="font-size:12px;font-weight:800;color:'+sec.color+';text-transform:uppercase;letter-spacing:0.5px;">'+sec.icon+' '+sec.titre+'</div>'
+      +'<span style="background:'+sec.color+';color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:800;">'+sec.items.length+'</span></div>'
+      +(sec.items.length===0?'<div style="color:#94a3b8;font-size:12px;">'+sec.empty+'</div>'
+        :sec.items.slice(0,4).map(function(item){return '<div style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:6px;border:1px solid '+border+';">'+sec.render(item)+'</div>';}).join('')
+        +(sec.items.length>4?'<div style="font-size:11px;color:'+sec.color+';text-align:center;margin-top:6px;font-weight:700;">+'+(sec.items.length-4)+' de plus →</div>':''))
+      +'</div>';
+  }).join('');
+}
+
+function updateTodoBadgeTech(sections){
+  var rdvs=getRdvs();
+  var nomTech=localStorage.getItem('pl_tech_nom')||'';
+  var today=todayStr();
+  var rdvsMoi=rdvs.filter(function(r){return !nomTech||r.technicien===nomTech;});
+  var rapports=JSON.parse(localStorage.getItem('pl_rapports')||'[]');
+  var urgences=JSON.parse(localStorage.getItem('pl_urgences')||'[]');
+  var total=(sections
+    ? sections.slice(0,3).reduce(function(s,sec){return s+sec.items.length;},0)
+    : rdvsMoi.filter(function(r){return r.dateRdv===today&&r.statut!=='Termine'&&r.statut!=='Annule';}).length
+      +urgences.filter(function(u){return u.statut!=='Resolu'&&u.statut!=='Résolu'&&(!nomTech||u.technicien===nomTech);}).length
+      +rdvsMoi.filter(function(r){
+        if(r.statut!=='Termine')return false;
+        return !rapports.find(function(rp){return rp.clientNom===r.clientNom&&rp.date===r.dateRdv;});
+      }).length
+  );
+  var lbl=document.getElementById('bnav-todo-label');
+  if(lbl)lbl.textContent=total>0?'À faire ('+total+')':'À faire';
+  var btn=document.getElementById('bnav-todo');
+  if(btn)btn.style.color=total>0?'var(--blue)':'';
+  return total;
+}
+
 function showNotif(msg){
   const n=document.createElement("div");n.className="notif";n.textContent=msg;
   document.body.appendChild(n);setTimeout(()=>n.remove(),3500);
@@ -2082,7 +2211,8 @@ window.onload=()=>{
 window.addEventListener('storage',e=>{
   if(!['pl_rdvs','pl_urgences','pl_dispos','pl_rapports'].includes(e.key))return;
   if(!currentUser)return;
-  renderRdv();renderKPI();checkUrgences();renderRecapJournee();});
+  renderRdv();renderKPI();checkUrgences();renderRecapJournee();updateTodoBadgeTech();
+  if(!document.getElementById('page-todo').classList.contains('hidden'))renderToDoTech();});
 
 // BroadcastChannel direct — même navigateur, même appareil (plus fiable que StorageEvent)
 var _techBC=null;

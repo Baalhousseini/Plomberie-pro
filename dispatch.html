@@ -301,6 +301,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div class="nav-groups" id="nav-groups-d">
     <button class="ng-btn active" id="ng-tableau" onclick="showPage('dashboard')">📊 Tableau</button>
     <button class="ng-btn" id="ng-urgences" onclick="showPage('urgences')">🚨 Urgences</button>
+    <button class="ng-btn" id="ng-todo-d" onclick="showPage('todo')">✅ À faire</button>
     <button class="ng-btn" data-group="rdv" onclick="showGroupD('rdv')">📅 Planning</button>
     <button class="ng-btn" data-group="suivi" onclick="showGroupD('suivi')">📋 Suivi</button>
     <button class="ng-btn" data-group="commercial" onclick="showGroupD('commercial')">💼 Commercial</button>
@@ -309,6 +310,18 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div class="nav" id="sub-nav-d"></div>
 
   <div class="content">
+
+<!-- À FAIRE DISPATCH -->
+<div id="page-todo" class="hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+    <div>
+      <div style="color:#1a3a5c;font-size:11px;letter-spacing:2px;font-weight:700;">✅ À FAIRE — DISPATCH</div>
+      <div style="color:#64748b;font-size:12px;margin-top:2px;" id="todo-d-subtitle">Chargement...</div>
+    </div>
+    <button onclick="renderToDoDispatch()" style="background:#f1f5f9;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;color:#0d2d52;cursor:pointer;">↻ Actualiser</button>
+  </div>
+  <div id="todo-d-container"></div>
+</div>
 
 <!-- TABLEAU DE BORD -->
 <div id="page-dashboard">
@@ -1033,6 +1046,7 @@ function lancerApp(){
   // Init tracking counters pour notifications intelligentes
   _prevAPlanifier=getRdvs().filter(function(r){return r.technicien==='À planifier'&&r.statut!=='Termine'&&r.statut!=='Annule';}).length;
   _prevRapportCount=getRapports().length;
+  updateTodoBadgeDispatch();
   // Afficher le nom de l'opérateur dans le header
   if(currentOperateur){
     var hOp=document.getElementById('header-operateur');
@@ -1070,11 +1084,13 @@ function lancerApp(){
         showNotif('📝 Rapport reçu de '+(newest2?newest2.technicien+' — '+newest2.clientNom:'un technicien')+' ! À valider.');
       }
       _prevRapportCount=nb;
-      actualiserTout();
+      actualiserTout();updateTodoBadgeDispatch();
+      if(!document.getElementById('page-todo').classList.contains('hidden'))renderToDoDispatch();
       if(!document.getElementById('page-validation').classList.contains('hidden'))renderValidation();
     }
     if(e.key==='pl_rdvs'){
-      actualiserTout();renderDispatchKPI();
+      actualiserTout();renderDispatchKPI();updateTodoBadgeDispatch();
+      if(!document.getElementById('page-todo').classList.contains('hidden'))renderToDoDispatch();
       var apNow=getRdvs().filter(function(r){return r.technicien==='À planifier'&&r.statut!=='Termine'&&r.statut!=='Annule';});
       if(_prevAPlanifier>=0&&apNow.length>_prevAPlanifier){
         var newest=apNow[apNow.length-1];
@@ -1083,9 +1099,10 @@ function lancerApp(){
       _prevAPlanifier=apNow.length;
     }
     if(e.key==='pl_urgences'){
-      updateNavBadges();
+      updateNavBadges();updateTodoBadgeDispatch();
       if(!document.getElementById('page-urgences').classList.contains('hidden'))renderUrgences();
       if(!document.getElementById('page-dashboard').classList.contains('hidden'))renderDashboard();
+      if(!document.getElementById('page-todo').classList.contains('hidden'))renderToDoDispatch();
       var actives=getUrgences().filter(function(u){return u.statut!=='Resolu';});
       if(actives.length)showNotif('Urgence : '+actives[0].clientNom+' — '+actives[0].type);
     }
@@ -1420,7 +1437,7 @@ function showGroupD(g){
   if(!items.some(function(i){return i.p===_dpPage;})&&items.length)showPage(items[0].p);
 }
 function showPage(page){
-  var pages=["dashboard","dispos","urgences","nouveau-rdv","tous-rdv","validation","rapports","sav","devis","facturation","procedures","infos","clients","appels","stock","compta","gantt","passation","rappels"];
+  var pages=["dashboard","dispos","urgences","nouveau-rdv","tous-rdv","validation","rapports","sav","devis","facturation","procedures","infos","clients","appels","stock","compta","gantt","passation","rappels","todo"];
   for(var i=0;i<pages.length;i++){var el=document.getElementById("page-"+pages[i]);if(el)el.classList.add("hidden");}
   var pageEl=document.getElementById("page-"+page);if(pageEl)pageEl.classList.remove("hidden");
   _dpPage=page;
@@ -1443,6 +1460,7 @@ function showPage(page){
     if(page==='dashboard')document.getElementById('ng-tableau')?.classList.add('active');
     if(page==='urgences')document.getElementById('ng-urgences')?.classList.add('active');
     if(page==='procedures')document.getElementById('ng-procedures')?.classList.add('active');
+    if(page==='todo')document.getElementById('ng-todo-d')?.classList.add('active');
   }
   if(page==="dashboard")renderDashboard();
   if(page==="dispos"){actualiserDispos();renderPlanningJour();initDispatchCarte();}
@@ -1462,6 +1480,7 @@ function showPage(page){
   if(page==='gantt')renderGantt();
   if(page==='passation')renderPassation();
   if(page==='rappels')renderRappels();
+  if(page==="todo")renderToDoDispatch();
 }
 
 // STOCK PIÈCES
@@ -2776,6 +2795,111 @@ document.getElementById("liste-infos").innerHTML=html;
 function closeModal(id){document.getElementById(id).classList.add("hidden");}
 function openPhotoFs(src){document.getElementById("photo-fs-img").src=src;document.getElementById("photo-fs").classList.remove("hidden");}
 function closePhotoFs(){document.getElementById("photo-fs").classList.add("hidden");}
+// ── À FAIRE DISPATCH ──
+function renderToDoDispatch(){
+  var rdvs=getRdvs();var raps=getRapports();var devis=getDevis();
+  var urgences=getUrgences();var savs=getSavs();
+  var tomorrowStr=new Date(Date.now()+86400000).toISOString().split('T')[0];
+
+  var sections=[
+    {
+      color:'#dc2626',icon:'🚨',titre:'Urgences actives sans technicien',
+      items:urgences.filter(function(u){return u.statut!=='Resolu'&&u.statut!=='Résolu'&&!u.technicien;}),
+      render:function(u){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
+        +'<div><div style="font-weight:700;font-size:13px;">'+u.clientNom+'</div>'
+        +'<div style="font-size:11px;color:#64748b;">'+u.type+' · '+(u.adresse||'—')+'</div>'
+        +'<div style="font-size:10px;color:#dc2626;font-weight:700;">Ouvert il y a '+Math.floor((Date.now()-u.id)/60000)+' min</div></div>'
+        +'<button onclick="showPage(\'urgences\')" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">Assigner →</button>'
+        +'</div>';},
+      empty:'Aucune urgence active ✓'
+    },
+    {
+      color:'#7c3aed',icon:'📋',titre:'RDV à planifier — assigner un technicien',
+      items:rdvs.filter(function(r){return r.technicien==='À planifier'&&r.statut!=='Termine'&&r.statut!=='Annule';}),
+      render:function(r){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
+        +'<div><div style="font-weight:700;font-size:13px;">'+r.clientNom+'</div>'
+        +'<div style="font-size:11px;color:#64748b;">'+r.type+' · '+(r.dateRdv||'—')+' '+(r.heureRdv||'')+'</div>'
+        +(r.creePar?'<div style="font-size:10px;color:#7c3aed;font-weight:700;">Via : '+r.creePar+'</div>':'')+'</div>'
+        +'<button onclick="showPage(\'tous-rdv\')" style="background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">Planifier →</button>'
+        +'</div>';},
+      empty:'Tous les RDV ont un technicien ✓'
+    },
+    {
+      color:'#f59e0b',icon:'📝',titre:'Rapports à valider',
+      items:raps.filter(function(r){return r.statut==='En attente facturation';}),
+      render:function(r){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
+        +'<div><div style="font-weight:700;font-size:13px;">'+r.clientNom+' — '+r.technicien+'</div>'
+        +'<div style="font-size:11px;color:#64748b;">'+(r.type||r.typeIntervention||'')+(r.date?' · '+r.date:'')+'</div>'
+        +(r.montantFinal?'<div style="font-size:13px;color:#f59e0b;font-weight:800;">'+r.montantFinal.toLocaleString('fr-FR')+'€</div>':'')+'</div>'
+        +'<button onclick="showPage(\'validation\')" style="background:#f59e0b;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">Valider →</button>'
+        +'</div>';},
+      empty:'Aucun rapport en attente ✓'
+    },
+    {
+      color:'#2563eb',icon:'📄',titre:'Devis terrain à traiter',
+      items:devis.filter(function(d){return d.statut==='Nouveau'||d.statut==='En attente';}),
+      render:function(d){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
+        +'<div><div style="font-weight:700;font-size:13px;">'+(d.clientNom||d.client||'—')+'</div>'
+        +'<div style="font-size:11px;color:#64748b;">'+(d.type||'—')+(d.prixEstimatif?' · '+d.prixEstimatif+'€ estimé':'')+'</div>'
+        +(d.technicien?'<div style="font-size:10px;color:#2563eb;">Via '+d.technicien+'</div>':'')+'</div>'
+        +'<button onclick="showPage(\'devis\')" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">Traiter →</button>'
+        +'</div>';},
+      empty:'Aucun devis en attente ✓'
+    },
+    {
+      color:'#0891b2',icon:'🔁',titre:'SAV ouverts',
+      items:savs.filter(function(s){return s.statut!=='Resolu'&&s.statut!=='Résolu';}),
+      render:function(s){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
+        +'<div><div style="font-weight:700;font-size:13px;">'+(s.clientNom||'—')+'</div>'
+        +'<div style="font-size:11px;color:#64748b;">'+(s.motif||'')+'</div></div>'
+        +'<button onclick="showPage(\'sav\')" style="background:#0891b2;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">Gérer →</button>'
+        +'</div>';},
+      empty:'Aucun SAV ouvert ✓'
+    },
+    {
+      color:'#16a34a',icon:'📱',titre:'RDV demain — rappels SMS à envoyer',
+      items:rdvs.filter(function(r){return r.dateRdv===tomorrowStr&&r.statut!=='Annule'&&r.statut!=='Termine'&&r.clientTel;}),
+      render:function(r){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
+        +'<div><div style="font-weight:700;font-size:13px;">'+r.clientNom+' — '+r.technicien+'</div>'
+        +'<div style="font-size:11px;color:#64748b;">Demain '+r.heureRdv+' · '+r.type+'</div></div>'
+        +(r.clientTel?'<a href="tel:'+r.clientTel+'" style="background:#16a34a;color:#fff;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;text-decoration:none;">📞 Confirmer</a>':'')
+        +'</div>';},
+      empty:'Pas de RDV demain ou déjà rappelés ✓'
+    }
+  ];
+
+  var total=sections.reduce(function(s,sec){return s+sec.items.length;},0);
+  var sub=document.getElementById('todo-d-subtitle');
+  if(sub)sub.textContent=total>0?total+' action'+(total>1?'s':'')+' en attente':'Tout est à jour ✓';
+  var btn=document.getElementById('ng-todo-d');
+  if(btn){btn.textContent=total>0?'✅ À faire ('+total+')':'✅ À faire';btn.style.color=total>0?'#dc2626':'';}
+
+  var c=document.getElementById('todo-d-container');if(!c)return;
+  c.innerHTML=sections.map(function(sec){
+    var bg=sec.color+'12';var border=sec.color+'40';
+    return '<div style="background:'+bg+';border:1.5px solid '+border+';border-left:4px solid '+sec.color+';border-radius:12px;padding:14px;margin-bottom:12px;">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:'+(sec.items.length?'12px':'0')+';"><div style="font-size:12px;font-weight:800;color:'+sec.color+';text-transform:uppercase;letter-spacing:0.5px;">'+sec.icon+' '+sec.titre+'</div>'
+      +'<span style="background:'+sec.color+';color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:800;">'+sec.items.length+'</span></div>'
+      +(sec.items.length===0?'<div style="color:#94a3b8;font-size:12px;">'+sec.empty+'</div>'
+        :sec.items.slice(0,4).map(function(item){return '<div style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:6px;border:1px solid '+border+';">'+sec.render(item)+'</div>';}).join('')
+        +(sec.items.length>4?'<div style="font-size:11px;color:'+sec.color+';text-align:center;margin-top:6px;font-weight:700;">+'+(sec.items.length-4)+' de plus →</div>':''))
+      +'</div>';
+  }).join('');
+}
+
+function updateTodoBadgeDispatch(){
+  var rdvs=getRdvs();var raps=getRapports();var devis=getDevis();
+  var urgences=getUrgences();var savs=getSavs();
+  var total=urgences.filter(function(u){return u.statut!=='Resolu'&&u.statut!=='Résolu'&&!u.technicien;}).length
+    +rdvs.filter(function(r){return r.technicien==='À planifier'&&r.statut!=='Termine'&&r.statut!=='Annule';}).length
+    +raps.filter(function(r){return r.statut==='En attente facturation';}).length
+    +devis.filter(function(d){return d.statut==='Nouveau'||d.statut==='En attente';}).length
+    +savs.filter(function(s){return s.statut!=='Resolu'&&s.statut!=='Résolu';}).length;
+  var btn=document.getElementById('ng-todo-d');
+  if(btn){btn.textContent=total>0?'✅ À faire ('+total+')':'✅ À faire';btn.style.color=total>0?'#dc2626':'';}
+  return total;
+}
+
 function showNotif(msg){
 var n=document.createElement("div");n.className="notif";n.textContent=msg;
 document.body.appendChild(n);setTimeout(function(){n.remove();},3500);
