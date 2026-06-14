@@ -1258,7 +1258,13 @@ const getDevis=()=>{
   const d2=JSON.parse(localStorage.getItem("pl_devis_sec")||"[]").map(d=>({...d,source:'secretariat'}));
   return [...d1,...d2].sort((a,b)=>(b.id||0)-(a.id||0));
 };
-const saveDevis=d=>localStorage.setItem("pl_devis",JSON.stringify(d));
+const saveDevis=d=>{
+  // Séparer les sources : ne jamais écraser pl_devis_sec depuis patron
+  const dispatch=d.filter(x=>x.source!=='secretariat');
+  const v=JSON.stringify(dispatch);
+  localStorage.setItem("pl_devis",v);
+  if(window.gfSync)gfSync("pl_devis",v);
+};
 const getPrimes=()=>JSON.parse(localStorage.getItem("pl_primes")||"{}");
 const getUrgences=()=>JSON.parse(localStorage.getItem("pl_urgences")||"[]");
 const saveUrgences=u=>{const v=JSON.stringify(u);localStorage.setItem("pl_urgences",v);if(window.gfSync)gfSync("pl_urgences",v);};
@@ -2250,11 +2256,12 @@ function sauvegarderTelPro(){
 }
 
 function sauvegarderPrix(){
-const prix={};
-document.querySelectorAll("#liste-prix input").forEach(input=>{prix[input.dataset.type]=Number(input.value);});
-localStorage.setItem("pl_prix",JSON.stringify(prix));
-// Mettre a jour les selecteurs de prix dans le formulaire RDV
-showNotif("Prix sauvegardes !");
+  const prix={};
+  document.querySelectorAll("#liste-prix input").forEach(input=>{prix[input.dataset.type]=Number(input.value);});
+  const v=JSON.stringify(prix);
+  localStorage.setItem("pl_prix",v);
+  if(window.gfSync)gfSync("pl_prix",v);
+  showNotif("Prix sauvegardés et synchronisés sur tous les appareils !");
 }
 
 function sauvegarderObjectif(){
@@ -2344,8 +2351,20 @@ function renderDevis(){
 }
 
 function marquerDevisTraite(i){
-  const d=getDevis();d[i].statut="Traite";d[i].traiteLe=new Date().toISOString();
-  saveDevis(d);renderDevis();updateNavBadges();showNotif("Devis marque comme traite");
+  const allD=getDevis();const dv=allD[i];
+  if(!dv)return;
+  if(dv.source==='secretariat'){
+    const sec=JSON.parse(localStorage.getItem('pl_devis_sec')||'[]');
+    const idx=sec.findIndex(x=>x.id===dv.id);
+    if(idx>=0){sec[idx].statut='Traite';sec[idx].traiteLe=new Date().toISOString();
+      const v=JSON.stringify(sec);localStorage.setItem('pl_devis_sec',v);if(window.gfSync)gfSync('pl_devis_sec',v);}
+  } else {
+    const dis=JSON.parse(localStorage.getItem('pl_devis')||'[]');
+    const idx=dis.findIndex(x=>x.id===dv.id);
+    if(idx>=0){dis[idx].statut='Traite';dis[idx].traiteLe=new Date().toISOString();
+      const v=JSON.stringify(dis);localStorage.setItem('pl_devis',v);if(window.gfSync)gfSync('pl_devis',v);}
+  }
+  renderDevis();updateNavBadges();showNotif("Devis marqué comme traité ✓");
 }
 
 function convertirDevisRdv(i){
