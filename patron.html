@@ -444,6 +444,18 @@ body.logged-in #ai-fab{display:flex!important;}
   </div>
 </div>
 
+<!-- À FAIRE -->
+<div id="page-todo" class="hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+    <div>
+      <div style="font-size:11px;font-weight:800;color:#0d2d52;letter-spacing:2px;text-transform:uppercase;">✅ À FAIRE — RÉCAPITULATIF</div>
+      <div style="color:#64748b;font-size:11px;margin-top:2px;" id="todo-subtitle">Toutes les actions en attente</div>
+    </div>
+    <button onclick="renderToDo()" style="background:#f1f5f9;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;color:#0d2d52;cursor:pointer;">↻ Actualiser</button>
+  </div>
+  <div id="todo-container"></div>
+</div>
+
 <!-- DISPATCH -->
 <div id="page-dispatch" class="hidden">
   <div class="card blue" style="margin-bottom:12px;">
@@ -1331,8 +1343,10 @@ function lancerApp(){
     if(e.key==='pl_rapports'){
       showNotif('Nouveau rapport recu !');
       updateNavBadges();
+      updateTodoBadge();
       renderDashboard();
       if(!document.getElementById('page-rapports').classList.contains('hidden'))renderRapports();
+      if(!document.getElementById('page-todo').classList.contains('hidden'))renderToDo();
     }
     if(e.key==='pl_devis'){
       updateNavBadges();
@@ -1351,13 +1365,15 @@ function lancerApp(){
     }
     if(e.key==='pl_rdvs'){
       renderDisposDispatch();renderPlanningJour();renderDashboard();
-      renderAPlanifierPatron();updateNavBadges();
+      renderAPlanifierPatron();updateNavBadges();updateTodoBadge();
       if(!document.getElementById('page-agenda').classList.contains('hidden'))renderAgenda();
+      if(!document.getElementById('page-todo').classList.contains('hidden'))renderToDo();
     }
     if(e.key==='pl_urgences'){
-      updateNavBadges();renderDashboard();renderAlertes();
+      updateNavBadges();updateTodoBadge();renderDashboard();renderAlertes();
       if(!document.getElementById('page-urgences').classList.contains('hidden'))renderUrgences();
       if(!document.getElementById('page-agenda').classList.contains('hidden'))renderAgenda();
+      if(!document.getElementById('page-todo').classList.contains('hidden'))renderToDo();
       const nouvelles=JSON.parse(e.newValue||'[]').filter(u=>u.statut==='Active'&&(Date.now()-u.id)<120000);
       if(nouvelles.length)showNotif('🚨 Urgence : '+nouvelles[0].clientNom+' — '+nouvelles[0].type);
     }
@@ -1398,6 +1414,7 @@ function logout(){
 
 const NAV_GROUPS={
   ops:[
+    {p:'todo',label:'✅ À FAIRE',id:'nav-todo'},
     {p:'dispatch',label:'Dispatch',id:'nav-dispatch'},
     {p:'urgences',label:'Urgences',id:'nav-urgences'},
     {p:'live',label:'🔴 Live',id:'nav-live',style:'color:#dc2626'},
@@ -1468,7 +1485,7 @@ function showPage(p){
     if(p==='dashboard') document.getElementById('ng-home')?.classList.add('active');
     if(p==='params') document.getElementById('ng-params')?.classList.add('active');
   }
-  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps","mandants","contrats-cadres","stock","sous-traitants","appels-offres","organigramme","planning-long","gantt","passation","rappels","appels"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
+  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps","mandants","contrats-cadres","stock","sous-traitants","appels-offres","organigramme","planning-long","gantt","passation","rappels","appels","todo"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
   const pageEl=document.getElementById("page-"+p);if(pageEl)pageEl.classList.remove("hidden");
   if(p==="dashboard")renderDashboard();
   if(p==="dispatch"){renderDisposDispatch();renderPlanningJour();renderAPlanifierPatron();}
@@ -1497,6 +1514,7 @@ function showPage(p){
   if(p==='passation')renderPassation();
   if(p==='rappels')renderRappels();
   if(p==='appels')renderAppelsPatron();
+  if(p==='todo')renderToDo();
 }
 
 function showAnalytics(p){
@@ -2392,6 +2410,119 @@ function setAgendaTech(t,btn){
   if(btn)btn.className="btn btn-primary";
   renderAgenda();
 }
+// ═══════════════════════════════════════
+// À FAIRE — RÉCAPITULATIF COMPLET
+// ═══════════════════════════════════════
+function renderToDo(){
+  const rdvs=getRdvs();const today=todayStr();
+  const raps=getRapports();const devis=getDevis();
+  const urgences=getUrgences();const contrats=JSON.parse(localStorage.getItem('pl_contrats')||'[]');
+  const savs=JSON.parse(localStorage.getItem('pl_savs')||'[]');
+
+  const sections=[
+    {
+      id:'todo-urgences',color:'#dc2626',icon:'🚨',
+      titre:'Urgences actives',
+      items:urgences.filter(u=>u.statut!=='Resolu'&&u.statut!=='Résolu'),
+      render:u=>`<div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-weight:700;font-size:13px;">${u.clientNom}</div>
+        <div style="font-size:11px;color:#64748b;">${u.type} · ${u.adresse||'—'}</div></div>
+        <button class="btn btn-red" style="font-size:10px;padding:5px 10px;" onclick="showGroup('ops');showPage('urgences')">Gérer →</button></div>`,
+      empty:'Aucune urgence active ✓'
+    },
+    {
+      id:'todo-a-planifier',color:'#7c3aed',icon:'📋',
+      titre:'RDV à planifier — assigner un tech',
+      items:rdvs.filter(r=>r.technicien==='À planifier'&&r.statut!=='Termine'&&r.statut!=='Annule'),
+      render:r=>`<div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-weight:700;font-size:13px;">${r.clientNom}</div>
+        <div style="font-size:11px;color:#64748b;">${r.type} · ${r.dateRdv} ${r.heureRdv} · ${r.adresse||''}</div>
+        ${r.creePar?`<div style="font-size:10px;color:#7c3aed;margin-top:2px;">Via : ${r.creePar}</div>`:''}</div>
+        <button class="btn btn-primary" style="font-size:10px;padding:5px 10px;" onclick="showGroup('ops');showPage('dispatch')">Planifier →</button></div>`,
+      empty:'Tous les RDV ont un technicien ✓'
+    },
+    {
+      id:'todo-rapports-valider',color:'#f59e0b',icon:'📝',
+      titre:'Rapports à valider',
+      items:raps.filter(r=>r.statut==='En attente facturation'),
+      render:r=>`<div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-weight:700;font-size:13px;">${r.clientNom}</div>
+        <div style="font-size:11px;color:#64748b;">${r.type||r.typeIntervention||'—'} · ${r.technicien} · ${r.date||'—'}</div>
+        <div style="font-size:11px;color:#f59e0b;font-weight:700;">${(r.montantFinal||0).toLocaleString('fr-FR')}€</div></div>
+        <button class="btn btn-primary" style="font-size:10px;padding:5px 10px;background:#f59e0b;" onclick="showGroup('finances');showPage('rapports')">Valider →</button></div>`,
+      empty:'Aucun rapport en attente de validation ✓'
+    },
+    {
+      id:'todo-factures',color:'#16a34a',icon:'💶',
+      titre:'Factures à créer — rapports validés',
+      items:raps.filter(r=>r.statut==='Valide'),
+      render:r=>`<div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-weight:700;font-size:13px;">${r.clientNom}</div>
+        <div style="font-size:11px;color:#64748b;">${r.type||'—'} · Validé le ${(r.valideAt||'').slice(0,10)||r.date||'—'}</div>
+        <div style="font-size:13px;color:#16a34a;font-weight:800;">${(r.montantFinal||0).toLocaleString('fr-FR')}€</div></div>
+        <button class="btn btn-green" style="font-size:10px;padding:5px 10px;" onclick="showGroup('finances');showPage('rapports')">Facturer →</button></div>`,
+      empty:'Aucune facture à créer ✓'
+    },
+    {
+      id:'todo-devis',color:'#2563eb',icon:'📄',
+      titre:'Devis en attente de traitement',
+      items:devis.filter(d=>d.statut==='Nouveau'||d.statut==='En attente'),
+      render:d=>`<div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-weight:700;font-size:13px;">${d.clientNom||'—'}</div>
+        <div style="font-size:11px;color:#64748b;">${d.type||'—'} · ${d.prixEstimatif?d.prixEstimatif+'€':''}</div>
+        ${d.source==='secretariat'?'<div style="font-size:10px;color:#7c3aed;">Via secrétariat</div>':''}</div>
+        <button class="btn btn-primary" style="font-size:10px;padding:5px 10px;" onclick="showGroup('finances');showPage('devis')">Traiter →</button></div>`,
+      empty:'Aucun devis en attente ✓'
+    },
+    {
+      id:'todo-savs',color:'#0891b2',icon:'🔁',
+      titre:'SAV ouverts',
+      items:savs.filter(s=>s.statut!=='Resolu'&&s.statut!=='Résolu'),
+      render:s=>`<div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-weight:700;font-size:13px;">${s.clientNom||'—'}</div>
+        <div style="font-size:11px;color:#64748b;">${s.motif||'—'}</div></div>
+        <span style="font-size:10px;background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:6px;font-weight:700;">${s.statut||'Ouvert'}</span></div>`,
+      empty:'Aucun SAV ouvert ✓'
+    }
+  ];
+
+  const total=sections.reduce((s,sec)=>s+sec.items.length,0);
+  const sub=document.getElementById('todo-subtitle');
+  if(sub)sub.textContent=total>0?total+' action'+(total>1?'s':'')+' en attente':'Tout est à jour ✓';
+
+  // Mettre à jour badge nav
+  const btn=document.getElementById('nav-todo');
+  if(btn){btn.textContent=total>0?'✅ À FAIRE ('+total+')':'✅ À FAIRE';btn.style.color=total>0?'#dc2626':'';}
+
+  document.getElementById('todo-container').innerHTML=sections.map(sec=>{
+    const bg=sec.color+'12';
+    const border=sec.color+'40';
+    return`<div style="background:${bg};border:1.5px solid ${border};border-left:4px solid ${sec.color};border-radius:12px;padding:14px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${sec.items.length?'12px':'0'};">
+        <div style="font-size:12px;font-weight:800;color:${sec.color};text-transform:uppercase;letter-spacing:0.5px;">${sec.icon} ${sec.titre}</div>
+        <span style="background:${sec.color};color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:800;">${sec.items.length}</span>
+      </div>
+      ${sec.items.length===0?`<div style="color:#94a3b8;font-size:12px;">${sec.empty}</div>`
+        :sec.items.slice(0,5).map(item=>`<div style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:6px;border:1px solid ${border};">${sec.render(item)}</div>`).join('')
+        +(sec.items.length>5?`<div style="font-size:11px;color:${sec.color};text-align:center;margin-top:6px;font-weight:700;">+${sec.items.length-5} de plus →</div>`:'')
+      }
+    </div>`;
+  }).join('');
+}
+
+function updateTodoBadge(){
+  const rdvs=getRdvs();const raps=getRapports();const devis=getDevis();
+  const urgences=getUrgences();const savs=JSON.parse(localStorage.getItem('pl_savs')||'[]');
+  const total=urgences.filter(u=>u.statut!=='Resolu'&&u.statut!=='Résolu').length
+    +rdvs.filter(r=>r.technicien==='À planifier'&&r.statut!=='Termine'&&r.statut!=='Annule').length
+    +raps.filter(r=>r.statut==='En attente facturation'||r.statut==='Valide').length
+    +devis.filter(d=>d.statut==='Nouveau'||d.statut==='En attente').length
+    +savs.filter(s=>s.statut!=='Resolu'&&s.statut!=='Résolu').length;
+  const btn=document.getElementById('nav-todo');
+  if(btn){btn.textContent=total>0?'✅ À FAIRE ('+total+')':'✅ À FAIRE';btn.style.color=total>0?'#dc2626':'';}
+  return total;
+}
+
 function setVuePlanning(vue){
   const aContent=document.getElementById('vue-agenda-content');
   const gContent=document.getElementById('vue-gantt-content');

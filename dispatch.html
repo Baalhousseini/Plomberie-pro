@@ -919,6 +919,8 @@ var TECH_C = {"Technicien 1":{c:"#2d6a9f",a:"T1",bg:"#dbeafe"}, "Technicien 2":{
 var STATUT_C = {"Disponible":"#16a34a","En intervention":"#c2410c","Pause":"#a16207","Indisponible":"#dc2626"};
 var filtreRap = "tous";
 var expandedRap = null;
+var _prevAPlanifier = -1;
+var _prevRapportCount = -1;
 
 function todayStr(){return new Date().toISOString().split("T")[0];}
 function getRdvs(){return JSON.parse(localStorage.getItem("pl_rdvs")||"[]");}
@@ -1028,6 +1030,9 @@ function lancerApp(){
   document.getElementById('ng-tableau')?.classList.add('active');
   document.getElementById('sub-nav-d').innerHTML='';
   demarrerHorloge();
+  // Init tracking counters pour notifications intelligentes
+  _prevAPlanifier=getRdvs().filter(function(r){return r.technicien==='À planifier'&&r.statut!=='Termine'&&r.statut!=='Annule';}).length;
+  _prevRapportCount=getRapports().length;
   // Afficher le nom de l'opérateur dans le header
   if(currentOperateur){
     var hOp=document.getElementById('header-operateur');
@@ -1057,13 +1062,26 @@ function lancerApp(){
       if(!document.getElementById('page-devis').classList.contains('hidden'))renderDevis();
     }
     if(e.key==='pl_rapports'){
-      var nb=getRapports().length;
+      var raps=getRapports();
+      var nb=raps.length;
       document.getElementById('hdr-count').textContent=nb;
-      showNotif('Rapport recu d\'un technicien !');
+      if(_prevRapportCount>=0&&nb>_prevRapportCount){
+        var newest2=raps[raps.length-1];
+        showNotif('📝 Rapport reçu de '+(newest2?newest2.technicien+' — '+newest2.clientNom:'un technicien')+' ! À valider.');
+      }
+      _prevRapportCount=nb;
       actualiserTout();
       if(!document.getElementById('page-validation').classList.contains('hidden'))renderValidation();
     }
-    if(e.key==='pl_rdvs'){actualiserTout();renderDispatchKPI();}
+    if(e.key==='pl_rdvs'){
+      actualiserTout();renderDispatchKPI();
+      var apNow=getRdvs().filter(function(r){return r.technicien==='À planifier'&&r.statut!=='Termine'&&r.statut!=='Annule';});
+      if(_prevAPlanifier>=0&&apNow.length>_prevAPlanifier){
+        var newest=apNow[apNow.length-1];
+        showNotif('📞 Nouveau RDV à planifier : '+(newest?newest.clientNom+' — '+newest.type:''));
+      }
+      _prevAPlanifier=apNow.length;
+    }
     if(e.key==='pl_urgences'){
       updateNavBadges();
       if(!document.getElementById('page-urgences').classList.contains('hidden'))renderUrgences();
