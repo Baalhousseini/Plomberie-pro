@@ -48,7 +48,10 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) return res.status(500).json({ error: 'ANTHROPIC_API_KEY manquante' });
+  if (!key) {
+    const envKeys = Object.keys(process.env).filter(k => k.startsWith('ANTH') || k.startsWith('VERCEL') || k === 'NODE_ENV');
+    return res.status(500).json({ error: 'ANTHROPIC_API_KEY manquante', debug: { envKeys, vercelEnv: process.env.VERCEL_ENV } });
+  }
 
   const { messages = [], context = {} } = req.body || {};
   const base = process.env.BASE_URL || `https://${process.env.VERCEL_URL}`;
