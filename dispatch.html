@@ -1282,13 +1282,15 @@ function renderTousRdvs(){
       lastDate=r.dateRdv;
       html+='<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;padding:10px 0 6px;border-top:'+(i>0?'2px solid var(--border)':'')+'">'+(r.dateRdv===todayStr()?'📅 ':'')+dateLabel+'</div>';
     }
-    html+='<div style="background:#fff;border:1px solid var(--border);border-left:4px solid '+sc+';border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow);">';
+    var modifs=r.modifs||[];
+    html+='<div onclick="ouvrirModalRdv('+r.id+')" style="background:#fff;border:1px solid var(--border);border-left:4px solid '+sc+';border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow);cursor:pointer;transition:box-shadow 0.15s;" onmouseover="this.style.boxShadow=\'0 4px 16px rgba(0,0,0,0.12)\'" onmouseout="this.style.boxShadow=\'var(--shadow)\'">';
     html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">';
     html+='<div style="flex:1;">';
     html+='<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px;">';
     html+='<span style="color:var(--blue2);font-weight:800;font-size:15px;">'+r.heureRdv+'</span>';
     html+='<span style="font-size:9px;color:var(--muted);font-weight:700;background:#f1f5f9;border-radius:4px;padding:2px 6px;">'+genIntIdD(r)+'</span>';
     html+='<span style="background:'+sc+'18;color:'+sc+';border:1px solid '+sc+'30;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;">'+r.statut.toUpperCase()+'</span>';
+    if(modifs.length)html+='<span style="background:#fef3c7;color:#92400e;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;">✏️ '+modifs.length+' modif.</span>';
     html+='</div>';
     html+='<div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:2px;">'+r.clientNom+'</div>';
     html+='<div style="color:var(--muted);font-size:12px;">'+r.type+'</div>';
@@ -1298,14 +1300,8 @@ function renderTousRdvs(){
     html+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">';
     html+='<div style="color:var(--green);font-weight:800;font-size:16px;">'+r.prixVente+' EUR</div>';
     html+='<div style="width:30px;height:30px;border-radius:8px;background:'+tc.bg+';border:1.5px solid '+tc.c+';color:'+tc.c+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;">'+tc.a+'</div>';
-    html+='</div></div>';
-    html+='<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">';
-    html+='<button class="btn btn-b" style="padding:6px 12px;font-size:11px;" onclick="window.open(\'tel:'+r.clientTel+'\')">📞 Appeler</button>';
-    html+='<button class="btn btn-b" style="padding:6px 12px;font-size:11px;" onclick="window.open(\'https://maps.google.com/?q='+encodeURIComponent(r.adresse)+'\',\'_blank\')">🗺 GPS</button>';
-    if(!isDone)html+='<button class="btn btn-green" style="padding:6px 12px;font-size:11px;" onclick="marquerRdvTermine('+r.id+')">✓ Terminer</button>';
-    html+='<button class="btn btn-r" style="padding:6px 12px;font-size:11px;" onclick="supprimerRdv('+r.id+')">Supprimer</button>';
-    html+='<button class="btn btn-gray" style="padding:6px 12px;font-size:11px;" onclick="imprimerBDI(getRdvs().find(function(x){return x.id==='+r.id+';}))">🖨️ BDI</button>';
-    html+='</div></div>';
+    html+='<span style="font-size:9px;color:#94a3b8;font-weight:600;">Appuyer →</span>';
+    html+='</div></div></div>';
   }
   document.getElementById('liste-tous-rdv').innerHTML=html;
 }
@@ -3332,6 +3328,336 @@ function copierRapportJour(){
   +'— GreenFlow Dispatch';
   if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){showNotif('Bilan copié !');});}
   else{showNotif(txt);}
+}
+</script>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- MODAL MODIFICATION / SUPPRESSION RDV      -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="modal-rdv-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1000;overflow-y:auto;" onclick="if(event.target===this)fermerModalRdv()">
+  <div style="background:#fff;border-radius:20px 20px 0 0;position:fixed;bottom:0;left:0;right:0;max-height:92vh;overflow-y:auto;padding:20px 16px 32px;" id="modal-rdv-inner">
+
+    <!-- Handle drag -->
+    <div style="width:40px;height:4px;background:#e2e8f0;border-radius:4px;margin:0 auto 16px;"></div>
+
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+      <div>
+        <div style="font-size:11px;color:#64748b;letter-spacing:1.5px;font-weight:700;text-transform:uppercase;">Intervention</div>
+        <div style="font-size:17px;font-weight:800;color:#0d2d52;margin-top:2px;" id="modal-rdv-title">—</div>
+        <div style="font-size:12px;color:#64748b;margin-top:2px;" id="modal-rdv-sub">—</div>
+      </div>
+      <button onclick="fermerModalRdv()" style="background:#f1f5f9;border:none;border-radius:10px;padding:8px 12px;font-size:16px;cursor:pointer;">✕</button>
+    </div>
+
+    <!-- Infos RDV -->
+    <div id="modal-rdv-infos" style="background:#f8fafc;border-radius:12px;padding:12px;margin-bottom:16px;font-size:12px;line-height:1.8;color:#334155;"></div>
+
+    <!-- Historique modifs -->
+    <div id="modal-rdv-historique" style="display:none;margin-bottom:16px;"></div>
+
+    <!-- ACTIONS RAPIDES -->
+    <div id="modal-rdv-actions" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      <button onclick="ouvrirSectionRdv('modifier')" style="background:#dbeafe;border:2px solid #2563eb20;border-radius:14px;padding:16px 12px;cursor:pointer;text-align:center;">
+        <div style="font-size:22px;margin-bottom:4px;">✏️</div>
+        <div style="font-size:12px;font-weight:800;color:#1d4ed8;">Modifier</div>
+        <div style="font-size:10px;color:#64748b;">Date · Heure · Tech</div>
+      </button>
+      <button onclick="ouvrirSectionRdv('decaler')" style="background:#fef3c7;border:2px solid #f59e0b20;border-radius:14px;padding:16px 12px;cursor:pointer;text-align:center;">
+        <div style="font-size:22px;margin-bottom:4px;">📅</div>
+        <div style="font-size:12px;font-weight:800;color:#d97706;">Décaler</div>
+        <div style="font-size:10px;color:#64748b;">Choisir raison</div>
+      </button>
+      <button onclick="ouvrirSectionRdv('annuler')" style="background:#fee2e2;border:2px solid #dc262620;border-radius:14px;padding:16px 12px;cursor:pointer;text-align:center;">
+        <div style="font-size:22px;margin-bottom:4px;">❌</div>
+        <div style="font-size:12px;font-weight:800;color:#dc2626;">Annuler / Suppr.</div>
+        <div style="font-size:10px;color:#64748b;">Choisir raison</div>
+      </button>
+      <button onclick="ouvrirSectionRdv('appel')" style="background:#dcfce7;border:2px solid #16a34a20;border-radius:14px;padding:16px 12px;cursor:pointer;text-align:center;">
+        <div style="font-size:22px;margin-bottom:4px;">📞</div>
+        <div style="font-size:12px;font-weight:800;color:#15803d;">Appeler</div>
+        <div style="font-size:10px;color:#64748b;">Client · SMS</div>
+      </button>
+    </div>
+
+    <!-- SECTION : MODIFIER -->
+    <div id="section-modifier" style="display:none;">
+      <div style="font-size:11px;font-weight:800;color:#1d4ed8;letter-spacing:1px;margin-bottom:12px;">✏️ MODIFIER L'INTERVENTION</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">NOUVELLE DATE</label>
+          <input type="date" id="mod-date" class="form-input" style="font-size:13px;"></div>
+        <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">NOUVELLE HEURE</label>
+          <input type="time" id="mod-heure" class="form-input" style="font-size:13px;"></div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">TECHNICIEN</label>
+        <select id="mod-tech" class="form-select"></select>
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:6px;">PRIX (€)</label>
+        <input type="number" id="mod-prix" class="form-input" placeholder="0">
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">NOTES</label>
+        <textarea id="mod-notes" class="form-textarea" rows="2"></textarea>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#334155;margin-bottom:12px;cursor:pointer;">
+        <input type="checkbox" id="mod-sms-notif" checked style="width:16px;height:16px;"> Envoyer SMS de confirmation au client
+      </label>
+      <div style="display:flex;gap:8px;">
+        <button onclick="fermerSectionRdv()" class="btn btn-gray" style="flex:1;">Retour</button>
+        <button onclick="sauvegarderModifRdv()" class="btn btn-primary" style="flex:2;">💾 Sauvegarder</button>
+      </div>
+    </div>
+
+    <!-- SECTION : DÉCALER -->
+    <div id="section-decaler" style="display:none;">
+      <div style="font-size:11px;font-weight:800;color:#d97706;letter-spacing:1px;margin-bottom:12px;">📅 DÉCALER L'INTERVENTION</div>
+      <div style="margin-bottom:12px;">
+        <div style="font-size:11px;font-weight:700;color:#334155;margin-bottom:8px;">Raison du décalage :</div>
+        <div style="display:flex;flex-direction:column;gap:6px;" id="raisons-decaler">
+          <label class="raison-option"><input type="radio" name="raison-dec" value="Client demande à décaler"> <span>👤 Client demande à décaler</span></label>
+          <label class="raison-option"><input type="radio" name="raison-dec" value="Tech indisponible"> <span>👷 Tech indisponible ce jour</span></label>
+          <label class="raison-option"><input type="radio" name="raison-dec" value="Pièce manquante"> <span>🔧 Attente de pièce / matériel</span></label>
+          <label class="raison-option"><input type="radio" name="raison-dec" value="Accès impossible"> <span>🚪 Accès impossible (client absent)</span></label>
+          <label class="raison-option"><input type="radio" name="raison-dec" value="Urgence prioritaire"> <span>🚨 Urgence prioritaire à traiter d'abord</span></label>
+          <label class="raison-option"><input type="radio" name="raison-dec" value="Autre"> <span>💬 Autre raison</span></label>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">NOUVEAU JOUR</label>
+          <input type="date" id="dec-date" class="form-input"></div>
+        <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">NOUVELLE HEURE</label>
+          <input type="time" id="dec-heure" class="form-input"></div>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#334155;margin-bottom:12px;cursor:pointer;">
+        <input type="checkbox" id="dec-sms" checked style="width:16px;height:16px;"> SMS au client : "Votre RDV est reporté au [date]"
+      </label>
+      <div style="display:flex;gap:8px;">
+        <button onclick="fermerSectionRdv()" class="btn btn-gray" style="flex:1;">Retour</button>
+        <button onclick="confirmerDecalage()" style="flex:2;background:#f59e0b;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;">📅 Confirmer le décalage</button>
+      </div>
+    </div>
+
+    <!-- SECTION : ANNULER/SUPPRIMER -->
+    <div id="section-annuler" style="display:none;">
+      <div style="font-size:11px;font-weight:800;color:#dc2626;letter-spacing:1px;margin-bottom:12px;">❌ ANNULER / SUPPRIMER</div>
+      <div style="margin-bottom:12px;">
+        <div style="font-size:11px;font-weight:700;color:#334155;margin-bottom:8px;">Raison de l'annulation :</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <label class="raison-option"><input type="radio" name="raison-ann" value="Annulation client (souhait du client)"> <span>👤 Annulation client — souhait du client</span></label>
+          <label class="raison-option"><input type="radio" name="raison-ann" value="Annulation de notre part"> <span>🏢 Annulation de notre part</span></label>
+          <label class="raison-option"><input type="radio" name="raison-ann" value="Doublon de RDV"> <span>🔁 Doublon — déjà enregistré</span></label>
+          <label class="raison-option"><input type="radio" name="raison-ann" value="Client injoignable"> <span>📵 Client injoignable</span></label>
+          <label class="raison-option"><input type="radio" name="raison-ann" value="Hors zone"> <span>🚫 Hors zone d'intervention</span></label>
+          <label class="raison-option"><input type="radio" name="raison-ann" value="Autre"> <span>💬 Autre raison</span></label>
+        </div>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#334155;margin-bottom:12px;cursor:pointer;">
+        <input type="checkbox" id="ann-sms" style="width:16px;height:16px;"> Prévenir le client par SMS
+      </label>
+      <div style="display:flex;gap:8px;">
+        <button onclick="fermerSectionRdv()" class="btn btn-gray" style="flex:1;">Retour</button>
+        <button onclick="confirmerAnnulation()" style="flex:2;background:#dc2626;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;">❌ Confirmer l'annulation</button>
+      </div>
+    </div>
+
+    <!-- SECTION : APPEL/SMS -->
+    <div id="section-appel" style="display:none;">
+      <div style="font-size:11px;font-weight:800;color:#15803d;letter-spacing:1px;margin-bottom:12px;">📞 CONTACT CLIENT</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <a id="modal-tel-link" href="#" style="display:flex;align-items:center;gap:10px;background:#dcfce7;border-radius:12px;padding:12px 14px;text-decoration:none;color:#15803d;font-weight:700;font-size:13px;">
+          <span style="font-size:20px;">📞</span> Appeler le client
+        </a>
+        <button onclick="envoyerSmsConfirm()" style="display:flex;align-items:center;gap:10px;background:#dbeafe;border-radius:12px;padding:12px 14px;border:none;color:#1d4ed8;font-weight:700;font-size:13px;cursor:pointer;width:100%;text-align:left;">
+          <span style="font-size:20px;">💬</span> SMS confirmation RDV
+        </button>
+        <button onclick="envoyerSmsRappel()" style="display:flex;align-items:center;gap:10px;background:#fef3c7;border-radius:12px;padding:12px 14px;border:none;color:#d97706;font-weight:700;font-size:13px;cursor:pointer;width:100%;text-align:left;">
+          <span style="font-size:20px;">⏰</span> SMS rappel "RDV demain"
+        </button>
+        <button onclick="ouvrirSectionRdv('modifier')" style="display:flex;align-items:center;gap:10px;background:#f1f5f9;border-radius:12px;padding:12px 14px;border:none;color:#334155;font-weight:700;font-size:13px;cursor:pointer;width:100%;text-align:left;">
+          <span style="font-size:20px;">✏️</span> Modifier l'intervention
+        </button>
+        <button onclick="imprimerBDI(_rdvModalCurrent)" style="display:flex;align-items:center;gap:10px;background:#f1f5f9;border-radius:12px;padding:12px 14px;border:none;color:#334155;font-weight:700;font-size:13px;cursor:pointer;width:100%;text-align:left;">
+          <span style="font-size:20px;">🖨️</span> Imprimer bon d'intervention
+        </button>
+      </div>
+      <div style="margin-top:12px;">
+        <button onclick="fermerSectionRdv()" class="btn btn-gray" style="width:100%;">Retour</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.raison-option{display:flex;align-items:center;gap:8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 12px;cursor:pointer;font-size:12px;font-weight:600;color:#334155;transition:all 0.15s;}
+.raison-option:has(input:checked){background:#eff6ff;border-color:#2563eb;color:#1d4ed8;}
+.raison-option input[type=radio]{accent-color:#2563eb;}
+</style>
+
+<script>
+var _rdvModalId=null;
+var _rdvModalCurrent=null;
+
+function ouvrirModalRdv(id){
+  var rdvs=getRdvs();
+  var r=rdvs.find(function(x){return x.id===id;});
+  if(!r)return;
+  _rdvModalId=id;
+  _rdvModalCurrent=r;
+
+  document.getElementById('modal-rdv-title').textContent=r.clientNom;
+  document.getElementById('modal-rdv-sub').textContent=r.type+' · '+r.dateRdv+' à '+r.heureRdv+' · '+r.technicien;
+  document.getElementById('modal-rdv-infos').innerHTML=
+    '<span style="margin-right:12px;">📍 '+(r.adresse||'—')+'</span>'
+    +(r.clientTel?'<span style="margin-right:12px;">📞 '+r.clientTel+'</span>':'')
+    +'<span style="margin-right:12px;">💶 '+(r.prixVente||0)+'€</span>'
+    +(r.notes?'<div style="margin-top:4px;color:#2563eb;font-style:italic;">📝 '+r.notes+'</div>':'');
+
+  // Historique
+  var hist=r.modifs||[];
+  var hDiv=document.getElementById('modal-rdv-historique');
+  if(hist.length){
+    hDiv.style.display='block';
+    hDiv.innerHTML='<div style="font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;margin-bottom:6px;">HISTORIQUE</div>'
+      +hist.slice(-3).reverse().map(function(m){
+        return'<div style="background:#f8fafc;border-left:3px solid '+(m.type==='annulation'?'#dc2626':m.type==='decalage'?'#f59e0b':'#2563eb')+';border-radius:0 8px 8px 0;padding:7px 10px;margin-bottom:5px;font-size:11px;">'
+          +'<div style="font-weight:700;color:#334155;">'+m.label+'</div>'
+          +'<div style="color:#64748b;font-size:10px;">'+new Date(m.ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+'</div>'
+          +'</div>';
+      }).join('');
+  } else { hDiv.style.display='none'; }
+
+  // Pré-remplir champs modifier
+  document.getElementById('mod-date').value=r.dateRdv||'';
+  document.getElementById('mod-heure').value=r.heureRdv||'';
+  document.getElementById('mod-notes').value=r.notes||'';
+  document.getElementById('mod-prix').value=r.prixVente||'';
+  var sel=document.getElementById('mod-tech');
+  sel.innerHTML=['À planifier','Technicien 1','Technicien 2'].concat(
+    getRdvs().map(function(x){return x.technicien;}).filter(function(v,i,a){return v&&v!=='À planifier'&&a.indexOf(v)===i;})
+  ).map(function(t){return'<option'+(t===r.technicien?' selected':'')+'>'+t+'</option>';}).join('');
+
+  // Lien appel
+  var lnk=document.getElementById('modal-tel-link');
+  if(lnk)lnk.href=r.clientTel?'tel:'+r.clientTel:'#';
+
+  fermerSectionRdv();
+  document.getElementById('modal-rdv-actions').style.display='grid';
+  document.getElementById('modal-rdv-bg').style.display='block';
+  document.body.style.overflow='hidden';
+}
+
+function fermerModalRdv(){
+  document.getElementById('modal-rdv-bg').style.display='none';
+  document.body.style.overflow='';
+  _rdvModalId=null;_rdvModalCurrent=null;
+}
+
+function ouvrirSectionRdv(s){
+  document.getElementById('modal-rdv-actions').style.display='none';
+  ['modifier','decaler','annuler','appel'].forEach(function(x){
+    document.getElementById('section-'+x).style.display=x===s?'block':'none';
+  });
+}
+
+function fermerSectionRdv(){
+  ['modifier','decaler','annuler','appel'].forEach(function(x){
+    document.getElementById('section-'+x).style.display='none';
+  });
+  document.getElementById('modal-rdv-actions').style.display='grid';
+}
+
+function ajouterModif(r,type,label){
+  r.modifs=r.modifs||[];
+  r.modifs.push({type:type,label:label,ts:new Date().toISOString()});
+}
+
+function sauvegarderModifRdv(){
+  if(!_rdvModalId)return;
+  var rdvs=getRdvs();
+  var idx=rdvs.findIndex(function(x){return x.id===_rdvModalId;});
+  if(idx<0)return;
+  var r=rdvs[idx];
+  var oldDate=r.dateRdv,oldHeure=r.heureRdv;
+  r.dateRdv=document.getElementById('mod-date').value||r.dateRdv;
+  r.heureRdv=document.getElementById('mod-heure').value||r.heureRdv;
+  r.technicien=document.getElementById('mod-tech').value;
+  r.notes=document.getElementById('mod-notes').value;
+  r.prixVente=parseFloat(document.getElementById('mod-prix').value)||r.prixVente;
+  var changed=(r.dateRdv!==oldDate||r.heureRdv!==oldHeure);
+  ajouterModif(r,'modif','Modification : '+r.dateRdv+' à '+r.heureRdv+' — '+r.technicien);
+  saveRdvs(rdvs);
+  if(changed&&document.getElementById('mod-sms-notif').checked&&r.clientTel){
+    smsTyped(r.clientTel,'confirmation',{nom:r.clientNom,date:r.dateRdv,heure:r.heureRdv,tech:r.technicien});
+  }
+  fermerModalRdv();
+  renderTousRdvs();actualiserTout();
+  showNotif('✅ Intervention modifiée'+(changed?' — SMS envoyé au client':''));
+}
+
+function confirmerDecalage(){
+  if(!_rdvModalId)return;
+  var raison=document.querySelector('input[name="raison-dec"]:checked');
+  if(!raison){showNotif('Sélectionne une raison');return;}
+  var newDate=document.getElementById('dec-date').value;
+  var newHeure=document.getElementById('dec-heure').value;
+  if(!newDate){showNotif('Choisis la nouvelle date');return;}
+  var rdvs=getRdvs();
+  var idx=rdvs.findIndex(function(x){return x.id===_rdvModalId;});
+  if(idx<0)return;
+  var r=rdvs[idx];
+  var oldDate=r.dateRdv;
+  r.dateRdv=newDate;
+  if(newHeure)r.heureRdv=newHeure;
+  ajouterModif(r,'decalage','Décalé ('+raison.value+') : '+oldDate+' → '+newDate);
+  saveRdvs(rdvs);
+  if(document.getElementById('dec-sms').checked&&r.clientTel){
+    var msg='Bonjour '+r.clientNom+', votre intervention GreenFlow du '+oldDate+' est reportée au '+newDate+(newHeure?' à '+newHeure:'')+'. Raison : '+raison.value+'. Merci de votre compréhension.';
+    smsTyped(r.clientTel,'sms_brut',{message:msg});
+  }
+  fermerModalRdv();
+  renderTousRdvs();actualiserTout();
+  showNotif('📅 RDV décalé au '+newDate+(document.getElementById('dec-sms').checked?' — SMS envoyé':''));
+}
+
+function confirmerAnnulation(){
+  if(!_rdvModalId)return;
+  var raison=document.querySelector('input[name="raison-ann"]:checked');
+  if(!raison){showNotif('Sélectionne une raison');return;}
+  var rdvs=getRdvs();
+  var idx=rdvs.findIndex(function(x){return x.id===_rdvModalId;});
+  if(idx<0)return;
+  var r=rdvs[idx];
+  ajouterModif(r,'annulation','Annulé : '+raison.value);
+  r.statut='Annule';
+  r.annulationRaison=raison.value;
+  saveRdvs(rdvs);
+  if(document.getElementById('ann-sms').checked&&r.clientTel){
+    var msg='Bonjour '+r.clientNom+', votre intervention GreenFlow du '+r.dateRdv+' a été annulée. Raison : '+raison.value+'. N\'hésitez pas à nous recontacter.';
+    smsTyped(r.clientTel,'sms_brut',{message:msg});
+  }
+  fermerModalRdv();
+  renderTousRdvs();actualiserTout();
+  showNotif('❌ Intervention annulée — '+raison.value);
+}
+
+function envoyerSmsConfirm(){
+  if(!_rdvModalCurrent)return;
+  var r=_rdvModalCurrent;
+  if(!r.clientTel){showNotif('Pas de numéro client');return;}
+  smsTyped(r.clientTel,'confirmation',{nom:r.clientNom,date:r.dateRdv,heure:r.heureRdv,tech:r.technicien});
+  showNotif('💬 SMS de confirmation envoyé à '+r.clientNom);
+}
+
+function envoyerSmsRappel(){
+  if(!_rdvModalCurrent)return;
+  var r=_rdvModalCurrent;
+  if(!r.clientTel){showNotif('Pas de numéro client');return;}
+  var msg='Rappel GreenFlow : votre intervention est prévue demain '+r.dateRdv+' à '+r.heureRdv+'. Technicien : '+r.technicien+'. À demain !';
+  smsTyped(r.clientTel,'sms_brut',{message:msg});
+  showNotif('⏰ SMS rappel envoyé à '+r.clientNom);
 }
 </script>
 
