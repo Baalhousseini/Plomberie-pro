@@ -238,6 +238,28 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 .gantt-slot{position:absolute;top:4px;bottom:4px;border-radius:6px;display:flex;align-items:center;padding:0 6px;font-size:9px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
 .gantt-hour{position:absolute;top:0;bottom:0;border-left:1px solid #e2e8f0;display:flex;align-items:flex-end;padding-bottom:2px;}
 .gantt-hour-lbl{font-size:8px;color:#94a3b8;padding-left:2px;}
+/* ASSISTANT IA */
+#ai-fab{position:fixed;bottom:56px;right:14px;z-index:1000;background:linear-gradient(135deg,#0d2d52,#1a4a7a);color:#fff;border:none;border-radius:50%;width:52px;height:52px;font-size:22px;cursor:pointer;box-shadow:0 4px 16px rgba(13,45,82,0.4);display:flex;align-items:center;justify-content:center;transition:transform 0.2s;}
+#ai-fab:hover{transform:scale(1.1);}
+#ai-panel{position:fixed;bottom:0;left:0;right:0;top:0;z-index:1100;display:flex;flex-direction:column;background:#fff;transform:translateY(100%);transition:transform 0.3s ease;border-radius:18px 18px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,0.18);}
+#ai-panel.open{transform:translateY(0);}
+#ai-panel-header{background:linear-gradient(135deg,#0d2d52,#1a4a7a);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-radius:18px 18px 0 0;}
+#ai-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#f8fafc;}
+.ai-msg-user{align-self:flex-end;background:#0d2d52;color:#fff;border-radius:16px 16px 4px 16px;padding:10px 14px;max-width:80%;font-size:13px;line-height:1.5;}
+.ai-msg-bot{align-self:flex-start;background:#fff;border:1px solid #e2e8f0;border-radius:16px 16px 16px 4px;padding:10px 14px;max-width:88%;font-size:13px;line-height:1.6;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.ai-msg-bot pre{background:#f1f5f9;border-radius:8px;padding:8px 10px;font-size:11px;overflow-x:auto;margin:6px 0;}
+.ai-msg-action{background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:8px 12px;font-size:12px;color:#166534;margin-top:4px;}
+.ai-typing{display:flex;gap:4px;padding:8px 12px;align-items:center;}
+.ai-typing span{width:7px;height:7px;background:#94a3b8;border-radius:50%;animation:aiDot 1.2s ease infinite;}
+.ai-typing span:nth-child(2){animation-delay:0.2s;}
+.ai-typing span:nth-child(3){animation-delay:0.4s;}
+@keyframes aiDot{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
+#ai-input-area{padding:10px 12px;border-top:1px solid #e2e8f0;display:flex;gap:8px;background:#fff;}
+#ai-input{flex:1;border:1.5px solid #e2e8f0;border-radius:12px;padding:10px 14px;font-size:13px;font-family:'Inter',sans-serif;resize:none;outline:none;max-height:100px;}
+#ai-input:focus{border-color:#0d2d52;}
+.ai-quick{display:flex;gap:6px;padding:0 12px 8px;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap;}
+.ai-quick::-webkit-scrollbar{display:none;}
+.ai-quick-btn{white-space:nowrap;background:#f0f9ff;border:1px solid #bae6fd;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:#0369a1;cursor:pointer;flex-shrink:0;}
 </style>
 <link href='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css' rel='stylesheet' />
 <script src='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js'></script>
@@ -5150,6 +5172,174 @@ function renderPlanningLong(){
 <script>
 if('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+}
+</script>
+
+<!-- ASSISTANT IA FLOTTANT -->
+<button id="ai-fab" onclick="toggleAI()" title="Assistant IA">🤖</button>
+
+<div id="ai-panel">
+  <div id="ai-panel-header">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="background:rgba(255,255,255,0.15);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;">🤖</div>
+      <div>
+        <div style="color:#fff;font-weight:700;font-size:14px;">Alex — Assistant GreenFlow</div>
+        <div style="color:rgba(255,255,255,0.6);font-size:11px;">IA connectée à ton entreprise</div>
+      </div>
+    </div>
+    <button onclick="toggleAI()" style="background:rgba(255,255,255,0.1);border:none;color:#fff;border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer;">✕</button>
+  </div>
+  <div id="ai-messages"></div>
+  <div class="ai-quick" id="ai-quick-btns">
+    <button class="ai-quick-btn" onclick="aiQuick('Résume-moi la journée')">📊 Résumé du jour</button>
+    <button class="ai-quick-btn" onclick="aiQuick('Qui n\'a pas encore été rappelé ?')">📞 Rappels en attente</button>
+    <button class="ai-quick-btn" onclick="aiQuick('Rédige un email de relance pour un devis non signé')">✉️ Email relance devis</button>
+    <button class="ai-quick-btn" onclick="aiQuick('Quelles sont les urgences en cours ?')">🚨 Urgences</button>
+    <button class="ai-quick-btn" onclick="aiQuick('Donne-moi un bilan du CA de ce mois')">💶 Bilan CA</button>
+    <button class="ai-quick-btn" onclick="aiQuick('Rédige un SMS de confirmation de RDV pour demain')">📱 SMS confirmation</button>
+  </div>
+  <div id="ai-input-area">
+    <textarea id="ai-input" rows="1" placeholder="Pose une question ou donne une instruction..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAI();}"></textarea>
+    <button onclick="sendAI()" style="background:#0d2d52;color:#fff;border:none;border-radius:12px;padding:10px 16px;font-size:18px;cursor:pointer;flex-shrink:0;">↑</button>
+  </div>
+</div>
+
+<script>
+var _aiHistory=[];
+var _aiOpen=false;
+
+function toggleAI(){
+  _aiOpen=!_aiOpen;
+  document.getElementById('ai-panel').classList.toggle('open',_aiOpen);
+  if(_aiOpen&&_aiHistory.length===0) aiWelcome();
+}
+
+function aiWelcome(){
+  const rdvs=getRdvs();
+  const today=todayStr();
+  const auj=rdvs.filter(r=>r.dateRdv===today);
+  addAIMsg('bot','Bonjour ! 👋 Je suis Alex, ton assistant GreenFlow.\n\nAujourd\'hui tu as **'+auj.length+' RDV** planifiés. Comment je peux t\'aider ?');
+}
+
+function aiQuick(msg){
+  document.getElementById('ai-input').value=msg;
+  sendAI();
+}
+
+function buildContext(){
+  const rdvs=getRdvs();
+  const today=todayStr();
+  const auj=rdvs.filter(r=>r.dateRdv===today);
+  const rapports=JSON.parse(localStorage.getItem('pl_rapports')||'[]');
+  const contrats=JSON.parse(localStorage.getItem('pl_contrats')||'[]');
+  const clients=JSON.parse(localStorage.getItem('pl_clients')||'[]');
+  const urgences=JSON.parse(localStorage.getItem('pl_urgences')||'[]').filter(u=>u.statut!=='Résolu');
+  const dispos=JSON.parse(localStorage.getItem('pl_dispos')||'{}');
+  const techsDispos=Object.values(dispos).filter(t=>t.statut==='Disponible').map(t=>t.nom||'').join(', ');
+  const caJour=rapports.filter(r=>r.date===today).reduce((s,r)=>s+(r.montantFinal||0),0);
+  const mois=today.substring(0,7);
+  const caMois=rapports.filter(r=>(r.date||'').startsWith(mois)).reduce((s,r)=>s+(r.montantFinal||0),0);
+  const proch=rdvs.filter(r=>r.dateRdv>=today&&r.statut!=='Terminé').sort((a,b)=>a.dateRdv.localeCompare(b.dateRdv))[0];
+
+  // Résumé lisible
+  let recap='';
+  auj.forEach(r=>{recap+=`• ${r.heureRdv} — ${r.clientNom} — ${r.type} (${r.statut})\n`;});
+
+  return {
+    rdvsAujourdhui:auj.length,
+    rdvsTermines:auj.filter(r=>r.statut==='Terminé').length,
+    rdvsAFaire:auj.filter(r=>r.statut!=='Terminé').length,
+    rdvsAPlanifier:rdvs.filter(r=>r.statut==='À planifier').length,
+    urgencesActives:urgences.length,
+    techsDispos:techsDispos||'Aucun disponible',
+    caJour,caMois,
+    contrats:contrats.length,
+    clients:clients.length,
+    prochainRdv:proch?`${proch.clientNom} le ${proch.dateRdv} à ${proch.heureRdv}`:'',
+    recap:recap||'Aucun RDV aujourd\'hui'
+  };
+}
+
+function addAIMsg(role,text,extra){
+  const el=document.getElementById('ai-messages');
+  const div=document.createElement('div');
+  div.className=role==='user'?'ai-msg-user':'ai-msg-bot';
+  // Basic markdown: **bold**, newlines
+  div.innerHTML=text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  if(extra){
+    const act=document.createElement('div');
+    act.className='ai-msg-action';
+    act.textContent=extra;
+    div.appendChild(act);
+  }
+  el.appendChild(div);
+  el.scrollTop=el.scrollHeight;
+}
+
+function addAITyping(){
+  const el=document.getElementById('ai-messages');
+  const div=document.createElement('div');
+  div.className='ai-msg-bot ai-typing';
+  div.id='ai-typing';
+  div.innerHTML='<span></span><span></span><span></span>';
+  el.appendChild(div);
+  el.scrollTop=el.scrollHeight;
+  return div;
+}
+
+async function sendAI(){
+  const input=document.getElementById('ai-input');
+  const text=(input.value||'').trim();
+  if(!text)return;
+  input.value='';
+
+  addAIMsg('user',text);
+  _aiHistory.push({role:'user',content:text});
+
+  const typing=addAITyping();
+
+  try{
+    const ctx=buildContext();
+    const r=await fetch('/api/assistant',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages:_aiHistory,context:ctx})
+    });
+    const data=await r.json();
+    typing.remove();
+
+    if(data.error){addAIMsg('bot','⚠️ Erreur : '+data.error);return;}
+
+    // Extract text response
+    let replyText='';
+    for(const block of data.content||[]){
+      if(block.type==='text')replyText+=block.text;
+    }
+
+    // Handle tool results
+    let actionMsg='';
+    for(const tr of data.toolResults||[]){
+      if(tr.tool==='create_rdv'&&tr.rdv){
+        const rdv=tr.rdv;
+        const rdvs=getRdvs();
+        rdvs.push({id:Date.now(),clientNom:rdv.clientNom,clientTel:rdv.clientTel||'',adresse:rdv.adresse||'',type:rdv.type,dateRdv:rdv.dateRdv,heureRdv:rdv.heureRdv,technicien:rdv.technicien||'À planifier',prix:rdv.prix||0,statut:'Confirme',notes:rdv.notes||'',creePar:'assistant-ia',creeAt:new Date().toISOString()});
+        saveRdvs(rdvs);
+        actionMsg='✅ RDV créé : '+rdv.clientNom+' le '+rdv.dateRdv+' à '+rdv.heureRdv;
+      }
+      if(tr.tool==='send_sms'){
+        actionMsg='📱 SMS envoyé à '+tr.to;
+      }
+    }
+
+    if(replyText)addAIMsg('bot',replyText,actionMsg||undefined);
+    else if(actionMsg)addAIMsg('bot','C\'est fait !',actionMsg);
+
+    _aiHistory.push({role:'assistant',content:data.content||[{type:'text',text:replyText}]});
+
+  }catch(e){
+    typing.remove();
+    addAIMsg('bot','⚠️ Connexion impossible. Vérifie ta connexion internet.');
+  }
 }
 </script>
 
