@@ -2592,7 +2592,7 @@ function renderAgenda(){
   }
   const today=todayStr();
   const endFn=n=>{const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().split("T")[0];};
-  let rdvs=getRdvs().filter(r=>r.dateRdv>=today).sort((a,b)=>(a.dateRdv+(a.heureRdv||'')).localeCompare(b.dateRdv+(b.heureRdv||'')));
+  let rdvs=getRdvs().filter(r=>r.dateRdv>=today&&r.statut!=='Annule').sort((a,b)=>(a.dateRdv+(a.heureRdv||'')).localeCompare(b.dateRdv+(b.heureRdv||'')));
   if(agendaFiltre==="auj")rdvs=rdvs.filter(r=>r.dateRdv===today);
   else if(agendaFiltre==="sem")rdvs=rdvs.filter(r=>r.dateRdv<=endFn(7));
   else if(agendaFiltre==="mois")rdvs=rdvs.filter(r=>r.dateRdv<=endFn(30));

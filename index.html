@@ -1098,7 +1098,9 @@ function setStatut(statut,color,btn){
   if(txt)txt.textContent=statut;
   const d=JSON.parse(localStorage.getItem("pl_dispos")||"{}");
   d[currentUser.nom]={statut,updatedAt:new Date().toISOString()};
-  localStorage.setItem("pl_dispos",JSON.stringify(d));
+  const vd=JSON.stringify(d);
+  localStorage.setItem("pl_dispos",vd);
+  if(window.gfSync)gfSync("pl_dispos",vd);
   showNotif("Statut : "+statut);
 }
 
@@ -1126,9 +1128,9 @@ function renderRdv(){
   updateCA();renderKPI();checkUrgences();renderRecapJournee();renderKpiTech();
   const rdvs=getMesRdvs(),today=todayStr();
   let liste;
-  if(currentVue==="auj")liste=rdvs.filter(r=>r.dateRdv===today).sort((a,b)=>a.heureRdv.localeCompare(b.heureRdv));
-  else if(currentVue==="venir")liste=rdvs.filter(r=>r.dateRdv>today).sort((a,b)=>a.dateRdv.localeCompare(b.dateRdv));
-  else liste=rdvs.filter(r=>r.dateRdv<today).sort((a,b)=>b.dateRdv.localeCompare(a.dateRdv));
+  if(currentVue==="auj")liste=rdvs.filter(r=>r.dateRdv===today&&r.statut!=='Annule').sort((a,b)=>a.heureRdv.localeCompare(b.heureRdv));
+  else if(currentVue==="venir")liste=rdvs.filter(r=>r.dateRdv>today&&r.statut!=='Annule').sort((a,b)=>a.dateRdv.localeCompare(b.dateRdv));
+  else liste=rdvs.filter(r=>r.dateRdv<today&&r.statut!=='Annule').sort((a,b)=>b.dateRdv.localeCompare(a.dateRdv));
   const c=document.getElementById("liste-rdv");
   renderTabsBadges();
   if(!liste.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div>Aucun RDV</div>`;return;}
