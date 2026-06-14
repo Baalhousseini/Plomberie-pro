@@ -691,7 +691,7 @@ body.logged-in #ai-fab{display:flex!important;}
       <select class="form-select" id="appels-filtre" onchange="renderAppelsPatron()" style="font-size:12px;padding:6px 10px;">
         <option value="all">Tous les appels</option>
         <option value="aircall">Aircall (IA)</option>
-        <option value="manual">Saisis manuellement</option>
+        <option value="manual">Secrétariat</option>
         <option value="today">Aujourd'hui</option>
       </select>
     </div>
@@ -1253,7 +1253,11 @@ const saveRdvs=r=>{const v=JSON.stringify(r);localStorage.setItem("pl_rdvs",v);i
 const getRapports=()=>JSON.parse(localStorage.getItem("pl_rapports")||"[]");
 const saveRapports=r=>localStorage.setItem("pl_rapports",JSON.stringify(r));
 const getDispos=()=>JSON.parse(localStorage.getItem("pl_dispos")||"{}");
-const getDevis=()=>JSON.parse(localStorage.getItem("pl_devis")||"[]");
+const getDevis=()=>{
+  const d1=JSON.parse(localStorage.getItem("pl_devis")||"[]");
+  const d2=JSON.parse(localStorage.getItem("pl_devis_sec")||"[]").map(d=>({...d,source:'secretariat'}));
+  return [...d1,...d2].sort((a,b)=>(b.id||0)-(a.id||0));
+};
 const saveDevis=d=>localStorage.setItem("pl_devis",JSON.stringify(d));
 const getPrimes=()=>JSON.parse(localStorage.getItem("pl_primes")||"{}");
 const getUrgences=()=>JSON.parse(localStorage.getItem("pl_urgences")||"[]");
@@ -1363,6 +1367,13 @@ function lancerApp(){
     if(['pl_rapports','pl_rdvs','pl_urgences','pl_appels'].includes(e.key)){
       if(!document.getElementById('page-live').classList.contains('hidden'))renderLiveFeed();
     }
+    // Données secrétariat — rafraîchir les pages concernées
+    if(e.key==='pl_devis_sec'||e.key==='pl_appels_sec'){
+      updateNavBadges();
+      if(!document.getElementById('page-devis').classList.contains('hidden'))renderDevis();
+      if(!document.getElementById('page-appels').classList.contains('hidden'))renderAppelsPatron();
+    }
+    if(e.key==='pl_appels_sec'){renderDashboard();}
   });
   setInterval(()=>{renderDisposDash();updateNavBadges();},10000);
   setInterval(updateChronosUrgences,1000);
@@ -3013,12 +3024,15 @@ function copierRapportJour(){
 }
 
 function renderAppelsPatron(){
-  const appels=JSON.parse(localStorage.getItem('pl_appels')||'[]');
+  // Fusion des appels : dispatch/Twilio + secrétariat
+  const appTwilio=JSON.parse(localStorage.getItem('pl_appels')||'[]');
+  const appSec=JSON.parse(localStorage.getItem('pl_appels_sec')||'[]').map(a=>({...a,source:'secretariat',agent:a.client||'Secrétariat'}));
+  const appels=[...appTwilio,...appSec].sort((a,b)=>new Date(b.creeAt||b.date||0)-new Date(a.creeAt||a.date||0));
   const today=new Date().toISOString().split('T')[0];
   const filtre=(document.getElementById('appels-filtre')||{}).value||'all';
   let liste=appels;
   if(filtre==='aircall')liste=appels.filter(a=>a.source==='aircall');
-  else if(filtre==='manual')liste=appels.filter(a=>a.source!=='aircall');
+  else if(filtre==='manual')liste=appels.filter(a=>a.source==='secretariat');
   else if(filtre==='today')liste=appels.filter(a=>a.date===today);
 
   const auj=appels.filter(a=>a.date===today);

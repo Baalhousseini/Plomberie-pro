@@ -6,12 +6,23 @@ const FIREBASE_CONFIG = {
 };
 
 const SYNC_KEYS = [
+  // Core ops — partagé entre tous les modules
   'pl_rdvs','pl_rapports','pl_devis','pl_dispos',
   'pl_chat','pl_urgences','pl_primes','pl_savs',
   'pl_pipe','pl_stock','pl_zones','pl_conc',
   'pl_notes','pl_alertes','pl_conges','pl_session','pl_contrats_cadres',
   'pl_stock_pieces','pl_sous_traitants','pl_appels_offres',
-  'pl_positions','pl_contrats','pl_passation','pl_clients','pl_appels'
+  'pl_positions','pl_contrats','pl_passation','pl_clients','pl_appels',
+  // Patron
+  'pl_mandants',
+  // Secrétaire — données isolées avant, maintenant synchonisées
+  'pl_appels_sec','pl_devis_sec','pl_factures_sec',
+  'pl_rh_sec','pl_notes_frais','pl_courrier',
+  // Config partagée
+  'pl_prix','pl_tel_pro','pl_objectif_annuel',
+  // RH / techs
+  'pl_techs_rh','pl_evaluations','pl_habilitations','pl_nps',
+  'pl_fiches_logement','pl_fiches_emp'
 ];
 
 // BroadcastChannel pour sync même appareil / même navigateur
