@@ -1,33 +1,24 @@
-// Twilio Voice webhook — répond aux appels entrants
-// Configure dans Twilio Console → Phone Numbers → Voice webhook URL
+// Étape 1 : sonne la secrétaire en premier
 module.exports = async function handler(req, res) {
   res.setHeader('Content-Type', 'text/xml');
+  const base = process.env.BASE_URL || `https://${process.env.VERCEL_URL}`;
+  const secretairePhone = process.env.SECRETAIRE_PHONE || '';
 
-  const dispatchPhone = process.env.DISPATCH_PHONE || '';
-  const baseUrl = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : (process.env.BASE_URL || '');
-
-  if (!dispatchPhone) {
-    // Pas de numéro dispatch configuré → messagerie directe
-    return res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Say language="fr-FR" voice="alice">Bonjour, vous avez bien joint GreenFlow Technologies. Veuillez laisser votre message après le signal, nous vous rappellerons rapidement.</Say>
-  <Record maxLength="180" recordingStatusCallback="${baseUrl}/api/transcribe" recordingStatusCallbackMethod="POST"/>
-  <Say language="fr-FR" voice="alice">Merci, au revoir.</Say>
-</Response>`);
+  if (!secretairePhone) {
+    // Pas de secrétaire configurée → passe directement au dispatch
+    return res.redirect(307, `${base}/api/voice-step2`);
   }
 
-  // Transfère vers dispatch + enregistre la conversation
   return res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Dial record="record-from-answer"
-        recordingStatusCallback="${baseUrl}/api/transcribe"
+  <Dial timeout="20"
+        action="${base}/api/voice-step2"
+        method="POST"
+        record="record-from-answer"
+        recordingStatusCallback="${base}/api/transcribe"
         recordingStatusCallbackMethod="POST"
-        timeout="20"
-        action="${baseUrl}/api/voice-fallback"
-        method="POST">
-    <Number>${dispatchPhone}</Number>
+        callerId="${process.env.TWILIO_FROM_NUMBER || ''}">
+    <Number url="${base}/api/voice-whisper?role=secretaire">${secretairePhone}</Number>
   </Dial>
 </Response>`);
 };
