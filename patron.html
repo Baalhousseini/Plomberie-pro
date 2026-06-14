@@ -651,6 +651,11 @@ body.logged-in #ai-fab{display:flex!important;}
 
 <!-- AGENDA GLOBAL -->
 <div id="page-agenda" class="hidden">
+  <div style="display:flex;gap:6px;margin-bottom:14px;background:#f1f5f9;border-radius:10px;padding:4px;">
+    <button id="toggle-agenda" onclick="setVuePlanning('agenda')" style="flex:1;background:#0d2d52;color:#fff;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer;">📋 Liste</button>
+    <button id="toggle-gantt" onclick="setVuePlanning('gantt')" style="flex:1;background:transparent;color:#64748b;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:600;cursor:pointer;">📊 Gantt</button>
+  </div>
+  <div id="vue-agenda-content">
   <div style="margin-bottom:14px;">
     <div class="lbl">AGENDA GLOBAL — TOUS LES MODULES</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;margin-bottom:8px;">
@@ -663,6 +668,16 @@ body.logged-in #ai-fab{display:flex!important;}
   </div>
   <div id="agenda-stats" class="g3" style="margin-bottom:12px;"></div>
   <div id="agenda-liste"></div>
+  </div><!-- fin vue-agenda-content -->
+  <div id="vue-gantt-content" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div style="font-weight:700;color:#0d2d52;font-size:13px;">Planning du jour — Vue horaire</div>
+      <input type="date" id="gantt-date" class="fi" style="width:auto;" onchange="renderGantt()">
+    </div>
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+      <div id="gantt-container" style="min-width:600px;"></div>
+    </div>
+  </div>
 </div>
 
 <!-- APPELS IA -->
@@ -685,16 +700,8 @@ body.logged-in #ai-fab{display:flex!important;}
   <div id="appels-patron-liste"></div>
 </div>
 
-<!-- GANTT PLANNING -->
-<div id="page-gantt" class="hidden">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-    <div style="font-weight:700;color:#0d2d52;font-size:13px;">Planning du jour — Vue horaire</div>
-    <input type="date" id="gantt-date" class="fi" style="width:auto;" onchange="renderGantt()">
-  </div>
-  <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
-    <div id="gantt-container" style="min-width:600px;"></div>
-  </div>
-</div>
+<!-- page-gantt kept as hidden fallback (merged into agenda toggle) -->
+<div id="page-gantt" class="hidden"></div>
 
 <!-- PASSATION -->
 <div id="page-passation" class="hidden">
@@ -1377,9 +1384,8 @@ const NAV_GROUPS={
     {p:'dispatch',label:'Dispatch',id:'nav-dispatch'},
     {p:'urgences',label:'Urgences',id:'nav-urgences'},
     {p:'live',label:'🔴 Live',id:'nav-live',style:'color:#dc2626'},
-    {p:'agenda',label:'📅 Agenda',id:'nav-agenda'},
+    {p:'agenda',label:'📅 Planning',id:'nav-agenda'},
     {p:'appels',label:'📞 Appels',id:'nav-appels'},
-    {p:'gantt',label:'📅 Gantt',id:'nav-gantt'},
     {p:'passation',label:'📝 Passation',id:'nav-passation'},
     {p:'rappels',label:'🔔 Rappels',id:'nav-rappels'},
   ],
@@ -1392,16 +1398,14 @@ const NAV_GROUPS={
   ],
   commercial:[
     {p:'analytics',label:'📊 Analytics',id:'nav-analytics'},
-    {p:'crm',label:'CRM',id:'nav-crm'},
-    {p:'nps',label:'⭐ NPS',id:'nav-nps'},
-    {p:'mandants',label:'🤝 Prospects',id:'nav-mandants'},
+    {p:'crm',label:'👥 CRM & NPS',id:'nav-crm'},
+    {p:'mandants',label:'🤝 Mandants',id:'nav-mandants'},
   ],
   equipe:[
     {p:'equipe',label:'Équipe',id:'nav-equipe'},
-    {p:'rh',label:'👥 RH',id:'nav-rh'},
-    {p:'primes',label:'Primes',id:'nav-primes'},
+    {p:'primes',label:'💰 Primes',id:'nav-primes'},
     {p:'organigramme',label:'🏢 Organigramme',id:'nav-organigramme'},
-    {p:'planning-long',label:'📆 Planning',id:'nav-planning-long'},
+    {p:'planning-long',label:'📆 Planning RH',id:'nav-planning-long'},
   ],
   ressources:[
     {p:'stock',label:'📦 Stock',id:'nav-stock'},
@@ -1580,11 +1584,15 @@ function renderDashboard(){
   const techDispos=Object.values(getDispos()).filter(d=>d.statut==='Disponible').length;
   const rdvsTermines=rdvsAuj.filter(r=>r.statut==='Termine'||r.statut==='Paye').length;
   const tauxConv=rdvsAuj.length?Math.round(rdvsTermines/rdvsAuj.length*100):0;
+  const appelsAuj=(JSON.parse(localStorage.getItem('pl_appels')||'[]')).filter(a=>(a.date||a.creeAt||'').startsWith(todayStr())).length;
+  const aPlanifier=getRdvs().filter(r=>r.technicien==='À planifier'&&r.statut!=='Termine'&&r.statut!=='Annule').length;
   document.getElementById('stats-dash').innerHTML=`
 <div class="sc" style="border-left:4px solid var(--green)"><div class="lbl">CA DU JOUR</div><div class="sv" style="color:var(--green)">${caAuj.toLocaleString('fr-FR')} €</div></div>
 <div class="sc" style="border-left:4px solid #1d4ed8"><div class="lbl">RDV AUJOURD'HUI</div><div class="sv" style="color:#1d4ed8">${rdvsAuj.length}</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">${rdvsTermines} terminés · ${tauxConv}% conv.</div></div>
 <div class="sc" style="border-left:4px solid ${urgActives>0?'#dc2626':'#16a34a'}"><div class="lbl">URGENCES</div><div class="sv" style="color:${urgActives>0?'#dc2626':'#16a34a'}">${urgActives}</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">${urgActives>0?'actives':'Aucune active'}</div></div>
-<div class="sc" style="border-left:4px solid #7c3aed"><div class="lbl">TECHS DISPOS</div><div class="sv" style="color:#7c3aed">${techDispos}/${Object.keys(TECH_C).length}</div></div>`;
+<div class="sc" style="border-left:4px solid #7c3aed"><div class="lbl">TECHS DISPOS</div><div class="sv" style="color:#7c3aed">${techDispos}/${Object.keys(TECH_C).length}</div></div>
+<div class="sc" style="border-left:4px solid #0891b2" onclick="showPage('appels')" style="cursor:pointer"><div class="lbl">📞 APPELS DU JOUR</div><div class="sv" style="color:#0891b2">${appelsAuj}</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">mémos IA disponibles</div></div>
+<div class="sc" style="border-left:4px solid #f59e0b" onclick="showGroup('ops');showPage('dispatch')" style="cursor:pointer"><div class="lbl">À PLANIFIER</div><div class="sv" style="color:#f59e0b">${aPlanifier}</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">RDV sans technicien</div></div>`;
   // Header CA avec progression objectif jour
   const objAnnuel=parseInt(localStorage.getItem('pl_objectif')||'1000000');
   const objJour=Math.round(objAnnuel/365);
@@ -1975,7 +1983,10 @@ function renderEquipe(){
         <div style="background:#eff6ff;border-radius:8px;padding:8px 10px;text-align:center;"><div style="color:var(--muted);font-size:9px;letter-spacing:1px;font-weight:700;text-transform:uppercase;">INTERV.</div><div style="color:#1d4ed8;font-weight:800;font-size:14px;margin-top:3px;">${nbMois}</div></div>
         <div style="background:#fefce8;border-radius:8px;padding:8px 10px;text-align:center;"><div style="color:var(--muted);font-size:9px;letter-spacing:1px;font-weight:700;text-transform:uppercase;">SATISF.</div><div style="color:#ca8a04;font-weight:800;font-size:14px;margin-top:3px;">${satMoy?satMoy+'/5':'—'}</div></div>
       </div>
-      <button class="btn btn-gray" style="width:100%;font-size:11px;padding:7px;" onclick="agendaTech='${nom}';showPage('agenda')">Voir planning →</button>
+      <div style="display:flex;gap:6px;margin-top:8px;">
+        <button class="btn btn-gray" style="flex:1;font-size:11px;padding:7px;" onclick="agendaTech='${nom}';showPage('agenda')">📅 Planning</button>
+        <button class="btn btn-primary" style="flex:1;font-size:11px;padding:7px;" onclick="ouvrirProfilTech('${nom}')">✏️ Profil</button>
+      </div>
     </div>`;
   }).join("");
 
@@ -2350,6 +2361,25 @@ function setAgendaTech(t,btn){
   document.querySelectorAll("#agenda-tech-btns button").forEach(b=>b.className="btn btn-gray");
   if(btn)btn.className="btn btn-primary";
   renderAgenda();
+}
+function setVuePlanning(vue){
+  const aContent=document.getElementById('vue-agenda-content');
+  const gContent=document.getElementById('vue-gantt-content');
+  const btnA=document.getElementById('toggle-agenda');
+  const btnG=document.getElementById('toggle-gantt');
+  if(vue==='gantt'){
+    if(aContent)aContent.style.display='none';
+    if(gContent)gContent.style.display='block';
+    if(btnA){btnA.style.background='transparent';btnA.style.color='#64748b';}
+    if(btnG){btnG.style.background='#0d2d52';btnG.style.color='#fff';}
+    renderGantt();
+  } else {
+    if(aContent)aContent.style.display='block';
+    if(gContent)gContent.style.display='none';
+    if(btnA){btnA.style.background='#0d2d52';btnA.style.color='#fff';}
+    if(btnG){btnG.style.background='transparent';btnG.style.color='#64748b';}
+    renderAgenda();
+  }
 }
 function renderAgenda(){
   const techs=getTechs();
@@ -3344,6 +3374,60 @@ function changerZone(zone){
 function getZoneActive(){return localStorage.getItem('pl_zone_active')||'all';}
 
 // =============================================
+// PROFIL TECHNICIEN MODAL
+function ouvrirProfilTech(nom){
+  const d=getTechsRH()[nom]||{};
+  const rapports=getRapports();const mois=moisStr();
+  const mesMois=rapports.filter(r=>r.technicien===nom&&r.date?.startsWith(mois));
+  const caMois=mesMois.reduce((s,r)=>s+(r.montantFinal||0),0);
+  const totalRdvs=rapports.filter(r=>r.technicien===nom).length;
+  const tc=TECH_C[nom]||{color:'#0d2d52',avatar:'T'};
+  // Ancienneté
+  let anc='—';
+  if(d.embauche){const ms=Math.floor((Date.now()-new Date(d.embauche))/(1000*60*60*24*30));anc=ms>=12?Math.floor(ms/12)+'ans '+ms%12+'mois':ms+'mois';}
+  const modal=document.getElementById('modal-profil-tech');
+  modal.innerHTML=`
+    <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px 16px 40px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="font-weight:800;font-size:15px;color:#0d2d52;">Profil Technicien</div>
+        <button onclick="document.getElementById('modal-profil-tech').classList.add('hidden')" style="background:#f1f5f9;border:none;border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer;">✕</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;background:linear-gradient(135deg,${tc.color}15,${tc.color}05);border-radius:14px;padding:14px;">
+        <div style="width:52px;height:52px;border-radius:14px;background:${tc.color}20;border:2px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;flex-shrink:0;">${tc.avatar}</div>
+        <div><div style="font-weight:800;font-size:16px;">${nom}</div><div style="color:#64748b;font-size:12px;margin-top:2px;">${d.specialite||'—'} · ${d.contrat||'CDI'}</div><div style="color:#3a8c30;font-size:12px;font-weight:700;margin-top:2px;">Ancienneté : ${anc}</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;">
+        <div style="background:#f0fdf4;border-radius:10px;padding:10px;text-align:center;"><div style="font-size:9px;color:#64748b;font-weight:700;text-transform:uppercase;">CA mois</div><div style="font-size:16px;font-weight:800;color:#16a34a;">${caMois.toLocaleString('fr-FR')}€</div></div>
+        <div style="background:#eff6ff;border-radius:10px;padding:10px;text-align:center;"><div style="font-size:9px;color:#64748b;font-weight:700;text-transform:uppercase;">Interv.</div><div style="font-size:16px;font-weight:800;color:#1d4ed8;">${mesMois.length}</div></div>
+        <div style="background:#fef9c3;border-radius:10px;padding:10px;text-align:center;"><div style="font-size:9px;color:#64748b;font-weight:700;text-transform:uppercase;">Total</div><div style="font-size:16px;font-weight:800;color:#ca8a04;">${totalRdvs}</div></div>
+      </div>
+      <div class="lbl" style="margin-bottom:10px;">MODIFIER LES INFORMATIONS</div>
+      <div class="form-field"><label>Nom affiché</label><input class="form-input" id="pt-nom" value="${d.nom||nom}"></div>
+      <div class="form-field"><label>Spécialité</label><input class="form-input" id="pt-specialite" value="${d.specialite||''}"></div>
+      <div class="form-field"><label>Contrat</label><select class="form-select" id="pt-contrat"><option ${d.contrat==='CDI'?'selected':''}>CDI</option><option ${d.contrat==='CDD'?'selected':''}>CDD</option><option ${d.contrat==='Intérimaire'?'selected':''}>Intérimaire</option><option ${d.contrat==='Freelance'?'selected':''}>Freelance</option></select></div>
+      <div class="form-field"><label>Date d'embauche</label><input type="date" class="form-input" id="pt-embauche" value="${d.embauche||''}"></div>
+      <div class="form-field"><label>Téléphone direct</label><input class="form-input" id="pt-tel" value="${d.telUrgence||''}"></div>
+      <div class="form-field"><label>Email</label><input type="email" class="form-input" id="pt-email" value="${d.email||''}"></div>
+      <button class="btn btn-primary btn-full" style="margin-top:4px;" onclick="sauvegarderProfilTech('${nom}')">Sauvegarder</button>
+    </div>`;
+  modal.classList.remove('hidden');
+}
+function sauvegarderProfilTech(nom){
+  const d=getTechsRH();
+  d[nom]=Object.assign(d[nom]||{},{
+    nom:document.getElementById('pt-nom').value.trim(),
+    specialite:document.getElementById('pt-specialite').value.trim(),
+    contrat:document.getElementById('pt-contrat').value,
+    embauche:document.getElementById('pt-embauche').value,
+    telUrgence:document.getElementById('pt-tel').value.trim(),
+    email:document.getElementById('pt-email').value.trim()
+  });
+  saveTechsRH(d);
+  document.getElementById('modal-profil-tech').classList.add('hidden');
+  renderEquipe();
+  showNotif('Profil de '+nom+' mis à jour');
+}
+
 // STORAGE HELPERS RH / NPS
 // =============================================
 function getTechsRH(){
@@ -5435,6 +5519,9 @@ async function sendAI(){
   }
 }
 </script>
+
+<!-- Modal profil tech -->
+<div id="modal-profil-tech" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1050;display:flex;align-items:flex-end;justify-content:center;" onclick="if(event.target===this)this.classList.add('hidden')"></div>
 
 </body>
 </html>
