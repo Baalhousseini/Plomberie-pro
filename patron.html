@@ -239,7 +239,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 .gantt-hour{position:absolute;top:0;bottom:0;border-left:1px solid #e2e8f0;display:flex;align-items:flex-end;padding-bottom:2px;}
 .gantt-hour-lbl{font-size:8px;color:#94a3b8;padding-left:2px;}
 /* ASSISTANT IA */
-#ai-fab{position:fixed;bottom:56px;right:14px;z-index:1000;background:linear-gradient(135deg,#0d2d52,#1a4a7a);color:#fff;border:none;border-radius:50%;width:52px;height:52px;font-size:22px;cursor:pointer;box-shadow:0 4px 16px rgba(13,45,82,0.4);display:flex;align-items:center;justify-content:center;transition:transform 0.2s;}
+#ai-fab{position:fixed;bottom:70px;right:16px;z-index:9990;background:linear-gradient(135deg,#0d2d52,#1a4a7a);color:#fff;border:none;border-radius:50%;width:54px;height:54px;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(13,45,82,0.5);display:none;align-items:center;justify-content:center;transition:transform 0.2s;}
 #ai-fab:hover{transform:scale(1.1);}
 #ai-panel{position:fixed;bottom:0;left:0;right:0;top:0;z-index:1100;display:flex;flex-direction:column;background:#fff;transform:translateY(100%);transition:transform 0.3s ease;border-radius:18px 18px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,0.18);}
 #ai-panel.open{transform:translateY(0);}
@@ -1288,6 +1288,7 @@ function seConnecter(){
 function lancerApp(){
   document.getElementById("login").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
+  document.getElementById("ai-fab").style.display="flex";
   document.getElementById("rdv-date").value=todayStr();
   document.getElementById("objectif-input").value=getObjectif();
   renderDashboard();
