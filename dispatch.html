@@ -325,78 +325,103 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 
 <!-- TABLEAU DE BORD -->
 <div id="page-dashboard">
-  <div style="margin-bottom:16px;">
-    <div style="color:#1a3a5c;font-size:11px;letter-spacing:2px;font-weight:700;">TABLEAU DE BORD</div>
-    <div style="color:#64748b;font-size:12px;margin-top:2px;" id="dash-date"></div>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;" id="dash-stats"></div>
-  <div id="pipeline-ca-card" style="background:linear-gradient(135deg,#0d2d52 0%,#1a4a7a 100%);border-radius:16px;padding:16px;margin-bottom:12px;color:#fff;">
-    <div style="font-size:10px;letter-spacing:2px;font-weight:700;opacity:0.7;margin-bottom:10px;">PIPELINE CA — AUJOURD'HUI</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;">
-      <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:10px;text-align:center;">
-        <div style="font-size:18px;font-weight:900;color:#7bc144;" id="pip-ca-conf">0€</div>
-        <div style="font-size:9px;opacity:0.7;margin-top:2px;">CA confirmé</div>
-      </div>
-      <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:10px;text-align:center;">
-        <div style="font-size:18px;font-weight:900;color:#f59e0b;" id="pip-ca-encours">0€</div>
-        <div style="font-size:9px;opacity:0.7;margin-top:2px;">En cours</div>
-      </div>
-      <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:10px;text-align:center;">
-        <div style="font-size:18px;font-weight:900;color:#60a5fa;" id="pip-rdv-nb">0</div>
-        <div style="font-size:9px;opacity:0.7;margin-top:2px;">RDV planifiés</div>
-      </div>
+  <!-- Header date + objectif -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <div>
+      <div style="color:#1a3a5c;font-size:11px;letter-spacing:2px;font-weight:700;">TABLEAU DE BORD</div>
+      <div style="color:#64748b;font-size:12px;margin-top:1px;" id="dash-date"></div>
     </div>
-    <div style="margin-bottom:8px;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-        <span style="font-size:10px;opacity:0.7;">Objectif jour</span>
-        <span style="font-size:10px;font-weight:700;" id="pip-obj-txt">—</span>
-      </div>
-      <div style="background:rgba(255,255,255,0.15);border-radius:100px;height:6px;">
-        <div id="pip-obj-bar" style="background:#7bc144;height:6px;border-radius:100px;width:0%;transition:width 0.6s;"></div>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;">
-      <div style="background:rgba(255,255,255,0.08);border-radius:8px;padding:8px;">
-        <div style="opacity:0.6;font-size:9px;margin-bottom:2px;">CANAUX ACQUISITION</div>
-        <div id="pip-canaux" style="font-size:11px;"></div>
-      </div>
-      <div style="background:rgba(255,255,255,0.08);border-radius:8px;padding:8px;">
-        <div style="opacity:0.6;font-size:9px;margin-bottom:2px;">TAUX TRANSFORMATION</div>
-        <div id="pip-conv" style="font-size:18px;font-weight:900;color:#7bc144;">—</div>
-        <div style="opacity:0.5;font-size:9px;">terminés / planifiés</div>
-      </div>
+    <div style="text-align:right;">
+      <div style="font-size:9px;color:#64748b;letter-spacing:1px;">OBJECTIF JOUR</div>
+      <div style="font-size:13px;font-weight:800;color:#0d2d52;" id="dash-obj-txt">—</div>
     </div>
   </div>
-  <div class="card" style="margin-bottom:12px;border-left:4px solid #7c3aed;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-      <div class="lbl" style="margin-bottom:0;color:#7c3aed;">OPTIMISATION TOURNÉES</div>
-      <button class="btn btn-primary" style="background:#7c3aed;font-size:11px;" onclick="optimiserTournees()">🗺️ Optimiser</button>
+
+  <!-- KPIs fusionnés — 3 cols x 2 rows -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
+    <div style="background:#dbeafe;border-radius:12px;padding:12px;text-align:center;border:1px solid #1a3a5c30;">
+      <div style="color:#1a3a5c;font-size:8px;letter-spacing:1px;font-weight:700;">INTERVENTIONS</div>
+      <div style="color:#1a3a5c;font-weight:900;font-size:22px;margin-top:4px;" id="d-rdv-stat">0/0</div>
     </div>
-    <div id="tournees-result" style="color:#64748b;font-size:12px;">Cliquez pour regrouper les RDVs d'aujourd'hui par zone et économiser du trajet.</div>
+    <div style="background:#dcfce7;border-radius:12px;padding:12px;text-align:center;border:1px solid #16a34a30;">
+      <div style="color:#15803d;font-size:8px;letter-spacing:1px;font-weight:700;">CA CONFIRMÉ</div>
+      <div style="color:#15803d;font-weight:900;font-size:22px;margin-top:4px;" id="d-ca-conf">0€</div>
+    </div>
+    <div style="background:#fef9c3;border-radius:12px;padding:12px;text-align:center;border:1px solid #a1620730;">
+      <div style="color:#a16207;font-size:8px;letter-spacing:1px;font-weight:700;">À VALIDER</div>
+      <div style="color:#a16207;font-weight:900;font-size:22px;margin-top:4px;" id="d-a-valider">0</div>
+    </div>
+    <div style="background:#fee2e2;border-radius:12px;padding:12px;text-align:center;border:1px solid #dc262630;">
+      <div style="color:#dc2626;font-size:8px;letter-spacing:1px;font-weight:700;">URGENCES</div>
+      <div style="color:#dc2626;font-weight:900;font-size:22px;margin-top:4px;" id="d-urgences">0</div>
+    </div>
+    <div style="background:#f3e8ff;border-radius:12px;padding:12px;text-align:center;border:1px solid #7c3aed30;">
+      <div style="color:#7c3aed;font-size:8px;letter-spacing:1px;font-weight:700;">EN COURS €</div>
+      <div style="color:#7c3aed;font-weight:900;font-size:22px;margin-top:4px;" id="d-ca-encours">0€</div>
+    </div>
+    <div style="background:#e0f2fe;border-radius:12px;padding:12px;text-align:center;border:1px solid #0891b230;">
+      <div style="color:#0891b2;font-size:8px;letter-spacing:1px;font-weight:700;">CONV. %</div>
+      <div style="color:#0891b2;font-weight:900;font-size:22px;margin-top:4px;" id="d-conv">0%</div>
+    </div>
   </div>
-  <div class="card card-blue">
-    <div class="lbl">ETAT DES TECHNICIENS</div>
-    <div id="dash-techs" style="margin-top:8px;"></div>
+
+  <!-- Barre objectif -->
+  <div style="background:#f1f5f9;border-radius:10px;padding:10px 12px;margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+      <span style="font-size:10px;color:#64748b;font-weight:600;">Progression objectif du jour</span>
+      <span style="font-size:10px;font-weight:800;color:#0d2d52;" id="pip-obj-txt">0%</span>
+    </div>
+    <div style="background:#e2e8f0;border-radius:100px;height:7px;">
+      <div id="pip-obj-bar" style="background:linear-gradient(90deg,#7bc144,#15803d);height:7px;border-radius:100px;width:0%;transition:width 0.6s;"></div>
+    </div>
   </div>
-  <div class="card card-red" id="dash-urgences-card" style="display:none;">
+
+  <!-- Techniciens compact -->
+  <div class="card card-blue" style="margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div class="lbl" style="margin-bottom:0;">TECHNICIENS</div>
+      <button class="btn btn-primary" style="background:#7c3aed;font-size:10px;padding:4px 9px;" onclick="optimiserTournees()">🗺️ Tournées</button>
+    </div>
+    <div id="dash-techs"></div>
+  </div>
+
+  <!-- Urgences actives (si besoin) -->
+  <div class="card card-red" id="dash-urgences-card" style="display:none;margin-bottom:10px;">
     <div class="lbl" style="color:#dc2626;">URGENCES ACTIVES</div>
     <div id="dash-urgences" style="margin-top:8px;"></div>
   </div>
-  <div class="card card-yellow">
-    <div class="lbl">A TRAITER</div>
-    <div id="dash-todo" style="margin-top:8px;"></div>
+
+  <!-- À traiter + canaux en ligne -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+    <div class="card card-yellow" style="margin-bottom:0;">
+      <div class="lbl">À TRAITER</div>
+      <div id="dash-todo" style="margin-top:8px;"></div>
+    </div>
+    <div class="card" style="margin-bottom:0;background:#0d2d52;color:#fff;">
+      <div style="font-size:9px;letter-spacing:1px;font-weight:700;opacity:0.6;margin-bottom:6px;">CANAUX</div>
+      <div id="pip-canaux"></div>
+      <div style="margin-top:8px;">
+        <div style="font-size:9px;opacity:0.6;">PERF OPÉRATEURS</div>
+        <div id="kpi-operateurs" style="margin-top:4px;"></div>
+      </div>
+    </div>
   </div>
-  <div class="card" style="margin-bottom:12px;">
-    <div class="lbl">PERFORMANCE OPÉRATEURS — AUJOURD'HUI</div>
-    <div id="kpi-operateurs"></div>
-  </div>
-  <div class="card" style="margin-bottom:12px;border-left:4px solid #16a34a;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+
+  <!-- Bilan jour -->
+  <div class="card" style="border-left:4px solid #16a34a;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
       <div class="lbl" style="margin-bottom:0;color:#16a34a;">BILAN DE LA JOURNÉE</div>
-      <button class="btn btn-gray" style="font-size:10px;padding:5px 10px;" onclick="copierRapportJour()">📋 Copier</button>
+      <button class="btn btn-gray" style="font-size:10px;padding:4px 9px;" onclick="copierRapportJour()">📋 Copier</button>
     </div>
     <div id="rapport-jour"></div>
   </div>
+
+  <!-- IDs legacy pour renderPipelineCA() -->
+  <span id="pip-ca-conf" style="display:none;"></span>
+  <span id="pip-ca-encours" style="display:none;"></span>
+  <span id="pip-rdv-nb" style="display:none;"></span>
+  <span id="pip-conv" style="display:none;"></span>
+  <div id="tournees-result" style="display:none;"></div>
 </div>
 
 <div id="page-dispos" class="hidden">
@@ -1006,8 +1031,8 @@ function renderKpiOperateurs(){
     ops[r.operateur].ca+=(r.prixVente||0);
   });
   var list=Object.values(ops).sort(function(a,b){return b.ca-a.ca;});
-  if(!list.length){d.innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px 0;">Aucune donnée opérateur aujourd\'hui</div>';return;}
-  d.innerHTML=list.map(function(op){return '<div class="tr"><div><div style="font-weight:700;font-size:13px;">'+op.nom+'</div><div style="font-size:11px;color:var(--muted);">'+op.rdvs+' RDV créés aujourd\'hui</div></div><div style="text-align:right;"><div style="font-weight:800;color:var(--green);font-size:15px;">'+op.ca.toLocaleString('fr-FR')+' €</div></div></div>';}).join('');
+  if(!list.length){d.innerHTML='<div style="color:rgba(255,255,255,0.4);font-size:11px;padding:4px 0;">Aucune donnée</div>';return;}
+  d.innerHTML=list.map(function(op){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.08);"><div style="font-weight:700;font-size:11px;color:#fff;">'+op.nom+'</div><div style="font-weight:800;color:#7bc144;font-size:12px;">'+op.ca.toLocaleString('fr-FR')+'€</div></div>';}).join('');
 }
 
 /* ── CLIENTS — see improved version below ── */
@@ -2579,75 +2604,91 @@ document.getElementById("liste-factures").innerHTML=hF;
 
 function renderDashboard(){
 var rdvs=getRdvs(),rapports=getRapports(),dispos=getDispos();
-var urgences=getUrgences().filter(function(u){return u.statut!=="Resolu";});
+var urgences=getUrgences().filter(function(u){return u.statut!=="Resolu"&&u.statut!=="Résolu";});
 var devis=getDevis().filter(function(d){return d.statut!=="Traite";});
-var savs=getSavs().filter(function(s){return s.statut!=="Resolu";});
+var savs=getSavs().filter(function(s){return s.statut!=="Resolu"&&s.statut!=="Résolu";});
 var aValider=rapports.filter(function(r){return r.statut==="En attente facturation";});
 var rdvsAuj=rdvs.filter(function(r){return r.dateRdv===todayStr();});
 var rdvFaits=rdvsAuj.filter(function(r){return r.statut==="Termine";}).length;
-var caJour=rapports.filter(function(r){return r.date===todayStr();}).reduce(function(s,r){return s+(r.montantFinal||0);},0);
+var caConf=rapports.filter(function(r){return r.date===todayStr()&&r.statut==='Valide';}).reduce(function(s,r){return s+(r.montantFinal||0);},0);
+var caEnCours=rdvsAuj.filter(function(r){return r.statut!=="Termine"&&r.statut!=="Annule";}).reduce(function(s,r){return s+(r.prixVente||0);},0);
+var objJour=Math.round(parseInt(localStorage.getItem('pl_objectif')||'1000000')/365);
+var pct=Math.min(100,objJour>0?Math.round(caConf/objJour*100):0);
+var txConv=rdvsAuj.length?Math.round(rdvFaits/rdvsAuj.length*100):0;
 
 var now=new Date();
-document.getElementById("dash-date").textContent=now.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
+var s=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+var sh=function(id,v){var e=document.getElementById(id);if(e)e.innerHTML=v;};
 
-// Stats cards
-var stats=[
-["INTERVENTIONS DU JOUR",rdvFaits+" / "+rdvsAuj.length,"#1a3a5c","#dbeafe"],
-["CA DU JOUR",caJour+" EUR","#4a9c3f","#dcfce7"],
-["URGENCES ACTIVES",urgences.length,"#dc2626","#fee2e2"],
-["A VALIDER",aValider.length,"#a16207","#fef9c3"]
-];
-document.getElementById("dash-stats").innerHTML=stats.map(function(x){
-return '<div style="background:'+x[3]+';border-radius:14px;padding:16px;text-align:center;border:1px solid '+x[2]+'30;"><div style="color:'+x[2]+';font-size:9px;letter-spacing:1px;font-weight:700;">'+x[0]+'</div><div style="color:'+x[2]+';font-weight:800;font-size:24px;margin-top:6px;">'+x[1]+'</div></div>';
-}).join("");
+s('dash-date',now.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"}));
+s('dash-obj-txt',objJour.toLocaleString('fr-FR')+'€/j');
 
-// Techniciens dispo vs occupe
-var techs=["Technicien 1","Technicien 2"];
+// KPIs fusionnés
+s('d-rdv-stat',rdvFaits+'/'+rdvsAuj.length);
+s('d-ca-conf',caConf>0?caConf.toLocaleString('fr-FR')+'€':'0€');
+s('d-a-valider',aValider.length);
+s('d-urgences',urgences.length);
+s('d-ca-encours',caEnCours>0?caEnCours.toLocaleString('fr-FR')+'€':'0€');
+s('d-conv',txConv+'%');
+
+// Barre objectif
+s('pip-obj-txt',pct+'% objectif');
+var bar=document.getElementById('pip-obj-bar');if(bar)bar.style.width=pct+'%';
+if(bar)bar.style.background=pct>=100?'#dc2626':pct>=70?'#f59e0b':'linear-gradient(90deg,#7bc144,#15803d)';
+
+// Techniciens
+var techsList=Object.keys(dispos).length?Object.keys(dispos):["Technicien 1","Technicien 2"];
+// also collect from rdvs
+rdvs.forEach(function(r){if(r.technicien&&r.technicien!=='À planifier'&&!techsList.includes(r.technicien))techsList.push(r.technicien);});
 var html="";
-for(var i=0;i<techs.length;i++){
-var nom=techs[i],d=dispos[nom]||{statut:"Non connecte"};
-var color=STATUT_C[d.statut]||"#64748b",tc=TECH_C[nom];
+techsList.slice(0,6).forEach(function(nom){
+var d=dispos[nom]||{statut:"Non connecté"};
+var color=STATUT_C[d.statut]||"#64748b";
+var tc=TECH_C[nom]||{bg:'#e2e8f0',c:'#64748b',a:nom.slice(0,2).toUpperCase()};
 var isActive=d.statut==="En intervention";
 var rdvsT=rdvs.filter(function(r){return r.technicien===nom&&r.dateRdv===todayStr();});
 var doneT=rdvsT.filter(function(r){return r.statut==="Termine";}).length;
 var ago=d.updatedAt?Math.floor((Date.now()-new Date(d.updatedAt))/60000):null;
-html+='<div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #f1f5f9;">';
-html+='<div style="width:38px;height:38px;border-radius:10px;background:'+tc.bg+';border:2px solid '+tc.c+';color:'+tc.c+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;">'+tc.a+'</div>';
-html+='<div style="flex:1;">';
-html+='<div style="font-weight:700;font-size:13px;color:#1a2537;">'+nom+'</div>';
-html+='<div style="color:#94a3b8;font-size:10px;">'+doneT+'/'+rdvsT.length+' RDV'+(ago!==null?' · '+(ago<1?'maintenant':ago+'min'):'')+' </div>';
-html+='</div>';
-html+='<div style="display:flex;align-items:center;gap:6px;">';
-html+='<span style="width:9px;height:9px;border-radius:50%;background:'+color+';display:inline-block;'+(isActive?'animation:pulseStatus 1.5s ease-in-out infinite;':'')+'"></span>';
-html+='<span style="color:'+color+';font-size:11px;font-weight:700;">'+d.statut+'</span>';
+html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;">';
+html+='<div style="width:34px;height:34px;border-radius:9px;background:'+tc.bg+';border:2px solid '+tc.c+';color:'+tc.c+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0;">'+tc.a+'</div>';
+html+='<div style="flex:1;"><div style="font-weight:700;font-size:13px;color:#1a2537;">'+nom+'</div>';
+html+='<div style="color:#94a3b8;font-size:10px;">'+doneT+'/'+rdvsT.length+' RDV'+(ago!==null?' · '+(ago<1?'maint.':ago+'min'):'')+'</div></div>';
+html+='<div style="display:flex;align-items:center;gap:5px;">';
+html+='<span style="width:8px;height:8px;border-radius:50%;background:'+color+';display:inline-block;'+(isActive?'animation:pulseStatus 1.5s ease-in-out infinite;':'')+'"></span>';
+html+='<span style="color:'+color+';font-size:10px;font-weight:700;">'+d.statut+'</span>';
 html+='</div></div>';
-}
+});
 renderDispatchKPI();
-document.getElementById("dash-techs").innerHTML=html;
+sh('dash-techs',html);
 
-// Urgences actives
+// Urgences
 var uCard=document.getElementById("dash-urgences-card");
 if(urgences.length>0){
 uCard.style.display="block";
-document.getElementById("dash-urgences").innerHTML=urgences.map(function(u){
-return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #fecaca;"><div><div style="font-weight:700;font-size:13px;color:#1a2537;">'+u.clientNom+'</div><div style="color:#dc2626;font-size:11px;">'+u.type+'</div></div><button class="btn btn-red" style="padding:5px 10px;font-size:11px;" onclick="window.open(\'tel:'+u.clientTel+'\')">Appeler</button></div>';
-}).join("");
+sh('dash-urgences',urgences.slice(0,3).map(function(u){
+return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #fecaca;"><div><div style="font-weight:700;font-size:13px;color:#1a2537;">'+u.clientNom+'</div><div style="color:#dc2626;font-size:11px;">'+u.type+'</div></div><button class="btn btn-red" style="padding:4px 9px;font-size:10px;" onclick="showPage(\'urgences\')">Gérer</button></div>';
+}).join(""));
 } else { uCard.style.display="none"; }
 
-// A traiter
+// À traiter
 var todo=[];
-if(devis.length>0) todo.push([devis.length+" demande(s) de devis","#1d4ed8","showPage('devis')"]);
-if(savs.length>0) todo.push([savs.length+" dossier(s) SAV ouvert(s)","#1d4ed8","showPage('sav')"]);
-if(aValider.length>0) todo.push([aValider.length+" rapport(s) a valider","#a16207","showPage('validation')"]);
-if(todo.length===0){
-document.getElementById("dash-todo").innerHTML='<div style="color:#94a3b8;font-size:13px;padding:8px 0;text-align:center;">Rien a traiter, tout est a jour !</div>';
-} else {
-document.getElementById("dash-todo").innerHTML=todo.map(function(t){
-return '<div onclick="'+t[2]+'" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:6px;cursor:pointer;"><span style="color:'+t[1]+';font-size:13px;font-weight:600;">'+t[0]+'</span><span style="color:'+t[1]+';font-size:16px;">›</span></div>';
-}).join("");
-}
+if(devis.length>0)todo.push([devis.length+' devis',"#1d4ed8","showPage('devis')"]);
+if(savs.length>0)todo.push([savs.length+' SAV',"#0891b2","showPage('sav')"]);
+if(aValider.length>0)todo.push([aValider.length+' rapports',"#a16207","showPage('validation')"]);
+var rdvsAP=rdvs.filter(function(r){return r.technicien==='À planifier'&&r.statut!=='Termine'&&r.statut!=='Annule';});
+if(rdvsAP.length>0)todo.push([rdvsAP.length+' à planifier',"#7c3aed","showPage('tous-rdv')"]);
+sh('dash-todo',todo.length===0
+?'<div style="color:#94a3b8;font-size:12px;padding:6px 0;text-align:center;">Tout est à jour ✓</div>'
+:todo.map(function(t){return '<div onclick="'+t[2]+'" style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:5px;cursor:pointer;"><span style="color:'+t[1]+';font-size:12px;font-weight:700;">'+t[0]+'</span><span style="color:'+t[1]+';font-size:14px;">›</span></div>';}).join(""));
+
+// Canaux acquisition
+var canaux={};rdvsAuj.forEach(function(r){var c=r.canal||"Autre";canaux[c]=(canaux[c]||0)+1;});
+var canauxHtml=Object.entries(canaux).sort(function(a,b){return b[1]-a[1];}).slice(0,4).map(function(e){
+return '<div style="color:#fff;font-size:10px;margin-bottom:3px;display:flex;justify-content:space-between;"><span style="opacity:0.8;">'+e[0].replace(/[📞🌐⭐🏢🤝📣❓]/g,'').trim().slice(0,14)+'</span><b>'+e[1]+'</b></div>';
+}).join("")||'<div style="color:rgba(255,255,255,0.4);font-size:10px;">Aucun RDV</div>';
+sh('pip-canaux',canauxHtml);
+
 renderKpiOperateurs();
-renderPipelineCA();
 renderRapportJour();
 }
 
