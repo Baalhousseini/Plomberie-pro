@@ -5216,12 +5216,14 @@ if('serviceWorker' in navigator) {
   </div>
   <div id="ai-messages"></div>
   <div class="ai-quick" id="ai-quick-btns">
-    <button class="ai-quick-btn" onclick="aiQuick('Résume-moi la journée')">📊 Résumé du jour</button>
-    <button class="ai-quick-btn" onclick="aiQuick('Qui n\'a pas encore été rappelé ?')">📞 Rappels en attente</button>
-    <button class="ai-quick-btn" onclick="aiQuick('Rédige un email de relance pour un devis non signé')">✉️ Email relance devis</button>
+    <button class="ai-quick-btn" onclick="aiQuick('Résume-moi la journée et mon agenda de la semaine')">📊 Briefing du jour</button>
+    <button class="ai-quick-btn" onclick="aiQuick('Montre-moi mes emails non lus')">📧 Emails non lus</button>
+    <button class="ai-quick-btn" onclick="aiQuick('Montre-moi mon agenda Google Calendar cette semaine')">📅 Agenda semaine</button>
     <button class="ai-quick-btn" onclick="aiQuick('Quelles sont les urgences en cours ?')">🚨 Urgences</button>
+    <button class="ai-quick-btn" onclick="aiQuick('Rédige un email de relance pour un devis non signé et envoie-le')">✉️ Relance devis</button>
     <button class="ai-quick-btn" onclick="aiQuick('Donne-moi un bilan du CA de ce mois')">💶 Bilan CA</button>
-    <button class="ai-quick-btn" onclick="aiQuick('Rédige un SMS de confirmation de RDV pour demain')">📱 SMS confirmation</button>
+    <button class="ai-quick-btn" onclick="aiQuick('Qui n\'a pas encore été rappelé cette semaine ?')">📞 Rappels</button>
+    <button class="ai-quick-btn" onclick="aiQuick('Rédige un SMS de confirmation de RDV pour demain')">📱 SMS</button>
   </div>
   <div id="ai-input-area">
     <textarea id="ai-input" rows="1" placeholder="Pose une question ou donne une instruction..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAI();}"></textarea>
@@ -5230,13 +5232,28 @@ if('serviceWorker' in navigator) {
 </div>
 
 <script>
-var _aiHistory=[];
+// Historique persistant
+var _aiHistory=JSON.parse(localStorage.getItem('pl_ai_history')||'[]');
 var _aiOpen=false;
+var _aiRendered=false;
+
+function saveAIHistory(){try{localStorage.setItem('pl_ai_history',JSON.stringify(_aiHistory.slice(-40)));}catch(e){}}
 
 function toggleAI(){
   _aiOpen=!_aiOpen;
   document.getElementById('ai-panel').classList.toggle('open',_aiOpen);
-  if(_aiOpen&&_aiHistory.length===0) aiWelcome();
+  if(_aiOpen&&!_aiRendered){
+    _aiRendered=true;
+    if(_aiHistory.length===0){aiWelcome();}
+    else{
+      // Restaurer messages existants
+      const msgs=document.getElementById('ai-messages');
+      _aiHistory.filter(m=>m.role!=='tool').forEach(m=>{
+        if(m.role==='user'){const txt=Array.isArray(m.content)?m.content.filter(b=>b.type==='text').map(b=>b.text).join(''):m.content;if(txt)addAIMsg('user',txt);}
+        if(m.role==='assistant'){const txt=Array.isArray(m.content)?m.content.filter(b=>b.type==='text').map(b=>b.text).join(''):m.content;if(txt)addAIMsg('bot',txt);}
+      });
+    }
+  }
 }
 
 function aiWelcome(){
@@ -5320,6 +5337,7 @@ async function sendAI(){
 
   addAIMsg('user',text);
   _aiHistory.push({role:'user',content:text});
+  saveAIHistory();
 
   const typing=addAITyping();
 
@@ -5344,22 +5362,24 @@ async function sendAI(){
     // Handle tool results
     let actionMsg='';
     for(const tr of data.toolResults||[]){
-      if(tr.tool==='create_rdv'&&tr.rdv){
-        const rdv=tr.rdv;
-        const rdvs=getRdvs();
-        rdvs.push({id:Date.now(),clientNom:rdv.clientNom,clientTel:rdv.clientTel||'',adresse:rdv.adresse||'',type:rdv.type,dateRdv:rdv.dateRdv,heureRdv:rdv.heureRdv,technicien:rdv.technicien||'À planifier',prix:rdv.prix||0,statut:'Confirme',notes:rdv.notes||'',creePar:'assistant-ia',creeAt:new Date().toISOString()});
-        saveRdvs(rdvs);
+      // RDV créé côté serveur (Firebase)
+      if(tr.tool==='create_rdv'&&tr.result&&tr.result.rdv){
+        const rdv=tr.result.rdv;
+        // Sync localStorage aussi
+        const rdvs=getRdvs();rdvs.push(rdv);saveRdvs(rdvs);
         actionMsg='✅ RDV créé : '+rdv.clientNom+' le '+rdv.dateRdv+' à '+rdv.heureRdv;
       }
-      if(tr.tool==='send_sms'){
-        actionMsg='📱 SMS envoyé à '+tr.to;
-      }
+      if(tr.tool==='send_sms')actionMsg='📱 SMS envoyé à '+(tr.input&&tr.input.to||'');
+      if(tr.tool==='send_email'&&tr.result&&tr.result.success)actionMsg='✉️ Email envoyé à '+(tr.input&&tr.input.to||'');
+      if(tr.tool==='create_calendar_event'&&tr.result&&tr.result.success)actionMsg='📅 Événement créé dans Google Calendar';
+      if(tr.tool==='delete_calendar_event'&&tr.result&&tr.result.success)actionMsg='🗑 Événement supprimé du calendrier';
     }
 
     if(replyText)addAIMsg('bot',replyText,actionMsg||undefined);
     else if(actionMsg)addAIMsg('bot','C\'est fait !',actionMsg);
 
     _aiHistory.push({role:'assistant',content:data.content||[{type:'text',text:replyText}]});
+    saveAIHistory();
 
   }catch(e){
     typing.remove();
