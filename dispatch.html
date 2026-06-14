@@ -3569,16 +3569,19 @@ function fermerSectionRdv(){
   document.getElementById('modal-rdv-actions').style.display='grid';
 }
 
+function getOperateurNom(){return currentOperateur?currentOperateur.nom:'Dispatch';}
+
 function ajouterModif(r,type,label){
   r.modifs=r.modifs||[];
-  r.modifs.push({type:type,label:label,ts:new Date().toISOString()});
+  r.modifs.push({type:type,label:label,par:getOperateurNom(),ts:new Date().toISOString()});
 }
 
-function pousserNotifPatron(type,texte){
+function pousserNotifPatron(type,texte,detail){
   try{
+    var par=getOperateurNom();
     var alertes=JSON.parse(localStorage.getItem('pl_alertes')||'[]');
     if(!Array.isArray(alertes))alertes=[];
-    alertes.unshift({type:type,texte:texte,ts:new Date().toISOString(),lu:false,source:'dispatch'});
+    alertes.unshift({type:type,texte:texte,detail:detail||null,par:par,ts:new Date().toISOString(),lu:false,source:'dispatch'});
     alertes=alertes.slice(0,50);
     var v=JSON.stringify(alertes);
     localStorage.setItem('pl_alertes',v);
@@ -3601,7 +3604,11 @@ function sauvegarderModifRdv(){
   var changed=(r.dateRdv!==oldDate||r.heureRdv!==oldHeure);
   ajouterModif(r,'modif','Modification : '+r.dateRdv+' à '+r.heureRdv+' — '+r.technicien);
   saveRdvs(rdvs);
-  pousserNotifPatron('modif','✏️ RDV modifié — '+r.clientNom+' ('+r.type+') → '+r.dateRdv+' à '+r.heureRdv+' | '+r.technicien);
+  pousserNotifPatron('modif','✏️ RDV modifié — '+r.clientNom,{
+    client:r.clientNom,type:r.type,
+    nouvDate:r.dateRdv,nouvHeure:r.heureRdv,tech:r.technicien,
+    raison:'Modification manuelle'
+  });
   if(changed&&document.getElementById('mod-sms-notif').checked&&r.clientTel){
     smsTyped(r.clientTel,'confirmation',{nom:r.clientNom,date:r.dateRdv,heure:r.heureRdv,tech:r.technicien});
   }
@@ -3626,7 +3633,11 @@ function confirmerDecalage(){
   if(newHeure)r.heureRdv=newHeure;
   ajouterModif(r,'decalage','Décalé ('+raison.value+') : '+oldDate+' → '+newDate);
   saveRdvs(rdvs);
-  pousserNotifPatron('decalage','📅 RDV décalé — '+r.clientNom+' ('+r.type+') : '+oldDate+' → '+newDate+' | Raison : '+raison.value);
+  pousserNotifPatron('decalage','📅 RDV décalé — '+r.clientNom,{
+    client:r.clientNom,type:r.type,
+    ancienneDate:oldDate,nouvDate:newDate,nouvHeure:newHeure||r.heureRdv,
+    raison:raison.value
+  });
   if(document.getElementById('dec-sms').checked&&r.clientTel){
     var msg='Bonjour '+r.clientNom+', votre intervention GreenFlow du '+oldDate+' est reportée au '+newDate+(newHeure?' à '+newHeure:'')+'. Raison : '+raison.value+'. Merci de votre compréhension.';
     smsTyped(r.clientTel,'sms_brut',{message:msg});
@@ -3648,7 +3659,11 @@ function confirmerAnnulation(){
   r.statut='Annule';
   r.annulationRaison=raison.value;
   saveRdvs(rdvs);
-  pousserNotifPatron('annulation','❌ RDV annulé — '+r.clientNom+' ('+r.type+') prévu le '+r.dateRdv+' | Raison : '+raison.value);
+  pousserNotifPatron('annulation','❌ RDV annulé — '+r.clientNom,{
+    client:r.clientNom,type:r.type,
+    datePrevu:r.dateRdv,heurePrevu:r.heureRdv,tech:r.technicien,
+    raison:raison.value
+  });
   if(document.getElementById('ann-sms').checked&&r.clientTel){
     var msg='Bonjour '+r.clientNom+', votre intervention GreenFlow du '+r.dateRdv+' a été annulée. Raison : '+raison.value+'. N\'hésitez pas à nous recontacter.';
     smsTyped(r.clientTel,'sms_brut',{message:msg});

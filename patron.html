@@ -1770,10 +1770,25 @@ function renderDisposDash(){
 function renderAlertes(){
   const alertes=[];
   // Notifications dispatch (modif/décalage/annulation RDV)
-  const notifDispatch=gAlertes().filter(n=>n.source==='dispatch'&&!n.lu).slice(0,5);
+  const notifDispatch=gAlertes().filter(n=>n.source==='dispatch').slice(0,8);
   notifDispatch.forEach(n=>{
-    var icn=n.type==='annulation'?'❌':n.type==='decalage'?'📅':'✏️';
-    alertes.push({texte:icn+' '+n.texte,color:'#7c3aed',bg:'#f3e8ff',ts:n.ts});
+    const d=n.detail||{};
+    const heure=new Date(n.ts).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    let detail='';
+    if(n.type==='annulation')
+      detail=`${d.type||''} · Prévu le ${d.datePrevu||'?'} à ${d.heurePrevu||'?'} (${d.tech||'?'}) · <b>Raison : ${d.raison||'?'}</b>`;
+    else if(n.type==='decalage')
+      detail=`${d.type||''} · ${d.ancienneDate||'?'} → <b>${d.nouvDate||'?'} à ${d.nouvHeure||'?'}</b> · <b>Raison : ${d.raison||'?'}</b>`;
+    else
+      detail=`${d.type||''} → ${d.nouvDate||'?'} à ${d.nouvHeure||'?'} · Tech : ${d.tech||'?'}`;
+    alertes.push({
+      texte:n.texte,
+      detail:`${detail} — par <b>${n.par||'Dispatch'}</b> à ${heure}`,
+      color:n.type==='annulation'?'#dc2626':n.type==='decalage'?'#d97706':'#7c3aed',
+      bg:n.type==='annulation'?'#fee2e2':n.type==='decalage'?'#fef3c7':'#f3e8ff',
+      ts:n.ts,
+      lu:n.lu
+    });
   });
   const impayes=getRapports().filter(r=>r.statut==="Facture");
   if(impayes.length)alertes.push(`${impayes.length} facture(s) impayee(s) — ${impayes.reduce((s,r)=>s+(r.montantFinal||0),0)} EUR`);
