@@ -258,9 +258,14 @@ body.logged-in #ai-fab{display:flex!important;}
 #ai-input-area{padding:10px 12px;border-top:1px solid #e2e8f0;display:flex;gap:8px;background:#fff;}
 #ai-input{flex:1;border:1.5px solid #e2e8f0;border-radius:12px;padding:10px 14px;font-size:13px;font-family:'Inter',sans-serif;resize:none;outline:none;max-height:100px;}
 #ai-input:focus{border-color:#0d2d52;}
-.ai-quick{display:flex;gap:6px;padding:0 12px 8px;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap;}
-.ai-quick::-webkit-scrollbar{display:none;}
-.ai-quick-btn{white-space:nowrap;background:#f0f9ff;border:1px solid #bae6fd;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:#0369a1;cursor:pointer;flex-shrink:0;}
+.ai-welcome{padding:12px;display:flex;flex-direction:column;gap:10px;}
+.ai-welcome-title{font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;padding:0 2px;}
+.ai-quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ai-quick-btn{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:12px 10px;font-size:12px;font-weight:600;color:#0d2d52;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;transition:all 0.15s;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+.ai-quick-btn:hover{border-color:#0d2d52;background:#f0f4ff;box-shadow:0 2px 8px rgba(13,45,82,0.1);}
+.ai-quick-btn .qb-icon{font-size:18px;}
+.ai-quick-btn .qb-label{font-size:11px;font-weight:700;color:#0d2d52;line-height:1.3;}
+.ai-quick-btn .qb-desc{font-size:10px;color:#94a3b8;font-weight:400;}
 </style>
 <link href='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css' rel='stylesheet' />
 <script src='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js'></script>
@@ -5218,16 +5223,52 @@ if('serviceWorker' in navigator) {
     </div>
     <button onclick="toggleAI()" style="background:rgba(255,255,255,0.1);border:none;color:#fff;border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer;">✕</button>
   </div>
-  <div id="ai-messages"></div>
-  <div class="ai-quick" id="ai-quick-btns">
-    <button class="ai-quick-btn" onclick="aiQuick('Résume-moi la journée et mon agenda de la semaine')">📊 Briefing du jour</button>
-    <button class="ai-quick-btn" onclick="aiQuick('Montre-moi mes emails non lus')">📧 Emails non lus</button>
-    <button class="ai-quick-btn" onclick="aiQuick('Montre-moi mon agenda Google Calendar cette semaine')">📅 Agenda semaine</button>
-    <button class="ai-quick-btn" onclick="aiQuick('Quelles sont les urgences en cours ?')">🚨 Urgences</button>
-    <button class="ai-quick-btn" onclick="aiQuick('Rédige un email de relance pour un devis non signé et envoie-le')">✉️ Relance devis</button>
-    <button class="ai-quick-btn" onclick="aiQuick('Donne-moi un bilan du CA de ce mois')">💶 Bilan CA</button>
-    <button class="ai-quick-btn" onclick="aiQuick('Qui n\'a pas encore été rappelé cette semaine ?')">📞 Rappels</button>
-    <button class="ai-quick-btn" onclick="aiQuick('Rédige un SMS de confirmation de RDV pour demain')">📱 SMS</button>
+  <div id="ai-messages">
+    <div class="ai-welcome" id="ai-quick-btns">
+      <div class="ai-welcome-title">Actions rapides</div>
+      <div class="ai-quick">
+        <button class="ai-quick-btn" onclick="aiQuick('Résume-moi la journée et mon agenda de la semaine')">
+          <span class="qb-icon">📊</span>
+          <span class="qb-label">Briefing du jour</span>
+          <span class="qb-desc">Résumé + agenda semaine</span>
+        </button>
+        <button class="ai-quick-btn" onclick="aiQuick('Montre-moi mes emails non lus')">
+          <span class="qb-icon">📧</span>
+          <span class="qb-label">Emails non lus</span>
+          <span class="qb-desc">Gmail — boîte de réception</span>
+        </button>
+        <button class="ai-quick-btn" onclick="aiQuick('Montre-moi mon agenda Google Calendar cette semaine')">
+          <span class="qb-icon">📅</span>
+          <span class="qb-label">Agenda semaine</span>
+          <span class="qb-desc">Google Calendar 7 jours</span>
+        </button>
+        <button class="ai-quick-btn" onclick="aiQuick('Quelles sont les urgences en cours ?')">
+          <span class="qb-icon">🚨</span>
+          <span class="qb-label">Urgences</span>
+          <span class="qb-desc">Interventions prioritaires</span>
+        </button>
+        <button class="ai-quick-btn" onclick="aiQuick('Rédige un email de relance pour un devis non signé et envoie-le')">
+          <span class="qb-icon">✉️</span>
+          <span class="qb-label">Relance devis</span>
+          <span class="qb-desc">Email auto au client</span>
+        </button>
+        <button class="ai-quick-btn" onclick="aiQuick('Donne-moi un bilan du CA de ce mois')">
+          <span class="qb-icon">💶</span>
+          <span class="qb-label">Bilan CA</span>
+          <span class="qb-desc">Chiffre d'affaires du mois</span>
+        </button>
+        <button class="ai-quick-btn" onclick="aiQuick('Qui n\'a pas encore été rappelé cette semaine ?')">
+          <span class="qb-icon">📞</span>
+          <span class="qb-label">Rappels clients</span>
+          <span class="qb-desc">Clients à recontacter</span>
+        </button>
+        <button class="ai-quick-btn" onclick="aiQuick('Rédige un SMS de confirmation de RDV pour demain')">
+          <span class="qb-icon">📱</span>
+          <span class="qb-label">SMS confirmation</span>
+          <span class="qb-desc">RDV de demain</span>
+        </button>
+      </div>
+    </div>
   </div>
   <div id="ai-input-area">
     <textarea id="ai-input" rows="1" placeholder="Pose une question ou donne une instruction..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAI();}"></textarea>
@@ -5251,7 +5292,7 @@ function toggleAI(){
     if(_aiHistory.length===0){aiWelcome();}
     else{
       // Restaurer messages existants
-      const msgs=document.getElementById('ai-messages');
+      hideAIQuick();
       _aiHistory.filter(m=>m.role!=='tool').forEach(m=>{
         if(m.role==='user'){const txt=Array.isArray(m.content)?m.content.filter(b=>b.type==='text').map(b=>b.text).join(''):m.content;if(txt)addAIMsg('user',txt);}
         if(m.role==='assistant'){const txt=Array.isArray(m.content)?m.content.filter(b=>b.type==='text').map(b=>b.text).join(''):m.content;if(txt)addAIMsg('bot',txt);}
@@ -5306,6 +5347,8 @@ function buildContext(){
   };
 }
 
+function hideAIQuick(){const qb=document.getElementById('ai-quick-btns');if(qb)qb.style.display='none';}
+
 function addAIMsg(role,text,extra){
   const el=document.getElementById('ai-messages');
   const div=document.createElement('div');
@@ -5338,6 +5381,7 @@ async function sendAI(){
   const text=(input.value||'').trim();
   if(!text)return;
   input.value='';
+  hideAIQuick();
 
   addAIMsg('user',text);
   _aiHistory.push({role:'user',content:text});
