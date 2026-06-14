@@ -1290,6 +1290,8 @@ function lancerApp(){
   document.getElementById("login").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
   document.body.classList.add("logged-in");
+  var fab=document.getElementById('ai-fab');
+  if(fab){fab.style.display='flex';fab.style.visibility='visible';fab.style.opacity='1';}
   document.getElementById("rdv-date").value=todayStr();
   document.getElementById("objectif-input").value=getObjectif();
   renderDashboard();
