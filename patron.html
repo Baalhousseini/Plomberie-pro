@@ -1396,6 +1396,19 @@ function lancerApp(){
       if(!document.getElementById('page-appels').classList.contains('hidden'))renderAppelsPatron();
     }
     if(e.key==='pl_appels_sec'){renderDashboard();}
+    if(e.key==='pl_alertes'){
+      renderAlertes();
+      // Toast pour la dernière notif dispatch non lue
+      var alertes=JSON.parse(e.newValue||'[]');
+      var last=alertes&&alertes[0];
+      if(last&&!last.lu&&last.source==='dispatch'){
+        var icon=last.type==='annulation'?'❌':last.type==='decalage'?'📅':'✏️';
+        showNotif(icon+' Dispatch : '+last.texte.slice(0,60));
+        // Marquer comme lu
+        alertes[0].lu=true;
+        localStorage.setItem('pl_alertes',JSON.stringify(alertes));
+      }
+    }
   });
   setInterval(()=>{renderDisposDash();updateNavBadges();},10000);
   setInterval(updateChronosUrgences,1000);
@@ -1756,6 +1769,12 @@ function renderDisposDash(){
 
 function renderAlertes(){
   const alertes=[];
+  // Notifications dispatch (modif/décalage/annulation RDV)
+  const notifDispatch=gAlertes().filter(n=>n.source==='dispatch'&&!n.lu).slice(0,5);
+  notifDispatch.forEach(n=>{
+    var icn=n.type==='annulation'?'❌':n.type==='decalage'?'📅':'✏️';
+    alertes.push({texte:icn+' '+n.texte,color:'#7c3aed',bg:'#f3e8ff',ts:n.ts});
+  });
   const impayes=getRapports().filter(r=>r.statut==="Facture");
   if(impayes.length)alertes.push(`${impayes.length} facture(s) impayee(s) — ${impayes.reduce((s,r)=>s+(r.montantFinal||0),0)} EUR`);
   const devisEnAttente=getDevis().filter(d=>d.statut!=="Traite");
@@ -1781,7 +1800,14 @@ function renderAlertes(){
   });
   const urgVieilles=getUrgences().filter(u=>u.statut==='Active'&&(Date.now()-u.id)>3600000);
   if(urgVieilles.length)alertes.push(`${urgVieilles.length} urgence(s) non résolue(s) depuis plus d'1h`);
-  document.getElementById("section-alertes").innerHTML=alertes.length?`<div class="card red" style="margin-bottom:12px;"><div class="lbl" style="color:var(--red);">ALERTES</div>${alertes.map(a=>`<div class="alerte-card"><span style="color:#b91c1c;font-size:13px;font-weight:600;">! ${a}</span></div>`).join("")}</div>`:"";
+  document.getElementById("section-alertes").innerHTML=alertes.length?`<div class="card red" style="margin-bottom:12px;"><div class="lbl" style="color:var(--red);">ALERTES</div>${alertes.map(a=>{
+    const isObj=typeof a==='object';
+    const texte=isObj?a.texte:a;
+    const color=isObj&&a.color?a.color:'#b91c1c';
+    const bg=isObj&&a.bg?a.bg:'transparent';
+    const ts=isObj&&a.ts?`<span style="font-size:9px;color:#94a3b8;margin-left:6px;">${new Date(a.ts).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</span>`:'';
+    return `<div class="alerte-card" style="background:${bg};border-radius:8px;padding:8px 10px;margin-bottom:5px;"><span style="color:${color};font-size:12px;font-weight:700;">${texte}</span>${ts}</div>`;
+  }).join("")}</div>`:"";
 }
 function renderSuiviLive(){
   const dispos=getDispos();
