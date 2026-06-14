@@ -32,6 +32,7 @@ try { _bc = new BroadcastChannel('gf_sync'); } catch(e){}
 // Firebase DB handle (null si non connecté)
 var _db = null;
 var _ns = 'greenflow/';
+var _REST_BASE = 'https://plomberie-pro-7a56a-default-rtdb.europe-west1.firebasedatabase.app/greenflow/';
 
 // Initialise Firebase
 if(typeof firebase !== 'undefined'){
@@ -48,12 +49,21 @@ window.gfSync = function(key, value){
   if(_bc){
     try { _bc.postMessage({key:key, value:value}); } catch(e){}
   }
-  // Firebase (cross-device)
+  // Firebase SDK (cross-device push)
   if(_db){
     try {
       _db.ref(_ns + key).set(JSON.parse(value)).catch(function(err){
         console.warn('[GreenFlow] Firebase write error:', err.message);
       });
+    } catch(e){}
+  } else {
+    // Fallback REST si SDK non dispo
+    try {
+      fetch(_REST_BASE + key + '.json', {
+        method:'PUT',
+        headers:{'Content-Type':'application/json'},
+        body:value
+      }).catch(function(){});
     } catch(e){}
   }
 };
@@ -71,7 +81,7 @@ window.gfListen = function(callback){
       }
     };
   }
-  // Firebase
+  // Firebase SDK push (temps réel)
   if(_db){
     SYNC_KEYS.forEach(function(key){
       _db.ref(_ns + key).on('value', function(snap){
@@ -82,17 +92,80 @@ window.gfListen = function(callback){
         if(cur === json) return;
         localStorage.setItem(key, json);
         callback(key, json);
+      }, function(err){
+        console.warn('[GreenFlow] Firebase listen error on', key, ':', err.message);
       });
     });
   }
 };
 
-// Badge statut
+// Polling REST Firebase — filet de sécurité cross-device (toutes les 8 secondes)
+// Fonctionne même si le SDK Firebase rencontre des problèmes de règles
+var _restSnaps = {};
+var _REST_POLL_KEYS = ['pl_rdvs','pl_dispos','pl_urgences','pl_rapports','pl_alertes','pl_chat','pl_devis'];
+
+function _gfRestPoll(){
+  _REST_POLL_KEYS.forEach(function(key){
+    fetch(_REST_BASE + key + '.json', {cache:'no-store'})
+      .then(function(r){ return r.json(); })
+      .then(function(val){
+        if(val === null || val === undefined) return;
+        if(typeof val === 'object' && val.error) return; // règles bloquent
+        var json = JSON.stringify(val);
+        if(_restSnaps[key] === json) return; // pas de changement
+        _restSnaps[key] = json;
+        var cur = localStorage.getItem(key);
+        if(cur === json) return; // déjà à jour localement
+        localStorage.setItem(key, json);
+        // Propager à tous les listeners du module courant
+        if(_bc) try { _bc.postMessage({key:key, value:json}); } catch(e){}
+        window.dispatchEvent(new StorageEvent('storage',{key:key,newValue:json,storageArea:localStorage}));
+      })
+      .catch(function(){});
+  });
+}
+
+// Démarre le polling REST après 3s (laisse Firebase SDK s'initialiser d'abord)
+setTimeout(function(){
+  _gfRestPoll();
+  setInterval(_gfRestPoll, 8000);
+}, 3000);
+
+// Badge statut — teste une vraie écriture pour confirmer la connectivité
 document.addEventListener('DOMContentLoaded', function(){
-  var ok = _db !== null;
   var b = document.createElement('div');
-  b.style.cssText = 'position:fixed;bottom:10px;right:10px;z-index:9999;background:'+(ok?'#15803d':'#b91c1c')+';color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;font-family:sans-serif;opacity:0.9;cursor:pointer;';
-  b.textContent = ok ? '🔥 Firebase OK' : '⚠️ Mode local';
+  b.style.cssText = 'position:fixed;bottom:10px;right:10px;z-index:9999;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;font-family:sans-serif;opacity:0.9;cursor:pointer;background:#64748b;';
+  b.textContent = '⏳ Connexion…';
   b.onclick = function(){ b.style.display='none'; };
   document.body.appendChild(b);
+
+  if(!_db){
+    // Pas de SDK Firebase, essaie REST
+    fetch(_REST_BASE + '_ping.json', {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({t:Date.now()})})
+      .then(function(r){ return r.json(); })
+      .then(function(v){
+        if(v && v.error){
+          b.textContent = '⚠️ Firebase: règles à ouvrir';
+          b.style.background = '#b45309';
+        } else {
+          b.textContent = '🔥 Firebase REST ✓';
+          b.style.background = '#15803d';
+        }
+      })
+      .catch(function(){ b.textContent = '⚠️ Mode local'; b.style.background = '#b91c1c'; });
+    return;
+  }
+
+  // Test écriture SDK Firebase
+  _db.ref(_ns + '_ping').set({t: Date.now()})
+    .then(function(){
+      b.textContent = '🔥 Firebase ✓';
+      b.style.background = '#15803d';
+    })
+    .catch(function(err){
+      b.textContent = '⚠️ Firebase: ouvrir les règles DB';
+      b.style.background = '#b45309';
+      b.style.color = '#fff';
+      console.error('[GreenFlow] Firebase write denied — fix rules in Firebase Console:', err.message);
+    });
 });

@@ -2235,14 +2235,15 @@ if(_techBC){
 }
 
 // Polling toutes les 5s — filet de sécurité si BroadcastChannel/Firebase défaillant
-var _rdvSnap='';
+var _rdvSnap='',_disposSnap='',_urgSnap='';
 setInterval(function(){
   if(!currentUser)return;
   const h=localStorage.getItem('pl_rdvs')||'';
-  if(h!==_rdvSnap){
-    _rdvSnap=h;
-    renderRdv();renderKPI();checkUrgences();renderRecapJournee();
-  }
+  if(h!==_rdvSnap){_rdvSnap=h;renderRdv();renderKPI();checkUrgences();renderRecapJournee();}
+  const d=localStorage.getItem('pl_dispos')||'';
+  if(d!==_disposSnap){_disposSnap=d;renderKPI();}
+  const u=localStorage.getItem('pl_urgences')||'';
+  if(u!==_urgSnap){_urgSnap=u;checkUrgences();renderKPI();}
 },5000);
 </script>
 
