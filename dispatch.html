@@ -633,6 +633,14 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 </div>
 
 <div id="page-devis" class="hidden">
+  <!-- Onglets Devis / Facturation -->
+  <div style="display:flex;gap:6px;margin-bottom:14px;background:#f1f5f9;border-radius:10px;padding:4px;">
+    <button id="tab-devis-btn" onclick="switchDevisTab('devis')" style="flex:1;background:#0d2d52;color:#fff;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer;">💼 Devis</button>
+    <button id="tab-fact-btn" onclick="switchDevisTab('fact')" style="flex:1;background:none;color:#64748b;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer;">💶 Facturation</button>
+  </div>
+
+  <!-- Section Devis -->
+  <div id="devis-tab-content">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
     <div style="color:#1d4ed8;font-size:11px;letter-spacing:2px;font-weight:700;">DEVIS</div>
     <button class="btn btn-blue" onclick="toggleFormDevisPro()">+ Nouveau devis</button>
@@ -703,13 +711,18 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <div class="lbl">DEVIS EN COURS</div>
     <div id="liste-devis" style="margin-top:8px;"></div>
   </div>
+  </div><!-- fin devis-tab-content -->
+
+  <!-- Section Facturation -->
+  <div id="fact-tab-content" style="display:none;">
+  <div style="color:#16a34a;font-size:11px;letter-spacing:2px;font-weight:700;margin-bottom:14px;">FACTURATION</div>
+  <div class="stats-grid" id="stats-fact"></div>
+  <div class="card card-yellow" style="margin-bottom:12px;"><div class="lbl">À FACTURER</div><div id="liste-a-facturer"></div></div>
+  <div class="card card-green"><div class="lbl">DÉJÀ FACTURÉS</div><div id="liste-factures"></div></div>
+  </div><!-- fin fact-tab-content -->
 </div>
 
-<div id="page-facturation" class="hidden">
-  <div class="stats-grid" id="stats-fact"></div>
-  <div class="card card-yellow" style="margin-bottom:12px;"><div class="lbl">A FACTURER</div><div id="liste-a-facturer"></div></div>
-  <div class="card card-green"><div class="lbl">DEJA FACTURES</div><div id="liste-factures"></div></div>
-</div>
+<div id="page-facturation" class="hidden"></div>
 
 <div id="page-appels" class="hidden">
   <div class="dispatch-kpi" id="appels-kpi" style="margin-bottom:12px;border-radius:12px;"></div>
@@ -1435,8 +1448,7 @@ var NAV_GROUPS_D={
     {p:'rappels',label:'🔔 Rappels',id:'nav-rappels'},
   ],
   commercial:[
-    {p:'devis',label:'💼 Devis/Facturation',id:'nav-devis'},
-    {p:'facturation',label:'💶 Facturation',id:'nav-facturation'},
+    {p:'devis',label:'💼 Devis / Facturation',id:'nav-devis'},
   ],
 };
 var _dpPage='dashboard',_dpGroup=null;
@@ -1488,7 +1500,7 @@ function showPage(page){
   if(page==="validation")renderValidation();
   if(page==="rapports")renderRapports();
   if(page==="sav")renderSavs();
-  if(page==="devis")renderDevis();
+  if(page==="devis"){switchDevisTab('devis');renderDevis();}
   if(page==="facturation")renderFacturation();
   if(page==="procedures")renderProcedures();
   if(page==="infos")renderInfos();
@@ -2437,6 +2449,16 @@ document.getElementById("liste-sav").innerHTML=html;
 function resoudreSav(i){var s=getSavs();s[i].statut="Resolu";s[i].resoluAt=new Date().toISOString();saveSavs(s);renderSavs();showNotif("SAV resolu !");}
 function supprimerSav(i){var s=getSavs();s.splice(i,1);saveSavs(s);renderSavs();}
 
+function switchDevisTab(tab){
+  var isDevis=tab==='devis';
+  document.getElementById('devis-tab-content').style.display=isDevis?'':'none';
+  document.getElementById('fact-tab-content').style.display=isDevis?'none':'';
+  var btnD=document.getElementById('tab-devis-btn');
+  var btnF=document.getElementById('tab-fact-btn');
+  if(btnD){btnD.style.background=isDevis?'#0d2d52':'none';btnD.style.color=isDevis?'#fff':'#64748b';}
+  if(btnF){btnF.style.background=isDevis?'none':'#0d2d52';btnF.style.color=isDevis?'#64748b':'#fff';}
+  if(!isDevis)renderFacturation();
+}
 function renderDevis(){
 // Init validite date par defaut
 var vEl=document.getElementById('devis-validite');
