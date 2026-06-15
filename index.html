@@ -2024,6 +2024,161 @@ function pollChat(){
 }
 
 // ── CONTRATS TECH ──
+// ── CONTRATS TECH — fonctions support ──
+function getClientsContrat(){return JSON.parse(localStorage.getItem('pl_clients')||'[]');}
+function rechercherClientContrat(val){
+  var box=document.getElementById('tct-client-results');if(!box)return;
+  if(!val||val.length<2){box.style.display='none';return;}
+  var found=getClientsContrat().filter(function(c){
+    return(c.nom||'').toLowerCase().includes(val.toLowerCase())||(c.tel||'').includes(val);
+  }).slice(0,5);
+  if(!found.length){box.style.display='none';return;}
+  box.innerHTML=found.map(function(c){
+    var safe=JSON.stringify(c).replace(/"/g,'&quot;');
+    return'<div onclick="remplirClientContrat(JSON.parse(this.dataset.c))" data-c="'+safe+'" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9;font-size:13px;" onmouseover="this.style.background=\'#f8fafc\'" onmouseout="this.style.background=\'\'">'
+    +'<div style="font-weight:700;">'+c.nom+'</div>'
+    +'<div style="font-size:11px;color:#64748b;">'+(c.tel||'')+(c.adresse?' · '+c.adresse.slice(0,30):'')+'</div></div>';
+  }).join('');
+  box.style.display='block';
+}
+function remplirClientContrat(c){
+  var set=function(id,v){var e=document.getElementById(id);if(e)e.value=v||'';};
+  set('tct-client-search',c.nom||'');set('tct-client-nom',c.nom||'');
+  set('tct-tel',c.tel||'');set('tct-email',c.email||'');set('tct-adresse',c.adresse||'');
+  var box=document.getElementById('tct-client-results');if(box)box.style.display='none';
+}
+function toggleFormuleInfo(){
+  var d=document.getElementById('tct-formule-info');
+  var a=document.getElementById('tct-info-arrow');
+  if(!d)return;
+  var open=d.style.display!=='none';
+  d.style.display=open?'none':'block';
+  if(a)a.textContent=open?'▼':'▲';
+}
+function selFreqContrat(val,btn){
+  var inp=document.getElementById('tct-freq');if(inp)inp.value=val;
+  document.querySelectorAll('.tct-freq-btn').forEach(function(b){b.style.background='#f1f5f9';b.style.color='#64748b';});
+  btn.style.background='#0d2d52';btn.style.color='#fff';
+}
+function selModeContrat(val,btn){
+  var inp=document.getElementById('tct-mode');if(inp)inp.value=val;
+  document.querySelectorAll('.tct-mode-btn').forEach(function(b){b.style.background='#f1f5f9';b.style.color='#64748b';});
+  btn.style.background='#0d2d52';btn.style.color='#fff';
+}
+function toggleContratView(view){
+  var form=document.getElementById('form-contrat-tech');
+  var liste=document.getElementById('liste-contrats-tech-wrap');
+  if(view==='form'){if(form)form.style.display='';if(liste)liste.style.display='none';}
+  else{if(form)form.style.display='none';if(liste)liste.style.display='';renderContratsTech();}
+  document.querySelectorAll('.tct-view-btn').forEach(function(b){b.style.background='rgba(255,255,255,0.2)';b.style.color='#fff';});
+  var btn=document.getElementById('tct-btn-'+view);
+  if(btn){btn.style.background='#fff';btn.style.color='#0d2d52';}
+}
+function notifierSecretaireContrat(c){
+  try{
+    var courriers=JSON.parse(localStorage.getItem('pl_courrier')||'[]');
+    courriers.unshift({id:Date.now(),de:'Tech: '+c.tech,sujet:'Nouveau contrat signé — '+c.client,
+      corps:'Contrat '+c.formule+' signé pour '+c.client+' ('+c.tel+') — '+c.equipement+' — '+c.montant+'€/an. Adresse: '+c.adresse+'. Email: '+(c.email||'non renseigné')+'. Merci de préparer la facture et d\'envoyer le contrat par email.',
+      date:new Date().toISOString(),lu:false,type:'contrat'});
+    var v=JSON.stringify(courriers);localStorage.setItem('pl_courrier',v);
+    if(window.gfSync)gfSync('pl_courrier',v);
+  }catch(e){}
+}
+var _dernierContrat=null;
+function envoyerContratMail(){
+  var c=_dernierContrat;if(!c)return;
+  var num='CTR-'+new Date().getFullYear()+'-'+String(c.id).slice(-4);
+  var sujet=encodeURIComponent('Votre contrat d\'entretien GreenFlow — '+num);
+  var corps=encodeURIComponent('Bonjour '+c.client+',\n\nNous avons le plaisir de vous confirmer la souscription de votre contrat d\'entretien GreenFlow Technologies.\n\nFormule : '+c.formule+'\nÉquipement : '+c.equipement+(c.marque?' '+c.marque:'')+(c.modele?' '+c.modele:'')+'\nMontant : '+c.montant+'€/an\nDébut : '+new Date(c.debut).toLocaleDateString('fr-FR')+'\n\nVotre technicien référent : '+c.tech+'\n\nPour toute question : 05 46 53 02 52 ou greenflow@greenflow-flow.net\n\nCordialement,\nL\'équipe GreenFlow Technologies');
+  var dest=(c.email||'');
+  window.open('mailto:'+dest+'?subject='+sujet+'&body='+corps,'_blank');
+}
+function genererContratPDFTech(c){
+  if(!c)return;
+  var num='CTR-'+new Date().getFullYear()+'-'+String(c.id).slice(-4);
+  var FEAT={
+    Essentiel:['✓ Vérification complète de l\'installation','✓ 1 visite d\'entretien par an','✓ Nettoyage des composants essentiels','✓ Nettoyage du bac','✓ Attestation d\'entretien'],
+    Confort:['✓ Tout ce qui est inclus dans ESSENTIEL','✓ Prise en charge plus rapide','✓ Déplacement dépannage inclus','✓ Rétablissement prioritaire','✓ Interventions plus rapides (si pièces disponibles)','✓ Conseil au client'],
+    Premium:['✓ Tout ce qui est inclus dans CONFORT','✓ 10% à 20% sur les pièces','✓ Remise sur la main d\'œuvre','✓ Assistance téléphonique permanente (24h/7j)','✓ Dispatching personnalisé','✓ Carnet livret annuel sécurisé','✓ Technicien dédié']
+  };
+  var features=(FEAT[c.formule]||FEAT.Confort).join('<br>');
+  var freqLabel={mensuel:'Mensuel',trimestriel:'Trimestriel',annuel:'Annuel (1 paiement)'}[c.freq||'annuel']||'Annuel';
+  var modeLabel={prelevement:'Prélèvement automatique',cheque:'Chèque',virement:'Virement bancaire'}[c.mode||'prelevement']||'Prélèvement automatique';
+  var today=new Date().toLocaleDateString('fr-FR');
+  var finContrat=c.prochaine?new Date(c.prochaine).toLocaleDateString('fr-FR'):'-';
+  var debutContrat=c.debut?new Date(c.debut).toLocaleDateString('fr-FR'):today;
+  var PRIX=PRIX_CONTRATS_T;
+  var formuleHtml=['Essentiel','Confort','Premium'].map(function(f){
+    var p=(PRIX[c.equipement]||{})[f]||'—';var actif=c.formule===f;
+    return'<div style="flex:1;border:2px solid '+(actif?'#2e7d32':'#e2e8f0')+';border-radius:8px;padding:8px;text-align:center;background:'+(actif?'#f0fdf4':'#fff')+';">'
+    +(f==='Confort'?'<div style="font-size:8px;background:#2563eb;color:#fff;border-radius:4px;padding:1px 6px;display:inline-block;margin-bottom:3px;">Le + populaire</div>':f==='Premium'?'<div style="font-size:8px;color:#d97706;">⭐</div>':'<div style="font-size:8px;">&nbsp;</div>')
+    +'<div style="font-weight:800;font-size:10px;text-transform:uppercase;color:'+(actif?'#166534':'#374151')+';margin-bottom:3px;">'+f+'</div>'
+    +'<div style="font-size:14px;font-weight:900;color:'+(actif?'#2e7d32':'#94a3b8')+';">'+p+'€/an</div></div>';
+  }).join('');
+  var w=window.open('','_blank','width=900,height=700');if(!w)return;
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Contrat '+num+'</title>'
+  +'<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;color:#1a1a2e;font-size:12px;padding:20px;background:#fff;}'
+  +'@media print{@page{size:A4;margin:1cm;}body{padding:10px;}}'
+  +'.hdr{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #2e7d32;padding-bottom:14px;margin-bottom:14px;}'
+  +'.logo{font-size:20px;font-weight:900;color:#0d2d52;}.logo span{color:#2e7d32;}'
+  +'.sec{margin-bottom:12px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;}'
+  +'.sec-h{background:#0d2d52;color:#fff;padding:7px 12px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}'
+  +'.sec-b{padding:10px 12px;}.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:7px;}'
+  +'.fld label{font-size:8px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:2px;}'
+  +'.fld .v{font-size:11px;font-weight:600;border-bottom:1px solid #e2e8f0;padding:3px 0;min-height:18px;}'
+  +'.sign-g{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:10px;}'
+  +'.sign-b{border:1.5px dashed #94a3b8;border-radius:6px;height:70px;display:flex;align-items:flex-end;padding:5px 8px;font-size:8px;color:#94a3b8;}'
+  +'.feat{font-size:10px;line-height:2;color:#374151;background:#f8fafc;padding:8px 10px;border-radius:6px;margin-top:7px;}'
+  +'.foot{margin-top:10px;border-top:1px solid #e2e8f0;padding-top:8px;display:flex;justify-content:space-between;font-size:9px;color:#94a3b8;}'
+  +'.cond{font-size:8px;color:#64748b;line-height:1.6;margin-top:7px;border-top:1px solid #f1f5f9;padding-top:7px;}</style>'
+  +'</head><body>'
+  +'<div class="hdr"><div>'
+  +'<div class="logo">Green<span>Flow</span> <span style="font-size:10px;background:#2e7d32;color:#fff;border-radius:3px;padding:1px 5px;font-weight:700;vertical-align:middle;">TECHNOLOGIES</span></div>'
+  +'<div style="font-size:9px;color:#64748b;letter-spacing:1px;text-transform:uppercase;margin-top:2px;">Plomberie · Chauffage · Climatisation</div>'
+  +'<div style="font-size:9px;color:#64748b;margin-top:2px;">📍 5 rue des Bois-Fleuris, 17700 SAINTES &nbsp;|&nbsp; ☎ 05 46 53 02 52 &nbsp;|&nbsp; ✉ greenflow@greenflow-flow.net</div>'
+  +'</div><div style="text-align:right;">'
+  +'<div style="font-size:18px;font-weight:900;color:#0d2d52;text-transform:uppercase;">Contrat d\'entretien</div>'
+  +'<div style="font-size:9px;color:#64748b;letter-spacing:1px;">Tranquillité · Performance · Sérénité</div>'
+  +'<div style="font-size:13px;font-weight:700;color:#2e7d32;margin-top:4px;">'+num+'</div>'
+  +'<div style="font-size:9px;color:#64748b;">Signé le '+today+'</div></div></div>'
+  +'<div class="sec"><div class="sec-h">1. Informations client</div><div class="sec-b">'
+  +'<div class="row2"><div class="fld"><label>Nom complet</label><div class="v">'+(c.client||'')+'</div></div>'
+  +'<div class="fld"><label>Téléphone</label><div class="v">'+(c.tel||'')+'</div></div></div>'
+  +'<div class="row2"><div class="fld"><label>Email</label><div class="v">'+(c.email||'')+'</div></div>'
+  +'<div class="fld"><label>N° Contrat</label><div class="v">'+num+'</div></div></div>'
+  +'<div class="fld"><label>Adresse</label><div class="v">'+(c.adresse||'')+'</div></div>'
+  +'</div></div>'
+  +'<div class="sec"><div class="sec-h">2. Équipement</div><div class="sec-b">'
+  +'<div class="row2"><div class="fld"><label>Type</label><div class="v">'+(c.equipement||'')+'</div></div>'
+  +'<div class="fld"><label>Marque</label><div class="v">'+(c.marque||'')+'</div></div></div>'
+  +'<div class="row2"><div class="fld"><label>Modèle</label><div class="v">'+(c.modele||'')+'</div></div>'
+  +'<div class="fld"><label>Année d\'installation</label><div class="v">'+(c.annee||'')+'</div></div></div>'
+  +(c.serie?'<div class="fld"><label>N° de série</label><div class="v">'+c.serie+'</div></div>':'')
+  +'</div></div>'
+  +'<div class="sec"><div class="sec-h">3. Formule choisie</div><div class="sec-b">'
+  +'<div style="display:flex;gap:6px;margin-bottom:8px;">'+formuleHtml+'</div>'
+  +'<div class="feat">'+features+'</div>'
+  +'</div></div>'
+  +'<div class="sec"><div class="sec-h">4. Tarifs et modalités de paiement</div><div class="sec-b">'
+  +'<div class="row2"><div class="fld"><label>Montant annuel TTC</label><div class="v" style="font-size:15px;font-weight:800;color:#2e7d32;">'+c.montant+'€</div></div>'
+  +'<div class="fld"><label>Fréquence</label><div class="v">'+freqLabel+'</div></div></div>'
+  +'<div class="row2"><div class="fld"><label>Mode de paiement</label><div class="v">'+modeLabel+'</div></div>'
+  +'<div class="fld"><label>Début du contrat</label><div class="v">'+debutContrat+'</div></div></div>'
+  +'<div class="fld"><label>Prochaine visite / Renouvellement</label><div class="v">'+finContrat+'</div></div>'
+  +(c.notes?'<div class="fld" style="margin-top:6px;"><label>Notes</label><div class="v">'+c.notes+'</div></div>':'')
+  +'</div></div>'
+  +'<div class="sec"><div class="sec-h">5. Signatures</div><div class="sec-b">'
+  +'<div class="sign-g">'
+  +'<div><div style="font-size:9px;font-weight:700;color:#64748b;margin-bottom:5px;">CLIENT — Bon pour accord, lu et approuvé :</div><div class="sign-b">Signature</div></div>'
+  +'<div><div style="font-size:9px;font-weight:700;color:#64748b;margin-bottom:5px;">POUR GREENFLOW — Technicien : '+(c.tech||'')+'</div><div class="sign-b">Signature</div></div>'
+  +'</div>'
+  +'<div class="cond">CONDITIONS GÉNÉRALES : Contrat conclu pour une durée d\'un an renouvelable par tacite reconduction. Résiliation par LRAR 30 jours avant l\'échéance. GreenFlow Technologies se réserve le droit de modifier les tarifs avec préavis de 30 jours. DROIT DE RÉTRACTATION : Le client peut se rétracter dans un délai de 14 jours à compter de la signature par notification écrite adressée à GreenFlow Technologies, 5 rue des Bois-Fleuris, 17700 Saintes.</div>'
+  +'</div></div>'
+  +'<div class="foot"><div>GreenFlow Technologies · SIRET : [VOTRE SIRET] · RGE certifié</div><div>☎ 05 46 53 02 52 · greenflow@greenflow-flow.net · 24h/7j</div><div style="color:#2e7d32;font-weight:700;">'+num+'</div></div>'
+  +'</body></html>');
+  w.document.close();setTimeout(function(){w.print();},500);
+}
+
 var PRIX_CONTRATS_T={
   'Chaudière':{Essentiel:149,Confort:199,Premium:279},
   'Pompe à chaleur':{Essentiel:189,Confort:249,Premium:329},
@@ -2056,36 +2211,46 @@ function selectFormuleTech(f){
   calcPrixContratTech();
 }
 function sauvegarderContratTech(){
-  var client=document.getElementById('tct-client').value.trim();
-  var equip=document.getElementById('tct-equip').value;
-  var formule=document.getElementById('tct-formule').value||'Confort';
-  if(!client||!equip){if(window.notif)notif('Client et équipement requis');return;}
+  var g=function(id){var e=document.getElementById(id);return e?e.value.trim():'';};
+  var client=g('tct-client-nom')||g('tct-client-search');
+  var equip=g('tct-equip');
+  var formule=g('tct-formule')||'Confort';
+  if(!client||!equip){showNotif('Client et équipement requis');return;}
   var montant=(PRIX_CONTRATS_T[equip]||{})[formule]||0;
-  if(!montant)return;
+  if(!montant){showNotif('Sélectionnez un équipement et une formule');return;}
   var debut=new Date().toISOString().slice(0,10);
   var proch=new Date();proch.setFullYear(proch.getFullYear()+1);
   var techNom=currentUser?currentUser.nom:'';
-  var arr=getContratsTech();
-  arr.unshift({id:Date.now(),client:client,tel:document.getElementById('tct-tel').value.trim(),adresse:document.getElementById('tct-adresse').value.trim(),equipement:equip,formule:formule,type:formule+' — '+equip,tech:techNom,freq:'annuel',montant:montant,debut:debut,prochaine:proch.toISOString().slice(0,10),statut:'Actif',creeAt:new Date().toISOString()});
-  saveContratsTech(arr);
-  // Créer RDV entretien annuel automatique
+  var obj={id:Date.now(),client:client,tel:g('tct-tel'),email:g('tct-email'),
+    adresse:g('tct-adresse'),equipement:equip,marque:g('tct-marque'),modele:g('tct-modele'),
+    annee:g('tct-annee'),serie:g('tct-serie'),formule:formule,type:formule+' — '+equip,
+    tech:techNom,freq:g('tct-freq')||'annuel',mode:g('tct-mode')||'prelevement',
+    montant:montant,debut:debut,prochaine:proch.toISOString().slice(0,10),
+    notes:g('tct-notes-contrat'),statut:'Actif',creeAt:new Date().toISOString()};
+  var arr=getContratsTech();arr.unshift(obj);saveContratsTech(arr);
+  // RDV entretien annuel automatique
   (function(){
     var rdvs=JSON.parse(localStorage.getItem('pl_rdvs')||'[]');
-    var proch=arr[0].prochaine;
-    var deja=rdvs.find(function(r){return r.clientNom===arr[0].client&&r.dateRdv===proch&&r.type&&r.type.indexOf('Entretien')>=0;});
+    var deja=rdvs.find(function(r){return r.clientNom===obj.client&&r.dateRdv===obj.prochaine&&r.type&&r.type.indexOf('Entretien')>=0;});
     if(!deja){
-      rdvs.push({id:Date.now()+1,clientNom:arr[0].client,clientTel:arr[0].tel,adresse:arr[0].adresse,type:'Entretien '+arr[0].equipement+' (Contrat '+arr[0].formule+')',dateRdv:proch,heureRdv:'09:00',technicien:arr[0].tech||'',prix:0,statut:'À planifier',notes:'RDV annuel automatique — contrat '+arr[0].formule,contratId:arr[0].id,creeAt:new Date().toISOString()});
+      rdvs.push({id:Date.now()+1,clientNom:obj.client,clientTel:obj.tel,adresse:obj.adresse,type:'Entretien '+obj.equipement+' (Contrat '+obj.formule+')',dateRdv:obj.prochaine,heureRdv:'09:00',technicien:obj.tech||'',prix:0,statut:'À planifier',notes:'RDV annuel automatique — contrat '+obj.formule,contratId:obj.id,creeAt:new Date().toISOString()});
       var v=JSON.stringify(rdvs);localStorage.setItem('pl_rdvs',v);if(window.gfSync)gfSync('pl_rdvs',v);
     }
   })();
-  ['tct-client','tct-tel','tct-adresse'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  // Notifier secrétaire + activer bouton mail
+  notifierSecretaireContrat(obj);
+  _dernierContrat=obj;
+  var mailBtn=document.getElementById('tct-btn-mail');if(mailBtn)mailBtn.style.display='';
+  // Reset form
+  ['tct-client-search','tct-client-nom','tct-tel','tct-email','tct-adresse','tct-marque','tct-modele','tct-annee','tct-serie','tct-notes-contrat'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
   document.getElementById('tct-equip').value='';
   document.getElementById('tct-formule').value='Confort';
   ['Essentiel','Premium'].forEach(function(x){var c=document.getElementById('tctf-'+x);if(c)c.classList.remove('ct-fcard-sel');});
   var cc=document.getElementById('tctf-Confort');if(cc)cc.classList.add('ct-fcard-sel');
   calcPrixContratTech();
   renderContratsTech();
-  if(window.notif)notif('Contrat '+formule+' signé pour '+client+' — '+montant+'€/an');
+  showNotif('Contrat '+formule+' signé pour '+client+' — '+montant+'€/an ✓');
+  if(confirm('Générer le contrat PDF ?'))genererContratPDFTech(obj);
 }
 function renderContratsTech(){
   var techNom=currentUser?currentUser.nom:'';
@@ -2100,16 +2265,25 @@ function renderContratsTech(){
   if(!lEl)return;
   if(!mine.length){lEl.innerHTML='<div style="text-align:center;padding:24px;color:#94a3b8;font-size:12px;">Aucun contrat signé — propose le contrat à ton prochain client !</div>';return;}
   lEl.innerHTML=mine.map(function(c){
+    var fColor=c.formule==='Premium'?{bg:'#fefce8',tx:'#92400e'}:c.formule==='Confort'?{bg:'#eff6ff',tx:'#1d4ed8'}:{bg:'#f0fdf4',tx:'#166534'};
+    var num='CTR-'+new Date().getFullYear()+'-'+String(c.id).slice(-4);
     return'<div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid var(--green);border-radius:14px;padding:14px 16px;margin-bottom:10px;">'
-    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">'
     +'<div><div style="font-weight:700;font-size:14px;">'+c.client+'</div>'
-    +'<div style="color:#64748b;font-size:11px;margin-top:2px;">'+(c.equipement||c.type)+'</div>'
-    +(c.tel?'<a href="tel:'+c.tel+'" style="color:#2563eb;font-size:12px;">'+c.tel+'</a>':'')+'</div>'
-    +'<div style="text-align:right;"><span style="display:inline-block;background:'+(c.formule==='Premium'?'#fefce8':c.formule==='Confort'?'#eff6ff':'#f0fdf4')+';color:'+(c.formule==='Premium'?'#92400e':c.formule==='Confort'?'#1d4ed8':'#166534')+';font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px;">'+c.formule+'</span>'
-    +'<div style="color:var(--green);font-weight:800;font-size:15px;margin-top:4px;">'+c.montant+'€/an</div></div>'
-    +'</div>'
-    +'<div style="color:#94a3b8;font-size:10px;margin-top:8px;">Prochaine visite : '+c.prochaine+'</div>'
-    +'</div>';
+    +(c.adresse?'<div style="color:#64748b;font-size:11px;margin-top:1px;">📍 '+c.adresse+'</div>':'')
+    +'<div style="color:#64748b;font-size:11px;margin-top:2px;">'+(c.marque||'')+(c.modele?' '+c.modele:'')+(c.annee?' ('+c.annee+')':'')+'</div>'
+    +'<div style="margin-top:4px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">'
+    +(c.tel?'<a href="tel:'+c.tel+'" style="color:#2563eb;font-size:12px;">📞 '+c.tel+'</a>':'')
+    +(c.email?'<a href="mailto:'+c.email+'" style="color:#7c3aed;font-size:11px;">✉ '+c.email+'</a>':'')
+    +'</div></div>'
+    +'<div style="text-align:right;"><span style="display:inline-block;background:'+fColor.bg+';color:'+fColor.tx+';font-size:9px;font-weight:700;padding:3px 8px;border-radius:6px;">'+c.formule+'</span>'
+    +'<div style="color:var(--green);font-weight:800;font-size:16px;margin-top:4px;">'+c.montant+'€/an</div>'
+    +'<div style="font-size:9px;color:#94a3b8;margin-top:1px;">'+num+'</div></div></div>'
+    +'<div style="color:#64748b;font-size:10px;margin-bottom:8px;">🔧 '+c.equipement+' &nbsp;·&nbsp; 📅 Prochaine visite : '+c.prochaine+'</div>'
+    +'<div style="display:flex;gap:6px;">'
+    +'<button onclick="genererContratPDFTech('+JSON.stringify(c).replace(/"/g,'&quot;')+')" style="flex:1;background:#f1f5f9;border:none;border-radius:8px;padding:7px;font-size:11px;font-weight:700;color:#475569;cursor:pointer;">🖨️ PDF</button>'
+    +(c.email?'<button onclick="_dernierContrat='+JSON.stringify(c).replace(/"/g,'&quot;')+';envoyerContratMail()" style="flex:1;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:7px;font-size:11px;font-weight:700;color:#166534;cursor:pointer;">✉️ Mail</button>':'')
+    +'</div></div>';
   }).join('');
 }
 
