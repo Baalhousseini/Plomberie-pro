@@ -304,6 +304,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <button class="ng-btn" data-group="rdv" onclick="showGroupD('rdv')">📅 Planning</button>
     <button class="ng-btn" data-group="suivi" onclick="showGroupD('suivi')">📋 Suivi</button>
     <button class="ng-btn" data-group="commercial" onclick="showGroupD('commercial')">💼 Commercial</button>
+    <button class="ng-btn" data-group="pilotage" onclick="showGroupD('pilotage')">📈 Pilotage</button>
     <button class="ng-btn" id="ng-procedures" onclick="showPage('procedures')">📌</button>
   </div>
   <div class="nav" id="sub-nav-d"></div>
@@ -1660,6 +1661,11 @@ var NAV_GROUPS_D={
     {p:'contrats-d',label:'📋 Contrats',id:'nav-contrats-d'},
     {p:'appels',label:'📞 Appels'},
   ],
+  pilotage:[
+    {p:'perf-ca',label:'📈 CA Techs',id:'nav-perf-ca'},
+    {p:'perf-planning',label:'📅 Remplissage',id:'nav-perf-planning'},
+    {p:'perf-mandants',label:'🏢 Mandants',id:'nav-perf-mandants'},
+  ],
 };
 var _dpPage='dashboard',_dpGroup=null;
 function getPageGroupD(p){for(var g in NAV_GROUPS_D){if(NAV_GROUPS_D[g].some(function(i){return i.p===p;}))return g;}return null;}
@@ -1678,7 +1684,7 @@ function showGroupD(g){
   if(!items.some(function(i){return i.p===_dpPage;})&&items.length)showPage(items[0].p);
 }
 function showPage(page){
-  var pages=["dashboard","dispos","urgences","nouveau-rdv","tous-rdv","validation","rapports","sav","devis","facturation","procedures","infos","clients","appels","stock","compta","gantt","passation","rappels","contrats-d"];
+  var pages=["dashboard","dispos","urgences","nouveau-rdv","tous-rdv","validation","rapports","sav","devis","facturation","procedures","infos","clients","appels","stock","compta","gantt","passation","rappels","contrats-d","perf-ca","perf-planning","perf-mandants"];
   for(var i=0;i<pages.length;i++){var el=document.getElementById("page-"+pages[i]);if(el)el.classList.add("hidden");}
   var pageEl=document.getElementById("page-"+page);if(pageEl)pageEl.classList.remove("hidden");
   _dpPage=page;
@@ -1721,6 +1727,9 @@ function showPage(page){
   if(page==='passation')renderPassation();
   if(page==='rappels')renderRappels();
   if(page==='contrats-d')renderContratsD();
+  if(page==='perf-ca')renderPerfCA();
+  if(page==='perf-planning')renderPerfPlanning();
+  if(page==='perf-mandants')renderPerfMandants();
 }
 
 // STOCK PIÈCES
@@ -2544,6 +2553,8 @@ function renderValidation(){
   html+='<div style="display:flex;gap:8px;flex-wrap:wrap;">';
   html+='<button class="btn btn-green" onclick="validerRapport(\''+r.clientNom+'\',\''+r.date+'\','+i+')">✅ Valider</button>';
   html+='<button class="btn btn-red" onclick="refuserRapport(\''+r.clientNom+'\',\''+r.date+'\','+i+')">❌ Refuser</button>';
+  html+='<button class="btn btn-blue" onclick="ouvrirSigD('+(r.rdvId||'null')+')" style="font-size:11px;">✍️ Signature</button>';
+  if(r.signature)html+='<img src="'+r.signature+'" style="height:32px;border:1px solid #e2e8f0;border-radius:6px;" title="Signé">';
   html+='</div></div>';
 }
 
@@ -2685,8 +2696,21 @@ if(d.adresse) html+='<div style="color:#94a3b8;font-size:11px;">'+d.adresse+'</d
 if(d.ttc) html+='<div style="color:#0d2d52;font-weight:800;font-size:15px;margin-top:4px;">'+d.ttc.toLocaleString("fr-FR")+'€ TTC</div>';
 html+='<div style="color:#94a3b8;font-size:11px;">'+(d.technicien||d.creePar||'Dispatch')+' · '+d.date+(isExpired?' <span style="color:#ef4444;font-weight:700;">EXPIRÉ</span>':'')+'</div></div>';
 html+='<span class="badge '+(d.statut==="Traite"?"badge-green":d.statut==="Accepte"?"badge-green":"badge-blue")+'">'+d.statut+'</span></div>';
+// Calcul relance
+var daysSince=d.date?Math.floor((Date.now()-new Date(d.date).getTime())/86400000):0;
+var etapesRelance=[{j:3,label:'J+3'},{j:7,label:'J+7'},{j:15,label:'J+15'},{j:30,label:'J+30'}];
+var nbRel=d.nbRelances||0;
+var prochaine=etapesRelance[nbRel]||null;
+var relanceDue=prochaine&&daysSince>=prochaine.j&&d.statut!=='Traite';
+if(prochaine&&d.statut!=='Traite'){
+  var relCol=relanceDue?'background:#fef3c7;color:#92400e;border:1px solid #fcd34d;':'background:#f1f5f9;color:#64748b;';
+  html+='<div style="'+relCol+'border-radius:8px;padding:6px 10px;margin-bottom:8px;font-size:11px;font-weight:700;">'
+  +(relanceDue?'⏰ À relancer : ':'🕐 Prochaine relance : ')+prochaine.label+(nbRel>0?' ('+nbRel+' faite'+(nbRel>1?'s':'')+')':'')
+  +(d.derniereRelance?' · Dernière : '+d.derniereRelance:'')+'</div>';
+}
 html+='<div style="display:flex;gap:6px;flex-wrap:wrap;">';
 html+='<button class="btn btn-blue" style="font-size:11px;" onclick="window.open(\'tel:'+d.clientTel+'\')">Appeler</button>';
+if(prochaine&&d.statut!=='Traite')html+='<button class="btn '+(relanceDue?'btn-orange':'btn-gray')+'" style="font-size:11px;" onclick="relancerDevis('+i+')">📤 Relancer</button>';
 if(hasPDF) html+='<button class="btn btn-gray" style="font-size:11px;" onclick="genererDevisPDF(getDevis().sort(function(a,b){return b.date?b.date.localeCompare(a.date):0;})['+i+'])">📄 PDF</button>';
 if(d.statut!=="Traite") html+='<button class="btn btn-green" style="font-size:11px;" onclick="marquerDevisTraite('+i+')">Accepté</button>';
 html+='<button class="btn btn-primary" style="font-size:11px;" onclick="convertirDevisEnRdv('+i+')">→ RDV</button>';
@@ -3815,6 +3839,349 @@ function initMsgTechWidget(role){
 }
 
 document.addEventListener("DOMContentLoaded",function(){initMsgTechWidget('DISPATCH');});
+</script>
+
+<!-- ═══════════════ PAGES PILOTAGE ═══════════════ -->
+
+<div id="page-perf-ca" class="hidden">
+  <div style="background:linear-gradient(135deg,#0d2d52 0%,#16a34a 100%);border-radius:16px;padding:16px;margin-bottom:12px;color:#fff;">
+    <div style="font-size:10px;letter-spacing:2px;font-weight:700;opacity:0.7;margin-bottom:10px;">📈 OBJECTIF CA — TECHNICIENS</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:20px;font-weight:900;" id="pca-jour">0€</div>
+        <div style="font-size:9px;opacity:0.7;margin-top:2px;">Réalisé aujourd'hui</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:20px;font-weight:900;" id="pca-sem">0€</div>
+        <div style="font-size:9px;opacity:0.7;margin-top:2px;">Réalisé cette semaine</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:20px;font-weight:900;" id="pca-mois">0€</div>
+        <div style="font-size:9px;opacity:0.7;margin-top:2px;">Réalisé ce mois</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:20px;font-weight:900;color:#fde68a;" id="pca-prev">0€</div>
+        <div style="font-size:9px;opacity:0.7;margin-top:2px;">Prévision fin de mois</div>
+      </div>
+    </div>
+    <div style="font-size:11px;opacity:0.6;text-align:center;" id="pca-obj-total"></div>
+  </div>
+  <div class="card" style="margin-bottom:12px;border-left:4px solid #16a34a;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div class="lbl" style="margin-bottom:0;color:#16a34a;">OBJECTIF CA PAR TECHNICIEN</div>
+      <button class="btn btn-gray" style="font-size:10px;" onclick="document.getElementById('pca-config').classList.toggle('hidden')">⚙️ Config</button>
+    </div>
+    <div id="pca-config" class="hidden" style="background:#f8fafc;border-radius:10px;padding:12px;margin-bottom:12px;border:1px solid #e2e8f0;">
+      <div style="font-size:11px;font-weight:700;color:#0d2d52;margin-bottom:8px;">Objectif mensuel par technicien (€)</div>
+      <div id="pca-config-fields"></div>
+      <button class="btn btn-primary" style="margin-top:8px;font-size:11px;" onclick="sauvegarderObjectifsTechs()">Enregistrer</button>
+    </div>
+    <div id="pca-techs-list"></div>
+  </div>
+  <div class="card" style="margin-bottom:12px;border-left:4px solid #7c3aed;">
+    <div class="lbl" style="color:#7c3aed;">🏆 CLASSEMENT TECHNICIENS — CE MOIS</div>
+    <div id="pca-classement" style="margin-top:8px;"></div>
+  </div>
+  <div class="card" style="margin-bottom:12px;border-left:4px solid #ea580c;">
+    <div class="lbl" style="color:#ea580c;">💰 PRIME AUTOMATIQUE (5% du surplus)</div>
+    <div style="font-size:11px;color:#64748b;margin-bottom:10px;">Calculée si réalisé &gt; objectif mensuel</div>
+    <div id="pca-primes"></div>
+  </div>
+</div>
+
+<div id="page-perf-planning" class="hidden">
+  <div class="card" style="margin-bottom:12px;border-left:4px solid #0d2d52;">
+    <div class="lbl" style="color:#0d2d52;">📅 TAUX DE REMPLISSAGE PLANNING</div>
+    <div style="font-size:11px;color:#64748b;margin-bottom:12px;">Capacité : 6 interventions/jour · Alerte automatique &lt;80%</div>
+    <div id="ppl-remplissage"></div>
+  </div>
+  <div class="card" style="border-left:4px solid #dc2626;">
+    <div class="lbl" style="color:#dc2626;">⏱️ TEMPS DE RÉPONSE URGENCES</div>
+    <div style="font-size:11px;color:#64748b;margin-bottom:10px;">Objectif : &lt;90 min Bordeaux · &lt;120 min Gironde</div>
+    <div id="ppl-urgences"></div>
+  </div>
+</div>
+
+<div id="page-perf-mandants" class="hidden">
+  <div style="background:linear-gradient(135deg,#7c3aed,#a855f7);border-radius:16px;padding:14px;margin-bottom:12px;color:#fff;">
+    <div style="font-size:10px;letter-spacing:2px;font-weight:700;opacity:0.7;margin-bottom:4px;">🏢 RENTABILITÉ PAR PARTENAIRE</div>
+    <div style="font-size:12px;opacity:0.8;">Assurances &amp; mandants — CA, dossiers, délais de paiement</div>
+  </div>
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">TABLEAU DE RENTABILITÉ</div>
+    <div id="pmand-table" style="margin-top:8px;overflow-x:auto;"></div>
+  </div>
+  <div class="card" style="border-left:4px solid #f59e0b;">
+    <div class="lbl" style="color:#a16207;">ANALYSE DÉLAIS DE PAIEMENT</div>
+    <div id="pmand-delais" style="margin-top:8px;"></div>
+  </div>
+</div>
+
+<!-- MODAL SIGNATURE CLIENT MOBILE -->
+<div id="modal-sig-d" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:flex-end;justify-content:center;flex-direction:column;">
+  <div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:700px;margin:0 auto;padding:20px;padding-bottom:30px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="font-size:14px;font-weight:800;color:#0d2d52;">✍️ Signature Client</div>
+      <button onclick="fermerSigD()" style="background:#f1f5f9;border:none;border-radius:8px;width:32px;height:32px;font-size:18px;cursor:pointer;font-weight:700;">×</button>
+    </div>
+    <div id="sig-d-client-info" style="font-size:12px;color:#64748b;margin-bottom:12px;padding:8px 12px;background:#f8fafc;border-radius:8px;"></div>
+    <canvas id="sig-d-canvas" style="width:100%;height:200px;border:2px dashed #cbd5e1;border-radius:12px;touch-action:none;display:block;cursor:crosshair;background:#fafafa;"></canvas>
+    <div style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px;">Signez dans le cadre avec votre doigt</div>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button class="btn btn-gray" style="flex:1;" onclick="effacerSigD()">🗑️ Effacer</button>
+      <button class="btn btn-primary" style="flex:2;" onclick="validerSigD()">✅ Valider la signature</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// PILOTAGE — OBJECTIF CA PAR TECHNICIEN
+// ════════════════════════════════════════
+function getObjectifsTechs(){return JSON.parse(localStorage.getItem('pl_objectifs_techs')||'{}');}
+function saveObjectifsTechs(o){localStorage.setItem('pl_objectifs_techs',JSON.stringify(o));}
+
+function renderPerfCA(){
+  var rdvs=getRdvs();
+  var today=todayStr();
+  var now=new Date();
+  var ym=today.slice(0,7);
+  var monday=new Date(now);
+  monday.setDate(now.getDate()-((now.getDay()+6)%7));
+  var monStr=monday.toISOString().slice(0,10);
+  var caJour=0,caSem=0,caMois=0;
+  rdvs.forEach(function(r){
+    var p=r.prixVente||0;
+    if(r.dateRdv===today)caJour+=p;
+    if(r.dateRdv&&r.dateRdv>=monStr&&r.dateRdv<=today)caSem+=p;
+    if(r.dateRdv&&r.dateRdv.slice(0,7)===ym)caMois+=p;
+  });
+  var devisEnAttente=getDevis().filter(function(d){return d.statut!=='Traite'&&d.statut!=='Refuse';}).reduce(function(s,d){return s+(d.ttc||0);},0);
+  var rdvRestants=rdvs.filter(function(r){return r.dateRdv&&r.dateRdv.slice(0,7)===ym&&r.dateRdv>today;}).reduce(function(s,r){return s+(r.prixVente||0);},0);
+  var prevision=caMois+Math.round(devisEnAttente*0.5)+rdvRestants;
+  function el(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+  el('pca-jour',caJour.toLocaleString('fr-FR')+'€');
+  el('pca-sem',caSem.toLocaleString('fr-FR')+'€');
+  el('pca-mois',caMois.toLocaleString('fr-FR')+'€');
+  el('pca-prev',prevision.toLocaleString('fr-FR')+'€');
+  var techs=getTechs();
+  var objectifs=getObjectifsTechs();
+  var objTotal=Object.values(objectifs).reduce(function(s,v){return s+(v||0);},0);
+  el('pca-obj-total','Objectif mensuel équipe : '+(objTotal?objTotal.toLocaleString('fr-FR')+'€':'Non configuré — cliquez ⚙️'));
+  var caParTech={};
+  techs.forEach(function(t){caParTech[t]=0;});
+  rdvs.filter(function(r){return r.dateRdv&&r.dateRdv.slice(0,7)===ym;}).forEach(function(r){
+    if(r.technicien){caParTech[r.technicien]=(caParTech[r.technicien]||0)+(r.prixVente||0);}
+  });
+  var cfEl=document.getElementById('pca-config-fields');
+  if(cfEl)cfEl.innerHTML=techs.map(function(t){
+    return'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
+    +'<label style="font-size:12px;font-weight:600;color:#1a2537;">'+t+'</label>'
+    +'<input type="number" id="obj-'+t.replace(/\s/g,'_')+'" value="'+(objectifs[t]||'')+'" placeholder="25000" style="width:120px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:6px 10px;font-size:12px;font-family:Inter,sans-serif;">'
+    +'</div>';
+  }).join('');
+  var listEl=document.getElementById('pca-techs-list');
+  if(listEl)listEl.innerHTML=techs.map(function(t){
+    var ca=caParTech[t]||0;
+    var obj=objectifs[t]||25000;
+    var pct=Math.min(100,Math.round(ca/obj*100));
+    var col=pct>=100?'#16a34a':pct>=70?'#ca8a04':'#dc2626';
+    return'<div style="margin-bottom:16px;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">'
+    +'<div style="font-weight:700;font-size:13px;">'+t+'</div>'
+    +'<div style="font-size:13px;font-weight:800;color:'+col+';">'+ca.toLocaleString('fr-FR')+'€ <span style="color:#94a3b8;font-size:10px;font-weight:500;">/ '+obj.toLocaleString('fr-FR')+'€</span></div>'
+    +'</div>'
+    +'<div style="background:#f1f5f9;border-radius:100px;height:8px;">'
+    +'<div style="background:'+col+';height:8px;border-radius:100px;width:'+pct+'%;transition:width 0.6s;"></div>'
+    +'</div>'
+    +'<div style="font-size:10px;color:#94a3b8;margin-top:3px;">'+pct+'% de l\'objectif atteint</div>'
+    +'</div>';
+  }).join('')||'<div style="color:#94a3b8;font-size:12px;">Aucun technicien</div>';
+  var sorted=techs.map(function(t){return{nom:t,ca:caParTech[t]||0};}).sort(function(a,b){return b.ca-a.ca;});
+  var clEl=document.getElementById('pca-classement');
+  if(clEl)clEl.innerHTML=sorted.map(function(t,i){
+    var m=['🥇','🥈','🥉'][i]||((i+1)+'.');
+    return'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9;">'
+    +'<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">'+m+'</span>'
+    +'<div style="font-weight:700;font-size:13px;">'+t.nom+'</div></div>'
+    +'<div style="font-size:16px;font-weight:900;color:#0d2d52;">'+t.ca.toLocaleString('fr-FR')+'€</div></div>';
+  }).join('')||'<div style="color:#94a3b8;font-size:12px;padding:8px 0;">Aucune donnée ce mois</div>';
+  var primEl=document.getElementById('pca-primes');
+  if(primEl)primEl.innerHTML=techs.map(function(t){
+    var ca=caParTech[t]||0;
+    var obj=objectifs[t]||25000;
+    var surplus=ca-obj;
+    if(surplus<=0)return'<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;"><div><div style="font-weight:700;font-size:13px;">'+t+'</div><div style="font-size:11px;color:#94a3b8;">Il manque '+(obj-ca).toLocaleString('fr-FR')+'€</div></div><span style="background:#f1f5f9;color:#64748b;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;">Aucune prime</span></div>';
+    var prime=Math.round(surplus*0.05);
+    return'<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;"><div><div style="font-weight:700;font-size:13px;">'+t+'</div><div style="font-size:11px;color:#16a34a;">+'+surplus.toLocaleString('fr-FR')+'€ surplus</div></div><div style="font-size:16px;font-weight:900;color:#16a34a;">+'+prime.toLocaleString('fr-FR')+'€</div></div>';
+  }).join('')||'<div style="color:#94a3b8;font-size:12px;">Aucune donnée</div>';
+}
+
+function sauvegarderObjectifsTechs(){
+  var techs=getTechs(),obj={};
+  techs.forEach(function(t){
+    var e=document.getElementById('obj-'+t.replace(/\s/g,'_'));
+    if(e)obj[t]=parseFloat(e.value)||0;
+  });
+  saveObjectifsTechs(obj);
+  renderPerfCA();
+  document.getElementById('pca-config').classList.add('hidden');
+  showNotif('Objectifs enregistrés !');
+}
+
+// ════════════════════════════════════════
+// PILOTAGE — TAUX DE REMPLISSAGE + TEMPS RÉPONSE URGENCES
+// ════════════════════════════════════════
+function renderPerfPlanning(){
+  var rdvs=getRdvs();
+  var today=new Date();
+  var MAX=6;
+  var techs=getTechs();
+  var jours=[];
+  for(var d=0;d<7;d++){
+    var dt=new Date(today);dt.setDate(today.getDate()+d);
+    if(dt.getDay()!==0)jours.push(dt.toISOString().slice(0,10));
+  }
+  var remplEl=document.getElementById('ppl-remplissage');
+  if(remplEl)remplEl.innerHTML=techs.map(function(t){
+    var nb=rdvs.filter(function(r){return r.technicien===t&&jours.indexOf(r.dateRdv)>=0;}).length;
+    var cap=MAX*jours.length;
+    var pct=cap>0?Math.min(100,Math.round(nb/cap*100)):0;
+    var col=pct>=80?'#16a34a':pct>=60?'#ca8a04':'#dc2626';
+    var alerte=pct<80?'<span style="background:#fee2e2;color:#dc2626;border-radius:6px;padding:2px 7px;font-size:10px;font-weight:700;margin-left:6px;">⚠️ SOUS 80%</span>':'';
+    return'<div style="margin-bottom:16px;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">'
+    +'<div style="font-weight:700;font-size:13px;">'+t+alerte+'</div>'
+    +'<div style="font-size:15px;font-weight:900;color:'+col+';">'+pct+'%</div></div>'
+    +'<div style="background:#f1f5f9;border-radius:100px;height:8px;">'
+    +'<div style="background:'+col+';height:8px;border-radius:100px;width:'+pct+'%;transition:width 0.6s;"></div></div>'
+    +'<div style="font-size:10px;color:#94a3b8;margin-top:3px;">'+nb+' RDVs / '+cap+' slots (7 j hors dim.)</div></div>';
+  }).join('')||'<div style="color:#94a3b8;font-size:12px;">Aucun technicien configuré</div>';
+  var urgences=getUrgences().filter(function(u){return u.statut==='Resolu';}).slice(-10).reverse();
+  var urgEl=document.getElementById('ppl-urgences');
+  if(urgEl){
+    if(!urgences.length){urgEl.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:8px 0;">Aucune urgence résolue</div>';return;}
+    urgEl.innerHTML=urgences.map(function(u){
+      var cree=new Date(u.id);
+      var resoluAt=u.resoluAt?new Date(u.resoluAt):null;
+      var mins=resoluAt?Math.floor((resoluAt-cree)/60000):null;
+      var col=mins!==null?(mins<90?'#16a34a':mins<120?'#ca8a04':'#dc2626'):'#94a3b8';
+      return'<div style="padding:10px 0;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">'
+      +'<div><div style="font-weight:700;font-size:13px;">'+(u.clientNom||u.nom||'—')+'</div>'
+      +'<div style="font-size:11px;color:#64748b;">'+(u.type||'—')+' · '+cree.toLocaleDateString('fr-FR')+' '+cree.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})+'</div>'
+      +'<div style="font-size:11px;color:#94a3b8;">'+(u.technicien||'Non assigné')+'</div></div>'
+      +(mins!==null?'<div style="text-align:right;"><div style="font-size:20px;font-weight:900;color:'+col+';">'+mins+'<span style="font-size:10px;font-weight:500;"> min</span></div></div>':'<span style="font-size:12px;color:#94a3b8;">En cours</span>')
+      +'</div>';
+    }).join('');
+  }
+}
+
+// ════════════════════════════════════════
+// PILOTAGE — RENTABILITÉ PAR MANDANT
+// ════════════════════════════════════════
+function renderPerfMandants(){
+  var rdvs=getRdvs();
+  var stats={};
+  var DELAIS={'AXA Assistance':30,'HomeServe':45,'Covéa':60,'Allianz':30,'Generali':45,'MAIF':30,'Leroy Merlin':30,'Les Bons Artisans':21,'Fairfair':30,'Autre assurance':45};
+  rdvs.forEach(function(r){
+    if(!r.mandant||r.mandant==='')return;
+    if(!stats[r.mandant])stats[r.mandant]={dossiers:0,ca:0};
+    stats[r.mandant].dossiers++;
+    stats[r.mandant].ca+=(r.prixVente||0);
+  });
+  var liste=Object.keys(stats).sort(function(a,b){return stats[b].ca-stats[a].ca;});
+  var tableEl=document.getElementById('pmand-table');
+  if(tableEl){
+    if(!liste.length){tableEl.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:12px 0;">Aucun dossier mandant enregistré.<br>Ajoutez un partenaire lors de la création d\'un RDV.</div>';return;}
+    var html='<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="border-bottom:2px solid #e2e8f0;">'
+    +'<th style="text-align:left;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;letter-spacing:1px;">PARTENAIRE</th>'
+    +'<th style="text-align:center;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;">DOSS.</th>'
+    +'<th style="text-align:right;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;">CA</th>'
+    +'<th style="text-align:right;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;">MOY./DOSS</th>'
+    +'<th style="text-align:right;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;">DÉLAI</th>'
+    +'</tr></thead><tbody>';
+    liste.forEach(function(m){
+      var s=stats[m];var delai=DELAIS[m]||30;var moy=s.dossiers?Math.round(s.ca/s.dossiers):0;
+      var col=delai<=30?'#16a34a':delai<=45?'#ca8a04':'#dc2626';
+      html+='<tr style="border-bottom:1px solid #f1f5f9;">'
+      +'<td style="padding:10px 4px;font-weight:700;">'+m+'</td>'
+      +'<td style="padding:10px 4px;text-align:center;color:#64748b;">'+s.dossiers+'</td>'
+      +'<td style="padding:10px 4px;text-align:right;font-weight:800;color:#0d2d52;">'+s.ca.toLocaleString('fr-FR')+'€</td>'
+      +'<td style="padding:10px 4px;text-align:right;color:#64748b;">'+moy.toLocaleString('fr-FR')+'€</td>'
+      +'<td style="padding:10px 4px;text-align:right;font-weight:700;color:'+col+';">'+delai+' j</td></tr>';
+    });
+    tableEl.innerHTML=html+'</tbody></table>';
+  }
+  var delaisEl=document.getElementById('pmand-delais');
+  if(delaisEl){
+    var bons=liste.filter(function(m){return(DELAIS[m]||30)<=30;});
+    var moyens=liste.filter(function(m){var d=DELAIS[m]||30;return d>30&&d<=45;});
+    var lents=liste.filter(function(m){return(DELAIS[m]||30)>45;});
+    delaisEl.innerHTML=[
+      bons.length?'<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:#16a34a;letter-spacing:1px;margin-bottom:4px;">✅ PAIEMENT RAPIDE ≤30j</div><div style="font-size:12px;">'+bons.join(', ')+'</div></div>':'',
+      moyens.length?'<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:#ca8a04;letter-spacing:1px;margin-bottom:4px;">⚠️ PAIEMENT MOYEN 31-45j</div><div style="font-size:12px;">'+moyens.join(', ')+'</div></div>':'',
+      lents.length?'<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:#dc2626;letter-spacing:1px;margin-bottom:4px;">🔴 PAIEMENT LENT &gt;45j</div><div style="font-size:12px;">'+lents.join(', ')+'</div></div>':''
+    ].join('')||'<div style="color:#94a3b8;font-size:12px;">Aucun mandant dans les RDVs</div>';
+  }
+}
+
+// ════════════════════════════════════════
+// RELANCE DEVIS — J+3 / J+7 / J+15 / J+30
+// ════════════════════════════════════════
+function relancerDevis(idx){
+  var d=getDevis().sort(function(a,b){return b.date?b.date.localeCompare(a.date):0;});
+  if(!d[idx])return;
+  d[idx].derniereRelance=todayStr();
+  d[idx].nbRelances=(d[idx].nbRelances||0)+1;
+  saveDevis(d);
+  renderDevis();
+  var etapes=['J+3','J+7','J+15','J+30'];
+  showNotif('Relance '+(etapes[d[idx].nbRelances-1]||'J+30+')+' enregistrée pour '+d[idx].clientNom);
+}
+
+// ════════════════════════════════════════
+// SIGNATURE CLIENT MOBILE
+// ════════════════════════════════════════
+var _sigDCanvas=null,_sigDCtx=null,_sigDDrawing=false,_sigDRdvId=null;
+
+function ouvrirSigD(rdvId){
+  _sigDRdvId=rdvId||null;
+  var modal=document.getElementById('modal-sig-d');
+  if(!modal)return;
+  modal.style.display='flex';
+  var infoEl=document.getElementById('sig-d-client-info');
+  if(infoEl){
+    if(rdvId){
+      var rdvs=getRdvs();var rdv=rdvs.find(function(r){return r.id===rdvId;});
+      infoEl.textContent=rdv?((rdv.clientNom||'—')+' — '+(rdv.type||'—')+' — '+(rdv.dateRdv||'—')):'Intervention #'+rdvId;
+    }else infoEl.textContent='Signature manuelle';
+  }
+  setTimeout(function(){initSigDCanvas();},150);
+}
+function fermerSigD(){var modal=document.getElementById('modal-sig-d');if(modal)modal.style.display='none';_sigDRdvId=null;}
+function initSigDCanvas(){
+  var c=document.getElementById('sig-d-canvas');if(!c)return;
+  _sigDCanvas=c;c.width=c.offsetWidth||320;c.height=c.offsetHeight||200;
+  _sigDCtx=c.getContext('2d');_sigDCtx.strokeStyle='#0d2d52';_sigDCtx.lineWidth=2.5;_sigDCtx.lineCap='round';_sigDCtx.lineJoin='round';
+  _sigDCtx.clearRect(0,0,c.width,c.height);
+  function pos(ev){var rect=c.getBoundingClientRect();var e=ev.touches?ev.touches[0]:ev;return{x:(e.clientX-rect.left)*(c.width/rect.width),y:(e.clientY-rect.top)*(c.height/rect.height)};}
+  c.onmousedown=c.ontouchstart=function(ev){ev.preventDefault();_sigDDrawing=true;var p=pos(ev);_sigDCtx.beginPath();_sigDCtx.moveTo(p.x,p.y);};
+  c.onmousemove=c.ontouchmove=function(ev){if(!_sigDDrawing)return;ev.preventDefault();var p=pos(ev);_sigDCtx.lineTo(p.x,p.y);_sigDCtx.stroke();};
+  c.onmouseup=c.ontouchend=function(){_sigDDrawing=false;};
+}
+function effacerSigD(){if(_sigDCtx&&_sigDCanvas)_sigDCtx.clearRect(0,0,_sigDCanvas.width,_sigDCanvas.height);}
+function validerSigD(){
+  if(!_sigDCanvas)return;
+  var data=_sigDCanvas.toDataURL('image/png');
+  if(_sigDRdvId){
+    var rdvs=getRdvs();var ri=rdvs.findIndex(function(r){return r.id===_sigDRdvId;});
+    if(ri>=0){rdvs[ri].signature=data;rdvs[ri].signeLe=todayStr();saveRdvs(rdvs);}
+    var raps=getRapports();var rri=raps.findIndex(function(r){return r.rdvId===_sigDRdvId;});
+    if(rri>=0){raps[rri].signature=data;saveRapports(raps);}
+  }
+  fermerSigD();showNotif('Signature enregistrée !');
+  if(!document.getElementById('page-validation').classList.contains('hidden'))renderValidation();
+}
 </script>
 
 </body>
