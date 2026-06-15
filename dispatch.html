@@ -301,121 +301,90 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div class="nav-groups" id="nav-groups-d">
     <button class="ng-btn active" id="ng-tableau" onclick="showPage('dashboard')">📊 Tableau</button>
     <button class="ng-btn" id="ng-urgences" onclick="showPage('urgences')">🚨 Urgences</button>
-    <button class="ng-btn" id="ng-todo-d" onclick="showPage('todo')">✅ À faire</button>
     <button class="ng-btn" data-group="rdv" onclick="showGroupD('rdv')">📅 Planning</button>
     <button class="ng-btn" data-group="suivi" onclick="showGroupD('suivi')">📋 Suivi</button>
     <button class="ng-btn" data-group="commercial" onclick="showGroupD('commercial')">💼 Commercial</button>
+    <button class="ng-btn" data-group="pilotage" onclick="showGroupD('pilotage')">📈 Pilotage</button>
     <button class="ng-btn" id="ng-procedures" onclick="showPage('procedures')">📌</button>
   </div>
   <div class="nav" id="sub-nav-d"></div>
 
   <div class="content">
 
-<!-- À FAIRE DISPATCH -->
-<div id="page-todo" class="hidden">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-    <div>
-      <div style="color:#1a3a5c;font-size:11px;letter-spacing:2px;font-weight:700;">✅ À FAIRE — DISPATCH</div>
-      <div style="color:#64748b;font-size:12px;margin-top:2px;" id="todo-d-subtitle">Chargement...</div>
-    </div>
-    <button onclick="renderToDoDispatch()" style="background:#f1f5f9;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;color:#0d2d52;cursor:pointer;">↻ Actualiser</button>
-  </div>
-  <div id="todo-d-container"></div>
-</div>
-
 <!-- TABLEAU DE BORD -->
 <div id="page-dashboard">
-  <!-- Header date + objectif -->
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-    <div>
-      <div style="color:#1a3a5c;font-size:11px;letter-spacing:2px;font-weight:700;">TABLEAU DE BORD</div>
-      <div style="color:#64748b;font-size:12px;margin-top:1px;" id="dash-date"></div>
-    </div>
-    <div style="text-align:right;">
-      <div style="font-size:9px;color:#64748b;letter-spacing:1px;">OBJECTIF JOUR</div>
-      <div style="font-size:13px;font-weight:800;color:#0d2d52;" id="dash-obj-txt">—</div>
-    </div>
+  <div style="margin-bottom:16px;">
+    <div style="color:#1a3a5c;font-size:11px;letter-spacing:2px;font-weight:700;">TABLEAU DE BORD</div>
+    <div style="color:#64748b;font-size:12px;margin-top:2px;" id="dash-date"></div>
   </div>
-
-  <!-- KPIs fusionnés — 3 cols x 2 rows -->
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
-    <div style="background:#dbeafe;border-radius:12px;padding:12px;text-align:center;border:1px solid #1a3a5c30;">
-      <div style="color:#1a3a5c;font-size:8px;letter-spacing:1px;font-weight:700;">INTERVENTIONS</div>
-      <div style="color:#1a3a5c;font-weight:900;font-size:22px;margin-top:4px;" id="d-rdv-stat">0/0</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;" id="dash-stats"></div>
+  <div id="pipeline-ca-card" style="background:linear-gradient(135deg,#0d2d52 0%,#1a4a7a 100%);border-radius:16px;padding:16px;margin-bottom:12px;color:#fff;">
+    <div style="font-size:10px;letter-spacing:2px;font-weight:700;opacity:0.7;margin-bottom:10px;">PIPELINE CA — AUJOURD'HUI</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:18px;font-weight:900;color:#7bc144;" id="pip-ca-conf">0€</div>
+        <div style="font-size:9px;opacity:0.7;margin-top:2px;">CA confirmé</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:18px;font-weight:900;color:#f59e0b;" id="pip-ca-encours">0€</div>
+        <div style="font-size:9px;opacity:0.7;margin-top:2px;">En cours</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:18px;font-weight:900;color:#60a5fa;" id="pip-rdv-nb">0</div>
+        <div style="font-size:9px;opacity:0.7;margin-top:2px;">RDV planifiés</div>
+      </div>
     </div>
-    <div style="background:#dcfce7;border-radius:12px;padding:12px;text-align:center;border:1px solid #16a34a30;">
-      <div style="color:#15803d;font-size:8px;letter-spacing:1px;font-weight:700;">CA CONFIRMÉ</div>
-      <div style="color:#15803d;font-weight:900;font-size:22px;margin-top:4px;" id="d-ca-conf">0€</div>
+    <div style="margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+        <span style="font-size:10px;opacity:0.7;">Objectif jour</span>
+        <span style="font-size:10px;font-weight:700;" id="pip-obj-txt">—</span>
+      </div>
+      <div style="background:rgba(255,255,255,0.15);border-radius:100px;height:6px;">
+        <div id="pip-obj-bar" style="background:#7bc144;height:6px;border-radius:100px;width:0%;transition:width 0.6s;"></div>
+      </div>
     </div>
-    <div style="background:#fef9c3;border-radius:12px;padding:12px;text-align:center;border:1px solid #a1620730;">
-      <div style="color:#a16207;font-size:8px;letter-spacing:1px;font-weight:700;">À VALIDER</div>
-      <div style="color:#a16207;font-weight:900;font-size:22px;margin-top:4px;" id="d-a-valider">0</div>
-    </div>
-    <div onclick="showPage('urgences')" style="background:#fee2e2;border-radius:12px;padding:12px;text-align:center;border:1px solid #dc262630;cursor:pointer;">
-      <div style="color:#dc2626;font-size:8px;letter-spacing:1px;font-weight:700;">URGENCES</div>
-      <div style="color:#dc2626;font-weight:900;font-size:22px;margin-top:4px;" id="d-urgences">0</div>
-    </div>
-    <div style="background:#f3e8ff;border-radius:12px;padding:12px;text-align:center;border:1px solid #7c3aed30;">
-      <div style="color:#7c3aed;font-size:8px;letter-spacing:1px;font-weight:700;">EN COURS €</div>
-      <div style="color:#7c3aed;font-weight:900;font-size:22px;margin-top:4px;" id="d-ca-encours">0€</div>
-    </div>
-    <div style="background:#e0f2fe;border-radius:12px;padding:12px;text-align:center;border:1px solid #0891b230;">
-      <div style="color:#0891b2;font-size:8px;letter-spacing:1px;font-weight:700;">CONV. %</div>
-      <div style="color:#0891b2;font-weight:900;font-size:22px;margin-top:4px;" id="d-conv">0%</div>
-    </div>
-  </div>
-
-  <!-- Barre objectif -->
-  <div style="background:#f1f5f9;border-radius:10px;padding:10px 12px;margin-bottom:10px;">
-    <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-      <span style="font-size:10px;color:#64748b;font-weight:600;">Progression objectif du jour</span>
-      <span style="font-size:10px;font-weight:800;color:#0d2d52;" id="pip-obj-txt">0%</span>
-    </div>
-    <div style="background:#e2e8f0;border-radius:100px;height:7px;">
-      <div id="pip-obj-bar" style="background:linear-gradient(90deg,#7bc144,#15803d);height:7px;border-radius:100px;width:0%;transition:width 0.6s;"></div>
-    </div>
-  </div>
-
-  <!-- Techniciens compact -->
-  <div class="card card-blue" style="margin-bottom:10px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div class="lbl" style="margin-bottom:0;">TECHNICIENS</div>
-      <button class="btn btn-primary" style="background:#7c3aed;font-size:10px;padding:4px 9px;" onclick="optimiserTournees()">🗺️ Tournées</button>
-    </div>
-    <div id="dash-techs"></div>
-  </div>
-
-  <!-- À traiter + canaux en ligne -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-    <div class="card card-yellow" style="margin-bottom:0;">
-      <div class="lbl">À TRAITER</div>
-      <div id="dash-todo" style="margin-top:8px;"></div>
-    </div>
-    <div class="card" style="margin-bottom:0;background:#0d2d52;color:#fff;">
-      <div style="font-size:9px;letter-spacing:1px;font-weight:700;opacity:0.6;margin-bottom:6px;">CANAUX</div>
-      <div id="pip-canaux"></div>
-      <div style="margin-top:8px;">
-        <div style="font-size:9px;opacity:0.6;">PERF OPÉRATEURS</div>
-        <div id="kpi-operateurs" style="margin-top:4px;"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;">
+      <div style="background:rgba(255,255,255,0.08);border-radius:8px;padding:8px;">
+        <div style="opacity:0.6;font-size:9px;margin-bottom:2px;">CANAUX ACQUISITION</div>
+        <div id="pip-canaux" style="font-size:11px;"></div>
+      </div>
+      <div style="background:rgba(255,255,255,0.08);border-radius:8px;padding:8px;">
+        <div style="opacity:0.6;font-size:9px;margin-bottom:2px;">TAUX TRANSFORMATION</div>
+        <div id="pip-conv" style="font-size:18px;font-weight:900;color:#7bc144;">—</div>
+        <div style="opacity:0.5;font-size:9px;">terminés / planifiés</div>
       </div>
     </div>
   </div>
-
-  <!-- Bilan jour -->
-  <div class="card" style="border-left:4px solid #16a34a;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+  <div class="card" style="margin-bottom:12px;border-left:4px solid #7c3aed;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div class="lbl" style="margin-bottom:0;color:#7c3aed;">OPTIMISATION TOURNÉES</div>
+      <button class="btn btn-primary" style="background:#7c3aed;font-size:11px;" onclick="optimiserTournees()">🗺️ Optimiser</button>
+    </div>
+    <div id="tournees-result" style="color:#64748b;font-size:12px;">Cliquez pour regrouper les RDVs d'aujourd'hui par zone et économiser du trajet.</div>
+  </div>
+  <div class="card card-blue">
+    <div class="lbl">ETAT DES TECHNICIENS</div>
+    <div id="dash-techs" style="margin-top:8px;"></div>
+  </div>
+  <div class="card card-red" id="dash-urgences-card" style="display:none;">
+    <div class="lbl" style="color:#dc2626;">URGENCES ACTIVES</div>
+    <div id="dash-urgences" style="margin-top:8px;"></div>
+  </div>
+  <div class="card card-yellow">
+    <div class="lbl">A TRAITER</div>
+    <div id="dash-todo" style="margin-top:8px;"></div>
+  </div>
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">PERFORMANCE OPÉRATEURS — AUJOURD'HUI</div>
+    <div id="kpi-operateurs"></div>
+  </div>
+  <div class="card" style="margin-bottom:12px;border-left:4px solid #16a34a;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
       <div class="lbl" style="margin-bottom:0;color:#16a34a;">BILAN DE LA JOURNÉE</div>
-      <button class="btn btn-gray" style="font-size:10px;padding:4px 9px;" onclick="copierRapportJour()">📋 Copier</button>
+      <button class="btn btn-gray" style="font-size:10px;padding:5px 10px;" onclick="copierRapportJour()">📋 Copier</button>
     </div>
     <div id="rapport-jour"></div>
   </div>
-
-  <!-- IDs legacy pour renderPipelineCA() -->
-  <span id="pip-ca-conf" style="display:none;"></span>
-  <span id="pip-ca-encours" style="display:none;"></span>
-  <span id="pip-rdv-nb" style="display:none;"></span>
-  <span id="pip-conv" style="display:none;"></span>
-  <div id="tournees-result" style="display:none;"></div>
 </div>
 
 <div id="page-dispos" class="hidden">
@@ -460,10 +429,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
         </select>
       </div>
       <div class="grid-2">
-        <div class="form-field"><label>DATE PRISE D'APPEL</label><input type="date" class="form-input" id="urg-date"></div>
+        <div class="form-field"><label>DATE INTERVENTION</label><input type="date" class="form-input" id="urg-date"></div>
         <div class="form-field"><label>HEURE</label><input type="time" class="form-input" id="urg-heure" value="09:00"></div>
       </div>
-      <div style="background:#fef9c3;border:1px solid #fcd34d;border-radius:8px;padding:8px 12px;font-size:11px;color:#92400e;margin-bottom:8px;">📋 La date d'intervention sera fixée par le dispatch lors de l'assignation au technicien.</div>
       <div class="form-field"><label>TECHNICIEN</label>
         <select class="form-select" id="urg-tech"><option>Technicien 1</option><option>Technicien 2</option><option value="À planifier">📋 À planifier</option></select>
       </div>
@@ -496,19 +464,24 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
         </select>
       </div>
       <div class="grid-2">
-        <div class="form-field"><label id="rdv-date-label">DATE RDV</label><input type="date" class="form-input" id="rdv-date" onchange="updateTechPlanning()"></div>
-        <div class="form-field" id="rdv-heure-field"><label>HEURE RDV</label><input type="time" class="form-input" id="rdv-heure" value="09:00" onchange="scheduleTravelUpdate()"></div>
+        <div class="form-field"><label>DATE RDV</label><input type="date" class="form-input" id="rdv-date" onchange="updateTechPlanning()"></div>
+        <div class="form-field"><label>HEURE RDV</label><input type="time" class="form-input" id="rdv-heure" value="09:00" onchange="scheduleTravelUpdate()"></div>
       </div>
-      <!-- Champ visible uniquement si "À planifier" -->
-      <div id="rdv-souhaitee-field" class="hidden">
-        <div style="background:#ede9fe;border:1.5px solid #a78bfa;border-radius:10px;padding:10px 12px;margin-bottom:10px;">
-          <div style="font-size:10px;font-weight:800;color:#7c3aed;letter-spacing:1px;margin-bottom:8px;">📋 À PLANIFIER — DATE D'INTERVENTION SOUHAITÉE</div>
-          <div class="grid-2">
-            <div class="form-field" style="margin:0;"><label style="color:#7c3aed;">DATE SOUHAITÉE (optionnel)</label><input type="date" class="form-input" id="rdv-date-souhaitee"></div>
-            <div class="form-field" style="margin:0;"><label style="color:#7c3aed;">HEURE SOUHAITÉE (optionnel)</label><input type="time" class="form-input" id="rdv-heure-souhaitee"></div>
-          </div>
-          <div style="font-size:11px;color:#7c3aed;margin-top:6px;">La date de prise en charge est enregistrée automatiquement. Le technicien sera assigné plus tard.</div>
+      <!-- MAJORATIONS TARIFAIRES — Point 2 -->
+      <div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:12px;padding:12px;margin-bottom:10px;">
+        <div style="font-size:10px;font-weight:800;color:#ea580c;letter-spacing:1px;margin-bottom:8px;">⚡ MAJORATIONS TARIFAIRES</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid #fed7aa;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;">
+            <input type="checkbox" id="maj-nuit" onchange="calculerMajoration()"> 🌙 Nuit (+80€)
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid #fed7aa;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;">
+            <input type="checkbox" id="maj-weekend" onchange="calculerMajoration()"> 📅 Weekend (+50€)
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid #fed7aa;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;">
+            <input type="checkbox" id="maj-urgence2h" onchange="calculerMajoration()"> ⚡ Urgence &lt;2h (+60€)
+          </label>
         </div>
+        <div id="maj-total" style="display:none;margin-top:8px;font-size:13px;font-weight:700;color:#ea580c;"></div>
       </div>
       <div class="form-field"><label>TECHNICIEN</label>
         <select class="form-select" id="rdv-tech" onchange="updateTechPlanning()"><option>Technicien 1</option><option>Technicien 2</option><option value="À planifier">📋 À planifier</option></select>
@@ -549,7 +522,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
           <div class="form-field"><label>MANDANT</label>
             <select class="form-select" id="rdv-mandant">
               <option value="">Aucun (particulier)</option>
-              <option>FairFair</option>
               <option>AXA Assistance</option>
               <option>HomeServe</option>
               <option>Covéa</option>
@@ -644,14 +616,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 </div>
 
 <div id="page-devis" class="hidden">
-  <!-- Onglets Devis / Facturation -->
-  <div style="display:flex;gap:6px;margin-bottom:14px;background:#f1f5f9;border-radius:10px;padding:4px;">
-    <button id="tab-devis-btn" onclick="switchDevisTab('devis')" style="flex:1;background:#0d2d52;color:#fff;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer;">💼 Devis</button>
-    <button id="tab-fact-btn" onclick="switchDevisTab('fact')" style="flex:1;background:none;color:#64748b;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer;">💶 Facturation</button>
-  </div>
-
-  <!-- Section Devis -->
-  <div id="devis-tab-content">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
     <div style="color:#1d4ed8;font-size:11px;letter-spacing:2px;font-weight:700;">DEVIS</div>
     <button class="btn btn-blue" onclick="toggleFormDevisPro()">+ Nouveau devis</button>
@@ -722,131 +686,50 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     <div class="lbl">DEVIS EN COURS</div>
     <div id="liste-devis" style="margin-top:8px;"></div>
   </div>
-  </div><!-- fin devis-tab-content -->
-
-  <!-- Section Facturation -->
-  <div id="fact-tab-content" style="display:none;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-    <div style="color:#16a34a;font-size:11px;letter-spacing:2px;font-weight:700;">FACTURATION</div>
-    <button class="btn btn-blue" onclick="toggleFormFactureD()">+ Créer une facture</button>
-  </div>
-
-  <!-- Formulaire création facture -->
-  <div id="form-facture-d" class="hidden">
-    <div class="card" style="margin-bottom:12px;border:2px solid #16a34a;">
-      <div class="lbl" style="color:#16a34a;">NOUVELLE FACTURE</div>
-      <div class="grid-2">
-        <div class="form-field"><label>NOM CLIENT</label><input type="text" class="form-input" id="fac-client-nom" placeholder="Jean Dupont"></div>
-        <div class="form-field"><label>TÉLÉPHONE</label><input type="tel" class="form-input" id="fac-client-tel" placeholder="06 XX XX XX XX"></div>
-      </div>
-      <div class="form-field"><label>ADRESSE</label><input type="text" class="form-input" id="fac-client-adresse" placeholder="12 rue des Fleurs, Saintes"></div>
-      <div class="grid-2">
-        <div class="form-field"><label>RÉFÉRENCE / N° DOSSIER</label><input type="text" class="form-input" id="fac-ref" placeholder="Ex: DOS-2024-001"></div>
-        <div class="form-field"><label>DATE FACTURE</label><input type="date" class="form-input" id="fac-date"></div>
-      </div>
-      <div class="lbl" style="margin-top:12px;color:#16a34a;">LIGNES DE PRESTATION</div>
-      <div style="display:grid;grid-template-columns:1fr 60px 80px 70px 28px;gap:6px;margin-bottom:6px;">
-        <div style="font-size:10px;color:#64748b;font-weight:700;padding:0 4px;">DESCRIPTION</div>
-        <div style="font-size:10px;color:#64748b;font-weight:700;text-align:center;">QTÉ</div>
-        <div style="font-size:10px;color:#64748b;font-weight:700;text-align:right;">PRIX U. HT</div>
-        <div style="font-size:10px;color:#64748b;font-weight:700;text-align:right;">TOTAL</div>
-        <div></div>
-      </div>
-      <div id="fac-lignes"></div>
-      <button class="btn btn-gray" style="width:100%;margin-bottom:12px;" onclick="addLigneFactureD()">+ Ajouter une ligne</button>
-      <div class="grid-2">
-        <div class="form-field"><label>TVA</label>
-          <select class="form-select" id="fac-tva" onchange="renderLignesFactureD()">
-            <option value="10">10% (travaux rénovation)</option>
-            <option value="20" selected>20% (standard)</option>
-            <option value="5.5">5,5% (amélioration énergétique)</option>
-            <option value="0">0% (exonéré)</option>
-          </select>
-        </div>
-        <div class="form-field"><label>REMISE %</label>
-          <input type="number" class="form-input" id="fac-remise" value="0" min="0" max="50" oninput="renderLignesFactureD()">
-        </div>
-      </div>
-      <div class="grid-2">
-        <div class="form-field"><label>CONDITIONS DE PAIEMENT</label>
-          <select class="form-select" id="fac-conditions">
-            <option>Comptant à réception</option>
-            <option>30% à la commande, solde à la fin</option>
-            <option>50% à la commande, solde à la fin</option>
-            <option>Paiement à 30 jours</option>
-          </select>
-        </div>
-        <div class="form-field"><label>DATE ÉCHÉANCE</label>
-          <input type="date" class="form-input" id="fac-echeance">
-        </div>
-      </div>
-      <div class="form-field"><label>NOTES</label>
-        <textarea class="form-textarea" id="fac-notes-d" rows="2" placeholder="Notes, conditions particulières..."></textarea>
-      </div>
-      <div id="fac-totaux" style="background:#f0fdf4;border-radius:10px;padding:12px 14px;margin-bottom:12px;border:1px solid #bbf7d0;"></div>
-      <div style="display:flex;gap:8px;">
-        <button class="btn btn-gray" onclick="toggleFormFactureD()">Annuler</button>
-        <button class="btn btn-blue" onclick="aperçuFacturePDF()">Aperçu PDF</button>
-        <button class="btn btn-primary" style="flex:1;background:#16a34a;" onclick="sauvegarderFactureD()">Enregistrer la facture</button>
-      </div>
-    </div>
-  </div>
-  <!-- Fin formulaire facture -->
-
-  <div class="stats-grid" id="stats-fact"></div>
-  <div class="card card-yellow" style="margin-bottom:12px;"><div class="lbl">À FACTURER (rapports validés)</div><div id="liste-a-facturer"></div></div>
-  <div class="card card-green" style="margin-bottom:12px;"><div class="lbl">FACTURES CRÉÉES</div><div id="liste-factures-dispatch"></div></div>
-  <div class="card card-green"><div class="lbl">DÉJÀ FACTURÉS (rapports)</div><div id="liste-factures"></div></div>
-  </div><!-- fin fact-tab-content -->
 </div>
 
-<div id="page-facturation" class="hidden"></div>
+<div id="page-facturation" class="hidden">
+  <div class="stats-grid" id="stats-fact"></div>
+  <div class="card card-yellow" style="margin-bottom:12px;"><div class="lbl">A FACTURER</div><div id="liste-a-facturer"></div></div>
+  <div class="card card-green"><div class="lbl">DEJA FACTURES</div><div id="liste-factures"></div></div>
+</div>
 
 <div id="page-appels" class="hidden">
-  <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e;border-radius:16px;padding:16px;margin-bottom:14px;">
-    <div style="font-size:11px;font-weight:800;color:#15803d;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;">📞 PRISE D'APPEL ENTRANT</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-      <input class="form-input" id="ap-tel" type="tel" placeholder="Téléphone *" oninput="rechercherClientAppel(this.value)">
-      <input class="form-input" id="ap-nom" placeholder="Nom client *">
+  <div class="dispatch-kpi" id="appels-kpi" style="margin-bottom:12px;border-radius:12px;"></div>
+  <div class="card card-green" style="margin-bottom:12px;">
+    <div class="lbl">ENREGISTRER UN APPEL</div>
+    <div class="grid-2">
+      <div class="form-field"><label>N° TÉLÉPHONE</label><input type="tel" class="form-input" id="ap-tel" placeholder="06 XX XX XX XX" oninput="rechercherClientAppel(this.value)"></div>
+      <div class="form-field"><label>CLIENT IDENTIFIÉ</label><input type="text" class="form-input" id="ap-nom" placeholder="Auto-rempli..." readonly style="background:#f7f9fc;"></div>
     </div>
-    <input class="form-input" id="ap-adresse" placeholder="Adresse" style="margin-bottom:10px;width:100%;box-sizing:border-box;">
-    <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:6px;">MOTIF DE L'APPEL</div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;" id="ap-type-chips">
-      <button onclick="selectChipD(this,'ap-type-chips','rdv')" data-val="rdv" style="background:#eff6ff;border:2px solid #3b82f6;color:#1d4ed8;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">📅 RDV</button>
-      <button onclick="selectChipD(this,'ap-type-chips','urgence')" data-val="urgence" style="background:#fef2f2;border:2px solid #ef4444;color:#dc2626;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">🚨 Urgence</button>
-      <button onclick="selectChipD(this,'ap-type-chips','sav')" data-val="sav" style="background:#fff7ed;border:2px solid #fb923c;color:#ea580c;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">🔁 SAV</button>
-      <button onclick="selectChipD(this,'ap-type-chips','devis')" data-val="devis" style="background:#f3e8ff;border:2px solid #a855f7;color:#7c3aed;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">📋 Devis</button>
-      <button onclick="selectChipD(this,'ap-type-chips','renseignement')" data-val="renseignement" style="background:#f0fdf4;border:2px solid #22c55e;color:#15803d;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">ℹ️ Renseignement</button>
-      <button onclick="selectChipD(this,'ap-type-chips','reclamation')" data-val="reclamation" style="background:#fef2f2;border:2px solid #f87171;color:#b91c1c;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">⚠️ Réclamation</button>
+    <div class="form-field"><label>OBJET DE L'APPEL</label>
+      <select class="form-select" id="ap-objet">
+        <option value="rdv">Demande de RDV</option>
+        <option value="urgence">Urgence</option>
+        <option value="devis">Demande de devis</option>
+        <option value="rappel">Rappel client</option>
+        <option value="annulation">Annulation</option>
+        <option value="reclamation">Réclamation</option>
+        <option value="renseignement">Renseignement</option>
+      </select>
     </div>
-    <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:6px;">COMMENT ILS NOUS ONT TROUVÉS</div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;" id="ap-source-chips">
-      <button onclick="selectChipD(this,'ap-source-chips','Google')" data-val="Google" style="background:#f8fafc;border:1px solid #cbd5e1;color:#475569;border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;">🌐 Google</button>
-      <button onclick="selectChipD(this,'ap-source-chips','Recommandation')" data-val="Recommandation" style="background:#f8fafc;border:1px solid #cbd5e1;color:#475569;border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;">⭐ Recommandation</button>
-      <button onclick="selectChipD(this,'ap-source-chips','Client fidèle')" data-val="Client fidèle" style="background:#f8fafc;border:1px solid #cbd5e1;color:#475569;border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;">🏆 Client fidèle</button>
-      <button onclick="selectChipD(this,'ap-source-chips','Panneau')" data-val="Panneau" style="background:#f8fafc;border:1px solid #cbd5e1;color:#475569;border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;">🪧 Panneau</button>
-      <button onclick="selectChipD(this,'ap-source-chips','Autre')" data-val="Autre" style="background:#f8fafc;border:1px solid #cbd5e1;color:#475569;border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;">❓ Autre</button>
-    </div>
-    <textarea class="form-textarea" id="ap-notes" rows="2" placeholder="Commentaire, détails, code accès, étage…" style="margin-bottom:12px;width:100%;box-sizing:border-box;"></textarea>
-    <!-- Section RDV fixe (cachée par défaut) -->
-    <div id="ap-rdv-section" class="hidden" style="background:#fff;border:1px solid #93c5fd;border-radius:12px;padding:12px;margin-bottom:12px;">
-      <div style="font-size:11px;font-weight:700;color:#1d4ed8;margin-bottom:8px;">📅 DÉTAILS DU RDV</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-        <input class="form-input" id="ap-rdv-date" type="date">
-        <input class="form-input" id="ap-rdv-heure" type="time" value="09:00">
+    <div class="form-field"><label>NOTE</label><textarea class="form-textarea" id="ap-note" rows="2" placeholder="Résumé de l'appel..."></textarea></div>
+    <div class="grid-2">
+      <div class="form-field"><label>DURÉE (min)</label><input type="number" class="form-input" id="ap-duree" placeholder="3" min="0"></div>
+      <div class="form-field"><label>RÉSULTAT</label>
+        <select class="form-select" id="ap-resultat">
+          <option value="rdv_cree">✅ RDV créé</option>
+          <option value="rappel">📞 À rappeler</option>
+          <option value="devis_envoye">📋 Devis à faire</option>
+          <option value="info">ℹ️ Info donnée</option>
+          <option value="hors_zone">🚫 Hors zone</option>
+          <option value="annulation">❌ Annulation</option>
+        </select>
       </div>
-      <select class="form-select" id="ap-rdv-tech" style="margin-bottom:8px;"></select>
-      <input class="form-input" id="ap-rdv-prix" type="number" placeholder="Prix estimé (€) — optionnel" style="margin-bottom:8px;">
-      <button onclick="creerRdvFixeD()" style="background:#1d4ed8;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:800;cursor:pointer;width:100%;">✅ Confirmer le RDV</button>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-      <button onclick="loggerAppelSeulD()" style="background:#f8fafc;border:2px solid #cbd5e1;color:#475569;border-radius:10px;padding:12px 8px;font-size:12px;font-weight:700;cursor:pointer;">📞 Juste noter</button>
-      <button onclick="creerRdvAPlanifierD()" style="background:#eff6ff;border:2px solid #3b82f6;color:#1d4ed8;border-radius:10px;padding:12px 8px;font-size:12px;font-weight:700;cursor:pointer;">📋 À planifier →</button>
-    </div>
-    <button onclick="toggleApRdvSection()" style="background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;border:none;border-radius:10px;padding:13px;font-size:13px;font-weight:800;cursor:pointer;width:100%;">📅 Fixer le RDV maintenant →</button>
+    <button class="btn btn-green btn-full" style="padding:12px;" onclick="loggerAppel()">📝 Enregistrer l'appel</button>
   </div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;" id="ap-stats-jour"></div>
-  <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:8px;letter-spacing:1px;">JOURNAL DES APPELS</div>
+  <div class="lbl">JOURNAL DES APPELS</div>
   <div id="liste-appels"></div>
 </div>
 
@@ -976,9 +859,176 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div id="liste-passation"></div>
 </div>
 
+<div id="page-contrats-d" class="hidden">
+
+  <!-- HEADER -->
+  <div style="background:linear-gradient(135deg,#0d2d52,#1a4a7a);border-radius:16px;padding:18px 16px;color:#fff;margin-bottom:16px;">
+    <div style="font-size:10px;letter-spacing:2px;font-weight:700;opacity:0.7;margin-bottom:4px;">CONTRATS D'ENTRETIEN</div>
+    <div style="font-size:18px;font-weight:800;margin-bottom:4px;">Tranquillité, Performance &amp; Sérénité</div>
+    <div style="font-size:12px;opacity:0.75;">Nos contrats sont conçus pour assurer tranquillité d'esprit, performance optimale et sécurité tout au long de l'année.</div>
+  </div>
+
+  <!-- EXPLICATION FORMULES (accordéon) -->
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;margin-bottom:14px;overflow:hidden;">
+    <button onclick="toggleExplContratD()" style="width:100%;background:none;border:none;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+      <span style="font-size:13px;font-weight:700;color:#0d2d52;">📋 Que comprend chaque contrat ?</span>
+      <span id="expl-contrat-d-icon" style="font-size:16px;color:#64748b;">▼</span>
+    </button>
+    <div id="expl-contrat-d-body" style="display:none;padding:0 16px 16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+        <!-- ESSENTIEL -->
+        <div style="border:2px solid #22c55e;border-radius:12px;padding:12px;background:#f0fdf4;">
+          <div style="font-size:10px;font-weight:800;color:#15803d;letter-spacing:1px;margin-bottom:6px;">ESSENTIEL</div>
+          <div style="font-size:11px;color:#166534;margin-bottom:4px;font-weight:700;">Le minimum obligatoire</div>
+          <div style="font-size:10px;color:#166534;line-height:1.6;">✓ Vérification complète de l'installation<br>✓ Contrôle des composants<br>✓ Nettoyage des composants essentiels<br>✓ Réglages de base<br>✓ Mesures électriques et sécurités<br>✓ Attestation entretien conforme</div>
+        </div>
+        <!-- CONFORT -->
+        <div style="border:2px solid #3b82f6;border-radius:12px;padding:12px;background:#eff6ff;position:relative;">
+          <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#3b82f6;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:6px;white-space:nowrap;">Le + choisi</div>
+          <div style="font-size:10px;font-weight:800;color:#1d4ed8;letter-spacing:1px;margin-bottom:6px;">CONFORT</div>
+          <div style="font-size:11px;color:#1e40af;margin-bottom:4px;font-weight:700;">Meilleur rapport qualité/prix</div>
+          <div style="font-size:10px;color:#1e40af;line-height:1.6;">✓ Tout ESSENTIEL inclus<br>✓ Dépannage prioritaire inclus<br>✓ Déplacement dépannage inclus<br>✓ Main-d'œuvre incluse<br>✓ Rappels entretien automatiques<br>✓ Service client prioritaire</div>
+        </div>
+        <!-- PREMIUM -->
+        <div style="border:2px solid #f59e0b;border-radius:12px;padding:12px;background:#fffbeb;">
+          <div style="font-size:10px;font-weight:800;color:#b45309;letter-spacing:1px;margin-bottom:6px;">PREMIUM ⭐</div>
+          <div style="font-size:11px;color:#92400e;margin-bottom:4px;font-weight:700;">La tranquillité totale</div>
+          <div style="font-size:10px;color:#92400e;line-height:1.6;">✓ Tout CONFORT inclus<br>✓ Pièces à -15% à -20%<br>✓ Remise sur factures annuelles<br>✓ Bonne mine d'or à saisir<br>✓ Client privilégié — file d'attente prioritaire<br>✓ Rapport d'inspection visuelle annuel</div>
+        </div>
+      </div>
+      <!-- Tableau comparatif -->
+      <table style="width:100%;font-size:10px;border-collapse:collapse;">
+        <thead>
+          <tr style="background:#f8fafc;">
+            <th style="text-align:left;padding:6px 8px;color:#64748b;font-weight:700;border-bottom:1px solid #e2e8f0;">SERVICE INCLUS</th>
+            <th style="text-align:center;padding:6px;color:#15803d;font-weight:800;border-bottom:1px solid #e2e8f0;">ESSENTIEL</th>
+            <th style="text-align:center;padding:6px;color:#1d4ed8;font-weight:800;border-bottom:1px solid #e2e8f0;">CONFORT</th>
+            <th style="text-align:center;padding:6px;color:#b45309;font-weight:800;border-bottom:1px solid #e2e8f0;">PREMIUM</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${[
+            ['Entretien annuel','✓','✓','✓'],
+            ['Mise en sécurité','✓','✓','✓'],
+            ['Réglage brûleur / circuit','✓','✓','✓'],
+            ['Rapport entretien','✓','✓','✓'],
+            ['Dépannage prioritaire','—','✓','✓'],
+            ['Déplacement inclus','—','✓','✓'],
+            ['Main-d\'œuvre incluse','—','✓','✓'],
+            ['Remise pièces 15-20%','—','—','✓'],
+            ['Remise factures annuelles','—','—','✓'],
+          ].map(r=>`<tr><td style="padding:5px 8px;border-bottom:1px solid #f1f5f9;color:#374151;">${r[0]}</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;color:${r[1]==='✓'?'#16a34a':'#94a3b8'};">${r[1]}</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;color:${r[2]==='✓'?'#2563eb':'#94a3b8'};">${r[2]}</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;color:${r[3]==='✓'?'#d97706':'#94a3b8'};">${r[3]}</td></tr>`).join('')}
+        </tbody>
+      </table>
+      <!-- Tarifs par équipement -->
+      <div style="margin-top:12px;font-size:10px;font-weight:800;color:#0d2d52;letter-spacing:1px;margin-bottom:6px;">NOS TARIFS PAR ÉQUIPEMENT (TTC)</div>
+      <table style="width:100%;font-size:10px;border-collapse:collapse;">
+        <thead><tr style="background:#f8fafc;"><th style="text-align:left;padding:6px 8px;color:#64748b;border-bottom:1px solid #e2e8f0;">Équipement</th><th style="text-align:center;padding:6px;color:#15803d;border-bottom:1px solid #e2e8f0;">ESSENTIEL</th><th style="text-align:center;padding:6px;color:#1d4ed8;border-bottom:1px solid #e2e8f0;">CONFORT</th><th style="text-align:center;padding:6px;color:#b45309;border-bottom:1px solid #e2e8f0;">PREMIUM</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:5px 8px;border-bottom:1px solid #f1f5f9;">🔥 Chaudière</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">149€</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">199€</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">279€</td></tr>
+          <tr style="background:#f8fafc;"><td style="padding:5px 8px;border-bottom:1px solid #f1f5f9;">♨️ Pompe à chaleur</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">189€</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">249€</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">329€</td></tr>
+          <tr><td style="padding:5px 8px;border-bottom:1px solid #f1f5f9;">❄️ Climatisation</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">139€</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">199€</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">269€</td></tr>
+          <tr style="background:#f8fafc;"><td style="padding:5px 8px;border-bottom:1px solid #f1f5f9;">💧 Ballon thermo.</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">129€</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">179€</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">249€</td></tr>
+          <tr><td style="padding:5px 8px;">🚰 Adoucisseur</td><td style="text-align:center;padding:5px;font-weight:700;">119€</td><td style="text-align:center;padding:5px;font-weight:700;">169€</td><td style="text-align:center;padding:5px;font-weight:700;">219€</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FORMULAIRE NOUVEAU CONTRAT -->
+  <div style="background:#fff;border:1.5px solid #dde3ec;border-top:3px solid #3a8c30;border-radius:14px;padding:16px;margin-bottom:16px;">
+    <div style="font-size:10px;font-weight:800;color:#3a8c30;letter-spacing:1.5px;margin-bottom:12px;">NOUVEAU CONTRAT</div>
+
+    <!-- Recherche client -->
+    <div style="position:relative;margin-bottom:8px;">
+      <input type="text" id="dct-search" placeholder="🔍 Rechercher un client (nom, tél, adresse)..." oninput="rechercherClientContratD(this.value)" style="width:100%;background:#f7f9fc;border:1.5px solid #dde3ec;border-radius:10px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;">
+      <div id="dct-search-results" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid #3a8c30;border-radius:10px;z-index:50;max-height:180px;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.12);"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+      <input type="text" id="dct-client" placeholder="Nom du client *" style="background:#f7f9fc;border:1.5px solid #dde3ec;border-radius:10px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;">
+      <input type="tel" id="dct-tel" placeholder="Téléphone" style="background:#f7f9fc;border:1.5px solid #dde3ec;border-radius:10px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;">
+    </div>
+    <input type="text" id="dct-adresse" placeholder="Adresse d'intervention" style="width:100%;background:#f7f9fc;border:1.5px solid #dde3ec;border-radius:10px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;margin-bottom:8px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+      <input type="email" id="dct-email" placeholder="Email client (pour envoi)" style="background:#f7f9fc;border:1.5px solid #dde3ec;border-radius:10px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;">
+      <select id="dct-tech" style="background:#f7f9fc;border:1.5px solid #dde3ec;border-radius:10px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;cursor:pointer;"></select>
+    </div>
+
+    <!-- Équipement -->
+    <div style="font-size:10px;font-weight:800;color:#64748b;letter-spacing:1px;margin-bottom:6px;">ÉQUIPEMENT</div>
+    <select id="dct-equip" onchange="calcPrixContratD()" style="width:100%;background:#f7f9fc;border:1.5px solid #dde3ec;border-radius:10px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;cursor:pointer;margin-bottom:12px;">
+      <option value="">— Choisir l'équipement —</option>
+      <option value="Chaudière">🔥 Chaudière (gaz / fioul / condensation)</option>
+      <option value="Pompe à chaleur">♨️ Pompe à chaleur (PAC air/eau)</option>
+      <option value="Climatisation">❄️ Climatisation (PAC air/air)</option>
+      <option value="Ballon thermodynamique">💧 Ballon thermodynamique</option>
+      <option value="Adoucisseur d'eau">🚰 Adoucisseur d'eau</option>
+    </select>
+
+    <!-- Formules -->
+    <div style="font-size:10px;font-weight:800;color:#64748b;letter-spacing:1px;margin-bottom:8px;">FORMULE</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
+      <div id="dctf-Essentiel" onclick="selectFormuleD('Essentiel')" style="border:2px solid #e2e8f0;border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all 0.2s;">
+        <div style="font-size:10px;font-weight:800;color:#64748b;letter-spacing:1px;">ESSENTIEL</div>
+        <div id="dctfp-Essentiel" style="font-size:18px;font-weight:800;color:#0d2d52;margin:6px 0;">—</div>
+        <div style="font-size:9px;color:#94a3b8;">Entretien annuel</div>
+      </div>
+      <div id="dctf-Confort" onclick="selectFormuleD('Confort')" style="border:2px solid #3b82f6;border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;background:#eff6ff;position:relative;transition:all 0.2s;">
+        <div style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:#3b82f6;color:#fff;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;white-space:nowrap;">Le + choisi</div>
+        <div style="font-size:10px;font-weight:800;color:#1d4ed8;letter-spacing:1px;">CONFORT</div>
+        <div id="dctfp-Confort" style="font-size:18px;font-weight:800;color:#1d4ed8;margin:6px 0;">—</div>
+        <div style="font-size:9px;color:#3b82f6;">+ priorité panne</div>
+      </div>
+      <div id="dctf-Premium" onclick="selectFormuleD('Premium')" style="border:2px solid #e2e8f0;border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all 0.2s;">
+        <div style="font-size:10px;font-weight:800;color:#64748b;letter-spacing:1px;">PREMIUM ⭐</div>
+        <div id="dctfp-Premium" style="font-size:18px;font-weight:800;color:#0d2d52;margin:6px 0;">—</div>
+        <div style="font-size:9px;color:#94a3b8;">+ remise pièces</div>
+      </div>
+    </div>
+    <input type="hidden" id="dct-formule" value="Confort">
+
+    <!-- Prix -->
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:11px;color:#15803d;font-weight:600;">Montant annuel TTC</div>
+      <div style="font-size:22px;font-weight:800;color:#15803d;" id="dct-prix-display">—</div>
+    </div>
+
+    <!-- Mode de paiement -->
+    <div style="font-size:10px;font-weight:800;color:#64748b;letter-spacing:1px;margin-bottom:6px;">MODE DE PAIEMENT</div>
+    <div style="display:flex;gap:6px;margin-bottom:12px;">
+      <button id="dct-mode-cb" onclick="selModeContratD('CB')" style="flex:1;background:#0d2d52;color:#fff;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer;">💳 CB</button>
+      <button id="dct-mode-vir" onclick="selModeContratD('Virement')" style="flex:1;background:#f1f5f9;color:#64748b;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer;">🏦 Virement</button>
+      <button id="dct-mode-chq" onclick="selModeContratD('Chèque')" style="flex:1;background:#f1f5f9;color:#64748b;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer;">📝 Chèque</button>
+      <button id="dct-mode-prel" onclick="selModeContratD('Prélèvement')" style="flex:1;background:#f1f5f9;color:#64748b;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer;">🔄 Prélèvement</button>
+    </div>
+    <input type="hidden" id="dct-mode" value="CB">
+
+    <textarea id="dct-notes" placeholder="Notes / observations..." style="width:100%;background:#f7f9fc;border:1.5px solid #dde3ec;border-radius:10px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;height:64px;resize:none;margin-bottom:12px;"></textarea>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <button onclick="sauvegarderContratD()" style="background:linear-gradient(135deg,#3a8c30,#5ab048);color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">✅ Valider le contrat</button>
+      <button onclick="genererContratPDFD()" style="background:linear-gradient(135deg,#0d2d52,#1a4a7a);color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">📄 Aperçu PDF</button>
+    </div>
+  </div>
+
+  <!-- LISTE CONTRATS -->
+  <div style="font-size:10px;font-weight:800;color:#64748b;letter-spacing:1.5px;margin-bottom:8px;">CONTRATS CRÉÉS</div>
+  <div id="liste-contrats-d"></div>
+</div>
+
 <div id="page-rappels" class="hidden">
   <div style="font-weight:700;color:#0d2d52;font-size:13px;margin-bottom:4px;">🔔 Rappels &amp; relances</div>
   <div style="color:#64748b;font-size:11px;margin-bottom:14px;">Calculé automatiquement depuis devis, contrats et rapports</div>
+
+  <!-- Section rappels SMS demain — Point 1 -->
+  <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:14px;margin-bottom:14px;">
+    <div style="font-size:11px;font-weight:800;color:#16a34a;letter-spacing:1px;margin-bottom:10px;">📱 RAPPELS SMS — RDV DE DEMAIN</div>
+    <button onclick="envoyerTousRappelsSMS()" style="width:100%;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:10px;padding:12px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;margin-bottom:12px;">📱 Envoyer tous les rappels de demain</button>
+    <div id="rappels-sms-resume" style="display:none;background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;color:#15803d;margin-bottom:10px;"></div>
+    <div id="rappels-sms-demain-list"></div>
+  </div>
+
   <div id="rappels-list"></div>
 </div>
 
@@ -1051,8 +1101,6 @@ var TECH_C = {"Technicien 1":{c:"#2d6a9f",a:"T1",bg:"#dbeafe"}, "Technicien 2":{
 var STATUT_C = {"Disponible":"#16a34a","En intervention":"#c2410c","Pause":"#a16207","Indisponible":"#dc2626"};
 var filtreRap = "tous";
 var expandedRap = null;
-var _prevAPlanifier = -1;
-var _prevRapportCount = -1;
 
 function todayStr(){return new Date().toISOString().split("T")[0];}
 function getRdvs(){return JSON.parse(localStorage.getItem("pl_rdvs")||"[]");}
@@ -1125,8 +1173,8 @@ function renderKpiOperateurs(){
     ops[r.operateur].ca+=(r.prixVente||0);
   });
   var list=Object.values(ops).sort(function(a,b){return b.ca-a.ca;});
-  if(!list.length){d.innerHTML='<div style="color:rgba(255,255,255,0.4);font-size:11px;padding:4px 0;">Aucune donnée</div>';return;}
-  d.innerHTML=list.map(function(op){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.08);"><div style="font-weight:700;font-size:11px;color:#fff;">'+op.nom+'</div><div style="font-weight:800;color:#7bc144;font-size:12px;">'+op.ca.toLocaleString('fr-FR')+'€</div></div>';}).join('');
+  if(!list.length){d.innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px 0;">Aucune donnée opérateur aujourd\'hui</div>';return;}
+  d.innerHTML=list.map(function(op){return '<div class="tr"><div><div style="font-weight:700;font-size:13px;">'+op.nom+'</div><div style="font-size:11px;color:var(--muted);">'+op.rdvs+' RDV créés aujourd\'hui</div></div><div style="text-align:right;"><div style="font-weight:800;color:var(--green);font-size:15px;">'+op.ca.toLocaleString('fr-FR')+' €</div></div></div>';}).join('');
 }
 
 /* ── CLIENTS — see improved version below ── */
@@ -1162,10 +1210,6 @@ function lancerApp(){
   document.getElementById('ng-tableau')?.classList.add('active');
   document.getElementById('sub-nav-d').innerHTML='';
   demarrerHorloge();
-  // Init tracking counters pour notifications intelligentes
-  _prevAPlanifier=getRdvs().filter(function(r){return r.technicien==='À planifier'&&r.statut!=='Termine'&&r.statut!=='Annule';}).length;
-  _prevRapportCount=getRapports().length;
-  updateTodoBadgeDispatch();
   // Afficher le nom de l'opérateur dans le header
   if(currentOperateur){
     var hOp=document.getElementById('header-operateur');
@@ -1195,33 +1239,17 @@ function lancerApp(){
       if(!document.getElementById('page-devis').classList.contains('hidden'))renderDevis();
     }
     if(e.key==='pl_rapports'){
-      var raps=getRapports();
-      var nb=raps.length;
+      var nb=getRapports().length;
       document.getElementById('hdr-count').textContent=nb;
-      if(_prevRapportCount>=0&&nb>_prevRapportCount){
-        var newest2=raps[raps.length-1];
-        showNotif('📝 Rapport reçu de '+(newest2?newest2.technicien+' — '+newest2.clientNom:'un technicien')+' ! À valider.');
-      }
-      _prevRapportCount=nb;
-      actualiserTout();updateTodoBadgeDispatch();
-      if(!document.getElementById('page-todo').classList.contains('hidden'))renderToDoDispatch();
+      showNotif('Rapport recu d\'un technicien !');
+      actualiserTout();
       if(!document.getElementById('page-validation').classList.contains('hidden'))renderValidation();
     }
-    if(e.key==='pl_rdvs'){
-      actualiserTout();renderDispatchKPI();updateTodoBadgeDispatch();
-      if(!document.getElementById('page-todo').classList.contains('hidden'))renderToDoDispatch();
-      var apNow=getRdvs().filter(function(r){return r.technicien==='À planifier'&&r.statut!=='Termine'&&r.statut!=='Annule';});
-      if(_prevAPlanifier>=0&&apNow.length>_prevAPlanifier){
-        var newest=apNow[apNow.length-1];
-        showNotif('📞 Nouveau RDV à planifier : '+(newest?newest.clientNom+' — '+newest.type:''));
-      }
-      _prevAPlanifier=apNow.length;
-    }
+    if(e.key==='pl_rdvs'){actualiserTout();renderDispatchKPI();}
     if(e.key==='pl_urgences'){
-      updateNavBadges();updateTodoBadgeDispatch();
+      updateNavBadges();
       if(!document.getElementById('page-urgences').classList.contains('hidden'))renderUrgences();
       if(!document.getElementById('page-dashboard').classList.contains('hidden'))renderDashboard();
-      if(!document.getElementById('page-todo').classList.contains('hidden'))renderToDoDispatch();
       var actives=getUrgences().filter(function(u){return u.statut!=='Resolu';});
       if(actives.length)showNotif('Urgence : '+actives[0].clientNom+' — '+actives[0].type);
     }
@@ -1240,10 +1268,6 @@ function lancerApp(){
     if(e.key==='pl_chat'){
       var msgs=JSON.parse(localStorage.getItem('pl_chat')||'[]');
       if(msgs.length>0){var last=msgs[msgs.length-1];if(last.role==='TECHNICIEN')showNotif('Message de '+last.from+' : '+last.text.slice(0,40));}
-    }
-    if(e.key==='pl_factures_sec'){
-      var fact_tab=document.getElementById('fact-tab-content');
-      if(fact_tab&&fact_tab.style.display!=='none')renderFacturesDispatch();
     }
   });
   setInterval(function(){actualiserDispos();if(!document.getElementById("page-dashboard").classList.contains("hidden"))renderDashboard();},10000);
@@ -1304,6 +1328,100 @@ function checkRappelsSMS(){
   }
 }
 
+/* ── RAPPELS SMS DEMAIN — Point 1 ── */
+function renderRappelsSMSDemain(){
+  var demain=new Date();demain.setDate(demain.getDate()+1);
+  var dStr=demain.toISOString().slice(0,10);
+  var rdvsDemain=getRdvs().filter(function(r){return r.dateRdv===dStr&&r.statut!=='Annule'&&r.clientTel;});
+  var envoyes=JSON.parse(localStorage.getItem('pl_rappels_sms')||'{}');
+  var listEl=document.getElementById('rappels-sms-demain-list');
+  if(!listEl)return;
+  if(!rdvsDemain.length){
+    listEl.innerHTML='<div style="color:#64748b;font-size:12px;text-align:center;padding:12px;">Aucun RDV avec téléphone pour demain</div>';
+    return;
+  }
+  var html='';
+  rdvsDemain.sort(function(a,b){return (a.heureRdv||'').localeCompare(b.heureRdv||'');}).forEach(function(rdv){
+    var key='rappel_'+rdv.id;
+    var envoye=!!envoyes[key];
+    html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:'+(envoye?'#f0fdf4':'#fff')+';border:1.5px solid '+(envoye?'#86efac':'#e2e8f0')+';border-radius:10px;margin-bottom:8px;">'
+      +'<div style="flex:1;">'
+        +'<div style="font-size:13px;font-weight:700;color:#0d2d52;">'+rdv.clientNom+'</div>'
+        +'<div style="font-size:11px;color:#64748b;">'+(rdv.heureRdv||'—')+' · '+rdv.technicien+'</div>'
+        +'<div style="font-size:10px;color:#94a3b8;">'+rdv.clientTel+'</div>'
+      +'</div>'
+      +(envoye
+        ?'<div style="color:#16a34a;font-size:12px;font-weight:700;">SMS envoyé ✓</div>'
+        :'<button onclick="envoyerRappelSMSUnique('+rdv.id+')" style="background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">📱 Envoyer SMS</button>'
+      )
+      +'</div>';
+  });
+  listEl.innerHTML=html;
+}
+
+async function envoyerRappelSMSUnique(rdvId){
+  var rdv=getRdvs().find(function(r){return r.id===rdvId;});
+  if(!rdv||!rdv.clientTel){showNotif('RDV introuvable ou sans téléphone');return;}
+  var ref='INT-'+(String(rdv.id).slice(-5));
+  try{
+    await fetch('/api/sms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:rdv.clientTel,type:'rappel_j1',data:{date:rdv.dateRdv,heure:rdv.heureRdv,technicien:rdv.technicien,ref:ref}})});
+    var envoyes=JSON.parse(localStorage.getItem('pl_rappels_sms')||'{}');
+    envoyes['rappel_'+rdvId]=new Date().toISOString();
+    localStorage.setItem('pl_rappels_sms',JSON.stringify(envoyes));
+    showNotif('📱 SMS rappel envoyé à '+rdv.clientNom);
+    renderRappelsSMSDemain();
+  }catch(e){showNotif('Erreur envoi SMS');}
+}
+
+async function envoyerTousRappelsSMS(){
+  var demain=new Date();demain.setDate(demain.getDate()+1);
+  var dStr=demain.toISOString().slice(0,10);
+  var rdvsDemain=getRdvs().filter(function(r){return r.dateRdv===dStr&&r.statut!=='Annule'&&r.clientTel;});
+  var envoyes=JSON.parse(localStorage.getItem('pl_rappels_sms')||'{}');
+  var nonEnvoyes=rdvsDemain.filter(function(r){return !envoyes['rappel_'+r.id];});
+  if(!nonEnvoyes.length){
+    var resumeEl=document.getElementById('rappels-sms-resume');
+    if(resumeEl){resumeEl.style.display='block';resumeEl.textContent='Tous les rappels ont déjà été envoyés ✓';}
+    return;
+  }
+  var compteur=0;
+  for(var i=0;i<nonEnvoyes.length;i++){
+    var rdv=nonEnvoyes[i];
+    var ref='INT-'+(String(rdv.id).slice(-5));
+    try{
+      await fetch('/api/sms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:rdv.clientTel,type:'rappel_j1',data:{date:rdv.dateRdv,heure:rdv.heureRdv,technicien:rdv.technicien,ref:ref}})});
+      envoyes['rappel_'+rdv.id]=new Date().toISOString();
+      compteur++;
+    }catch(e){}
+  }
+  localStorage.setItem('pl_rappels_sms',JSON.stringify(envoyes));
+  var resumeEl=document.getElementById('rappels-sms-resume');
+  if(resumeEl){resumeEl.style.display='block';resumeEl.textContent=compteur+' rappel(s) SMS envoyé(s) ✓';}
+  renderRappelsSMSDemain();
+  showNotif(compteur+' rappels SMS envoyés !');
+
+}
+
+/* ── MAJORATIONS TARIFAIRES — Point 2 ── */
+function calculerMajoration(){
+  var nuit=document.getElementById('maj-nuit')&&document.getElementById('maj-nuit').checked;
+  var weekend=document.getElementById('maj-weekend')&&document.getElementById('maj-weekend').checked;
+  var urgence2h=document.getElementById('maj-urgence2h')&&document.getElementById('maj-urgence2h').checked;
+  var total=(nuit?80:0)+(weekend?50:0)+(urgence2h?60:0);
+  var el=document.getElementById('maj-total');
+  if(!el)return;
+  if(total>0){
+    el.style.display='block';
+    var parts=[];
+    if(nuit)parts.push('Nuit +80€');
+    if(weekend)parts.push('Weekend +50€');
+    if(urgence2h)parts.push('Urgence <2h +60€');
+    el.textContent='Total majorations : +'+total+'€ ('+parts.join(' + ')+')';
+  }else{
+    el.style.display='none';
+  }
+}
+
 function logout(){
   localStorage.removeItem("pl_dispatch_session");
   document.getElementById("login").classList.remove("hidden");
@@ -1342,9 +1460,9 @@ function renderTousRdvs(){
   var lundi=new Date(now);lundi.setDate(now.getDate()-now.getDay()+1);lundi.setHours(0,0,0,0);
   var dimanche=new Date(lundi);dimanche.setDate(lundi.getDate()+6);
 
-  var rdvs=all.filter(function(r){return r.statut!=='Annule';});
-  if(filtreRdvPeriode==='auj')rdvs=rdvs.filter(function(r){return r.dateRdv===todayStr();});
-  if(filtreRdvPeriode==='sem')rdvs=rdvs.filter(function(r){var d=new Date(r.dateRdv+'T12:00');return d>=lundi&&d<=dimanche;});
+  var rdvs=all;
+  if(filtreRdvPeriode==='auj')rdvs=all.filter(function(r){return r.dateRdv===todayStr();});
+  if(filtreRdvPeriode==='sem')rdvs=all.filter(function(r){var d=new Date(r.dateRdv+'T12:00');return d>=lundi&&d<=dimanche;});
   if(filtreRdvTech!=='all')rdvs=rdvs.filter(function(r){return r.technicien===filtreRdvTech;});
   else rdvs=rdvs.filter(function(r){return r.technicien!=='À planifier';});
 
@@ -1373,15 +1491,13 @@ function renderTousRdvs(){
       lastDate=r.dateRdv;
       html+='<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;padding:10px 0 6px;border-top:'+(i>0?'2px solid var(--border)':'')+'">'+(r.dateRdv===todayStr()?'📅 ':'')+dateLabel+'</div>';
     }
-    var modifs=r.modifs||[];
-    html+='<div onclick="ouvrirModalRdv('+r.id+')" style="background:#fff;border:1px solid var(--border);border-left:4px solid '+sc+';border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow);cursor:pointer;transition:box-shadow 0.15s;" onmouseover="this.style.boxShadow=\'0 4px 16px rgba(0,0,0,0.12)\'" onmouseout="this.style.boxShadow=\'var(--shadow)\'">';
+    html+='<div style="background:#fff;border:1px solid var(--border);border-left:4px solid '+sc+';border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow);">';
     html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">';
     html+='<div style="flex:1;">';
     html+='<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px;">';
     html+='<span style="color:var(--blue2);font-weight:800;font-size:15px;">'+r.heureRdv+'</span>';
     html+='<span style="font-size:9px;color:var(--muted);font-weight:700;background:#f1f5f9;border-radius:4px;padding:2px 6px;">'+genIntIdD(r)+'</span>';
     html+='<span style="background:'+sc+'18;color:'+sc+';border:1px solid '+sc+'30;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;">'+r.statut.toUpperCase()+'</span>';
-    if(modifs.length)html+='<span style="background:#fef3c7;color:#92400e;border-radius:5px;padding:1px 7px;font-size:9px;font-weight:700;">✏️ '+modifs.length+' modif.</span>';
     html+='</div>';
     html+='<div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:2px;">'+r.clientNom+'</div>';
     html+='<div style="color:var(--muted);font-size:12px;">'+r.type+'</div>';
@@ -1391,8 +1507,14 @@ function renderTousRdvs(){
     html+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">';
     html+='<div style="color:var(--green);font-weight:800;font-size:16px;">'+r.prixVente+' EUR</div>';
     html+='<div style="width:30px;height:30px;border-radius:8px;background:'+tc.bg+';border:1.5px solid '+tc.c+';color:'+tc.c+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;">'+tc.a+'</div>';
-    html+='<span style="font-size:9px;color:#94a3b8;font-weight:600;">Appuyer →</span>';
-    html+='</div></div></div>';
+    html+='</div></div>';
+    html+='<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">';
+    html+='<button class="btn btn-b" style="padding:6px 12px;font-size:11px;" onclick="window.open(\'tel:'+r.clientTel+'\')">📞 Appeler</button>';
+    html+='<button class="btn btn-b" style="padding:6px 12px;font-size:11px;" onclick="window.open(\'https://maps.google.com/?q='+encodeURIComponent(r.adresse)+'\',\'_blank\')">🗺 GPS</button>';
+    if(!isDone)html+='<button class="btn btn-green" style="padding:6px 12px;font-size:11px;" onclick="marquerRdvTermine('+r.id+')">✓ Terminer</button>';
+    html+='<button class="btn btn-r" style="padding:6px 12px;font-size:11px;" onclick="supprimerRdv('+r.id+')">Supprimer</button>';
+    html+='<button class="btn btn-gray" style="padding:6px 12px;font-size:11px;" onclick="imprimerBDI(getRdvs().find(function(x){return x.id==='+r.id+';}))">🖨️ BDI</button>';
+    html+='</div></div>';
   }
   document.getElementById('liste-tous-rdv').innerHTML=html;
 }
@@ -1451,9 +1573,7 @@ function renderAPlanifier(){
     html+='<div style="flex:1;">';
     html+='<div style="font-weight:700;font-size:13px;color:#1e1b4b;">'+r.clientNom+'</div>';
     html+='<div style="color:#6d28d9;font-size:12px;font-weight:600;">'+r.type+'</div>';
-    html+='<div style="color:#64748b;font-size:11px;margin-top:2px;">📥 Prise en charge : '+(r.datePriseRdv||r.dateRdv)+'</div>';
-    if(r.dateSouhaitee)html+='<div style="color:#7c3aed;font-size:11px;font-weight:700;">📅 Souhaité : '+r.dateSouhaitee+(r.heureSouhaitee?' à '+r.heureSouhaitee:'')+'</div>';
-    html+='<div style="color:#64748b;font-size:11px;margin-top:2px;">📍 '+r.adresse+'</div>';
+    html+='<div style="color:#64748b;font-size:11px;margin-top:2px;">📅 '+r.dateRdv+' à '+r.heureRdv+' &nbsp;·&nbsp; 📍 '+r.adresse+'</div>';
     if(r.notes)html+='<div style="color:#7c3aed;font-size:11px;margin-top:2px;font-style:italic;">📝 '+r.notes+'</div>';
     html+='</div>';
     html+='<div style="font-weight:800;color:#059669;font-size:15px;white-space:nowrap;">'+r.prixVente+' €</div>';
@@ -1524,7 +1644,6 @@ function updateNavBadges(){
 
 var NAV_GROUPS_D={
   rdv:[
-    {p:'appels',label:'📞 Appels',id:'nav-appels-d'},
     {p:'nouveau-rdv',label:'+ Nouveau RDV'},
     {p:'tous-rdv',label:'📋 Tous RDV',id:'nav-tous-rdv'},
     {p:'dispos',label:'👷 Équipe'},
@@ -1538,7 +1657,14 @@ var NAV_GROUPS_D={
     {p:'rappels',label:'🔔 Rappels',id:'nav-rappels'},
   ],
   commercial:[
-    {p:'devis',label:'💼 Devis / Facturation',id:'nav-devis'},
+    {p:'devis',label:'💼 Devis',id:'nav-devis'},
+    {p:'contrats-d',label:'📋 Contrats',id:'nav-contrats-d'},
+    {p:'appels',label:'📞 Appels'},
+  ],
+  pilotage:[
+    {p:'perf-ca',label:'📈 CA Techs',id:'nav-perf-ca'},
+    {p:'perf-planning',label:'📅 Remplissage',id:'nav-perf-planning'},
+    {p:'perf-mandants',label:'🏢 Mandants',id:'nav-perf-mandants'},
   ],
 };
 var _dpPage='dashboard',_dpGroup=null;
@@ -1558,7 +1684,7 @@ function showGroupD(g){
   if(!items.some(function(i){return i.p===_dpPage;})&&items.length)showPage(items[0].p);
 }
 function showPage(page){
-  var pages=["dashboard","dispos","urgences","nouveau-rdv","tous-rdv","validation","rapports","sav","devis","facturation","procedures","infos","clients","appels","stock","compta","gantt","passation","rappels","todo"];
+  var pages=["dashboard","dispos","urgences","nouveau-rdv","tous-rdv","validation","rapports","sav","devis","facturation","procedures","infos","clients","appels","stock","compta","gantt","passation","rappels","contrats-d","perf-ca","perf-planning","perf-mandants"];
   for(var i=0;i<pages.length;i++){var el=document.getElementById("page-"+pages[i]);if(el)el.classList.add("hidden");}
   var pageEl=document.getElementById("page-"+page);if(pageEl)pageEl.classList.remove("hidden");
   _dpPage=page;
@@ -1581,7 +1707,6 @@ function showPage(page){
     if(page==='dashboard')document.getElementById('ng-tableau')?.classList.add('active');
     if(page==='urgences')document.getElementById('ng-urgences')?.classList.add('active');
     if(page==='procedures')document.getElementById('ng-procedures')?.classList.add('active');
-    if(page==='todo')document.getElementById('ng-todo-d')?.classList.add('active');
   }
   if(page==="dashboard")renderDashboard();
   if(page==="dispos"){actualiserDispos();renderPlanningJour();initDispatchCarte();}
@@ -1590,7 +1715,7 @@ function showPage(page){
   if(page==="validation")renderValidation();
   if(page==="rapports")renderRapports();
   if(page==="sav")renderSavs();
-  if(page==="devis"){switchDevisTab('devis');renderDevis();}
+  if(page==="devis")renderDevis();
   if(page==="facturation")renderFacturation();
   if(page==="procedures")renderProcedures();
   if(page==="infos")renderInfos();
@@ -1601,7 +1726,10 @@ function showPage(page){
   if(page==='gantt')renderGantt();
   if(page==='passation')renderPassation();
   if(page==='rappels')renderRappels();
-  if(page==="todo")renderToDoDispatch();
+  if(page==='contrats-d')renderContratsD();
+  if(page==='perf-ca')renderPerfCA();
+  if(page==='perf-planning')renderPerfPlanning();
+  if(page==='perf-mandants')renderPerfMandants();
 }
 
 // STOCK PIÈCES
@@ -2271,7 +2399,7 @@ function actualiserDispos(){
 }
 
 function renderPlanningJour(){
-  var rdvs=getRdvs().filter(function(r){return r.dateRdv===todayStr()&&r.statut!=='Annule';}).sort(function(a,b){return a.heureRdv.localeCompare(b.heureRdv);});
+  var rdvs=getRdvs().filter(function(r){return r.dateRdv===todayStr();}).sort(function(a,b){return a.heureRdv.localeCompare(b.heureRdv);});
   if(!rdvs.length){document.getElementById("planning-jour").innerHTML='<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">📭</div>Aucun RDV aujourd\'hui</div>';return;}
   var html="";
   for(var i=0;i<rdvs.length;i++){
@@ -2298,16 +2426,12 @@ function creerRdv(){
   var codeDossier=(document.getElementById("rdv-code-dossier")&&document.getElementById("rdv-code-dossier").value.trim())||"";
   var canal=(document.getElementById("rdv-canal")&&document.getElementById("rdv-canal").value)||"Appel entrant";
   var operateurNom=currentOperateur?currentOperateur.nom:"Opérateur";
-  var tech=document.getElementById("rdv-tech").value;
-  var isAPlanifier=tech==='À planifier';
-  var dateSouhaitee=isAPlanifier?(document.getElementById("rdv-date-souhaitee")&&document.getElementById("rdv-date-souhaitee").value)||'':'';
-  var heureSouhaitee=isAPlanifier?(document.getElementById("rdv-heure-souhaitee")&&document.getElementById("rdv-heure-souhaitee").value)||'':'';
-  var rdv={id:Date.now(),clientNom:nom,clientTel:tel,adresse:adresse,type:document.getElementById("rdv-type").value,
-    dateRdv:isAPlanifier?todayStr():document.getElementById("rdv-date").value,
-    datePriseRdv:isAPlanifier?todayStr():'',
-    dateSouhaitee:dateSouhaitee,heureSouhaitee:heureSouhaitee,
-    heureRdv:isAPlanifier?'':document.getElementById("rdv-heure").value,
-    technicien:tech,prixVente:Number(prix),statut:"Confirme",notes:document.getElementById("rdv-notes").value.trim(),mandant:mandant,bonCmd:bonCmd,codeDossier:codeDossier,canal:canal,creePar:operateurNom,operateur:operateurNom,creeAt:new Date().toISOString()};
+  var majNuit=document.getElementById('maj-nuit')&&document.getElementById('maj-nuit').checked;
+  var majWeekend=document.getElementById('maj-weekend')&&document.getElementById('maj-weekend').checked;
+  var majUrgence2h=document.getElementById('maj-urgence2h')&&document.getElementById('maj-urgence2h').checked;
+  var majTotal=(majNuit?80:0)+(majWeekend?50:0)+(majUrgence2h?60:0);
+  var rdv={id:Date.now(),clientNom:nom,clientTel:tel,adresse:adresse,type:document.getElementById("rdv-type").value,dateRdv:document.getElementById("rdv-date").value,heureRdv:document.getElementById("rdv-heure").value,technicien:document.getElementById("rdv-tech").value,prixVente:Number(prix),statut:"Confirme",notes:document.getElementById("rdv-notes").value.trim(),mandant:mandant,bonCmd:bonCmd,codeDossier:codeDossier,canal:canal,creePar:operateurNom,operateur:operateurNom,creeAt:new Date().toISOString(),
+    majoration:{nuit:majNuit,weekend:majWeekend,urgence2h:majUrgence2h,total:majTotal}};
   var rdvs=getRdvs();rdvs.push(rdv);saveRdvs(rdvs);
   // Mettre à jour la base clients
   upsertClient(nom,tel,adresse);
@@ -2322,12 +2446,10 @@ function creerRdv(){
   var sugg=document.getElementById("rdv-client-suggestions");if(sugg)sugg.innerHTML="";
   var aar=document.getElementById("auto-assign-result");if(aar)aar.style.display="none";
   document.getElementById("rdv-date").value=todayStr();
-  var lbl=document.getElementById('rdv-date-label');if(lbl)lbl.textContent='DATE RDV';
-  var sf=document.getElementById('rdv-souhaitee-field');if(sf)sf.classList.add('hidden');
-  var hf=document.getElementById('rdv-heure-field');if(hf)hf.style.display='';
-  var ds=document.getElementById('rdv-date-souhaitee');if(ds)ds.value='';
-  var hs=document.getElementById('rdv-heure-souhaitee');if(hs)hs.value='';
   if(document.getElementById("rdv-mandant"))document.getElementById("rdv-mandant").value="";
+  // Reset majorations
+  ['maj-nuit','maj-weekend','maj-urgence2h'].forEach(function(id){var e=document.getElementById(id);if(e)e.checked=false;});
+  var majEl=document.getElementById('maj-total');if(majEl)majEl.style.display='none';
   showNotif("RDV cree pour "+nom+" !");actualiserTout();
   if(rdv.clientTel&&rdv.technicien!=='À planifier'){
     var msg='GreenFlow Technologies : RDV confirmé le '+rdv.dateRdv+' à '+rdv.heureRdv+'. Technicien : '+rdv.technicien+'. Adresse : '+rdv.adresse+'. Pour toute question : 📞 [VOTRE_NUMÉRO]';
@@ -2431,6 +2553,8 @@ function renderValidation(){
   html+='<div style="display:flex;gap:8px;flex-wrap:wrap;">';
   html+='<button class="btn btn-green" onclick="validerRapport(\''+r.clientNom+'\',\''+r.date+'\','+i+')">✅ Valider</button>';
   html+='<button class="btn btn-red" onclick="refuserRapport(\''+r.clientNom+'\',\''+r.date+'\','+i+')">❌ Refuser</button>';
+  html+='<button class="btn btn-blue" onclick="ouvrirSigD('+(r.rdvId||'null')+')" style="font-size:11px;">✍️ Signature</button>';
+  if(r.signature)html+='<img src="'+r.signature+'" style="height:32px;border:1px solid #e2e8f0;border-radius:6px;" title="Signé">';
   html+='</div></div>';
 }
 
@@ -2553,16 +2677,6 @@ document.getElementById("liste-sav").innerHTML=html;
 function resoudreSav(i){var s=getSavs();s[i].statut="Resolu";s[i].resoluAt=new Date().toISOString();saveSavs(s);renderSavs();showNotif("SAV resolu !");}
 function supprimerSav(i){var s=getSavs();s.splice(i,1);saveSavs(s);renderSavs();}
 
-function switchDevisTab(tab){
-  var isDevis=tab==='devis';
-  document.getElementById('devis-tab-content').style.display=isDevis?'':'none';
-  document.getElementById('fact-tab-content').style.display=isDevis?'none':'';
-  var btnD=document.getElementById('tab-devis-btn');
-  var btnF=document.getElementById('tab-fact-btn');
-  if(btnD){btnD.style.background=isDevis?'#0d2d52':'none';btnD.style.color=isDevis?'#fff':'#64748b';}
-  if(btnF){btnF.style.background=isDevis?'none':'#0d2d52';btnF.style.color=isDevis?'#64748b':'#fff';}
-  if(!isDevis)renderFacturation();
-}
 function renderDevis(){
 // Init validite date par defaut
 var vEl=document.getElementById('devis-validite');
@@ -2582,8 +2696,21 @@ if(d.adresse) html+='<div style="color:#94a3b8;font-size:11px;">'+d.adresse+'</d
 if(d.ttc) html+='<div style="color:#0d2d52;font-weight:800;font-size:15px;margin-top:4px;">'+d.ttc.toLocaleString("fr-FR")+'€ TTC</div>';
 html+='<div style="color:#94a3b8;font-size:11px;">'+(d.technicien||d.creePar||'Dispatch')+' · '+d.date+(isExpired?' <span style="color:#ef4444;font-weight:700;">EXPIRÉ</span>':'')+'</div></div>';
 html+='<span class="badge '+(d.statut==="Traite"?"badge-green":d.statut==="Accepte"?"badge-green":"badge-blue")+'">'+d.statut+'</span></div>';
+// Calcul relance
+var daysSince=d.date?Math.floor((Date.now()-new Date(d.date).getTime())/86400000):0;
+var etapesRelance=[{j:3,label:'J+3'},{j:7,label:'J+7'},{j:15,label:'J+15'},{j:30,label:'J+30'}];
+var nbRel=d.nbRelances||0;
+var prochaine=etapesRelance[nbRel]||null;
+var relanceDue=prochaine&&daysSince>=prochaine.j&&d.statut!=='Traite';
+if(prochaine&&d.statut!=='Traite'){
+  var relCol=relanceDue?'background:#fef3c7;color:#92400e;border:1px solid #fcd34d;':'background:#f1f5f9;color:#64748b;';
+  html+='<div style="'+relCol+'border-radius:8px;padding:6px 10px;margin-bottom:8px;font-size:11px;font-weight:700;">'
+  +(relanceDue?'⏰ À relancer : ':'🕐 Prochaine relance : ')+prochaine.label+(nbRel>0?' ('+nbRel+' faite'+(nbRel>1?'s':'')+')':'')
+  +(d.derniereRelance?' · Dernière : '+d.derniereRelance:'')+'</div>';
+}
 html+='<div style="display:flex;gap:6px;flex-wrap:wrap;">';
 html+='<button class="btn btn-blue" style="font-size:11px;" onclick="window.open(\'tel:'+d.clientTel+'\')">Appeler</button>';
+if(prochaine&&d.statut!=='Traite')html+='<button class="btn '+(relanceDue?'btn-orange':'btn-gray')+'" style="font-size:11px;" onclick="relancerDevis('+i+')">📤 Relancer</button>';
 if(hasPDF) html+='<button class="btn btn-gray" style="font-size:11px;" onclick="genererDevisPDF(getDevis().sort(function(a,b){return b.date?b.date.localeCompare(a.date):0;})['+i+'])">📄 PDF</button>';
 if(d.statut!=="Traite") html+='<button class="btn btn-green" style="font-size:11px;" onclick="marquerDevisTraite('+i+')">Accepté</button>';
 html+='<button class="btn btn-primary" style="font-size:11px;" onclick="convertirDevisEnRdv('+i+')">→ RDV</button>';
@@ -2597,168 +2724,6 @@ function marquerDevisTraite(i){var d=getDevis().sort(function(a,b){return b.date
 function supprimerDevis(i){var d=getDevis().sort(function(a,b){return b.date?b.date.localeCompare(a.date):0;});d.splice(i,1);saveDevis(d);renderDevis();}
 
 // DEVIS PROFESSIONNEL
-// ── FACTURATION DISPATCH ──
-var _factureLignesD=[];
-function getFacturesD(){return JSON.parse(localStorage.getItem('pl_factures_sec')||'[]');}
-function saveFacturesD(d){var v=JSON.stringify(d);localStorage.setItem('pl_factures_sec',v);if(window.gfSync)gfSync('pl_factures_sec',v);}
-
-function toggleFormFactureD(){
-  var f=document.getElementById('form-facture-d');
-  if(!f)return;
-  f.classList.toggle('hidden');
-  if(!f.classList.contains('hidden')){
-    if(_factureLignesD.length===0)addLigneFactureD();
-    var d=document.getElementById('fac-date');if(d&&!d.value)d.value=todayStr();
-    var e=document.getElementById('fac-echeance');
-    if(e&&!e.value){var t=new Date();t.setDate(t.getDate()+30);e.value=t.toISOString().slice(0,10);}
-  }
-}
-function addLigneFactureD(){_factureLignesD.push({desc:'',qty:1,prixU:0});renderLignesFactureD();}
-function removeLigneFactureD(i){_factureLignesD.splice(i,1);renderLignesFactureD();}
-function renderLignesFactureD(){
-  var c=document.getElementById('fac-lignes');if(!c)return;
-  var tva=parseFloat((document.getElementById('fac-tva')||{}).value||'20');
-  var total=0;
-  c.innerHTML=_factureLignesD.map(function(l,i){
-    var tt=(l.qty||1)*(l.prixU||0);total+=tt;
-    return'<div style="display:grid;grid-template-columns:1fr 60px 80px 70px 28px;gap:6px;align-items:center;margin-bottom:8px;">'
-    +'<input value="'+l.desc+'" onchange="_factureLignesD['+i+'].desc=this.value" placeholder="Description..." style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;font-size:12px;color:#1a2537;outline:none;">'
-    +'<input type="number" value="'+l.qty+'" min="1" onchange="_factureLignesD['+i+'].qty=Number(this.value);renderLignesFactureD()" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px;font-size:12px;text-align:center;outline:none;">'
-    +'<input type="number" value="'+l.prixU+'" min="0" onchange="_factureLignesD['+i+'].prixU=Number(this.value);renderLignesFactureD()" placeholder="Prix HT" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px;font-size:12px;text-align:right;outline:none;">'
-    +'<div style="font-size:12px;font-weight:700;color:#1a3a5c;text-align:right;">'+tt.toLocaleString('fr-FR')+'€</div>'
-    +'<button onclick="removeLigneFactureD('+i+')" style="background:#fee2e2;border:none;border-radius:6px;color:#dc2626;font-weight:700;cursor:pointer;font-size:14px;width:28px;height:28px;">×</button>'
-    +'</div>';
-  }).join('');
-  var ht=total;var remise=parseFloat((document.getElementById('fac-remise')||{}).value||'0');
-  var remiseMt=Math.round(ht*remise)/100;ht-=remiseMt;
-  var tvaMt=Math.round(ht*tva)/100;var ttc=ht+tvaMt;
-  var tot=document.getElementById('fac-totaux');
-  if(tot)tot.innerHTML='<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #bbf7d0;"><span style="color:#64748b;font-size:13px;">Total HT</span><span style="font-weight:700;">'+ht.toLocaleString('fr-FR')+'€</span></div>'
-    +(remise>0?'<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #bbf7d0;"><span style="color:#dc2626;font-size:13px;">Remise '+remise+'%</span><span style="color:#dc2626;font-weight:700;">-'+remiseMt.toLocaleString('fr-FR')+'€</span></div>':'')
-    +'<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #bbf7d0;"><span style="color:#64748b;font-size:13px;">TVA '+tva+'%</span><span style="font-weight:700;">'+tvaMt.toLocaleString('fr-FR')+'€</span></div>'
-    +'<div style="display:flex;justify-content:space-between;padding:8px 0;"><span style="color:#16a34a;font-size:15px;font-weight:800;">TOTAL TTC</span><span style="color:#16a34a;font-size:18px;font-weight:900;">'+ttc.toLocaleString('fr-FR')+'€</span></div>';
-}
-function _buildFactureDObj(){
-  var client=document.getElementById('fac-client-nom').value.trim();
-  var tel=document.getElementById('fac-client-tel').value.trim();
-  if(!client||_factureLignesD.length===0)return null;
-  var tva=parseFloat((document.getElementById('fac-tva')||{}).value||'20');
-  var remise=parseFloat((document.getElementById('fac-remise')||{}).value||'0');
-  var ht=_factureLignesD.reduce(function(s,l){return s+(l.qty||1)*(l.prixU||0);},0);
-  var remiseMt=Math.round(ht*remise)/100;ht-=remiseMt;
-  var tvaMt=Math.round(ht*tva)/100;var ttc=ht+tvaMt;
-  return{id:Date.now(),client:client,clientNom:client,tel:tel,clientTel:tel,
-    adresse:document.getElementById('fac-client-adresse').value.trim(),
-    ref:document.getElementById('fac-ref').value.trim(),
-    dateFacture:document.getElementById('fac-date').value||todayStr(),
-    echeance:document.getElementById('fac-echeance').value,
-    lignes:_factureLignesD.slice(),tva:tva,remise:remise,remiseMt:remiseMt,
-    ht:ht,tvaMt:tvaMt,ttc:ttc,montant:ttc,
-    conditions:document.getElementById('fac-conditions').value,
-    notes:document.getElementById('fac-notes-d').value.trim(),
-    statut:'Impayé',source:'dispatch',creePar:currentOperateur?currentOperateur.nom:'Dispatch',
-    relances:[]};
-}
-function sauvegarderFactureD(){
-  var obj=_buildFactureDObj();
-  if(!obj){showNotif('Client et au moins 1 ligne requis');return;}
-  var all=getFacturesD();
-  all.unshift(obj);
-  saveFacturesD(all);
-  _factureLignesD=[];
-  document.getElementById('form-facture-d').classList.add('hidden');
-  ['fac-client-nom','fac-client-tel','fac-client-adresse','fac-ref','fac-notes-d'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
-  renderFacturesDispatch();
-  showNotif('Facture créée — '+obj.ttc.toLocaleString('fr-FR')+'€ TTC');
-  if(confirm('Générer le PDF ?'))genererFacturePDFD(obj);
-}
-function aperçuFacturePDF(){
-  var obj=_buildFactureDObj();
-  if(!obj){showNotif('Client et au moins 1 ligne requis');return;}
-  genererFacturePDFD(obj);
-}
-function genererFacturePDFD(d){
-  if(!d)return;
-  var tva=d.tva||20;var remise=d.remise||0;
-  var w=window.open('','_blank','width=900,height=700');
-  if(!w)return;
-  var num='FAC-'+(d.dateFacture||todayStr()).replace(/-/g,'')+'-'+String(d.id).slice(-4);
-  var lignesHtml=(d.lignes||[]).map(function(l,i){
-    return'<tr><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">'+(i+1)+'. '+l.desc+'</td>'
-    +'<td style="padding:8px;text-align:center;border-bottom:1px solid #f0f0f0;">'+l.qty+'</td>'
-    +'<td style="padding:8px;text-align:right;border-bottom:1px solid #f0f0f0;">'+(l.prixU||0).toLocaleString('fr-FR')+'€</td>'
-    +'<td style="padding:8px;text-align:right;border-bottom:1px solid #f0f0f0;font-weight:700;">'+((l.qty||1)*(l.prixU||0)).toLocaleString('fr-FR')+'€</td></tr>';
-  }).join('');
-  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Facture '+num+'</title>'
-  +'<style>body{font-family:Arial,sans-serif;margin:0;padding:30px;color:#0d1b2e;font-size:13px;}@media print{@page{size:A4;margin:1cm;}body{padding:15px;}}'
-  +'.header{display:flex;justify-content:space-between;border-bottom:3px solid #16a34a;padding-bottom:20px;margin-bottom:24px;}'
-  +'.logo{font-size:26px;font-weight:900;}.logo span{color:#16a34a;}'
-  +'table{width:100%;border-collapse:collapse;}th{background:#f0fdf4;padding:10px;text-align:left;font-size:11px;letter-spacing:1px;font-weight:700;color:#64748b;text-transform:uppercase;}'
-  +'td{padding:8px 10px;}tfoot td{font-weight:700;background:#f0fdf4;}</style></head><body>'
-  +'<div class="header"><div><div class="logo">Green<span>Flow</span></div>'
-  +'<div style="font-size:11px;color:#64748b;margin-top:4px;">Plomberie · Chauffage · Sanitaire</div>'
-  +'<div style="font-size:11px;color:#64748b;">SIRET: [VOTRE SIRET]</div></div>'
-  +'<div style="text-align:right;"><div style="font-size:10px;color:#64748b;letter-spacing:2px;font-weight:700;">FACTURE</div>'
-  +'<div style="font-size:22px;font-weight:900;color:#16a34a;margin-top:4px;">'+num+'</div>'
-  +(d.ref?'<div style="font-size:11px;color:#64748b;">Réf: '+d.ref+'</div>':'')
-  +'<div style="font-size:11px;color:#64748b;margin-top:4px;">Émise le '+d.dateFacture+'</div>'
-  +(d.echeance?'<div style="font-size:11px;color:#dc2626;font-weight:700;">Échéance: '+d.echeance+'</div>':'')
-  +'</div></div>'
-  +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-bottom:24px;">'
-  +'<div><div style="font-size:10px;letter-spacing:2px;font-weight:700;color:#64748b;margin-bottom:8px;">CLIENT</div>'
-  +'<div style="font-weight:700;font-size:14px;">'+(d.client||d.clientNom)+'</div><div>'+(d.tel||d.clientTel||'')+'</div>'
-  +'<div style="color:#64748b;">'+(d.adresse||'')+'</div></div>'
-  +'<div><div style="font-size:10px;letter-spacing:2px;font-weight:700;color:#64748b;margin-bottom:8px;">PAIEMENT</div>'
-  +'<div style="font-weight:600;">'+(d.conditions||'Comptant à réception')+'</div>'
-  +'<div style="color:#64748b;margin-top:4px;">TVA '+tva+'%'+(remise>0?' — Remise '+remise+'%':'')+'</div></div></div>'
-  +'<table><thead><tr><th>Prestation</th><th style="text-align:center;">Qté</th><th style="text-align:right;">Prix U. HT</th><th style="text-align:right;">Total HT</th></tr></thead>'
-  +'<tbody>'+lignesHtml+'</tbody>'
-  +'<tfoot><tr><td colspan="3" style="text-align:right;padding:8px 10px;">Total HT</td><td style="text-align:right;padding:8px 10px;">'+(d.ht||0).toLocaleString('fr-FR')+'€</td></tr>'
-  +(remise>0?'<tr><td colspan="3" style="text-align:right;padding:8px 10px;color:#dc2626;">Remise '+remise+'%</td><td style="text-align:right;padding:8px 10px;color:#dc2626;">-'+(d.remiseMt||0).toLocaleString('fr-FR')+'€</td></tr>':'')
-  +'<tr><td colspan="3" style="text-align:right;padding:8px 10px;">TVA '+tva+'%</td><td style="text-align:right;padding:8px 10px;">'+(d.tvaMt||0).toLocaleString('fr-FR')+'€</td></tr>'
-  +'<tr><td colspan="3" style="text-align:right;padding:10px;font-size:15px;font-weight:800;">TOTAL TTC</td><td style="text-align:right;padding:10px;font-size:18px;font-weight:900;color:#16a34a;">'+(d.ttc||0).toLocaleString('fr-FR')+'€</td></tr>'
-  +'</tfoot></table>'
-  +(d.notes?'<div style="margin-top:20px;background:#f0fdf4;border-left:3px solid #16a34a;padding:12px 14px;border-radius:4px;font-size:12px;">'+d.notes+'</div>':'')
-  +'<div style="margin-top:30px;border-top:2px solid #e2e8f0;padding-top:16px;text-align:center;font-size:10px;color:#94a3b8;">'
-  +'GreenFlow Technologies — Plomberie · Chauffage · Sanitaire — SIRET: [VOTRE SIRET]</div>'
-  +'</body></html>');
-  w.document.close();setTimeout(function(){w.print();},400);
-}
-function marquerFactureDPayee(id){
-  var all=getFacturesD();var idx=all.findIndex(function(f){return f.id===id;});
-  if(idx<0)return;
-  all[idx].statut='Payé';all[idx].datePaiement=todayStr();
-  saveFacturesD(all);renderFacturesDispatch();
-  showNotif('Facture marquée payée ✓');
-}
-function supprimerFactureD(id){
-  if(!confirm('Supprimer cette facture ?'))return;
-  var all=getFacturesD().filter(function(f){return f.id!==id;});
-  saveFacturesD(all);renderFacturesDispatch();
-}
-function renderFacturesDispatch(){
-  var c=document.getElementById('liste-factures-dispatch');if(!c)return;
-  var all=getFacturesD().filter(function(f){return f.source==='dispatch';});
-  if(!all.length){c.innerHTML='<div style="color:#94a3b8;font-size:13px;padding:12px 0;">Aucune facture créée dans dispatch</div>';return;}
-  c.innerHTML=all.map(function(f){
-    var color=f.statut==='Payé'?'#16a34a':f.statut==='Annulé'?'#64748b':'#dc2626';
-    var num='FAC-'+(f.dateFacture||'').replace(/-/g,'')+'-'+String(f.id).slice(-4);
-    return'<div style="background:#f8fafc;border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:4px solid '+color+';">'
-    +'<div style="display:flex;justify-content:space-between;align-items:start;">'
-    +'<div><div style="font-weight:700;font-size:13px;">'+(f.client||f.clientNom)+'</div>'
-    +'<div style="font-size:11px;color:#64748b;">'+num+(f.ref?' · Réf: '+f.ref:'')+'</div>'
-    +'<div style="font-size:11px;color:#64748b;">'+f.dateFacture+'</div></div>'
-    +'<div style="text-align:right;">'
-    +'<div style="font-size:15px;font-weight:800;color:'+color+';">'+(f.ttc||f.montant||0).toLocaleString('fr-FR')+'€</div>'
-    +'<div style="font-size:10px;font-weight:700;color:'+color+';">'+f.statut+'</div></div></div>'
-    +'<div style="display:flex;gap:6px;margin-top:8px;">'
-    +'<button class="btn btn-gray" style="flex:1;padding:5px;font-size:11px;" onclick="genererFacturePDFD('+JSON.stringify(f).replace(/"/g,'&quot;')+')">PDF</button>'
-    +(f.statut!=='Payé'?'<button class="btn btn-primary" style="flex:1;padding:5px;font-size:11px;background:#16a34a;" onclick="marquerFactureDPayee('+f.id+')">✓ Payée</button>':'')
-    +'<button class="btn btn-gray" style="padding:5px;font-size:11px;color:#dc2626;" onclick="supprimerFactureD('+f.id+')">🗑</button>'
-    +'</div></div>';
-  }).join('');
-}
-
 var _devisLignes=[];
 function toggleFormDevisPro(){
   var f=document.getElementById('form-devis-pro');
@@ -2882,87 +2847,79 @@ var n=numFact(r);
 return '<div class="fact-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;"><div><div style="font-weight:700;font-size:14px;color:#1a2537;">'+r.clientNom+'</div><div style="color:#64748b;font-size:12px;">'+r.type+' — '+r.date+'</div><div style="color:#94a3b8;font-size:11px;">'+n+'</div></div><div style="color:#1a3a5c;font-weight:800;font-size:16px;">'+r.montantFinal+' €</div></div><div style="display:flex;gap:8px;"><button class="btn btn-gray" style="font-size:11px;" onclick="genererFacturePDF(getRapports().find(function(x){return x.id==='+r.id+';}))">🖨️ PDF</button><button class="btn btn-green" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Paye\')">Payé</button></div></div>';
 }).join(""):'<div style="color:#94a3b8;font-size:13px;padding:16px 0;">Aucune facture en attente</div>';
 document.getElementById("liste-factures").innerHTML=hF;
-renderFacturesDispatch();
 }
 
 function renderDashboard(){
 var rdvs=getRdvs(),rapports=getRapports(),dispos=getDispos();
-var urgences=getUrgences().filter(function(u){return u.statut!=="Resolu"&&u.statut!=="Résolu";});
+var urgences=getUrgences().filter(function(u){return u.statut!=="Resolu";});
 var devis=getDevis().filter(function(d){return d.statut!=="Traite";});
-var savs=getSavs().filter(function(s){return s.statut!=="Resolu"&&s.statut!=="Résolu";});
+var savs=getSavs().filter(function(s){return s.statut!=="Resolu";});
 var aValider=rapports.filter(function(r){return r.statut==="En attente facturation";});
 var rdvsAuj=rdvs.filter(function(r){return r.dateRdv===todayStr();});
 var rdvFaits=rdvsAuj.filter(function(r){return r.statut==="Termine";}).length;
-var caConf=rapports.filter(function(r){return r.date===todayStr()&&r.statut==='Valide';}).reduce(function(s,r){return s+(r.montantFinal||0);},0);
-var caEnCours=rdvsAuj.filter(function(r){return r.statut!=="Termine"&&r.statut!=="Annule";}).reduce(function(s,r){return s+(r.prixVente||0);},0);
-var objJour=Math.round(parseInt(localStorage.getItem('pl_objectif')||'1000000')/365);
-var pct=Math.min(100,objJour>0?Math.round(caConf/objJour*100):0);
-var txConv=rdvsAuj.length?Math.round(rdvFaits/rdvsAuj.length*100):0;
+var caJour=rapports.filter(function(r){return r.date===todayStr();}).reduce(function(s,r){return s+(r.montantFinal||0);},0);
 
 var now=new Date();
-var s=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
-var sh=function(id,v){var e=document.getElementById(id);if(e)e.innerHTML=v;};
+document.getElementById("dash-date").textContent=now.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
 
-s('dash-date',now.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"}));
-s('dash-obj-txt',objJour.toLocaleString('fr-FR')+'€/j');
+// Stats cards
+var stats=[
+["INTERVENTIONS DU JOUR",rdvFaits+" / "+rdvsAuj.length,"#1a3a5c","#dbeafe"],
+["CA DU JOUR",caJour+" EUR","#4a9c3f","#dcfce7"],
+["URGENCES ACTIVES",urgences.length,"#dc2626","#fee2e2"],
+["A VALIDER",aValider.length,"#a16207","#fef9c3"]
+];
+document.getElementById("dash-stats").innerHTML=stats.map(function(x){
+return '<div style="background:'+x[3]+';border-radius:14px;padding:16px;text-align:center;border:1px solid '+x[2]+'30;"><div style="color:'+x[2]+';font-size:9px;letter-spacing:1px;font-weight:700;">'+x[0]+'</div><div style="color:'+x[2]+';font-weight:800;font-size:24px;margin-top:6px;">'+x[1]+'</div></div>';
+}).join("");
 
-// KPIs fusionnés
-s('d-rdv-stat',rdvFaits+'/'+rdvsAuj.length);
-s('d-ca-conf',caConf>0?caConf.toLocaleString('fr-FR')+'€':'0€');
-s('d-a-valider',aValider.length);
-s('d-urgences',urgences.length);
-s('d-ca-encours',caEnCours>0?caEnCours.toLocaleString('fr-FR')+'€':'0€');
-s('d-conv',txConv+'%');
-
-// Barre objectif
-s('pip-obj-txt',pct+'% objectif');
-var bar=document.getElementById('pip-obj-bar');if(bar)bar.style.width=pct+'%';
-if(bar)bar.style.background=pct>=100?'#dc2626':pct>=70?'#f59e0b':'linear-gradient(90deg,#7bc144,#15803d)';
-
-// Techniciens
-var techsList=Object.keys(dispos).length?Object.keys(dispos):["Technicien 1","Technicien 2"];
-// also collect from rdvs
-rdvs.forEach(function(r){if(r.technicien&&r.technicien!=='À planifier'&&!techsList.includes(r.technicien))techsList.push(r.technicien);});
+// Techniciens dispo vs occupe
+var techs=["Technicien 1","Technicien 2"];
 var html="";
-techsList.slice(0,6).forEach(function(nom){
-var d=dispos[nom]||{statut:"Non connecté"};
-var color=STATUT_C[d.statut]||"#64748b";
-var tc=TECH_C[nom]||{bg:'#e2e8f0',c:'#64748b',a:nom.slice(0,2).toUpperCase()};
+for(var i=0;i<techs.length;i++){
+var nom=techs[i],d=dispos[nom]||{statut:"Non connecte"};
+var color=STATUT_C[d.statut]||"#64748b",tc=TECH_C[nom];
 var isActive=d.statut==="En intervention";
 var rdvsT=rdvs.filter(function(r){return r.technicien===nom&&r.dateRdv===todayStr();});
 var doneT=rdvsT.filter(function(r){return r.statut==="Termine";}).length;
 var ago=d.updatedAt?Math.floor((Date.now()-new Date(d.updatedAt))/60000):null;
-html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;">';
-html+='<div style="width:34px;height:34px;border-radius:9px;background:'+tc.bg+';border:2px solid '+tc.c+';color:'+tc.c+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0;">'+tc.a+'</div>';
-html+='<div style="flex:1;"><div style="font-weight:700;font-size:13px;color:#1a2537;">'+nom+'</div>';
-html+='<div style="color:#94a3b8;font-size:10px;">'+doneT+'/'+rdvsT.length+' RDV'+(ago!==null?' · '+(ago<1?'maint.':ago+'min'):'')+'</div></div>';
-html+='<div style="display:flex;align-items:center;gap:5px;">';
-html+='<span style="width:8px;height:8px;border-radius:50%;background:'+color+';display:inline-block;'+(isActive?'animation:pulseStatus 1.5s ease-in-out infinite;':'')+'"></span>';
-html+='<span style="color:'+color+';font-size:10px;font-weight:700;">'+d.statut+'</span>';
+html+='<div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #f1f5f9;">';
+html+='<div style="width:38px;height:38px;border-radius:10px;background:'+tc.bg+';border:2px solid '+tc.c+';color:'+tc.c+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;">'+tc.a+'</div>';
+html+='<div style="flex:1;">';
+html+='<div style="font-weight:700;font-size:13px;color:#1a2537;">'+nom+'</div>';
+html+='<div style="color:#94a3b8;font-size:10px;">'+doneT+'/'+rdvsT.length+' RDV'+(ago!==null?' · '+(ago<1?'maintenant':ago+'min'):'')+' </div>';
+html+='</div>';
+html+='<div style="display:flex;align-items:center;gap:6px;">';
+html+='<span style="width:9px;height:9px;border-radius:50%;background:'+color+';display:inline-block;'+(isActive?'animation:pulseStatus 1.5s ease-in-out infinite;':'')+'"></span>';
+html+='<span style="color:'+color+';font-size:11px;font-weight:700;">'+d.statut+'</span>';
 html+='</div></div>';
-});
+}
 renderDispatchKPI();
-sh('dash-techs',html);
+document.getElementById("dash-techs").innerHTML=html;
 
-// À traiter
+// Urgences actives
+var uCard=document.getElementById("dash-urgences-card");
+if(urgences.length>0){
+uCard.style.display="block";
+document.getElementById("dash-urgences").innerHTML=urgences.map(function(u){
+return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #fecaca;"><div><div style="font-weight:700;font-size:13px;color:#1a2537;">'+u.clientNom+'</div><div style="color:#dc2626;font-size:11px;">'+u.type+'</div></div><button class="btn btn-red" style="padding:5px 10px;font-size:11px;" onclick="window.open(\'tel:'+u.clientTel+'\')">Appeler</button></div>';
+}).join("");
+} else { uCard.style.display="none"; }
+
+// A traiter
 var todo=[];
-if(devis.length>0)todo.push([devis.length+' devis',"#1d4ed8","showPage('devis')"]);
-if(savs.length>0)todo.push([savs.length+' SAV',"#0891b2","showPage('sav')"]);
-if(aValider.length>0)todo.push([aValider.length+' rapports',"#a16207","showPage('validation')"]);
-var rdvsAP=rdvs.filter(function(r){return r.technicien==='À planifier'&&r.statut!=='Termine'&&r.statut!=='Annule';});
-if(rdvsAP.length>0)todo.push([rdvsAP.length+' à planifier',"#7c3aed","showPage('tous-rdv')"]);
-sh('dash-todo',todo.length===0
-?'<div style="color:#94a3b8;font-size:12px;padding:6px 0;text-align:center;">Tout est à jour ✓</div>'
-:todo.map(function(t){return '<div onclick="'+t[2]+'" style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:5px;cursor:pointer;"><span style="color:'+t[1]+';font-size:12px;font-weight:700;">'+t[0]+'</span><span style="color:'+t[1]+';font-size:14px;">›</span></div>';}).join(""));
-
-// Canaux acquisition
-var canaux={};rdvsAuj.forEach(function(r){var c=r.canal||"Autre";canaux[c]=(canaux[c]||0)+1;});
-var canauxHtml=Object.entries(canaux).sort(function(a,b){return b[1]-a[1];}).slice(0,4).map(function(e){
-return '<div style="color:#fff;font-size:10px;margin-bottom:3px;display:flex;justify-content:space-between;"><span style="opacity:0.8;">'+e[0].replace(/[📞🌐⭐🏢🤝📣❓]/g,'').trim().slice(0,14)+'</span><b>'+e[1]+'</b></div>';
-}).join("")||'<div style="color:rgba(255,255,255,0.4);font-size:10px;">Aucun RDV</div>';
-sh('pip-canaux',canauxHtml);
-
+if(devis.length>0) todo.push([devis.length+" demande(s) de devis","#1d4ed8","showPage('devis')"]);
+if(savs.length>0) todo.push([savs.length+" dossier(s) SAV ouvert(s)","#1d4ed8","showPage('sav')"]);
+if(aValider.length>0) todo.push([aValider.length+" rapport(s) a valider","#a16207","showPage('validation')"]);
+if(todo.length===0){
+document.getElementById("dash-todo").innerHTML='<div style="color:#94a3b8;font-size:13px;padding:8px 0;text-align:center;">Rien a traiter, tout est a jour !</div>';
+} else {
+document.getElementById("dash-todo").innerHTML=todo.map(function(t){
+return '<div onclick="'+t[2]+'" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:6px;cursor:pointer;"><span style="color:'+t[1]+';font-size:13px;font-weight:600;">'+t[0]+'</span><span style="color:'+t[1]+';font-size:16px;">›</span></div>';
+}).join("");
+}
 renderKpiOperateurs();
+renderPipelineCA();
 renderRapportJour();
 }
 
@@ -3110,265 +3067,6 @@ document.getElementById("liste-infos").innerHTML=html;
 function closeModal(id){document.getElementById(id).classList.add("hidden");}
 function openPhotoFs(src){document.getElementById("photo-fs-img").src=src;document.getElementById("photo-fs").classList.remove("hidden");}
 function closePhotoFs(){document.getElementById("photo-fs").classList.add("hidden");}
-// ── À FAIRE DISPATCH ──
-function renderToDoDispatch(){
-  var rdvs=getRdvs();var raps=getRapports();var devis=getDevis();
-  var urgences=getUrgences();var savs=getSavs();
-  var tomorrowStr=new Date(Date.now()+86400000).toISOString().split('T')[0];
-
-  var sections=[
-    {
-      color:'#dc2626',icon:'🚨',titre:'Urgences actives sans technicien',
-      items:urgences.filter(function(u){return u.statut!=='Resolu'&&u.statut!=='Résolu'&&!u.technicien;}),
-      render:function(u){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
-        +'<div><div style="font-weight:700;font-size:13px;">'+u.clientNom+'</div>'
-        +'<div style="font-size:11px;color:#64748b;">'+u.type+' · '+(u.adresse||'—')+'</div>'
-        +'<div style="font-size:10px;color:#dc2626;font-weight:700;">Ouvert il y a '+Math.floor((Date.now()-u.id)/60000)+' min</div></div>'
-        +'<button onclick="showPage(\'urgences\')" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">Assigner →</button>'
-        +'</div>';},
-      empty:'Aucune urgence active ✓'
-    },
-    {
-      color:'#7c3aed',icon:'📋',titre:'RDV à planifier — assigner un technicien',
-      items:rdvs.filter(function(r){return r.technicien==='À planifier'&&r.statut!=='Termine'&&r.statut!=='Annule';}),
-      render:function(r){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
-        +'<div><div style="font-weight:700;font-size:13px;">'+r.clientNom+'</div>'
-        +'<div style="font-size:11px;color:#64748b;">'+r.type+' · '+(r.dateRdv||'—')+' '+(r.heureRdv||'')+'</div>'
-        +(r.creePar?'<div style="font-size:10px;color:#7c3aed;font-weight:700;">Via : '+r.creePar+'</div>':'')+'</div>'
-        +'<button onclick="showPage(\'tous-rdv\')" style="background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">Planifier →</button>'
-        +'</div>';},
-      empty:'Tous les RDV ont un technicien ✓'
-    },
-    {
-      color:'#f59e0b',icon:'📝',titre:'Rapports à valider',
-      items:raps.filter(function(r){return r.statut==='En attente facturation';}),
-      render:function(r){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
-        +'<div><div style="font-weight:700;font-size:13px;">'+r.clientNom+' — '+r.technicien+'</div>'
-        +'<div style="font-size:11px;color:#64748b;">'+(r.type||r.typeIntervention||'')+(r.date?' · '+r.date:'')+'</div>'
-        +(r.montantFinal?'<div style="font-size:13px;color:#f59e0b;font-weight:800;">'+r.montantFinal.toLocaleString('fr-FR')+'€</div>':'')+'</div>'
-        +'<button onclick="showPage(\'validation\')" style="background:#f59e0b;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">Valider →</button>'
-        +'</div>';},
-      empty:'Aucun rapport en attente ✓'
-    },
-    {
-      color:'#2563eb',icon:'📄',titre:'Devis terrain à traiter',
-      items:devis.filter(function(d){return d.statut==='Nouveau'||d.statut==='En attente';}),
-      render:function(d){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
-        +'<div><div style="font-weight:700;font-size:13px;">'+(d.clientNom||d.client||'—')+'</div>'
-        +'<div style="font-size:11px;color:#64748b;">'+(d.type||'—')+(d.prixEstimatif?' · '+d.prixEstimatif+'€ estimé':'')+'</div>'
-        +(d.technicien?'<div style="font-size:10px;color:#2563eb;">Via '+d.technicien+'</div>':'')+'</div>'
-        +'<button onclick="showPage(\'devis\')" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">Traiter →</button>'
-        +'</div>';},
-      empty:'Aucun devis en attente ✓'
-    },
-    {
-      color:'#0891b2',icon:'🔁',titre:'SAV ouverts',
-      items:savs.filter(function(s){return s.statut!=='Resolu'&&s.statut!=='Résolu';}),
-      render:function(s){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
-        +'<div><div style="font-weight:700;font-size:13px;">'+(s.clientNom||'—')+'</div>'
-        +'<div style="font-size:11px;color:#64748b;">'+(s.motif||'')+'</div></div>'
-        +'<button onclick="showPage(\'sav\')" style="background:#0891b2;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">Gérer →</button>'
-        +'</div>';},
-      empty:'Aucun SAV ouvert ✓'
-    },
-    {
-      color:'#16a34a',icon:'📱',titre:'RDV demain — rappels SMS à envoyer',
-      items:rdvs.filter(function(r){return r.dateRdv===tomorrowStr&&r.statut!=='Annule'&&r.statut!=='Termine'&&r.clientTel;}),
-      render:function(r){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
-        +'<div><div style="font-weight:700;font-size:13px;">'+r.clientNom+' — '+r.technicien+'</div>'
-        +'<div style="font-size:11px;color:#64748b;">Demain '+r.heureRdv+' · '+r.type+'</div></div>'
-        +(r.clientTel?'<a href="tel:'+r.clientTel+'" style="background:#16a34a;color:#fff;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;text-decoration:none;">📞 Confirmer</a>':'')
-        +'</div>';},
-      empty:'Pas de RDV demain ou déjà rappelés ✓'
-    }
-  ];
-
-  var total=sections.reduce(function(s,sec){return s+sec.items.length;},0);
-  var sub=document.getElementById('todo-d-subtitle');
-  if(sub)sub.textContent=total>0?total+' action'+(total>1?'s':'')+' en attente':'Tout est à jour ✓';
-  var btn=document.getElementById('ng-todo-d');
-  if(btn){btn.textContent=total>0?'✅ À faire ('+total+')':'✅ À faire';btn.style.color=total>0?'#dc2626':'';}
-
-  var c=document.getElementById('todo-d-container');if(!c)return;
-  c.innerHTML=sections.map(function(sec){
-    var bg=sec.color+'12';var border=sec.color+'40';
-    return '<div style="background:'+bg+';border:1.5px solid '+border+';border-left:4px solid '+sec.color+';border-radius:12px;padding:14px;margin-bottom:12px;">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:'+(sec.items.length?'12px':'0')+';"><div style="font-size:12px;font-weight:800;color:'+sec.color+';text-transform:uppercase;letter-spacing:0.5px;">'+sec.icon+' '+sec.titre+'</div>'
-      +'<span style="background:'+sec.color+';color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:800;">'+sec.items.length+'</span></div>'
-      +(sec.items.length===0?'<div style="color:#94a3b8;font-size:12px;">'+sec.empty+'</div>'
-        :sec.items.slice(0,4).map(function(item){return '<div style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:6px;border:1px solid '+border+';">'+sec.render(item)+'</div>';}).join('')
-        +(sec.items.length>4?'<div style="font-size:11px;color:'+sec.color+';text-align:center;margin-top:6px;font-weight:700;">+'+(sec.items.length-4)+' de plus →</div>':''))
-      +'</div>';
-  }).join('');
-}
-
-function updateTodoBadgeDispatch(){
-  var rdvs=getRdvs();var raps=getRapports();var devis=getDevis();
-  var urgences=getUrgences();var savs=getSavs();
-  var total=urgences.filter(function(u){return u.statut!=='Resolu'&&u.statut!=='Résolu'&&!u.technicien;}).length
-    +rdvs.filter(function(r){return r.technicien==='À planifier'&&r.statut!=='Termine'&&r.statut!=='Annule';}).length
-    +raps.filter(function(r){return r.statut==='En attente facturation';}).length
-    +devis.filter(function(d){return d.statut==='Nouveau'||d.statut==='En attente';}).length
-    +savs.filter(function(s){return s.statut!=='Resolu'&&s.statut!=='Résolu';}).length;
-  var btn=document.getElementById('ng-todo-d');
-  if(btn){btn.textContent=total>0?'✅ À faire ('+total+')':'✅ À faire';btn.style.color=total>0?'#dc2626':'';}
-  return total;
-}
-
-// ============================================================
-// PRISE D'APPEL DISPATCH
-// ============================================================
-var _apTypeChip='',_apSourceChip='';
-
-function selectChipD(btn,groupId,val){
-  var group=document.getElementById(groupId);
-  if(!group)return;
-  var wasActive=btn.dataset.active==='1';
-  group.querySelectorAll('button').forEach(function(b){
-    b.dataset.active='0';
-    b.style.opacity='0.55';b.style.fontWeight='600';
-  });
-  if(!wasActive){
-    btn.dataset.active='1';btn.style.opacity='1';btn.style.fontWeight='800';
-    if(groupId==='ap-type-chips')_apTypeChip=val;
-    else _apSourceChip=val;
-  } else {
-    if(groupId==='ap-type-chips')_apTypeChip='';
-    else _apSourceChip='';
-  }
-}
-
-function toggleApRdvSection(){
-  var s=document.getElementById('ap-rdv-section');
-  if(!s)return;
-  var hidden=s.classList.contains('hidden');
-  s.classList.toggle('hidden',!hidden);
-  if(hidden){
-    // pré-remplir date et techs
-    var dateEl=document.getElementById('ap-rdv-date');if(dateEl)dateEl.value=todayStr();
-    var techSel=document.getElementById('ap-rdv-tech');
-    if(techSel){
-      var techs=getTechs();
-      techSel.innerHTML='<option value="À planifier">⏳ À planifier</option>'
-        +techs.map(function(t){return '<option value="'+t.nom+'">'+t.nom+'</option>';}).join('');
-    }
-  }
-}
-
-function _getApData(){
-  var nom=(document.getElementById('ap-nom').value||'').trim();
-  var tel=(document.getElementById('ap-tel').value||'').trim();
-  if(!nom&&!tel){showNotif('Nom ou téléphone requis');return null;}
-  return {
-    id:Date.now(),
-    clientNom:nom||'Inconnu',
-    clientTel:tel,
-    adresse:(document.getElementById('ap-adresse').value||'').trim(),
-    type:_apTypeChip||'rdv',
-    source:_apSourceChip||'',
-    notes:(document.getElementById('ap-notes').value||'').trim(),
-    par:getOperateurNom(),
-    ts:new Date().toISOString()
-  };
-}
-
-function _resetApForm(){
-  ['ap-tel','ap-nom','ap-adresse','ap-notes','ap-rdv-prix'].forEach(function(id){
-    var el=document.getElementById(id);if(el)el.value='';
-  });
-  ['ap-type-chips','ap-source-chips'].forEach(function(gid){
-    var g=document.getElementById(gid);
-    if(g)g.querySelectorAll('button').forEach(function(b){b.dataset.active='0';b.style.opacity='0.55';b.style.fontWeight='600';});
-  });
-  _apTypeChip='';_apSourceChip='';
-  var s=document.getElementById('ap-rdv-section');if(s)s.classList.add('hidden');
-}
-
-function loggerAppelSeulD(){
-  var data=_getApData();if(!data)return;
-  data.resultat='info';
-  var appels=getAppels();appels.unshift(data);saveAppels(appels);
-  _resetApForm();renderAppels();
-  showNotif('📞 Appel noté ✓');
-}
-
-function creerRdvAPlanifierD(){
-  var data=_getApData();if(!data)return;
-  data.resultat='rdv_planifier';
-  var appels=getAppels();appels.unshift(data);saveAppels(appels);
-  // Créer RDV dans pl_rdvs avec technicien='À planifier'
-  var rdvs=getRdvs();
-  rdvs.push({
-    id:Date.now()+1,
-    clientNom:data.clientNom,clientTel:data.clientTel,
-    adresse:data.adresse,type:data.type==='urgence'?'Urgence':data.type==='sav'?'SAV':data.type==='devis'?'Devis':'Intervention',
-    dateRdv:'',heureRdv:'',technicien:'À planifier',
-    statut:'Confirme',notes:data.notes,canal:data.source||'Appel direct',
-    creePar:'dispatch',prixVente:0
-  });
-  saveRdvs(rdvs);
-  _resetApForm();renderAppels();actualiserTout();
-  showNotif('📋 RDV créé → À planifier ✓');
-}
-
-function creerRdvFixeD(){
-  var data=_getApData();if(!data)return;
-  var date=document.getElementById('ap-rdv-date').value;
-  var heure=document.getElementById('ap-rdv-heure').value;
-  var tech=(document.getElementById('ap-rdv-tech').value)||'À planifier';
-  if(!date){showNotif('Date obligatoire');return;}
-  data.resultat='rdv_cree';
-  var appels=getAppels();appels.unshift(data);saveAppels(appels);
-  var rdvs=getRdvs();
-  rdvs.push({
-    id:Date.now()+1,
-    clientNom:data.clientNom,clientTel:data.clientTel,
-    adresse:data.adresse,type:data.type==='urgence'?'Urgence':data.type==='sav'?'SAV':data.type==='devis'?'Devis':'Intervention',
-    dateRdv:date,heureRdv:heure,technicien:tech,
-    statut:'Confirme',notes:data.notes,canal:data.source||'Appel direct',
-    creePar:'dispatch',prixVente:parseFloat(document.getElementById('ap-rdv-prix').value)||0
-  });
-  saveRdvs(rdvs);
-  _resetApForm();renderAppels();actualiserTout();
-  showNotif('✅ RDV fixé — '+date+' à '+heure+' / '+tech);
-}
-
-function renderAppels(){
-  var appels=getAppels();
-  var today=todayStr();
-  var auj=appels.filter(function(a){return a.ts&&a.ts.startsWith(today);});
-  // Stats jour
-  var statsEl=document.getElementById('ap-stats-jour');
-  if(statsEl){
-    var rdvCrees=auj.filter(function(a){return a.resultat==='rdv_cree'||a.resultat==='rdv_planifier';}).length;
-    statsEl.innerHTML='<div class="sc" style="border-left:3px solid #16a34a;"><div class="lbl">APPELS AUJOURD\'HUI</div><div style="font-weight:800;font-size:20px;color:#16a34a;">'+auj.length+'</div></div>'
-      +'<div class="sc" style="border-left:3px solid #2563eb;"><div class="lbl">RDV CRÉÉS</div><div style="font-weight:800;font-size:20px;color:#2563eb;">'+rdvCrees+'</div></div>'
-      +'<div class="sc" style="border-left:3px solid #7c3aed;"><div class="lbl">TOTAL</div><div style="font-weight:800;font-size:20px;color:#7c3aed;">'+appels.length+'</div></div>';
-  }
-  var ICONS={rdv:'📅',urgence:'🚨',sav:'🔁',devis:'📋',renseignement:'ℹ️',reclamation:'⚠️'};
-  var COLORS_R={rdv_cree:'#16a34a',rdv_planifier:'#2563eb',info:'#64748b',rappel:'#f59e0b'};
-  var LABELS_R={rdv_cree:'RDV fixé ✓',rdv_planifier:'À planifier',info:'Noté',rappel:'À rappeler'};
-  var html=appels.slice(0,50).map(function(a){
-    var icon=ICONS[a.type]||'📞';
-    var color=COLORS_R[a.resultat]||'#64748b';
-    var label=LABELS_R[a.resultat]||a.resultat||'Noté';
-    var dt=a.ts?new Date(a.ts).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'';
-    return '<div style="padding:10px 12px;background:#fff;border-radius:10px;margin-bottom:6px;border-left:3px solid '+color+';box-shadow:0 1px 3px rgba(0,0,0,0.06);">'
-      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
-      +'<div><span style="font-size:16px;margin-right:6px;">'+icon+'</span>'
-      +'<span style="font-weight:700;font-size:13px;color:#1a2537;">'+a.clientNom+'</span>'
-      +(a.clientTel?'<span style="color:#64748b;font-size:11px;margin-left:8px;">'+a.clientTel+'</span>':'')+'</div>'
-      +'<div style="text-align:right;">'
-      +'<div style="background:'+color+'20;color:'+color+';border-radius:12px;padding:2px 8px;font-size:10px;font-weight:700;">'+label+'</div>'
-      +'<div style="color:#94a3b8;font-size:10px;margin-top:2px;">'+dt+(a.par?' · '+a.par:'')+'</div></div></div>'
-      +(a.source?'<div style="font-size:11px;color:#64748b;margin-top:2px;">via '+a.source+'</div>':'')
-      +(a.notes?'<div style="font-size:11px;color:#64748b;margin-top:2px;font-style:italic;">'+a.notes+'</div>':'')
-      +'</div>';
-  }).join('');
-  var el=document.getElementById('liste-appels');
-  if(el)el.innerHTML=html||'<div style="color:#94a3b8;text-align:center;padding:20px;font-size:12px;">Aucun appel enregistré</div>';
-}
-
 function showNotif(msg){
 var n=document.createElement("div");n.className="notif";n.textContent=msg;
 document.body.appendChild(n);setTimeout(function(){n.remove();},3500);
@@ -3461,23 +3159,8 @@ function updateTechPlanning(){
   var pl=document.getElementById('rdv-plan-list');
   var ca=document.getElementById('rdv-conflict-div');
   var cm=document.getElementById('rdv-conflict-msg');
-  var sf=document.getElementById('rdv-souhaitee-field');
-  var lbl=document.getElementById('rdv-date-label');
-  var heureField=document.getElementById('rdv-heure-field');
-  if(!tech||!pd)return;
-  if(tech==='À planifier'){
-    // Date = aujourd'hui (date de prise en charge) — auto
-    var dateEl=document.getElementById('rdv-date');
-    if(dateEl&&!dateEl.value)dateEl.value=todayStr();
-    if(lbl)lbl.textContent='DATE PRISE EN CHARGE';
-    if(sf)sf.classList.remove('hidden');
-    if(heureField)heureField.style.display='none';
-    pd.classList.add('hidden');if(ca)ca.classList.add('hidden');return;
-  }
-  // Tech assigné : restaurer labels normaux
-  if(lbl)lbl.textContent='DATE RDV';
-  if(sf)sf.classList.add('hidden');
-  if(heureField)heureField.style.display='';
+  if(!tech||!date||!pd)return;
+  if(tech==='À planifier'){pd.classList.add('hidden');if(ca)ca.classList.add('hidden');return;}
   var rdvs=getTechDayRdvs(tech,date);
   if(rdvs.length){
     pd.classList.remove('hidden');
@@ -3590,24 +3273,10 @@ function renderAppels(){
   if(!appels.length){d.innerHTML='<div class="empty">Aucun appel enregistré</div>';return;}
   var resultatLabel={rdv_cree:'✅ RDV créé',rappel:'📞 À rappeler',devis_envoye:'📋 Devis',info:'ℹ️ Info',hors_zone:'🚫 Hors zone',annulation:'❌ Annulation'};
   var resultatCol={rdv_cree:'#16a34a',rappel:'#1d4ed8',devis_envoye:'#7c3aed',info:'#6b7a8f',hors_zone:'#dc2626',annulation:'#dc2626'};
-  d.innerHTML=appels.slice(0,50).map(function(a){
-    var isAircall=a.source==='aircall';
-    var col=isAircall?'#0d2d52':(resultatCol[a.resultat]||'#6b7a8f');
-    var lbl=isAircall?'🤖 IA':'';
-    if(!isAircall)lbl=resultatLabel[a.resultat]||a.resultat;
-    var memoHtml=a.memo?'<div style="background:#f0f9ff;border-left:3px solid #0d2d52;padding:6px 10px;border-radius:0 6px 6px 0;font-size:11px;color:#1e3a5f;margin-top:6px;white-space:pre-line;">'+a.memo+'</div>':'';
-    var transHtml=(!a.memo&&a.transcript)?'<div style="font-size:11px;color:var(--muted);font-style:italic;margin-top:4px;">'+a.transcript.substring(0,120)+'…</div>':'';
-    var noteHtml=(!a.memo&&!a.transcript&&a.note)?'<div style="font-size:11px;color:var(--muted);font-style:italic;margin-top:2px;">'+a.note.substring(0,80)+'</div>':'';
-    var durLabel=(a.duree||0)+'min';
-    return '<div class="fact-card" style="margin-bottom:8px;">'
-      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
-      +'<div style="flex:1;">'
-      +'<div style="font-weight:700;font-size:13px;">'+a.nom+(a.tel?' <span style="color:var(--muted);font-size:11px;">'+a.tel+'</span>':'')+'</div>'
-      +'<div style="font-size:11px;color:var(--muted);">'+a.date+' '+a.heure+' · '+durLabel+' · '+a.operateur+'</div>'
-      +memoHtml+transHtml+noteHtml
-      +'</div>'
-      +'<span style="background:'+col+'15;color:'+col+';font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;white-space:nowrap;margin-left:8px;">'+lbl+'</span>'
-      +'</div></div>';
+  d.innerHTML=appels.slice(0,30).map(function(a){
+    var col=resultatCol[a.resultat]||'#6b7a8f';
+    var lbl=resultatLabel[a.resultat]||a.resultat;
+    return '<div class="fact-card" style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:700;font-size:13px;">'+a.nom+(a.tel?' <span style="color:var(--muted);font-size:11px;">'+a.tel+'</span>':'')+'</div><div style="font-size:11px;color:var(--muted);">'+a.date+' '+a.heure+' · '+a.objet+' · '+(a.duree||0)+'min · '+a.operateur+'</div>'+(a.note?'<div style="font-size:11px;color:var(--muted);font-style:italic;margin-top:2px;">'+a.note.substring(0,60)+'</div>':'')+'</div><span style="background:'+col+'15;color:'+col+';font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;white-space:nowrap;">'+lbl+'</span></div></div>';
   }).join('');
 }
 
@@ -3710,8 +3379,262 @@ function renderPassation(){
   }).join('');
 }
 
+/* ── CONTRATS D'ENTRETIEN — DISPATCH ── */
+var PRIX_CONTRATS_D={
+  'Chaudière':{Essentiel:149,Confort:199,Premium:279},
+  'Pompe à chaleur':{Essentiel:189,Confort:249,Premium:329},
+  'Climatisation':{Essentiel:139,Confort:199,Premium:269},
+  'Ballon thermodynamique':{Essentiel:129,Confort:179,Premium:249},
+  "Adoucisseur d'eau":{Essentiel:119,Confort:169,Premium:219}
+};
+var _dctMode='CB';
+
+function getContratsD(){return JSON.parse(localStorage.getItem('pl_contrats')||'[]');}
+function saveContratsD(arr){var v=JSON.stringify(arr);localStorage.setItem('pl_contrats',v);if(window.gfSync)gfSync('pl_contrats',v);}
+
+function toggleExplContratD(){
+  var body=document.getElementById('expl-contrat-d-body');
+  var icon=document.getElementById('expl-contrat-d-icon');
+  if(!body)return;
+  var open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  if(icon)icon.textContent=open?'▼':'▲';
+}
+
+function rechercherClientContratD(val){
+  var res=document.getElementById('dct-search-results');
+  if(!res)return;
+  if(!val||val.length<2){res.style.display='none';return;}
+  var clients=JSON.parse(localStorage.getItem('pl_clients')||'[]');
+  var q=val.toLowerCase();
+  var matches=clients.filter(function(c){
+    return (c.nom||'').toLowerCase().includes(q)||(c.tel||'').includes(q)||(c.adresse||'').toLowerCase().includes(q);
+  }).slice(0,6);
+  if(!matches.length){res.style.display='none';return;}
+  res.innerHTML=matches.map(function(c){
+    return '<div onclick="remplirClientContratD('+JSON.stringify(c).replace(/"/g,'&quot;')+')" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9;font-size:12px;" onmouseover="this.style.background=\'#f0fdf4\'" onmouseout="this.style.background=\'#fff\'"><b>'+c.nom+'</b><span style="color:#64748b;margin-left:8px;">'+( c.tel||'')+'</span><br><span style="color:#94a3b8;font-size:10px;">'+(c.adresse||'')+'</span></div>';
+  }).join('');
+  res.style.display='block';
+}
+
+function remplirClientContratD(c){
+  document.getElementById('dct-client').value=c.nom||'';
+  document.getElementById('dct-tel').value=c.tel||'';
+  document.getElementById('dct-adresse').value=c.adresse||'';
+  document.getElementById('dct-email').value=c.email||'';
+  document.getElementById('dct-search').value=c.nom||'';
+  document.getElementById('dct-search-results').style.display='none';
+}
+
+function calcPrixContratD(){
+  var equip=document.getElementById('dct-equip').value;
+  var formule=document.getElementById('dct-formule').value||'Confort';
+  ['Essentiel','Confort','Premium'].forEach(function(f){
+    var prices=PRIX_CONTRATS_D[equip]||{};
+    var el=document.getElementById('dctfp-'+f);
+    if(el)el.textContent=prices[f]?prices[f]+'€/an':'—';
+  });
+  var prix=(PRIX_CONTRATS_D[equip]||{})[formule]||null;
+  var disp=document.getElementById('dct-prix-display');
+  if(disp)disp.textContent=prix?prix+'€/an':'—';
+}
+
+function selectFormuleD(f){
+  document.getElementById('dct-formule').value=f;
+  ['Essentiel','Confort','Premium'].forEach(function(x){
+    var card=document.getElementById('dctf-'+x);
+    if(!card)return;
+    if(x===f){
+      card.style.borderColor=x==='Essentiel'?'#22c55e':x==='Confort'?'#3b82f6':'#f59e0b';
+      card.style.background=x==='Essentiel'?'#f0fdf4':x==='Confort'?'#eff6ff':'#fffbeb';
+    } else {
+      card.style.borderColor='#e2e8f0';
+      card.style.background=x==='Confort'?'#f8fafc':'#fff';
+    }
+  });
+  calcPrixContratD();
+}
+
+function selModeContratD(mode){
+  _dctMode=mode;
+  document.getElementById('dct-mode').value=mode;
+  ['CB','Virement','Chèque','Prélèvement'].forEach(function(m){
+    var btn=document.getElementById('dct-mode-'+{CB:'cb',Virement:'vir',Chèque:'chq',Prélèvement:'prel'}[m]);
+    if(btn){btn.style.background=m===mode?'#0d2d52':'#f1f5f9';btn.style.color=m===mode?'#fff':'#64748b';}
+  });
+}
+
+function sauvegarderContratD(){
+  var client=document.getElementById('dct-client').value.trim();
+  var equip=document.getElementById('dct-equip').value;
+  var formule=document.getElementById('dct-formule').value||'Confort';
+  if(!client){showNotif('Nom du client requis');return;}
+  if(!equip){showNotif('Équipement requis');return;}
+  var prix=(PRIX_CONTRATS_D[equip]||{})[formule]||0;
+  var contrat={
+    id:Date.now(),
+    clientNom:client,
+    clientTel:document.getElementById('dct-tel').value.trim(),
+    clientAdresse:document.getElementById('dct-adresse').value.trim(),
+    clientEmail:document.getElementById('dct-email').value.trim(),
+    technicien:(document.getElementById('dct-tech')||{}).value||'',
+    equipement:equip,
+    formule:formule,
+    montant:prix,
+    modePaiement:document.getElementById('dct-mode').value||'CB',
+    notes:document.getElementById('dct-notes').value.trim(),
+    statut:'Actif',
+    dateContrat:new Date().toISOString().slice(0,10),
+    creePar:'DISPATCH',
+    creeAt:new Date().toISOString()
+  };
+  var contrats=getContratsD();
+  contrats.push(contrat);
+  saveContratsD(contrats);
+  // Reset
+  ['dct-client','dct-tel','dct-adresse','dct-email','dct-notes','dct-search'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('dct-equip').value='';
+  document.getElementById('dct-formule').value='Confort';
+  document.getElementById('dct-prix-display').textContent='—';
+  selectFormuleD('Confort');
+  renderContratsD();
+  showNotif('✅ Contrat '+formule+' créé pour '+client+' !');
+}
+
+function genererContratPDFD(){
+  var client=document.getElementById('dct-client').value.trim()||'Client';
+  var equip=document.getElementById('dct-equip').value||'—';
+  var formule=document.getElementById('dct-formule').value||'Confort';
+  var prix=(PRIX_CONTRATS_D[equip]||{})[formule]||0;
+  var adr=document.getElementById('dct-adresse').value.trim();
+  var tel=document.getElementById('dct-tel').value.trim();
+  var mode=document.getElementById('dct-mode').value||'CB';
+  var today=new Date().toLocaleDateString('fr-FR');
+  var inclus={Essentiel:['Entretien annuel complet','Vérification des sécurités','Réglage du brûleur / circuit','Rapport d\'entretien signé','Attestation de conformité'],Confort:['Tout ESSENTIEL inclus','Dépannage prioritaire inclus','Déplacement dépannage offert','Main-d\'œuvre dépannage incluse','Rappels entretien automatiques','Service client prioritaire'],Premium:['Tout CONFORT inclus','Remise 15-20% sur les pièces','Remise sur factures annuelles','File d\'attente prioritaire absolue','Rapport d\'inspection visuelle annuel','Client VIP GreenFlow']};
+  var w=window.open('','_blank','width=794,height=1123');
+  if(!w)return;
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Contrat GreenFlow — ${client}</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0;font-family:'Arial',sans-serif;}body{background:#fff;color:#1a2537;font-size:11px;padding:20px;}
+  .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;padding-bottom:14px;border-bottom:3px solid #3a8c30;}
+  .logo-area h1{color:#0d2d52;font-size:20px;font-weight:900;letter-spacing:-0.5px;}
+  .logo-area p{color:#3a8c30;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+  .titre-zone{text-align:right;}.titre-zone h2{font-size:18px;font-weight:900;color:#0d2d52;text-transform:uppercase;letter-spacing:1px;}
+  .titre-zone p{font-size:9px;color:#64748b;font-style:italic;}
+  .section{margin-bottom:14px;padding:12px 14px;border:1px solid #e2e8f0;border-radius:8px;}
+  .section-title{font-size:9px;font-weight:800;color:#0d2d52;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .field{margin-bottom:4px;}.field label{font-size:8px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;}
+  .field span{font-size:11px;font-weight:600;color:#1a2537;}
+  .formule-badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+  .f-ess{background:#f0fdf4;color:#15803d;border:2px solid #22c55e;}
+  .f-con{background:#eff6ff;color:#1d4ed8;border:2px solid #3b82f6;}
+  .f-pre{background:#fffbeb;color:#92400e;border:2px solid #f59e0b;}
+  .inclus-list{list-style:none;}.inclus-list li{padding:3px 0;font-size:10px;color:#374151;}
+  .inclus-list li::before{content:"✓ ";color:#3a8c30;font-weight:700;}
+  .prix-zone{background:linear-gradient(135deg,#0d2d52,#1a4a7a);color:#fff;border-radius:10px;padding:14px;text-align:center;margin:12px 0;}
+  .prix-zone .montant{font-size:32px;font-weight:900;letter-spacing:-1px;}
+  .prix-zone .label{font-size:9px;opacity:0.7;text-transform:uppercase;letter-spacing:1px;}
+  .sig-zone{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px;}
+  .sig-box{border:1px solid #e2e8f0;border-radius:8px;padding:12px;text-align:center;}
+  .sig-line{border-bottom:1px solid #94a3b8;height:50px;margin:10px 0;}
+  .sig-label{font-size:8px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;}
+  .footer{margin-top:14px;padding-top:10px;border-top:1px solid #e2e8f0;font-size:8px;color:#94a3b8;text-align:center;}
+  .mentions{background:#f8fafc;border-radius:6px;padding:8px;font-size:7px;color:#94a3b8;margin-top:10px;line-height:1.5;}
+  </style></head><body>
+  <div class="header">
+    <div class="logo-area"><h1>GreenFlow</h1><p>Technologies</p><p style="margin-top:4px;font-size:8px;color:#94a3b8;">Plomberie · Chauffage · Climatisation</p></div>
+    <div class="titre-zone"><h2>Votre Contrat d'Entretien</h2><p>Tranquillité, Performance &amp; Sérénité</p><p style="margin-top:4px;">N° ${Date.now().toString().slice(-6)} · Date : ${today}</p></div>
+  </div>
+  <div class="grid2">
+    <div class="section"><div class="section-title">1. Informations Client</div>
+      <div class="field"><label>Nom</label><span>${client}</span></div>
+      <div class="field"><label>Téléphone</label><span>${tel||'—'}</span></div>
+      <div class="field"><label>Adresse</label><span>${adr||'—'}</span></div>
+    </div>
+    <div class="section"><div class="section-title">2. Équipement</div>
+      <div class="field"><label>Type d'équipement</label><span>${equip}</span></div>
+      <div class="field"><label>Mode de paiement</label><span>${mode}</span></div>
+      <div class="field"><label>Date de signature</label><span>${today}</span></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">3. Formule choisie</div>
+    <span class="formule-badge f-${formule==='Essentiel'?'ess':formule==='Confort'?'con':'pre'}">${formule}</span>
+    <ul class="inclus-list">${inclus[formule].map(function(i){return '<li>'+i+'</li>';}).join('')}</ul>
+  </div>
+  <div class="prix-zone">
+    <div class="label">Montant annuel TTC</div>
+    <div class="montant">${prix}€</div>
+    <div style="font-size:10px;opacity:0.7;margin-top:4px;">soit ${Math.round(prix/12)}€/mois · Paiement : ${mode}</div>
+  </div>
+  <div class="section">
+    <div class="section-title">4. Conditions</div>
+    <div style="font-size:10px;color:#374151;line-height:1.7;">Le présent contrat est conclu pour une durée d'un (1) an à compter de la date de signature, renouvelable tacitement. GreenFlow Technologies s'engage à réaliser l'entretien annuel conformément aux préconisations du fabricant. En cas de résiliation, un préavis de 30 jours est requis avant l'échéance annuelle.</div>
+  </div>
+  <div class="sig-zone">
+    <div class="sig-box"><div class="sig-label">Signature du client</div><div class="sig-line"></div><div style="font-size:9px;color:#94a3b8;">Lu et approuvé</div></div>
+    <div class="sig-box"><div class="sig-label">GreenFlow Technologies</div><div class="sig-line"></div><div style="font-size:9px;color:#94a3b8;">Cachet et signature</div></div>
+  </div>
+  <div class="mentions">Conformément à l'article L221-18 du Code de la consommation, vous disposez d'un délai de 14 jours à compter de la signature pour exercer votre droit de rétractation. GreenFlow Technologies — RC Pro assurée — Certifié RGE</div>
+  <div class="footer">GreenFlow Technologies · contact@greenflow.fr · 24h/24 7j/7</div>
+  </body></html>`);
+  w.document.close();
+  setTimeout(function(){w.print();},600);
+}
+
+function renderContratsD(){
+  // Remplir select technicien
+  var techSel=document.getElementById('dct-tech');
+  if(techSel){
+    var techs=JSON.parse(localStorage.getItem('pl_techs')||'[]');
+    techSel.innerHTML='<option value="">— Technicien —</option>'+techs.map(function(t){return'<option value="'+(t.nom||t)+'">'+( t.nom||t)+'</option>';}).join('');
+  }
+  var el=document.getElementById('liste-contrats-d');if(!el)return;
+  var contrats=getContratsD().slice().reverse();
+  if(!contrats.length){el.innerHTML='<div style="text-align:center;padding:24px;color:#94a3b8;font-size:12px;">Aucun contrat créé</div>';return;}
+  var couleurs={Essentiel:{bg:'#f0fdf4',col:'#15803d',bord:'#22c55e'},Confort:{bg:'#eff6ff',col:'#1d4ed8',bord:'#3b82f6'},Premium:{bg:'#fffbeb',col:'#92400e',bord:'#f59e0b'}};
+  el.innerHTML=contrats.map(function(c){
+    var col=couleurs[c.formule]||{bg:'#f8fafc',col:'#64748b',bord:'#e2e8f0'};
+    return'<div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid '+col.bord+';border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,0.05);">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">'
+      +'<div><div style="font-weight:800;font-size:13px;color:#0d2d52;">'+c.clientNom+'</div>'
+      +'<div style="font-size:11px;color:#64748b;margin-top:2px;">'+c.equipement+' · '+(c.clientAdresse||'')+'</div>'
+      +'<div style="font-size:10px;color:#94a3b8;margin-top:2px;">'+( c.clientTel||'')+(c.technicien?' · 👷 '+c.technicien:'')+'</div></div>'
+      +'<div style="text-align:right;flex-shrink:0;"><span style="background:'+col.bg+';color:'+col.col+';font-size:9px;font-weight:700;padding:2px 8px;border-radius:6px;">'+c.formule+'</span>'
+      +'<div style="font-size:16px;font-weight:800;color:'+col.col+';margin-top:4px;">'+(c.montant||'—')+'€</div>'
+      +'<div style="font-size:9px;color:#94a3b8;">'+( c.dateContrat||'')+'</div></div></div>'
+      +'<div style="display:flex;gap:6px;margin-top:8px;">'
+      +'<button onclick="genererContratPDFExistD('+c.id+')" style="flex:1;background:#f1f5f9;border:none;border-radius:8px;padding:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">📄 PDF</button>'
+      +'<button onclick="supprimerContratD('+c.id+')" style="background:#fef2f2;border:none;border-radius:8px;padding:6px 10px;font-size:11px;color:#dc2626;cursor:pointer;font-family:inherit;">✕</button>'
+      +'</div></div>';
+  }).join('');
+}
+
+function genererContratPDFExistD(id){
+  var c=getContratsD().find(function(x){return x.id===id;});
+  if(!c)return;
+  var map={'dct-client':'clientNom','dct-tel':'clientTel','dct-adresse':'clientAdresse','dct-email':'clientEmail'};
+  Object.keys(map).forEach(function(fid){
+    var el=document.getElementById(fid);
+    if(el)el.value=c[map[fid]]||'';
+  });
+  document.getElementById('dct-equip').value=c.equipement||'';
+  document.getElementById('dct-formule').value=c.formule||'Confort';
+  document.getElementById('dct-mode').value=c.modePaiement||'CB';
+  genererContratPDFD();
+}
+
+function supprimerContratD(id){
+  if(!confirm('Supprimer ce contrat ?'))return;
+  var arr=getContratsD().filter(function(c){return c.id!==id;});
+  saveContratsD(arr);
+  renderContratsD();
+  showNotif('Contrat supprimé');
+}
+
 /* ── FEATURE 3 — RAPPELS & RELANCES ── */
 function renderRappels(){
+  renderRappelsSMSDemain();
   var el=document.getElementById('rappels-list');if(!el)return;
   var today=todayStr();
   var items=[];
@@ -3747,7 +3670,7 @@ function renderRapportJour(){
   el.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
   +[['RDV terminés',termines.length+' / '+rdvs.length,'#16a34a'],
     ['CA réalisé',ca.toLocaleString('fr-FR')+'€','#2563eb'],
-    ['Rapports soumis',raps.length,'#7c3aed'],
+    ['Urgences',urgences.length,'#dc2626'],
     ['À facturer',attente.length,'#f97316']
   ].map(function(x){return'<div style="background:#f8fafc;border-radius:10px;padding:10px;text-align:center;"><div style="font-size:9px;color:#64748b;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;">'+x[0]+'</div><div style="font-size:20px;font-weight:800;color:'+x[2]+';margin-top:4px;">'+x[1]+'</div></div>';}).join('')
   +'</div>';
@@ -3771,382 +3694,493 @@ function copierRapportJour(){
 }
 </script>
 
-<!-- ═══════════════════════════════════════════ -->
-<!-- MODAL MODIFICATION / SUPPRESSION RDV      -->
-<!-- ═══════════════════════════════════════════ -->
-<div id="modal-rdv-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1000;overflow-y:auto;" onclick="if(event.target===this)fermerModalRdv()">
-  <div style="background:#fff;border-radius:20px 20px 0 0;position:fixed;bottom:0;left:0;right:0;max-height:92vh;overflow-y:auto;padding:20px 16px 32px;" id="modal-rdv-inner">
-
-    <!-- Handle drag -->
-    <div style="width:40px;height:4px;background:#e2e8f0;border-radius:4px;margin:0 auto 16px;"></div>
-
-    <!-- Header -->
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
-      <div>
-        <div style="font-size:11px;color:#64748b;letter-spacing:1.5px;font-weight:700;text-transform:uppercase;">Intervention</div>
-        <div style="font-size:17px;font-weight:800;color:#0d2d52;margin-top:2px;" id="modal-rdv-title">—</div>
-        <div style="font-size:12px;color:#64748b;margin-top:2px;" id="modal-rdv-sub">—</div>
-      </div>
-      <button onclick="fermerModalRdv()" style="background:#f1f5f9;border:none;border-radius:10px;padding:8px 12px;font-size:16px;cursor:pointer;">✕</button>
-    </div>
-
-    <!-- Infos RDV -->
-    <div id="modal-rdv-infos" style="background:#f8fafc;border-radius:12px;padding:12px;margin-bottom:16px;font-size:12px;line-height:1.8;color:#334155;"></div>
-
-    <!-- Historique modifs -->
-    <div id="modal-rdv-historique" style="display:none;margin-bottom:16px;"></div>
-
-    <!-- ACTIONS RAPIDES -->
-    <div id="modal-rdv-actions" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
-      <button onclick="ouvrirSectionRdv('modifier')" style="background:#dbeafe;border:2px solid #2563eb20;border-radius:14px;padding:16px 12px;cursor:pointer;text-align:center;">
-        <div style="font-size:22px;margin-bottom:4px;">✏️</div>
-        <div style="font-size:12px;font-weight:800;color:#1d4ed8;">Modifier</div>
-        <div style="font-size:10px;color:#64748b;">Date · Heure · Tech</div>
-      </button>
-      <button onclick="ouvrirSectionRdv('decaler')" style="background:#fef3c7;border:2px solid #f59e0b20;border-radius:14px;padding:16px 12px;cursor:pointer;text-align:center;">
-        <div style="font-size:22px;margin-bottom:4px;">📅</div>
-        <div style="font-size:12px;font-weight:800;color:#d97706;">Décaler</div>
-        <div style="font-size:10px;color:#64748b;">Choisir raison</div>
-      </button>
-      <button onclick="ouvrirSectionRdv('annuler')" style="background:#fee2e2;border:2px solid #dc262620;border-radius:14px;padding:16px 12px;cursor:pointer;text-align:center;">
-        <div style="font-size:22px;margin-bottom:4px;">❌</div>
-        <div style="font-size:12px;font-weight:800;color:#dc2626;">Annuler / Suppr.</div>
-        <div style="font-size:10px;color:#64748b;">Choisir raison</div>
-      </button>
-      <button onclick="ouvrirSectionRdv('appel')" style="background:#dcfce7;border:2px solid #16a34a20;border-radius:14px;padding:16px 12px;cursor:pointer;text-align:center;">
-        <div style="font-size:22px;margin-bottom:4px;">📞</div>
-        <div style="font-size:12px;font-weight:800;color:#15803d;">Appeler</div>
-        <div style="font-size:10px;color:#64748b;">Client · SMS</div>
-      </button>
-    </div>
-
-    <!-- SECTION : MODIFIER -->
-    <div id="section-modifier" style="display:none;">
-      <div style="font-size:11px;font-weight:800;color:#1d4ed8;letter-spacing:1px;margin-bottom:12px;">✏️ MODIFIER L'INTERVENTION</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-        <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">NOUVELLE DATE</label>
-          <input type="date" id="mod-date" class="form-input" style="font-size:13px;"></div>
-        <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">NOUVELLE HEURE</label>
-          <input type="time" id="mod-heure" class="form-input" style="font-size:13px;"></div>
-      </div>
-      <div style="margin-bottom:10px;">
-        <label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">TECHNICIEN</label>
-        <select id="mod-tech" class="form-select"></select>
-      </div>
-      <div style="margin-bottom:10px;">
-        <label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:6px;">PRIX (€)</label>
-        <input type="number" id="mod-prix" class="form-input" placeholder="0">
-      </div>
-      <div style="margin-bottom:12px;">
-        <label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">NOTES</label>
-        <textarea id="mod-notes" class="form-textarea" rows="2"></textarea>
-      </div>
-      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#334155;margin-bottom:12px;cursor:pointer;">
-        <input type="checkbox" id="mod-sms-notif" checked style="width:16px;height:16px;"> Envoyer SMS de confirmation au client
-      </label>
-      <div style="display:flex;gap:8px;">
-        <button onclick="fermerSectionRdv()" class="btn btn-gray" style="flex:1;">Retour</button>
-        <button onclick="sauvegarderModifRdv()" class="btn btn-primary" style="flex:2;">💾 Sauvegarder</button>
-      </div>
-    </div>
-
-    <!-- SECTION : DÉCALER -->
-    <div id="section-decaler" style="display:none;">
-      <div style="font-size:11px;font-weight:800;color:#d97706;letter-spacing:1px;margin-bottom:12px;">📅 DÉCALER L'INTERVENTION</div>
-      <div style="margin-bottom:12px;">
-        <div style="font-size:11px;font-weight:700;color:#334155;margin-bottom:8px;">Raison du décalage :</div>
-        <div style="display:flex;flex-direction:column;gap:6px;" id="raisons-decaler">
-          <label class="raison-option"><input type="radio" name="raison-dec" value="Client demande à décaler"> <span>👤 Client demande à décaler</span></label>
-          <label class="raison-option"><input type="radio" name="raison-dec" value="Tech indisponible"> <span>👷 Tech indisponible ce jour</span></label>
-          <label class="raison-option"><input type="radio" name="raison-dec" value="Pièce manquante"> <span>🔧 Attente de pièce / matériel</span></label>
-          <label class="raison-option"><input type="radio" name="raison-dec" value="Accès impossible"> <span>🚪 Accès impossible (client absent)</span></label>
-          <label class="raison-option"><input type="radio" name="raison-dec" value="Urgence prioritaire"> <span>🚨 Urgence prioritaire à traiter d'abord</span></label>
-          <label class="raison-option"><input type="radio" name="raison-dec" value="Autre"> <span>💬 Autre raison</span></label>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-        <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">NOUVEAU JOUR</label>
-          <input type="date" id="dec-date" class="form-input"></div>
-        <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">NOUVELLE HEURE</label>
-          <input type="time" id="dec-heure" class="form-input"></div>
-      </div>
-      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#334155;margin-bottom:12px;cursor:pointer;">
-        <input type="checkbox" id="dec-sms" checked style="width:16px;height:16px;"> SMS au client : "Votre RDV est reporté au [date]"
-      </label>
-      <div style="display:flex;gap:8px;">
-        <button onclick="fermerSectionRdv()" class="btn btn-gray" style="flex:1;">Retour</button>
-        <button onclick="confirmerDecalage()" style="flex:2;background:#f59e0b;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;">📅 Confirmer le décalage</button>
-      </div>
-    </div>
-
-    <!-- SECTION : ANNULER/SUPPRIMER -->
-    <div id="section-annuler" style="display:none;">
-      <div style="font-size:11px;font-weight:800;color:#dc2626;letter-spacing:1px;margin-bottom:12px;">❌ ANNULER / SUPPRIMER</div>
-      <div style="margin-bottom:12px;">
-        <div style="font-size:11px;font-weight:700;color:#334155;margin-bottom:8px;">Raison de l'annulation :</div>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <label class="raison-option"><input type="radio" name="raison-ann" value="Annulation client (souhait du client)"> <span>👤 Annulation client — souhait du client</span></label>
-          <label class="raison-option"><input type="radio" name="raison-ann" value="Annulation de notre part"> <span>🏢 Annulation de notre part</span></label>
-          <label class="raison-option"><input type="radio" name="raison-ann" value="Doublon de RDV"> <span>🔁 Doublon — déjà enregistré</span></label>
-          <label class="raison-option"><input type="radio" name="raison-ann" value="Client injoignable"> <span>📵 Client injoignable</span></label>
-          <label class="raison-option"><input type="radio" name="raison-ann" value="Hors zone"> <span>🚫 Hors zone d'intervention</span></label>
-          <label class="raison-option"><input type="radio" name="raison-ann" value="Autre"> <span>💬 Autre raison</span></label>
-        </div>
-      </div>
-      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#334155;margin-bottom:12px;cursor:pointer;">
-        <input type="checkbox" id="ann-sms" style="width:16px;height:16px;"> Prévenir le client par SMS
-      </label>
-      <div style="display:flex;gap:8px;">
-        <button onclick="fermerSectionRdv()" class="btn btn-gray" style="flex:1;">Retour</button>
-        <button onclick="confirmerAnnulation()" style="flex:2;background:#dc2626;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;">❌ Confirmer l'annulation</button>
-      </div>
-    </div>
-
-    <!-- SECTION : APPEL/SMS -->
-    <div id="section-appel" style="display:none;">
-      <div style="font-size:11px;font-weight:800;color:#15803d;letter-spacing:1px;margin-bottom:12px;">📞 CONTACT CLIENT</div>
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <a id="modal-tel-link" href="#" style="display:flex;align-items:center;gap:10px;background:#dcfce7;border-radius:12px;padding:12px 14px;text-decoration:none;color:#15803d;font-weight:700;font-size:13px;">
-          <span style="font-size:20px;">📞</span> Appeler le client
-        </a>
-        <button onclick="envoyerSmsConfirm()" style="display:flex;align-items:center;gap:10px;background:#dbeafe;border-radius:12px;padding:12px 14px;border:none;color:#1d4ed8;font-weight:700;font-size:13px;cursor:pointer;width:100%;text-align:left;">
-          <span style="font-size:20px;">💬</span> SMS confirmation RDV
-        </button>
-        <button onclick="envoyerSmsRappel()" style="display:flex;align-items:center;gap:10px;background:#fef3c7;border-radius:12px;padding:12px 14px;border:none;color:#d97706;font-weight:700;font-size:13px;cursor:pointer;width:100%;text-align:left;">
-          <span style="font-size:20px;">⏰</span> SMS rappel "RDV demain"
-        </button>
-        <button onclick="ouvrirSectionRdv('modifier')" style="display:flex;align-items:center;gap:10px;background:#f1f5f9;border-radius:12px;padding:12px 14px;border:none;color:#334155;font-weight:700;font-size:13px;cursor:pointer;width:100%;text-align:left;">
-          <span style="font-size:20px;">✏️</span> Modifier l'intervention
-        </button>
-        <button onclick="imprimerBDI(_rdvModalCurrent)" style="display:flex;align-items:center;gap:10px;background:#f1f5f9;border-radius:12px;padding:12px 14px;border:none;color:#334155;font-weight:700;font-size:13px;cursor:pointer;width:100%;text-align:left;">
-          <span style="font-size:20px;">🖨️</span> Imprimer bon d'intervention
-        </button>
-      </div>
-      <div style="margin-top:12px;">
-        <button onclick="fermerSectionRdv()" class="btn btn-gray" style="width:100%;">Retour</button>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<style>
-.raison-option{display:flex;align-items:center;gap:8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 12px;cursor:pointer;font-size:12px;font-weight:600;color:#334155;transition:all 0.15s;}
-.raison-option:has(input:checked){background:#eff6ff;border-color:#2563eb;color:#1d4ed8;}
-.raison-option input[type=radio]{accent-color:#2563eb;}
-</style>
-
-<script>
-var _rdvModalId=null;
-var _rdvModalCurrent=null;
-
-function ouvrirModalRdv(id){
-  var rdvs=getRdvs();
-  var r=rdvs.find(function(x){return x.id===id;});
-  if(!r)return;
-  _rdvModalId=id;
-  _rdvModalCurrent=r;
-
-  document.getElementById('modal-rdv-title').textContent=r.clientNom;
-  document.getElementById('modal-rdv-sub').textContent=r.type+' · '+r.dateRdv+' à '+r.heureRdv+' · '+r.technicien;
-  document.getElementById('modal-rdv-infos').innerHTML=
-    '<span style="margin-right:12px;">📍 '+(r.adresse||'—')+'</span>'
-    +(r.clientTel?'<span style="margin-right:12px;">📞 '+r.clientTel+'</span>':'')
-    +'<span style="margin-right:12px;">💶 '+(r.prixVente||0)+'€</span>'
-    +(r.notes?'<div style="margin-top:4px;color:#2563eb;font-style:italic;">📝 '+r.notes+'</div>':'');
-
-  // Historique
-  var hist=r.modifs||[];
-  var hDiv=document.getElementById('modal-rdv-historique');
-  if(hist.length){
-    hDiv.style.display='block';
-    hDiv.innerHTML='<div style="font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;margin-bottom:6px;">HISTORIQUE</div>'
-      +hist.slice(-3).reverse().map(function(m){
-        return'<div style="background:#f8fafc;border-left:3px solid '+(m.type==='annulation'?'#dc2626':m.type==='decalage'?'#f59e0b':'#2563eb')+';border-radius:0 8px 8px 0;padding:7px 10px;margin-bottom:5px;font-size:11px;">'
-          +'<div style="font-weight:700;color:#334155;">'+m.label+'</div>'
-          +'<div style="color:#64748b;font-size:10px;">'+new Date(m.ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+'</div>'
-          +'</div>';
-      }).join('');
-  } else { hDiv.style.display='none'; }
-
-  // Pré-remplir champs modifier
-  document.getElementById('mod-date').value=r.dateRdv||'';
-  document.getElementById('mod-heure').value=r.heureRdv||'';
-  document.getElementById('mod-notes').value=r.notes||'';
-  document.getElementById('mod-prix').value=r.prixVente||'';
-  var sel=document.getElementById('mod-tech');
-  sel.innerHTML=['À planifier','Technicien 1','Technicien 2'].concat(
-    getRdvs().map(function(x){return x.technicien;}).filter(function(v,i,a){return v&&v!=='À planifier'&&a.indexOf(v)===i;})
-  ).map(function(t){return'<option'+(t===r.technicien?' selected':'')+'>'+t+'</option>';}).join('');
-
-  // Lien appel
-  var lnk=document.getElementById('modal-tel-link');
-  if(lnk)lnk.href=r.clientTel?'tel:'+r.clientTel:'#';
-
-  fermerSectionRdv();
-  document.getElementById('modal-rdv-actions').style.display='grid';
-  document.getElementById('modal-rdv-bg').style.display='block';
-  document.body.style.overflow='hidden';
-}
-
-function fermerModalRdv(){
-  document.getElementById('modal-rdv-bg').style.display='none';
-  document.body.style.overflow='';
-  _rdvModalId=null;_rdvModalCurrent=null;
-}
-
-function ouvrirSectionRdv(s){
-  document.getElementById('modal-rdv-actions').style.display='none';
-  ['modifier','decaler','annuler','appel'].forEach(function(x){
-    document.getElementById('section-'+x).style.display=x===s?'block':'none';
-  });
-}
-
-function fermerSectionRdv(){
-  ['modifier','decaler','annuler','appel'].forEach(function(x){
-    document.getElementById('section-'+x).style.display='none';
-  });
-  document.getElementById('modal-rdv-actions').style.display='grid';
-}
-
-function getOperateurNom(){return currentOperateur?currentOperateur.nom:'Dispatch';}
-
-function ajouterModif(r,type,label){
-  r.modifs=r.modifs||[];
-  r.modifs.push({type:type,label:label,par:getOperateurNom(),ts:new Date().toISOString()});
-}
-
-function pousserNotifPatron(type,texte,detail){
-  try{
-    var par=getOperateurNom();
-    var alertes=JSON.parse(localStorage.getItem('pl_alertes')||'[]');
-    if(!Array.isArray(alertes))alertes=[];
-    alertes.unshift({type:type,texte:texte,detail:detail||null,par:par,ts:new Date().toISOString(),lu:false,source:'dispatch'});
-    alertes=alertes.slice(0,50);
-    var v=JSON.stringify(alertes);
-    localStorage.setItem('pl_alertes',v);
-    if(window.gfSync)gfSync('pl_alertes',v);
-  }catch(e){}
-}
-
-function getAnnulationsLog(){return JSON.parse(localStorage.getItem('pl_annulations')||'[]');}
-function logAnnulationEvent(type,rdv,extras){
-  var log=getAnnulationsLog();
-  var entry=Object.assign({id:Date.now(),type:type,clientNom:rdv.clientNom,typeIntervention:rdv.type,technicien:rdv.technicien,dateRdv:rdv.dateRdv,heureRdv:rdv.heureRdv,par:getOperateurNom(),ts:new Date().toISOString()},extras||{});
-  log.push(entry);
-  if(log.length>1000)log=log.slice(-1000);
-  var v=JSON.stringify(log);localStorage.setItem('pl_annulations',v);
-  if(window.gfSync)gfSync('pl_annulations',v);
-}
-
-function sauvegarderModifRdv(){
-  if(!_rdvModalId)return;
-  var rdvs=getRdvs();
-  var idx=rdvs.findIndex(function(x){return x.id===_rdvModalId;});
-  if(idx<0)return;
-  var r=rdvs[idx];
-  var oldDate=r.dateRdv,oldHeure=r.heureRdv;
-  r.dateRdv=document.getElementById('mod-date').value||r.dateRdv;
-  r.heureRdv=document.getElementById('mod-heure').value||r.heureRdv;
-  r.technicien=document.getElementById('mod-tech').value;
-  r.notes=document.getElementById('mod-notes').value;
-  r.prixVente=parseFloat(document.getElementById('mod-prix').value)||r.prixVente;
-  var changed=(r.dateRdv!==oldDate||r.heureRdv!==oldHeure);
-  ajouterModif(r,'modif','Modification : '+r.dateRdv+' à '+r.heureRdv+' — '+r.technicien);
-  logAnnulationEvent('modif',r,{ancienneDate:oldDate,ancienneHeure:oldHeure,nouvDate:r.dateRdv,nouvHeure:r.heureRdv,raison:'Modification manuelle'});
-  saveRdvs(rdvs);
-  pousserNotifPatron('modif','✏️ RDV modifié — '+r.clientNom,{
-    client:r.clientNom,type:r.type,
-    nouvDate:r.dateRdv,nouvHeure:r.heureRdv,tech:r.technicien,
-    raison:'Modification manuelle'
-  });
-  if(changed&&document.getElementById('mod-sms-notif').checked&&r.clientTel){
-    smsTyped(r.clientTel,'confirmation',{nom:r.clientNom,date:r.dateRdv,heure:r.heureRdv,tech:r.technicien});
-  }
-  fermerModalRdv();
-  renderTousRdvs();actualiserTout();
-  showNotif('✅ Intervention modifiée'+(changed?' — SMS envoyé au client':''));
-}
-
-function confirmerDecalage(){
-  if(!_rdvModalId)return;
-  var raison=document.querySelector('input[name="raison-dec"]:checked');
-  if(!raison){showNotif('Sélectionne une raison');return;}
-  var newDate=document.getElementById('dec-date').value;
-  var newHeure=document.getElementById('dec-heure').value;
-  if(!newDate){showNotif('Choisis la nouvelle date');return;}
-  var rdvs=getRdvs();
-  var idx=rdvs.findIndex(function(x){return x.id===_rdvModalId;});
-  if(idx<0)return;
-  var r=rdvs[idx];
-  var oldDate=r.dateRdv;
-  r.dateRdv=newDate;
-  if(newHeure)r.heureRdv=newHeure;
-  ajouterModif(r,'decalage','Décalé ('+raison.value+') : '+oldDate+' → '+newDate);
-  logAnnulationEvent('decalage',r,{ancienneDate:oldDate,nouvDate:newDate,nouvHeure:newHeure||r.heureRdv,raison:raison.value});
-  saveRdvs(rdvs);
-  pousserNotifPatron('decalage','📅 RDV décalé — '+r.clientNom,{
-    client:r.clientNom,type:r.type,
-    ancienneDate:oldDate,nouvDate:newDate,nouvHeure:newHeure||r.heureRdv,
-    raison:raison.value
-  });
-  if(document.getElementById('dec-sms').checked&&r.clientTel){
-    var msg='Bonjour '+r.clientNom+', votre intervention GreenFlow du '+oldDate+' est reportée au '+newDate+(newHeure?' à '+newHeure:'')+'. Raison : '+raison.value+'. Merci de votre compréhension.';
-    smsTyped(r.clientTel,'sms_brut',{message:msg});
-  }
-  fermerModalRdv();
-  renderTousRdvs();actualiserTout();
-  showNotif('📅 RDV décalé au '+newDate+(document.getElementById('dec-sms').checked?' — SMS envoyé':''));
-}
-
-function confirmerAnnulation(){
-  if(!_rdvModalId)return;
-  var raison=document.querySelector('input[name="raison-ann"]:checked');
-  if(!raison){showNotif('Sélectionne une raison');return;}
-  var rdvs=getRdvs();
-  var idx=rdvs.findIndex(function(x){return x.id===_rdvModalId;});
-  if(idx<0)return;
-  var r=rdvs[idx];
-  ajouterModif(r,'annulation','Annulé : '+raison.value);
-  r.statut='Annule';
-  r.annulationRaison=raison.value;
-  logAnnulationEvent('annulation',r,{raison:raison.value});
-  saveRdvs(rdvs);
-  pousserNotifPatron('annulation','❌ RDV annulé — '+r.clientNom,{
-    client:r.clientNom,type:r.type,
-    datePrevu:r.dateRdv,heurePrevu:r.heureRdv,tech:r.technicien,
-    raison:raison.value
-  });
-  if(document.getElementById('ann-sms').checked&&r.clientTel){
-    var msg='Bonjour '+r.clientNom+', votre intervention GreenFlow du '+r.dateRdv+' a été annulée. Raison : '+raison.value+'. N\'hésitez pas à nous recontacter.';
-    smsTyped(r.clientTel,'sms_brut',{message:msg});
-  }
-  fermerModalRdv();
-  renderTousRdvs();actualiserTout();
-  showNotif('❌ Intervention annulée — '+raison.value);
-}
-
-function envoyerSmsConfirm(){
-  if(!_rdvModalCurrent)return;
-  var r=_rdvModalCurrent;
-  if(!r.clientTel){showNotif('Pas de numéro client');return;}
-  smsTyped(r.clientTel,'confirmation',{nom:r.clientNom,date:r.dateRdv,heure:r.heureRdv,tech:r.technicien});
-  showNotif('💬 SMS de confirmation envoyé à '+r.clientNom);
-}
-
-function envoyerSmsRappel(){
-  if(!_rdvModalCurrent)return;
-  var r=_rdvModalCurrent;
-  if(!r.clientTel){showNotif('Pas de numéro client');return;}
-  var msg='Rappel GreenFlow : votre intervention est prévue demain '+r.dateRdv+' à '+r.heureRdv+'. Technicien : '+r.technicien+'. À demain !';
-  smsTyped(r.clientTel,'sms_brut',{message:msg});
-  showNotif('⏰ SMS rappel envoyé à '+r.clientNom);
-}
-</script>
-
 <script>
 if('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+}
+</script>
+
+<!-- WIDGET MESSAGERIE TECH -->
+<button id="msg-tech-fab" onclick="ouvrirMsgTech()" style="position:fixed;bottom:20px;left:20px;width:52px;height:52px;background:#7c3aed;color:#fff;border:none;border-radius:50%;font-size:20px;cursor:pointer;z-index:90;box-shadow:0 4px 20px rgba(124,58,237,0.4);display:none;">
+  💬<span id="msg-tech-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;border-radius:10px;padding:1px 5px;font-size:10px;font-weight:700;min-width:16px;text-align:center;"></span>
+</button>
+<div id="msg-tech-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;" onclick="fermerMsgTech()"></div>
+<div id="msg-tech-modal" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;z-index:201;padding:16px 16px 30px;max-height:88vh;overflow-y:auto;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <div style="font-size:13px;font-weight:800;color:#7c3aed;">💬 MESSAGES DES TECHNICIENS</div>
+    <button onclick="fermerMsgTech()" style="background:#f1f5f9;border:none;border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer;">×</button>
+  </div>
+  <div id="msg-tech-techs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;min-height:32px;"></div>
+  <div id="msg-tech-messages" style="height:45vh;overflow-y:auto;background:#f8fafc;border-radius:12px;padding:10px;margin-bottom:10px;"></div>
+  <div style="display:flex;gap:8px;">
+    <input type="text" id="msg-tech-input" placeholder="Répondre..." style="flex:1;background:#f1f5f9;border:none;border-radius:10px;padding:12px 14px;font-size:13px;outline:none;font-family:sans-serif;" onkeydown="if(event.key==='Enter')envoyerReponseTech()">
+    <button onclick="envoyerReponseTech()" style="background:#7c3aed;color:#fff;border:none;border-radius:10px;padding:12px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:sans-serif;">Envoyer</button>
+  </div>
+</div>
+
+<script>
+
+// ── MESSAGERIE TECH → DISPATCH ──
+var _msgTechRole='DISPATCH';
+var _msgTechSelectedTech=null;
+var _msgTechLastCount=0;
+function getMsgsChatAll(){return JSON.parse(localStorage.getItem('pl_chat')||'[]');}
+function saveMsgsChatAll(arr){var v=JSON.stringify(arr);localStorage.setItem('pl_chat',v);if(window.gfSync)gfSync('pl_chat',v);}
+function ouvrirMsgTech(){
+  var fab=document.getElementById('msg-tech-fab');
+  var badge=document.getElementById('msg-tech-badge');
+  if(badge){badge.style.display='none';badge.textContent='';}
+  document.getElementById('msg-tech-overlay').style.display='block';
+  document.getElementById('msg-tech-modal').style.display='block';
+  renderMsgTechTechs();
+  renderMsgTechMessages();
+}
+function fermerMsgTech(){
+  document.getElementById('msg-tech-overlay').style.display='none';
+  document.getElementById('msg-tech-modal').style.display='none';
+}
+function renderMsgTechTechs(){
+  var msgs=getMsgsChatAll();
+  var techsSet={};
+  msgs.forEach(function(m){
+    if((m.role==='TECHNICIEN'||m.role==='tech')&&m.to===_msgTechRole){
+      techsSet[m.from]=true;
+    }
+  });
+  var techs=Object.keys(techsSet);
+  var c=document.getElementById('msg-tech-techs');
+  if(!c)return;
+  if(!techs.length){c.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:4px 0;">Aucun message reçu</div>';return;}
+  if(!_msgTechSelectedTech||!techsSet[_msgTechSelectedTech])_msgTechSelectedTech=techs[0];
+  c.innerHTML=techs.map(function(t){
+    var actif=t===_msgTechSelectedTech;
+    return'<button onclick="selMsgTech(\''+t+'\')" style="background:'+(actif?'#7c3aed':'#f1f5f9')+';color:'+(actif?'#fff':'#64748b')+';border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;">👷 '+t+'</button>';
+  }).join('');
+}
+function selMsgTech(nom){
+  _msgTechSelectedTech=nom;
+  renderMsgTechTechs();
+  renderMsgTechMessages();
+}
+function renderMsgTechMessages(){
+  var c=document.getElementById('msg-tech-messages');if(!c)return;
+  var msgs=getMsgsChatAll();
+  var myRole=_msgTechRole;
+  var conv=msgs.filter(function(m){
+    var envoyeParTech=(m.role==='TECHNICIEN'||m.role==='tech')&&m.to===myRole&&m.from===_msgTechSelectedTech;
+    var envoyeParMoi=m.role===myRole&&(m.to==='TECHNICIEN'||m.to===_msgTechSelectedTech);
+    return envoyeParTech||envoyeParMoi;
+  });
+  if(!conv.length){c.innerHTML='<div style="text-align:center;color:#94a3b8;font-size:12px;padding:20px;">Aucun message avec '+(_msgTechSelectedTech||'ce technicien')+'</div>';return;}
+  var nom=_msgTechRole==='DISPATCH'?(currentOperateur&&currentOperateur.nom)||'Dispatch':_msgTechRole;
+  c.innerHTML=conv.map(function(m){
+    var isMe=m.role===myRole;
+    var h=new Date(m.ts).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    var j=new Date(m.ts).toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+    return'<div style="display:flex;justify-content:'+(isMe?'flex-end':'flex-start')+';margin-bottom:8px;">'
+    +'<div style="max-width:80%;background:'+(isMe?'#7c3aed':'#fff')+';color:'+(isMe?'#fff':'#1a2537')+';border-radius:'+(isMe?'14px 14px 4px 14px':'14px 14px 14px 4px')+';padding:10px 13px;box-shadow:0 1px 4px rgba(0,0,0,0.08);">'
+    +'<div style="font-size:13px;line-height:1.4;">'+m.text+'</div>'
+    +'<div style="font-size:10px;opacity:0.65;margin-top:4px;text-align:right;">'+(isMe?nom:m.from)+' · '+j+' '+h+'</div>'
+    +'</div></div>';
+  }).join('');
+  c.scrollTop=c.scrollHeight;
+}
+function envoyerReponseTech(){
+  var input=document.getElementById('msg-tech-input');
+  var txt=input?input.value.trim():'';
+  if(!txt)return;
+  var nom=_msgTechRole==='DISPATCH'?(currentOperateur&&currentOperateur.nom)||'Dispatch':(_msgTechRole==='PATRON'?(currentUser&&currentUser.nom)||'Patron':(currentUser&&currentUser.nom)||'Secrétaire');
+  var msgs=getMsgsChatAll();
+  msgs.push({id:Date.now(),from:nom,role:_msgTechRole,to:_msgTechSelectedTech||'TECHNICIEN',text:txt,ts:new Date().toISOString()});
+  saveMsgsChatAll(msgs);
+  if(input)input.value='';
+  renderMsgTechMessages();
+}
+function initMsgTechWidget(role){
+  _msgTechRole=role;
+  var fab=document.getElementById('msg-tech-fab');
+  if(fab)fab.style.display='block';
+  // Polling
+  setInterval(function(){
+    var msgs=getMsgsChatAll();
+    var myMsgs=msgs.filter(function(m){return(m.role==='TECHNICIEN'||m.role==='tech')&&m.to===_msgTechRole;});
+    if(myMsgs.length>_msgTechLastCount){
+      var nouveaux=myMsgs.slice(_msgTechLastCount);
+      var modal=document.getElementById('msg-tech-modal');
+      if(modal&&modal.style.display!=='none'){
+        renderMsgTechTechs();renderMsgTechMessages();
+      } else {
+        var last=nouveaux[nouveaux.length-1];
+        var badge=document.getElementById('msg-tech-badge');
+        if(badge){badge.textContent=myMsgs.length-_msgTechLastCount;badge.style.display='block';}
+        if(typeof showNotif==='function')showNotif('💬 Message de '+last.from+': '+last.text.slice(0,40));
+      }
+      _msgTechLastCount=myMsgs.length;
+    }
+  },4000);
+  window.addEventListener('storage',function(e){
+    if(e.key==='pl_chat'){
+      var msgs=getMsgsChatAll();
+      var myMsgs=msgs.filter(function(m){return(m.role==='TECHNICIEN'||m.role==='tech')&&m.to===_msgTechRole;});
+      if(myMsgs.length>_msgTechLastCount){
+        var nouveaux=myMsgs.slice(_msgTechLastCount);
+        _msgTechLastCount=myMsgs.length;
+        var modal=document.getElementById('msg-tech-modal');
+        if(modal&&modal.style.display!=='none'){renderMsgTechTechs();renderMsgTechMessages();}
+        else{
+          var last=nouveaux[nouveaux.length-1];
+          var badge=document.getElementById('msg-tech-badge');
+          if(badge){badge.textContent=parseInt(badge.textContent||'0')+nouveaux.length;badge.style.display='block';}
+          if(typeof showNotif==='function')showNotif('💬 Message de '+last.from+': '+last.text.slice(0,40));
+        }
+      }
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded",function(){initMsgTechWidget('DISPATCH');});
+</script>
+
+<!-- ═══════════════ PAGES PILOTAGE ═══════════════ -->
+
+<div id="page-perf-ca" class="hidden">
+  <div style="background:linear-gradient(135deg,#0d2d52 0%,#16a34a 100%);border-radius:16px;padding:16px;margin-bottom:12px;color:#fff;">
+    <div style="font-size:10px;letter-spacing:2px;font-weight:700;opacity:0.7;margin-bottom:10px;">📈 OBJECTIF CA — TECHNICIENS</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:20px;font-weight:900;" id="pca-jour">0€</div>
+        <div style="font-size:9px;opacity:0.7;margin-top:2px;">Réalisé aujourd'hui</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:20px;font-weight:900;" id="pca-sem">0€</div>
+        <div style="font-size:9px;opacity:0.7;margin-top:2px;">Réalisé cette semaine</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:20px;font-weight:900;" id="pca-mois">0€</div>
+        <div style="font-size:9px;opacity:0.7;margin-top:2px;">Réalisé ce mois</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:20px;font-weight:900;color:#fde68a;" id="pca-prev">0€</div>
+        <div style="font-size:9px;opacity:0.7;margin-top:2px;">Prévision fin de mois</div>
+      </div>
+    </div>
+    <div style="font-size:11px;opacity:0.6;text-align:center;" id="pca-obj-total"></div>
+  </div>
+  <div class="card" style="margin-bottom:12px;border-left:4px solid #16a34a;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div class="lbl" style="margin-bottom:0;color:#16a34a;">OBJECTIF CA PAR TECHNICIEN</div>
+      <button class="btn btn-gray" style="font-size:10px;" onclick="document.getElementById('pca-config').classList.toggle('hidden')">⚙️ Config</button>
+    </div>
+    <div id="pca-config" class="hidden" style="background:#f8fafc;border-radius:10px;padding:12px;margin-bottom:12px;border:1px solid #e2e8f0;">
+      <div style="font-size:11px;font-weight:700;color:#0d2d52;margin-bottom:8px;">Objectif mensuel par technicien (€)</div>
+      <div id="pca-config-fields"></div>
+      <button class="btn btn-primary" style="margin-top:8px;font-size:11px;" onclick="sauvegarderObjectifsTechs()">Enregistrer</button>
+    </div>
+    <div id="pca-techs-list"></div>
+  </div>
+  <div class="card" style="margin-bottom:12px;border-left:4px solid #7c3aed;">
+    <div class="lbl" style="color:#7c3aed;">🏆 CLASSEMENT TECHNICIENS — CE MOIS</div>
+    <div id="pca-classement" style="margin-top:8px;"></div>
+  </div>
+  <div class="card" style="margin-bottom:12px;border-left:4px solid #ea580c;">
+    <div class="lbl" style="color:#ea580c;">💰 PRIME AUTOMATIQUE (5% du surplus)</div>
+    <div style="font-size:11px;color:#64748b;margin-bottom:10px;">Calculée si réalisé &gt; objectif mensuel</div>
+    <div id="pca-primes"></div>
+  </div>
+</div>
+
+<div id="page-perf-planning" class="hidden">
+  <div class="card" style="margin-bottom:12px;border-left:4px solid #0d2d52;">
+    <div class="lbl" style="color:#0d2d52;">📅 TAUX DE REMPLISSAGE PLANNING</div>
+    <div style="font-size:11px;color:#64748b;margin-bottom:12px;">Capacité : 6 interventions/jour · Alerte automatique &lt;80%</div>
+    <div id="ppl-remplissage"></div>
+  </div>
+  <div class="card" style="border-left:4px solid #dc2626;">
+    <div class="lbl" style="color:#dc2626;">⏱️ TEMPS DE RÉPONSE URGENCES</div>
+    <div style="font-size:11px;color:#64748b;margin-bottom:10px;">Objectif : &lt;90 min Bordeaux · &lt;120 min Gironde</div>
+    <div id="ppl-urgences"></div>
+  </div>
+</div>
+
+<div id="page-perf-mandants" class="hidden">
+  <div style="background:linear-gradient(135deg,#7c3aed,#a855f7);border-radius:16px;padding:14px;margin-bottom:12px;color:#fff;">
+    <div style="font-size:10px;letter-spacing:2px;font-weight:700;opacity:0.7;margin-bottom:4px;">🏢 RENTABILITÉ PAR PARTENAIRE</div>
+    <div style="font-size:12px;opacity:0.8;">Assurances &amp; mandants — CA, dossiers, délais de paiement</div>
+  </div>
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl">TABLEAU DE RENTABILITÉ</div>
+    <div id="pmand-table" style="margin-top:8px;overflow-x:auto;"></div>
+  </div>
+  <div class="card" style="border-left:4px solid #f59e0b;">
+    <div class="lbl" style="color:#a16207;">ANALYSE DÉLAIS DE PAIEMENT</div>
+    <div id="pmand-delais" style="margin-top:8px;"></div>
+  </div>
+</div>
+
+<!-- MODAL SIGNATURE CLIENT MOBILE -->
+<div id="modal-sig-d" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:flex-end;justify-content:center;flex-direction:column;">
+  <div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:700px;margin:0 auto;padding:20px;padding-bottom:30px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="font-size:14px;font-weight:800;color:#0d2d52;">✍️ Signature Client</div>
+      <button onclick="fermerSigD()" style="background:#f1f5f9;border:none;border-radius:8px;width:32px;height:32px;font-size:18px;cursor:pointer;font-weight:700;">×</button>
+    </div>
+    <div id="sig-d-client-info" style="font-size:12px;color:#64748b;margin-bottom:12px;padding:8px 12px;background:#f8fafc;border-radius:8px;"></div>
+    <canvas id="sig-d-canvas" style="width:100%;height:200px;border:2px dashed #cbd5e1;border-radius:12px;touch-action:none;display:block;cursor:crosshair;background:#fafafa;"></canvas>
+    <div style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px;">Signez dans le cadre avec votre doigt</div>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button class="btn btn-gray" style="flex:1;" onclick="effacerSigD()">🗑️ Effacer</button>
+      <button class="btn btn-primary" style="flex:2;" onclick="validerSigD()">✅ Valider la signature</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// PILOTAGE — OBJECTIF CA PAR TECHNICIEN
+// ════════════════════════════════════════
+function getObjectifsTechs(){return JSON.parse(localStorage.getItem('pl_objectifs_techs')||'{}');}
+function saveObjectifsTechs(o){localStorage.setItem('pl_objectifs_techs',JSON.stringify(o));}
+
+function renderPerfCA(){
+  var rdvs=getRdvs();
+  var today=todayStr();
+  var now=new Date();
+  var ym=today.slice(0,7);
+  var monday=new Date(now);
+  monday.setDate(now.getDate()-((now.getDay()+6)%7));
+  var monStr=monday.toISOString().slice(0,10);
+  var caJour=0,caSem=0,caMois=0;
+  rdvs.forEach(function(r){
+    var p=r.prixVente||0;
+    if(r.dateRdv===today)caJour+=p;
+    if(r.dateRdv&&r.dateRdv>=monStr&&r.dateRdv<=today)caSem+=p;
+    if(r.dateRdv&&r.dateRdv.slice(0,7)===ym)caMois+=p;
+  });
+  var devisEnAttente=getDevis().filter(function(d){return d.statut!=='Traite'&&d.statut!=='Refuse';}).reduce(function(s,d){return s+(d.ttc||0);},0);
+  var rdvRestants=rdvs.filter(function(r){return r.dateRdv&&r.dateRdv.slice(0,7)===ym&&r.dateRdv>today;}).reduce(function(s,r){return s+(r.prixVente||0);},0);
+  var prevision=caMois+Math.round(devisEnAttente*0.5)+rdvRestants;
+  function el(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+  el('pca-jour',caJour.toLocaleString('fr-FR')+'€');
+  el('pca-sem',caSem.toLocaleString('fr-FR')+'€');
+  el('pca-mois',caMois.toLocaleString('fr-FR')+'€');
+  el('pca-prev',prevision.toLocaleString('fr-FR')+'€');
+  var techs=getTechs();
+  var objectifs=getObjectifsTechs();
+  var objTotal=Object.values(objectifs).reduce(function(s,v){return s+(v||0);},0);
+  el('pca-obj-total','Objectif mensuel équipe : '+(objTotal?objTotal.toLocaleString('fr-FR')+'€':'Non configuré — cliquez ⚙️'));
+  var caParTech={};
+  techs.forEach(function(t){caParTech[t]=0;});
+  rdvs.filter(function(r){return r.dateRdv&&r.dateRdv.slice(0,7)===ym;}).forEach(function(r){
+    if(r.technicien){caParTech[r.technicien]=(caParTech[r.technicien]||0)+(r.prixVente||0);}
+  });
+  var cfEl=document.getElementById('pca-config-fields');
+  if(cfEl)cfEl.innerHTML=techs.map(function(t){
+    return'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
+    +'<label style="font-size:12px;font-weight:600;color:#1a2537;">'+t+'</label>'
+    +'<input type="number" id="obj-'+t.replace(/\s/g,'_')+'" value="'+(objectifs[t]||'')+'" placeholder="25000" style="width:120px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:6px 10px;font-size:12px;font-family:Inter,sans-serif;">'
+    +'</div>';
+  }).join('');
+  var listEl=document.getElementById('pca-techs-list');
+  if(listEl)listEl.innerHTML=techs.map(function(t){
+    var ca=caParTech[t]||0;
+    var obj=objectifs[t]||25000;
+    var pct=Math.min(100,Math.round(ca/obj*100));
+    var col=pct>=100?'#16a34a':pct>=70?'#ca8a04':'#dc2626';
+    return'<div style="margin-bottom:16px;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">'
+    +'<div style="font-weight:700;font-size:13px;">'+t+'</div>'
+    +'<div style="font-size:13px;font-weight:800;color:'+col+';">'+ca.toLocaleString('fr-FR')+'€ <span style="color:#94a3b8;font-size:10px;font-weight:500;">/ '+obj.toLocaleString('fr-FR')+'€</span></div>'
+    +'</div>'
+    +'<div style="background:#f1f5f9;border-radius:100px;height:8px;">'
+    +'<div style="background:'+col+';height:8px;border-radius:100px;width:'+pct+'%;transition:width 0.6s;"></div>'
+    +'</div>'
+    +'<div style="font-size:10px;color:#94a3b8;margin-top:3px;">'+pct+'% de l\'objectif atteint</div>'
+    +'</div>';
+  }).join('')||'<div style="color:#94a3b8;font-size:12px;">Aucun technicien</div>';
+  var sorted=techs.map(function(t){return{nom:t,ca:caParTech[t]||0};}).sort(function(a,b){return b.ca-a.ca;});
+  var clEl=document.getElementById('pca-classement');
+  if(clEl)clEl.innerHTML=sorted.map(function(t,i){
+    var m=['🥇','🥈','🥉'][i]||((i+1)+'.');
+    return'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9;">'
+    +'<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">'+m+'</span>'
+    +'<div style="font-weight:700;font-size:13px;">'+t.nom+'</div></div>'
+    +'<div style="font-size:16px;font-weight:900;color:#0d2d52;">'+t.ca.toLocaleString('fr-FR')+'€</div></div>';
+  }).join('')||'<div style="color:#94a3b8;font-size:12px;padding:8px 0;">Aucune donnée ce mois</div>';
+  var primEl=document.getElementById('pca-primes');
+  if(primEl)primEl.innerHTML=techs.map(function(t){
+    var ca=caParTech[t]||0;
+    var obj=objectifs[t]||25000;
+    var surplus=ca-obj;
+    if(surplus<=0)return'<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;"><div><div style="font-weight:700;font-size:13px;">'+t+'</div><div style="font-size:11px;color:#94a3b8;">Il manque '+(obj-ca).toLocaleString('fr-FR')+'€</div></div><span style="background:#f1f5f9;color:#64748b;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;">Aucune prime</span></div>';
+    var prime=Math.round(surplus*0.05);
+    return'<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;"><div><div style="font-weight:700;font-size:13px;">'+t+'</div><div style="font-size:11px;color:#16a34a;">+'+surplus.toLocaleString('fr-FR')+'€ surplus</div></div><div style="font-size:16px;font-weight:900;color:#16a34a;">+'+prime.toLocaleString('fr-FR')+'€</div></div>';
+  }).join('')||'<div style="color:#94a3b8;font-size:12px;">Aucune donnée</div>';
+}
+
+function sauvegarderObjectifsTechs(){
+  var techs=getTechs(),obj={};
+  techs.forEach(function(t){
+    var e=document.getElementById('obj-'+t.replace(/\s/g,'_'));
+    if(e)obj[t]=parseFloat(e.value)||0;
+  });
+  saveObjectifsTechs(obj);
+  renderPerfCA();
+  document.getElementById('pca-config').classList.add('hidden');
+  showNotif('Objectifs enregistrés !');
+}
+
+// ════════════════════════════════════════
+// PILOTAGE — TAUX DE REMPLISSAGE + TEMPS RÉPONSE URGENCES
+// ════════════════════════════════════════
+function renderPerfPlanning(){
+  var rdvs=getRdvs();
+  var today=new Date();
+  var MAX=6;
+  var techs=getTechs();
+  var jours=[];
+  for(var d=0;d<7;d++){
+    var dt=new Date(today);dt.setDate(today.getDate()+d);
+    if(dt.getDay()!==0)jours.push(dt.toISOString().slice(0,10));
+  }
+  var remplEl=document.getElementById('ppl-remplissage');
+  if(remplEl)remplEl.innerHTML=techs.map(function(t){
+    var nb=rdvs.filter(function(r){return r.technicien===t&&jours.indexOf(r.dateRdv)>=0;}).length;
+    var cap=MAX*jours.length;
+    var pct=cap>0?Math.min(100,Math.round(nb/cap*100)):0;
+    var col=pct>=80?'#16a34a':pct>=60?'#ca8a04':'#dc2626';
+    var alerte=pct<80?'<span style="background:#fee2e2;color:#dc2626;border-radius:6px;padding:2px 7px;font-size:10px;font-weight:700;margin-left:6px;">⚠️ SOUS 80%</span>':'';
+    return'<div style="margin-bottom:16px;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">'
+    +'<div style="font-weight:700;font-size:13px;">'+t+alerte+'</div>'
+    +'<div style="font-size:15px;font-weight:900;color:'+col+';">'+pct+'%</div></div>'
+    +'<div style="background:#f1f5f9;border-radius:100px;height:8px;">'
+    +'<div style="background:'+col+';height:8px;border-radius:100px;width:'+pct+'%;transition:width 0.6s;"></div></div>'
+    +'<div style="font-size:10px;color:#94a3b8;margin-top:3px;">'+nb+' RDVs / '+cap+' slots (7 j hors dim.)</div></div>';
+  }).join('')||'<div style="color:#94a3b8;font-size:12px;">Aucun technicien configuré</div>';
+  var urgences=getUrgences().filter(function(u){return u.statut==='Resolu';}).slice(-10).reverse();
+  var urgEl=document.getElementById('ppl-urgences');
+  if(urgEl){
+    if(!urgences.length){urgEl.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:8px 0;">Aucune urgence résolue</div>';return;}
+    urgEl.innerHTML=urgences.map(function(u){
+      var cree=new Date(u.id);
+      var resoluAt=u.resoluAt?new Date(u.resoluAt):null;
+      var mins=resoluAt?Math.floor((resoluAt-cree)/60000):null;
+      var col=mins!==null?(mins<90?'#16a34a':mins<120?'#ca8a04':'#dc2626'):'#94a3b8';
+      return'<div style="padding:10px 0;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">'
+      +'<div><div style="font-weight:700;font-size:13px;">'+(u.clientNom||u.nom||'—')+'</div>'
+      +'<div style="font-size:11px;color:#64748b;">'+(u.type||'—')+' · '+cree.toLocaleDateString('fr-FR')+' '+cree.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})+'</div>'
+      +'<div style="font-size:11px;color:#94a3b8;">'+(u.technicien||'Non assigné')+'</div></div>'
+      +(mins!==null?'<div style="text-align:right;"><div style="font-size:20px;font-weight:900;color:'+col+';">'+mins+'<span style="font-size:10px;font-weight:500;"> min</span></div></div>':'<span style="font-size:12px;color:#94a3b8;">En cours</span>')
+      +'</div>';
+    }).join('');
+  }
+}
+
+// ════════════════════════════════════════
+// PILOTAGE — RENTABILITÉ PAR MANDANT
+// ════════════════════════════════════════
+function renderPerfMandants(){
+  var rdvs=getRdvs();
+  var stats={};
+  var DELAIS={'AXA Assistance':30,'HomeServe':45,'Covéa':60,'Allianz':30,'Generali':45,'MAIF':30,'Leroy Merlin':30,'Les Bons Artisans':21,'Fairfair':30,'Autre assurance':45};
+  rdvs.forEach(function(r){
+    if(!r.mandant||r.mandant==='')return;
+    if(!stats[r.mandant])stats[r.mandant]={dossiers:0,ca:0};
+    stats[r.mandant].dossiers++;
+    stats[r.mandant].ca+=(r.prixVente||0);
+  });
+  var liste=Object.keys(stats).sort(function(a,b){return stats[b].ca-stats[a].ca;});
+  var tableEl=document.getElementById('pmand-table');
+  if(tableEl){
+    if(!liste.length){tableEl.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:12px 0;">Aucun dossier mandant enregistré.<br>Ajoutez un partenaire lors de la création d\'un RDV.</div>';return;}
+    var html='<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="border-bottom:2px solid #e2e8f0;">'
+    +'<th style="text-align:left;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;letter-spacing:1px;">PARTENAIRE</th>'
+    +'<th style="text-align:center;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;">DOSS.</th>'
+    +'<th style="text-align:right;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;">CA</th>'
+    +'<th style="text-align:right;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;">MOY./DOSS</th>'
+    +'<th style="text-align:right;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;">DÉLAI</th>'
+    +'</tr></thead><tbody>';
+    liste.forEach(function(m){
+      var s=stats[m];var delai=DELAIS[m]||30;var moy=s.dossiers?Math.round(s.ca/s.dossiers):0;
+      var col=delai<=30?'#16a34a':delai<=45?'#ca8a04':'#dc2626';
+      html+='<tr style="border-bottom:1px solid #f1f5f9;">'
+      +'<td style="padding:10px 4px;font-weight:700;">'+m+'</td>'
+      +'<td style="padding:10px 4px;text-align:center;color:#64748b;">'+s.dossiers+'</td>'
+      +'<td style="padding:10px 4px;text-align:right;font-weight:800;color:#0d2d52;">'+s.ca.toLocaleString('fr-FR')+'€</td>'
+      +'<td style="padding:10px 4px;text-align:right;color:#64748b;">'+moy.toLocaleString('fr-FR')+'€</td>'
+      +'<td style="padding:10px 4px;text-align:right;font-weight:700;color:'+col+';">'+delai+' j</td></tr>';
+    });
+    tableEl.innerHTML=html+'</tbody></table>';
+  }
+  var delaisEl=document.getElementById('pmand-delais');
+  if(delaisEl){
+    var bons=liste.filter(function(m){return(DELAIS[m]||30)<=30;});
+    var moyens=liste.filter(function(m){var d=DELAIS[m]||30;return d>30&&d<=45;});
+    var lents=liste.filter(function(m){return(DELAIS[m]||30)>45;});
+    delaisEl.innerHTML=[
+      bons.length?'<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:#16a34a;letter-spacing:1px;margin-bottom:4px;">✅ PAIEMENT RAPIDE ≤30j</div><div style="font-size:12px;">'+bons.join(', ')+'</div></div>':'',
+      moyens.length?'<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:#ca8a04;letter-spacing:1px;margin-bottom:4px;">⚠️ PAIEMENT MOYEN 31-45j</div><div style="font-size:12px;">'+moyens.join(', ')+'</div></div>':'',
+      lents.length?'<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:#dc2626;letter-spacing:1px;margin-bottom:4px;">🔴 PAIEMENT LENT &gt;45j</div><div style="font-size:12px;">'+lents.join(', ')+'</div></div>':''
+    ].join('')||'<div style="color:#94a3b8;font-size:12px;">Aucun mandant dans les RDVs</div>';
+  }
+}
+
+// ════════════════════════════════════════
+// RELANCE DEVIS — J+3 / J+7 / J+15 / J+30
+// ════════════════════════════════════════
+function relancerDevis(idx){
+  var d=getDevis().sort(function(a,b){return b.date?b.date.localeCompare(a.date):0;});
+  if(!d[idx])return;
+  d[idx].derniereRelance=todayStr();
+  d[idx].nbRelances=(d[idx].nbRelances||0)+1;
+  saveDevis(d);
+  renderDevis();
+  var etapes=['J+3','J+7','J+15','J+30'];
+  showNotif('Relance '+(etapes[d[idx].nbRelances-1]||'J+30+')+' enregistrée pour '+d[idx].clientNom);
+}
+
+// ════════════════════════════════════════
+// SIGNATURE CLIENT MOBILE
+// ════════════════════════════════════════
+var _sigDCanvas=null,_sigDCtx=null,_sigDDrawing=false,_sigDRdvId=null;
+
+function ouvrirSigD(rdvId){
+  _sigDRdvId=rdvId||null;
+  var modal=document.getElementById('modal-sig-d');
+  if(!modal)return;
+  modal.style.display='flex';
+  var infoEl=document.getElementById('sig-d-client-info');
+  if(infoEl){
+    if(rdvId){
+      var rdvs=getRdvs();var rdv=rdvs.find(function(r){return r.id===rdvId;});
+      infoEl.textContent=rdv?((rdv.clientNom||'—')+' — '+(rdv.type||'—')+' — '+(rdv.dateRdv||'—')):'Intervention #'+rdvId;
+    }else infoEl.textContent='Signature manuelle';
+  }
+  setTimeout(function(){initSigDCanvas();},150);
+}
+function fermerSigD(){var modal=document.getElementById('modal-sig-d');if(modal)modal.style.display='none';_sigDRdvId=null;}
+function initSigDCanvas(){
+  var c=document.getElementById('sig-d-canvas');if(!c)return;
+  _sigDCanvas=c;c.width=c.offsetWidth||320;c.height=c.offsetHeight||200;
+  _sigDCtx=c.getContext('2d');_sigDCtx.strokeStyle='#0d2d52';_sigDCtx.lineWidth=2.5;_sigDCtx.lineCap='round';_sigDCtx.lineJoin='round';
+  _sigDCtx.clearRect(0,0,c.width,c.height);
+  function pos(ev){var rect=c.getBoundingClientRect();var e=ev.touches?ev.touches[0]:ev;return{x:(e.clientX-rect.left)*(c.width/rect.width),y:(e.clientY-rect.top)*(c.height/rect.height)};}
+  c.onmousedown=c.ontouchstart=function(ev){ev.preventDefault();_sigDDrawing=true;var p=pos(ev);_sigDCtx.beginPath();_sigDCtx.moveTo(p.x,p.y);};
+  c.onmousemove=c.ontouchmove=function(ev){if(!_sigDDrawing)return;ev.preventDefault();var p=pos(ev);_sigDCtx.lineTo(p.x,p.y);_sigDCtx.stroke();};
+  c.onmouseup=c.ontouchend=function(){_sigDDrawing=false;};
+}
+function effacerSigD(){if(_sigDCtx&&_sigDCanvas)_sigDCtx.clearRect(0,0,_sigDCanvas.width,_sigDCanvas.height);}
+function validerSigD(){
+  if(!_sigDCanvas)return;
+  var data=_sigDCanvas.toDataURL('image/png');
+  if(_sigDRdvId){
+    var rdvs=getRdvs();var ri=rdvs.findIndex(function(r){return r.id===_sigDRdvId;});
+    if(ri>=0){rdvs[ri].signature=data;rdvs[ri].signeLe=todayStr();saveRdvs(rdvs);}
+    var raps=getRapports();var rri=raps.findIndex(function(r){return r.rdvId===_sigDRdvId;});
+    if(rri>=0){raps[rri].signature=data;saveRapports(raps);}
+  }
+  fermerSigD();showNotif('Signature enregistrée !');
+  if(!document.getElementById('page-validation').classList.contains('hidden'))renderValidation();
 }
 </script>
 

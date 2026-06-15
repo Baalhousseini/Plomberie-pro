@@ -260,8 +260,8 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
 
 /* ── BOTTOM NAV ── */
 .nav{display:none!important;}
-.bottom-nav{display:none!important;}
-.bnav-btn{flex:1;background:none;border:none;padding:10px 4px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:9px;font-weight:700;font-family:'Inter',sans-serif;transition:color 0.15s;line-height:1;letter-spacing:0.3px;text-transform:uppercase;}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1.5px solid var(--border);display:flex;z-index:80;box-shadow:0 -4px 20px rgba(13,45,82,0.10);}
+.bnav-btn{flex:1;background:none;border:none;padding:10px 4px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:9px;font-weight:700;font-family:'Inter',sans-serif;transition:color 0.15s;line-height:1;letter-spacing:0.3px;text-transform:uppercase;position:relative;}
 .bnav-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
 .bnav-btn.active{color:var(--blue);}
 .bnav-btn:active{opacity:0.6;}
@@ -288,27 +288,8 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
 .int-id{font-size:9px;color:var(--muted);font-weight:700;letter-spacing:0.8px;background:#f1f5f9;border-radius:4px;padding:2px 6px;font-variant-numeric:tabular-nums;}
 
 /* ── OVERRIDES ── */
-.content{padding-bottom:16px!important;}
-.chat-fab{bottom:24px!important;}
-
-/* ── TOP NAV ── */
-.top-nav{display:flex;overflow-x:auto;gap:8px;padding:10px 14px;background:#fff;border-bottom:1px solid #e2e8f0;scrollbar-width:none;}
-.top-nav::-webkit-scrollbar{display:none;}
-.tnav-btn{flex-shrink:0;background:#f1f5f9;border:none;border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;color:#64748b;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;transition:all 0.2s;}
-.tnav-btn.active{background:#0d2d52;color:#fff;}
-
-/* ── ACCUEIL DASHBOARD ── */
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
-.stat-card{border-radius:16px;padding:16px;box-shadow:0 4px 16px rgba(0,0,0,0.1);color:#fff;position:relative;overflow:hidden;}
-.stat-card-val{font-size:28px;font-weight:800;letter-spacing:-0.5px;line-height:1;}
-.stat-card-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;opacity:0.8;margin-top:6px;}
-.stat-card-icon{position:absolute;right:12px;top:12px;font-size:24px;opacity:0.4;}
-.prochain-rdv-card{background:linear-gradient(135deg,#16a34a,#22c55e);border-radius:16px;padding:16px;margin-bottom:16px;color:#fff;box-shadow:0 4px 16px rgba(22,163,74,0.3);}
-.devis-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
-.devis-statut-badge{display:inline-flex;align-items:center;border-radius:6px;padding:3px 9px;font-size:10px;font-weight:700;}
-.btn-accueil-devis{width:100%;background:linear-gradient(135deg,#0d2d52,#1a4a7a);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px;}
-.form-devis-tech{background:#fff;border:2px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:16px;display:none;}
-.form-devis-tech.open{display:block;}
+.content{padding-bottom:84px!important;}
+.chat-fab{bottom:86px!important;}
 
 /* ── STATUT BADGE USER-BAR ── */
 .statut-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;transition:all 0.3s;margin-left:auto;}
@@ -472,17 +453,6 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
     <button onclick="changerStatut('Indisponible',this)" class="sbar-btn">🔴 Indispo</button>
   </div>
 
-  <!-- TOP NAV -->
-  <div class="top-nav" id="top-nav">
-    <button class="tnav-btn active" id="tnav-accueil" onclick="showPage('accueil')">🏠 Accueil</button>
-    <button class="tnav-btn" id="tnav-agenda" onclick="showPage('agenda')">📅 Agenda</button>
-    <button class="tnav-btn" id="tnav-semaine" onclick="showPage('semaine')">📆 Semaine</button>
-    <button class="tnav-btn" id="tnav-perf" onclick="showPage('perf')">📈 Perfs</button>
-    <button class="tnav-btn" id="tnav-historique" onclick="showPage('historique')">📄 Historique</button>
-    <button class="tnav-btn" id="tnav-contrats" onclick="showPage('contrats')">📋 Contrats</button>
-    <button class="tnav-btn" id="tnav-todo" onclick="showPage('todo')">✅ À faire <span id="tnav-todo-badge" style="display:none;background:#ef4444;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px;"></span></button>
-  </div>
-
   <!-- URGENT BANNER -->
   <div id="urgent-banner" class="urgent-banner hidden pulse">
     <div class="urgent-dot"></div>
@@ -499,98 +469,6 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
   </div>
 
   <div class="content">
-    <!-- ACCUEIL -->
-    <div id="page-accueil">
-
-      <!-- SALUTATION HEADER -->
-      <div style="background:linear-gradient(135deg,#0d2d52,#1a4a7a);border-radius:0 0 20px 20px;padding:20px 18px 24px;margin-bottom:16px;margin-top:-16px;">
-        <div style="font-size:11px;color:rgba(255,255,255,0.55);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;" id="acc-date">Lundi 15 juin 2026</div>
-        <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.3px;" id="acc-salut">Bonjour !</div>
-        <div style="margin-top:8px;" id="acc-statut-pill"></div>
-      </div>
-
-      <!-- STAT CARDS 2x2 -->
-      <div class="stat-grid">
-        <div class="stat-card" style="background:linear-gradient(135deg,#0d2d52,#1a4a7a);">
-          <div class="stat-card-icon">📅</div>
-          <div class="stat-card-val" id="acc-rdv-total">—</div>
-          <div class="stat-card-lbl">RDV du jour</div>
-        </div>
-        <div class="stat-card" style="background:linear-gradient(135deg,#16a34a,#22c55e);">
-          <div class="stat-card-icon">✅</div>
-          <div class="stat-card-val" id="acc-rdv-done">—</div>
-          <div class="stat-card-lbl">Terminés</div>
-        </div>
-        <div class="stat-card" style="background:linear-gradient(135deg,#f97316,#fb923c);">
-          <div class="stat-card-icon">💶</div>
-          <div class="stat-card-val" id="acc-ca">—</div>
-          <div class="stat-card-lbl">CA du jour</div>
-        </div>
-        <div class="stat-card" style="background:linear-gradient(135deg,#7c3aed,#a855f7);">
-          <div class="stat-card-icon">🏆</div>
-          <div class="stat-card-val" id="acc-primes">—</div>
-          <div class="stat-card-lbl">Primes du mois</div>
-        </div>
-      </div>
-
-      <!-- PROCHAIN RDV -->
-      <div class="prochain-rdv-card hidden" id="acc-next-rdv-card">
-        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:0.8;margin-bottom:8px;">⏰ Prochain RDV</div>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-          <div style="flex:1;">
-            <div style="font-size:20px;font-weight:800;letter-spacing:-0.3px;" id="acc-next-heure">—</div>
-            <div style="font-size:14px;font-weight:700;margin-top:2px;" id="acc-next-client">—</div>
-            <div style="font-size:12px;opacity:0.8;margin-top:2px;" id="acc-next-sub">—</div>
-          </div>
-          <button onclick="showPage('agenda')" style="background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:#fff;border-radius:10px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;">Voir →</button>
-        </div>
-      </div>
-
-      <!-- BOUTON CREER DEVIS -->
-      <button class="btn-accueil-devis" onclick="toggleFormDevisTech()">
-        <span style="font-size:18px;">📋</span>
-        <span>Créer un devis</span>
-      </button>
-
-      <!-- FORMULAIRE CREATION DEVIS (hidden par defaut) -->
-      <div class="form-devis-tech" id="form-devis-tech">
-        <div style="font-size:11px;font-weight:800;color:#0d2d52;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">📋 NOUVEAU DEVIS</div>
-        <div class="form-field"><label>NOM DU CLIENT</label><input type="text" class="form-input" id="fdt-client" placeholder="Jean Dupont"></div>
-        <div class="form-field"><label>TÉLÉPHONE</label><input type="tel" class="form-input" id="fdt-tel" placeholder="06 12 34 56 78"></div>
-        <div class="form-field"><label>ADRESSE</label><input type="text" class="form-input" id="fdt-adresse" placeholder="12 rue des Lilas, Paris"></div>
-        <div class="grid-2">
-          <div class="form-field"><label>TYPE DE TRAVAUX</label>
-            <select class="form-select" id="fdt-type">
-              <option>Remplacement chaudière</option>
-              <option>Installation sanitaire</option>
-              <option>Rénovation salle de bain</option>
-              <option>Installation VMC</option>
-              <option>Fuite d'eau</option>
-              <option>Débouchage</option>
-              <option>Travaux urgents</option>
-              <option>Autre</option>
-            </select>
-          </div>
-          <div class="form-field"><label>MONTANT ESTIMÉ (€)</label><input type="number" class="form-input" id="fdt-montant" placeholder="0"></div>
-        </div>
-        <div class="form-field"><label>DESCRIPTION DES TRAVAUX</label><textarea class="form-textarea" id="fdt-desc" rows="3" placeholder="Décrire précisément les travaux à chiffrer..."></textarea></div>
-        <div style="display:flex;gap:8px;">
-          <button onclick="toggleFormDevisTech()" style="flex:1;background:#f1f5f9;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;font-family:'Inter',sans-serif;">Annuler</button>
-          <button onclick="envoyerDevisTech()" style="flex:2;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">✅ Envoyer le devis</button>
-        </div>
-      </div>
-
-      <!-- SECTION DEMANDES DE DEVIS RECUES -->
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div style="font-size:11px;font-weight:800;color:#0d2d52;letter-spacing:1.5px;text-transform:uppercase;">📬 Demandes de devis</div>
-        <span id="acc-devis-count" style="background:#e2e8f0;color:#64748b;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;">0</span>
-      </div>
-      <div id="acc-devis-list">
-        <div class="empty-state" style="padding:24px 0;"><div class="empty-icon">📭</div><div>Aucune demande de devis</div></div>
-      </div>
-
-    </div>
-
     <!-- AGENDA -->
     <div id="page-agenda">
 
@@ -714,230 +592,63 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
   </div>
 
   <!-- CONTRATS D'ENTRETIEN TECH -->
-<div id="page-contrats" class="hidden">
-  <!-- Header gradient bleu -->
-  <div style="background:linear-gradient(135deg,#0d2d52,#1a4a7a);border-radius:16px;padding:22px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-    <div>
-      <div style="font-size:22px;font-weight:900;color:#fff;letter-spacing:1px;">📄 CONTRATS D'ENTRETIEN</div>
-      <div style="font-size:13px;color:#93c5fd;margin-top:4px;">Gestion et souscription des contrats GreenFlow</div>
+  <div id="page-contrats" class="hidden">
+    <div style="background:linear-gradient(135deg,var(--blue),var(--blue2));border-radius:14px;padding:14px 16px;color:#fff;margin-bottom:14px;">
+      <div style="font-size:10px;letter-spacing:2px;font-weight:700;opacity:0.7;margin-bottom:6px;">VENDRE UN CONTRAT D'ENTRETIEN</div>
+      <div style="font-size:12px;opacity:0.85;">Propose un contrat à ton client — sélectionne son équipement et la formule adaptée.</div>
     </div>
-    <div style="display:flex;gap:10px;">
-      <button id="tct-btn-form" class="tct-view-btn" onclick="toggleContratView('form')" style="padding:10px 18px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#0d2d52;color:#fff;transition:all .2s;">✏️ Nouveau contrat</button>
-      <button id="tct-btn-liste" class="tct-view-btn" onclick="toggleContratView('liste')" style="padding:10px 18px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#f1f5f9;color:#64748b;transition:all .2s;">📋 Voir mes contrats</button>
-    </div>
-  </div>
-
-  <!-- FORMULAIRE CONTRAT -->
-  <div id="form-contrat-tech">
-    <div style="background:#fff;border-radius:16px;border-top:4px solid #2e7d32;box-shadow:0 4px 20px rgba(0,0,0,0.08);padding:24px;">
-
-      <!-- 1. RECHERCHE CLIENT -->
-      <div style="margin-bottom:18px;">
-        <div style="font-size:13px;font-weight:700;color:#0d2d52;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><span style="background:#0d2d52;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">1</span> Recherche client</div>
-        <div id="tct-client-search-wrap" style="position:relative;margin-bottom:8px;">
-          <input type="text" class="fi" id="tct-client-search" placeholder="🔍 Rechercher un client (nom, téléphone)..." oninput="rechercherClientContrat(this.value)" style="width:100%;padding:12px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;outline:none;transition:border .2s;" onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#e2e8f0'">
-          <div id="tct-client-results" style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:10px;z-index:100;max-height:180px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.12);margin-top:4px;"></div>
+    <div id="contrats-tech-kpi" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;"></div>
+    <div id="form-contrat-tech">
+      <div class="card" style="border-top:3px solid var(--green);">
+        <div class="lbl" style="color:var(--green);">NOUVEAU CONTRAT</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <input type="text" class="fi" id="tct-client" placeholder="Nom du client">
+          <input type="tel" class="fi" id="tct-tel" placeholder="Téléphone">
         </div>
-      </div>
-
-      <!-- 2. INFOS CLIENT -->
-      <div style="margin-bottom:18px;">
-        <div style="font-size:13px;font-weight:700;color:#0d2d52;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><span style="background:#0d2d52;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">2</span> Informations client</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-          <div>
-            <label style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">Nom complet *</label>
-            <input type="text" id="tct-client-nom" class="fi" placeholder="Jean Dupont" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;" onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#e2e8f0'">
+        <input type="text" class="fi" id="tct-adresse" placeholder="Adresse d'intervention">
+        <div class="lbl" style="margin-top:4px;">ÉQUIPEMENT</div>
+        <select class="fi" id="tct-equip" onchange="calcPrixContratTech()">
+          <option value="">— Choisir l'équipement —</option>
+          <option value="Chaudière">🔥 Chaudière (gaz / fioul / condensation)</option>
+          <option value="Pompe à chaleur">♨️ Pompe à chaleur (PAC air/eau)</option>
+          <option value="Climatisation">❄️ Climatisation (PAC air/air)</option>
+          <option value="Ballon thermodynamique">💧 Ballon thermodynamique</option>
+          <option value="Adoucisseur d'eau">🚰 Adoucisseur d'eau</option>
+        </select>
+        <div id="clim-note-tech" class="hidden" style="color:#64748b;font-size:10px;margin:-4px 0 8px;padding:0 4px;">+ 39€ par unité intérieure supplémentaire</div>
+        <div class="lbl" style="margin-top:4px;">FORMULE</div>
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+          <div class="ct-fcard" id="tctf-Essentiel" onclick="selectFormuleTech('Essentiel')">
+            <div class="ct-fcard-title">ESSENTIEL</div>
+            <div class="ct-fcard-price" id="tctfp-Essentiel">—</div>
+            <div class="ct-fcard-sub">Entretien annuel</div>
           </div>
-          <div>
-            <label style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">Téléphone *</label>
-            <input type="tel" id="tct-tel" class="fi" placeholder="06 12 34 56 78" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;" onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#e2e8f0'">
+          <div class="ct-fcard ct-fcard-sel" id="tctf-Confort" onclick="selectFormuleTech('Confort')">
+            <div class="ct-fcard-badge">Le + choisi</div>
+            <div class="ct-fcard-title">CONFORT</div>
+            <div class="ct-fcard-price" id="tctfp-Confort">—</div>
+            <div class="ct-fcard-sub">+ priorité panne</div>
           </div>
-        </div>
-        <div style="margin-bottom:10px;">
-          <label style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">Email client</label>
-          <input type="email" id="tct-email" class="fi" placeholder="client@exemple.fr" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;" onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#e2e8f0'">
-        </div>
-        <div>
-          <label style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">Adresse complète</label>
-          <input type="text" id="tct-adresse" class="fi" placeholder="12 rue des Lilas, 17000 La Rochelle" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;" onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#e2e8f0'">
-        </div>
-      </div>
-
-      <!-- 3. INFOS ÉQUIPEMENT -->
-      <div style="margin-bottom:18px;">
-        <div style="font-size:13px;font-weight:700;color:#0d2d52;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><span style="background:#0d2d52;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">3</span> Équipement concerné</div>
-        <div style="margin-bottom:10px;">
-          <label style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">Type d'équipement *</label>
-          <select id="tct-equipement" class="fi" onchange="majPrixContrat()" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;background:#fff;" onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#e2e8f0'">
-            <option value="">-- Sélectionner l'équipement --</option>
-            <option value="Chaudière">🔥 Chaudière</option>
-            <option value="Pompe à chaleur">♨️ Pompe à chaleur</option>
-            <option value="Climatisation">❄️ Climatisation</option>
-            <option value="Ballon thermodynamique">💧 Ballon thermodynamique</option>
-            <option value="Adoucisseur d'eau">🌊 Adoucisseur d'eau</option>
-          </select>
-          <div id="tct-clim-note" style="display:none;margin-top:6px;padding:8px 12px;background:#fef3c7;border-radius:6px;font-size:12px;color:#92400e;">ℹ️ + 39€ par unité intérieure supplémentaire pour la climatisation</div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-          <div>
-            <label style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">Marque</label>
-            <input type="text" id="tct-marque" class="fi" placeholder="Ex: Vaillant, Daikin..." style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;" onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#e2e8f0'">
-          </div>
-          <div>
-            <label style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">Modèle</label>
-            <input type="text" id="tct-modele" class="fi" placeholder="Ex: EcoTEC Pro, VRV..." style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;" onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#e2e8f0'">
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div>
-            <label style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">Année d'installation</label>
-            <input type="number" id="tct-annee" class="fi" placeholder="2019" min="1980" max="2030" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;" onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#e2e8f0'">
-          </div>
-          <div>
-            <label style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">N° de série <span style="font-weight:400;color:#94a3b8;">(optionnel)</span></label>
-            <input type="text" id="tct-serie" class="fi" placeholder="SN-XXXX-XXXX" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;" onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#e2e8f0'">
-          </div>
-        </div>
-      </div>
-
-      <!-- 4. EXPLICATION FORMULES (accordéon) -->
-      <div style="margin-bottom:18px;">
-        <button onclick="document.getElementById('tct-formules-detail').style.display=document.getElementById('tct-formules-detail').style.display==='none'?'block':'none'" style="width:100%;padding:10px 16px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-weight:600;color:#0d2d52;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;">
-          <span>ℹ️</span> Qu'est-ce que chaque formule comprend ?
-          <span style="margin-left:auto;color:#64748b;">▼</span>
-        </button>
-        <div id="tct-formules-detail" style="display:none;margin-top:10px;">
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-            <div style="border:2px solid #e2e8f0;border-radius:12px;padding:14px;background:#f8fafc;">
-              <div style="font-size:13px;font-weight:800;color:#0d2d52;text-transform:uppercase;margin-bottom:10px;text-align:center;">ESSENTIEL</div>
-              <div style="font-size:12px;color:#374151;line-height:1.8;">
-                <div>✓ Vérification complète</div>
-                <div>✓ 1 visite d'entretien/an</div>
-                <div>✓ Nettoyage composants essentiels</div>
-                <div>✓ Nettoyage du bac</div>
-                <div>✓ Attestation d'entretien</div>
-              </div>
-            </div>
-            <div style="border:2px solid #2e7d32;border-radius:12px;padding:14px;background:#f0fdf4;">
-              <div style="text-align:center;margin-bottom:6px;"><span style="background:#2e7d32;color:#fff;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;">Le + populaire</span></div>
-              <div style="font-size:13px;font-weight:800;color:#0d2d52;text-transform:uppercase;margin-bottom:10px;text-align:center;">CONFORT</div>
-              <div style="font-size:12px;color:#374151;line-height:1.8;">
-                <div>✓ Tout l'ESSENTIEL</div>
-                <div>✓ Prise en charge rapide</div>
-                <div>✓ Déplacement dépannage inclus</div>
-                <div>✓ Rétablissement prioritaire</div>
-                <div>✓ Interventions rapides</div>
-                <div>✓ Conseil au client</div>
-              </div>
-            </div>
-            <div style="border:2px solid #f59e0b;border-radius:12px;padding:14px;background:#fffbeb;">
-              <div style="text-align:center;margin-bottom:6px;"><span style="font-size:16px;">⭐</span></div>
-              <div style="font-size:13px;font-weight:800;color:#0d2d52;text-transform:uppercase;margin-bottom:10px;text-align:center;">PREMIUM</div>
-              <div style="font-size:12px;color:#374151;line-height:1.8;">
-                <div>✓ Tout le CONFORT</div>
-                <div>✓ 10% à 20% sur les pièces</div>
-                <div>✓ Remise main d'œuvre</div>
-                <div>✓ Assistance téléphonique 24h/7j</div>
-                <div>✓ Dispatching personnalisé</div>
-                <div>✓ Carnet livret annuel</div>
-                <div>✓ Technicien dédié</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 5. SÉLECTION FORMULE -->
-      <div style="margin-bottom:18px;">
-        <div style="font-size:13px;font-weight:700;color:#0d2d52;margin-bottom:10px;display:flex;align-items:center;gap:6px;"><span style="background:#0d2d52;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">4</span> Choisir la formule</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
-          <div id="card-essentiel" onclick="selectFormule('Essentiel')" style="border:2.5px solid #e2e8f0;border-radius:14px;padding:16px;cursor:pointer;text-align:center;transition:all .2s;background:#fff;">
-            <div style="font-size:11px;color:#64748b;margin-bottom:6px;">&nbsp;</div>
-            <div style="font-size:14px;font-weight:800;color:#0d2d52;text-transform:uppercase;margin-bottom:8px;">ESSENTIEL</div>
-            <div id="prix-essentiel" style="font-size:22px;font-weight:900;color:#374151;">149€<span style="font-size:11px;font-weight:400;color:#64748b;">/an</span></div>
-            <div style="font-size:11px;color:#64748b;margin-top:8px;line-height:1.5;">Vérification annuelle<br>Attestation d'entretien</div>
-          </div>
-          <div id="card-confort" onclick="selectFormule('Confort')" style="border:2.5px solid #2e7d32;border-radius:14px;padding:16px;cursor:pointer;text-align:center;transition:all .2s;background:#f0fdf4;">
-            <div style="font-size:11px;background:#2e7d32;color:#fff;border-radius:4px;padding:2px 8px;display:inline-block;margin-bottom:6px;font-weight:700;">Le + populaire</div>
-            <div style="font-size:14px;font-weight:800;color:#0d2d52;text-transform:uppercase;margin-bottom:8px;">CONFORT</div>
-            <div id="prix-confort" style="font-size:22px;font-weight:900;color:#2e7d32;">199€<span style="font-size:11px;font-weight:400;color:#64748b;">/an</span></div>
-            <div style="font-size:11px;color:#374151;margin-top:8px;line-height:1.5;">Dépannage inclus<br>Prioritaire</div>
-          </div>
-          <div id="card-premium" onclick="selectFormule('Premium')" style="border:2.5px solid #e2e8f0;border-radius:14px;padding:16px;cursor:pointer;text-align:center;transition:all .2s;background:#fff;">
-            <div style="font-size:16px;margin-bottom:4px;">⭐</div>
-            <div style="font-size:14px;font-weight:800;color:#0d2d52;text-transform:uppercase;margin-bottom:8px;">PREMIUM</div>
-            <div id="prix-premium" style="font-size:22px;font-weight:900;color:#f59e0b;">279€<span style="font-size:11px;font-weight:400;color:#64748b;">/an</span></div>
-            <div style="font-size:11px;color:#64748b;margin-top:8px;line-height:1.5;">Technicien dédié<br>Assistance 24h/7j</div>
+          <div class="ct-fcard" id="tctf-Premium" onclick="selectFormuleTech('Premium')">
+            <div class="ct-fcard-title">PREMIUM ⭐</div>
+            <div class="ct-fcard-price" id="tctfp-Premium">—</div>
+            <div class="ct-fcard-sub">+ remise pièces</div>
           </div>
         </div>
         <input type="hidden" id="tct-formule" value="Confort">
-      </div>
-
-      <!-- 6. PAIEMENT -->
-      <div style="margin-bottom:18px;">
-        <div style="font-size:13px;font-weight:700;color:#0d2d52;margin-bottom:10px;display:flex;align-items:center;gap:6px;"><span style="background:#0d2d52;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">5</span> Modalités de paiement</div>
-        <div style="margin-bottom:12px;">
-          <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:8px;">Fréquence :</div>
-          <div style="display:flex;gap:8px;">
-            <button class="tct-freq-btn" onclick="selFreqContrat('mensuel',this)" style="flex:1;padding:10px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:#f1f5f9;color:#64748b;transition:all .2s;">📅 Mensuel</button>
-            <button class="tct-freq-btn" onclick="selFreqContrat('trimestriel',this)" style="flex:1;padding:10px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:#f1f5f9;color:#64748b;transition:all .2s;">📆 Trimestriel</button>
-            <button class="tct-freq-btn" onclick="selFreqContrat('annuel',this)" style="flex:1;padding:10px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:#0d2d52;color:#fff;transition:all .2s;">🗓️ Annuel</button>
-          </div>
-          <input type="hidden" id="tct-freq" value="annuel">
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:11px;color:#15803d;font-weight:600;">Montant annuel TTC</div>
+          <div style="font-size:20px;font-weight:800;color:#15803d;" id="tct-prix-display">—</div>
         </div>
-        <div>
-          <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:8px;">Mode de règlement :</div>
-          <div style="display:flex;gap:8px;">
-            <button class="tct-mode-btn" onclick="selModeContrat('prelevement',this)" style="flex:1;padding:10px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:#0d2d52;color:#fff;transition:all .2s;">🏦 Prélèvement auto</button>
-            <button class="tct-mode-btn" onclick="selModeContrat('cheque',this)" style="flex:1;padding:10px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:#f1f5f9;color:#64748b;transition:all .2s;">📝 Chèque</button>
-            <button class="tct-mode-btn" onclick="selModeContrat('virement',this)" style="flex:1;padding:10px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:#f1f5f9;color:#64748b;transition:all .2s;">💸 Virement</button>
-          </div>
-          <input type="hidden" id="tct-mode" value="prelevement">
-        </div>
+        <button class="btn btn-g btn-full" onclick="sauvegarderContratTech()">✅ Valider le contrat</button>
       </div>
-
-      <!-- 7. NOTES -->
-      <div style="margin-bottom:20px;">
-        <div style="font-size:13px;font-weight:700;color:#0d2d52;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><span style="background:#0d2d52;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">6</span> Notes libres</div>
-        <textarea id="tct-notes-contrat" class="fi" placeholder="Observations, remarques particulières..." rows="2" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;resize:vertical;" onfocus="this.style.borderColor='#2e7d32'" onblur="this.style.borderColor='#e2e8f0'"></textarea>
-      </div>
-
-      <!-- 8. BOUTONS ACTION -->
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button onclick="sauvegarderContratTech()" style="flex:1;min-width:200px;padding:14px 20px;background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(46,125,50,0.3);transition:all .2s;">✅ Valider et générer le contrat PDF</button>
-        <button id="btn-envoyer-mail-contrat" onclick="envoyerMailContrat()" style="flex:1;min-width:180px;padding:14px 20px;background:#f1f5f9;color:#94a3b8;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:not-allowed;transition:all .2s;" disabled>✉️ Envoyer par mail</button>
-      </div>
-      <div id="tct-success-msg" style="display:none;margin-top:12px;padding:12px 16px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;color:#166534;font-size:13px;font-weight:600;text-align:center;">✅ Contrat sauvegardé et PDF généré !</div>
-
     </div>
-  </div>
-
-  <!-- LISTE DES CONTRATS SIGNÉS -->
-  <div id="liste-contrats-tech-wrap" style="display:none;">
-    <div style="font-size:15px;font-weight:800;color:#0d2d52;margin-bottom:14px;display:flex;align-items:center;gap:8px;">📋 MES CONTRATS SIGNÉS <span id="nb-contrats-badge" style="background:#0d2d52;color:#fff;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:700;"></span></div>
+    <div class="lbl" style="margin-top:16px;">MES CONTRATS SIGNÉS</div>
     <div id="liste-contrats-tech"></div>
   </div>
 
-</div>
-
-  <!-- À FAIRE TECH -->
-<div id="page-todo" class="hidden" style="padding-bottom:80px;">
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px 8px;">
-    <div>
-      <div style="font-size:11px;font-weight:800;color:#0d2d52;letter-spacing:2px;text-transform:uppercase;">✅ MES TÂCHES</div>
-      <div style="color:#64748b;font-size:11px;margin-top:2px;" id="todo-tech-subtitle">Chargement...</div>
-    </div>
-    <button onclick="renderToDoTech()" style="background:#f1f5f9;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;color:#0d2d52;cursor:pointer;">↻</button>
-  </div>
-  <div style="padding:0 16px;" id="todo-tech-container"></div>
-</div>
-
   <!-- BOTTOM NAV -->
   <nav class="bottom-nav" id="bottom-nav">
-    <button class="bnav-btn" id="bnav-todo" onclick="showPage('todo')">
-      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      <span id="bnav-todo-label">À faire</span>
-    </button>
     <button class="bnav-btn active" id="bnav-agenda" onclick="showPage('agenda')">
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       <span>Agenda</span>
@@ -957,6 +668,11 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
     <button class="bnav-btn" id="bnav-contrats" onclick="showPage('contrats')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
       <span>Contrats</span>
+    </button>
+    <button class="bnav-btn" id="bnav-messages" onclick="ouvrirChat()">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span>Messages</span>
+      <span id="bnav-msg-badge" style="display:none;position:absolute;top:6px;right:12px;background:#dc2626;color:#fff;border-radius:10px;padding:1px 5px;font-size:9px;font-weight:700;min-width:14px;text-align:center;"></span>
     </button>
   </nav>
 </div>
@@ -1277,9 +993,8 @@ function lancerApp(){
   av.textContent=currentUser.avatar;
   document.getElementById("headerNom").textContent=currentUser.nom;
   updateCA();renderRdv();renderTabsBadges();renderPerf();renderSemaine();renderHistorique();
-  renderKPI();checkUrgences();renderRecapJournee();renderTeamDispos();renderKpiTech();updateTodoBadgeTech();
+  renderKPI();checkUrgences();renderRecapJournee();renderTeamDispos();renderKpiTech();
   verifierAlertes();
-  showPage('accueil');
   document.getElementById("chat-fab").classList.remove("hidden");
   renderModuleNav();
   lastRdvCount=getMesRdvs().length;
@@ -1340,19 +1055,17 @@ function logout(){
 }
 
 function showPage(page){
-  ["accueil","agenda","semaine","perf","historique","contrats","todo"].forEach(p=>document.getElementById("page-"+p).classList.add("hidden"));
+  ["agenda","semaine","perf","historique","contrats"].forEach(p=>document.getElementById("page-"+p).classList.add("hidden"));
   document.getElementById("page-"+page).classList.remove("hidden");
-  document.querySelectorAll(".tnav-btn").forEach(b=>b.classList.remove("active"));
-  const ab=document.getElementById("tnav-"+page);if(ab)ab.classList.add("active");
+  document.querySelectorAll(".bnav-btn").forEach(b=>b.classList.remove("active"));
+  const ab=document.getElementById("bnav-"+page);if(ab)ab.classList.add("active");
   document.querySelectorAll(".nav button").forEach((b,i)=>{
-    b.classList.toggle("active",["accueil","agenda","semaine","perf","historique","contrats"][i]===page);
+    b.classList.toggle("active",["agenda","semaine","perf","historique","contrats"][i]===page);
   });
-  if(page==="accueil")renderAccueil();
   if(page==="perf")renderPerf();
   if(page==="semaine")renderSemaine();
   if(page==="historique")renderHistorique();
   if(page==="contrats")renderContratsTech();
-  if(page==="todo")renderToDoTech();
 }
 
 function showVue(vue,btn){
@@ -1373,9 +1086,7 @@ function setStatut(statut,color,btn){
   if(txt)txt.textContent=statut;
   const d=JSON.parse(localStorage.getItem("pl_dispos")||"{}");
   d[currentUser.nom]={statut,updatedAt:new Date().toISOString()};
-  const vd=JSON.stringify(d);
-  localStorage.setItem("pl_dispos",vd);
-  if(window.gfSync)gfSync("pl_dispos",vd);
+  localStorage.setItem("pl_dispos",JSON.stringify(d));
   showNotif("Statut : "+statut);
 }
 
@@ -1403,9 +1114,9 @@ function renderRdv(){
   updateCA();renderKPI();checkUrgences();renderRecapJournee();renderKpiTech();
   const rdvs=getMesRdvs(),today=todayStr();
   let liste;
-  if(currentVue==="auj")liste=rdvs.filter(r=>r.dateRdv===today&&r.statut!=='Annule').sort((a,b)=>a.heureRdv.localeCompare(b.heureRdv));
-  else if(currentVue==="venir")liste=rdvs.filter(r=>r.dateRdv>today&&r.statut!=='Annule').sort((a,b)=>a.dateRdv.localeCompare(b.dateRdv));
-  else liste=rdvs.filter(r=>r.dateRdv<today&&r.statut!=='Annule').sort((a,b)=>b.dateRdv.localeCompare(a.dateRdv));
+  if(currentVue==="auj")liste=rdvs.filter(r=>r.dateRdv===today).sort((a,b)=>a.heureRdv.localeCompare(b.heureRdv));
+  else if(currentVue==="venir")liste=rdvs.filter(r=>r.dateRdv>today).sort((a,b)=>a.dateRdv.localeCompare(b.dateRdv));
+  else liste=rdvs.filter(r=>r.dateRdv<today).sort((a,b)=>b.dateRdv.localeCompare(a.dateRdv));
   const c=document.getElementById("liste-rdv");
   renderTabsBadges();
   if(!liste.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div>Aucun RDV</div>`;return;}
@@ -1482,11 +1193,6 @@ function carteBodyHtml(r,isToday,isDone){
     ${isToday&&!isEnCours?`<button class="action-btn btn-orange" onclick="ouvrirDevisSurPlace(${r.id})">Devis</button>`:""}
     <button class="action-btn btn-gray" onclick="ouvrirRapport(${r.id})">Rapport</button>
     <button class="action-btn" style="background:${getFicheLogement(r.clientTel)?'#fef9c3;color:#854d0e;border:1px solid #fde047':'#f8fafc;color:#475569;border:1px solid #e2e8f0'};border-radius:9px;padding:11px 8px;" onclick="ouvrirFicheLogement('${r.clientTel}','${r.clientNom}','${(r.adresse||'').replace(/'/g,"\\'")}')">🏠 ${getFicheLogement(r.clientTel)?'Fiche ✓':'Fiche'}</button>
-  </div>
-  <div style="display:flex;gap:6px;margin-top:8px;">
-    <button onclick="event.stopPropagation();ouvrirActionsRdvTech(${r.id},'modif')" style="flex:1;background:#eff6ff;color:#1d4ed8;border:none;border-radius:8px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;">✏️ Modifier</button>
-    <button onclick="event.stopPropagation();ouvrirActionsRdvTech(${r.id},'decal')" style="flex:1;background:#fff7ed;color:#c2410c;border:none;border-radius:8px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;">📅 Décaler</button>
-    <button onclick="event.stopPropagation();ouvrirActionsRdvTech(${r.id},'annul')" style="flex:1;background:#fef2f2;color:#dc2626;border:none;border-radius:8px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;">❌ Annuler</button>
   </div>`:""}
 </div>`;
 }
@@ -1857,6 +1563,18 @@ function soumettre(){
       const refT='INT-'+String(currentRdv.id).slice(-5);
       envoyerSMSTech(currentRdv.clientTel,'termine',{ref:refT,montant:Number(document.getElementById("montantFinal").value)||''});
     }
+    // Prompt avis Google — Point 4
+    setTimeout(function(){
+      var lienAvis=localStorage.getItem('pl_google_review_url')||'';
+      if(!lienAvis)return;
+      if(confirm('⭐ Intervention terminée ! Envoyer le lien d\'avis Google au client ?')){
+        var tel=currentRdv.clientTel;
+        if(tel){
+          var msg='Merci pour votre confiance ! Pouvez-vous nous laisser un avis en 1 minute ? '+lienAvis+' — Équipe GreenFlow';
+          fetch('/api/sms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:tel,message:msg})}).catch(function(){});
+        }
+      }
+    },500);
     showEtape("succes");
     if(totalPrimes>0){
       document.getElementById("prime-win").classList.remove("hidden");
@@ -1879,120 +1597,6 @@ function closeModal(id){
   if(chronoInterval)clearInterval(chronoInterval);
   if(isRecording&&recognition)recognition.stop();
   renderRdv();
-}
-
-// ── À FAIRE TECH ──
-function renderToDoTech(){
-  var today=todayStr();
-  var nomTech=localStorage.getItem('pl_tech_nom')||'';
-  var rdvs=getRdvs();
-  var rdvsMoi=rdvs.filter(function(r){return !nomTech||r.technicien===nomTech||r.technicien==='À planifier';});
-  var urgences=JSON.parse(localStorage.getItem('pl_urgences')||'[]');
-  var rapports=JSON.parse(localStorage.getItem('pl_rapports')||'[]');
-  var chat=JSON.parse(localStorage.getItem('pl_chat')||'[]');
-  var msgs=chat.filter(function(m){return m.role==='DISPATCH'&&!m.lu;});
-
-  var sections=[
-    {
-      color:'#2563eb',icon:'📅',titre:'Interventions du jour',
-      items:rdvsMoi.filter(function(r){return r.dateRdv===today&&r.statut!=='Termine'&&r.statut!=='Annule';}),
-      render:function(r){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
-        +'<div><div style="font-weight:700;font-size:13px;">'+r.clientNom+'</div>'
-        +'<div style="font-size:11px;color:#64748b;">'+(r.heureRdv||'—')+' · '+r.type+'</div>'
-        +'<div style="font-size:11px;color:#64748b;">'+(r.adresse||'Adresse non renseignée')+'</div></div>'
-        +'<button onclick="showPage(\'agenda\')" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">Démarrer →</button>'
-        +'</div>';},
-      empty:'Aucune intervention aujourd\'hui'
-    },
-    {
-      color:'#dc2626',icon:'🚨',titre:'Urgences assignées',
-      items:urgences.filter(function(u){return u.statut!=='Resolu'&&u.statut!=='Résolu'&&(!nomTech||u.technicien===nomTech);}),
-      render:function(u){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
-        +'<div><div style="font-weight:700;font-size:13px;">'+u.clientNom+'</div>'
-        +'<div style="font-size:11px;color:#64748b;">'+u.type+' · '+(u.adresse||'—')+'</div>'
-        +(u.tel?'<div style="font-size:11px;color:#dc2626;font-weight:700;">'+u.tel+'</div>':'')+'</div>'
-        +(u.tel?'<a href="tel:'+u.tel+'" style="background:#dc2626;color:#fff;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;text-decoration:none;">📞 Appeler</a>':'')
-        +'</div>';},
-      empty:'Aucune urgence assignée ✓'
-    },
-    {
-      color:'#f59e0b',icon:'📝',titre:'Rapports à remplir',
-      items:rdvsMoi.filter(function(r){
-        if(r.statut!=='Termine'&&r.statut!=='En cours')return false;
-        var rap=rapports.find(function(rp){return rp.clientNom===r.clientNom&&rp.date===r.dateRdv;});
-        return !rap;
-      }),
-      render:function(r){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
-        +'<div><div style="font-weight:700;font-size:13px;">'+r.clientNom+'</div>'
-        +'<div style="font-size:11px;color:#64748b;">'+r.type+' · '+r.dateRdv+'</div></div>'
-        +'<button onclick="showPage(\'agenda\')" style="background:#f59e0b;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">Rapport →</button>'
-        +'</div>';},
-      empty:'Tous les rapports sont remplis ✓'
-    },
-    {
-      color:'#7c3aed',icon:'💬',titre:'Messages dispatch non lus',
-      items:msgs,
-      render:function(m){return '<div><div style="font-weight:700;font-size:13px;">'+(m.from||'Dispatch')+'</div>'
-        +'<div style="font-size:12px;color:#64748b;">'+(m.text||'').slice(0,60)+'</div></div>';},
-      empty:'Aucun message non lu ✓'
-    },
-    {
-      color:'#0891b2',icon:'📅',titre:'Prochains RDV (cette semaine)',
-      items:(function(){
-        var cutoff=new Date(Date.now()+7*86400000).toISOString().split('T')[0];
-        return rdvsMoi.filter(function(r){return r.dateRdv>today&&r.dateRdv<=cutoff&&r.statut!=='Annule'&&r.statut!=='Termine';});
-      })(),
-      render:function(r){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
-        +'<div><div style="font-weight:700;font-size:13px;">'+r.clientNom+'</div>'
-        +'<div style="font-size:11px;color:#64748b;">'+r.dateRdv+' '+(r.heureRdv||'')+' · '+r.type+'</div>'
-        +'<div style="font-size:11px;color:#64748b;">'+(r.adresse||'')+'</div></div>'
-        +'<span style="font-size:10px;background:#e0f2fe;color:#0891b2;padding:3px 8px;border-radius:6px;font-weight:700;">'+r.statut+'</span>'
-        +'</div>';},
-      empty:'Aucun RDV cette semaine ✓'
-    }
-  ];
-
-  var urgentCount=sections[0].items.length+sections[1].items.length+sections[2].items.length;
-  var sub=document.getElementById('todo-tech-subtitle');
-  if(sub)sub.textContent=urgentCount>0?urgentCount+' action'+(urgentCount>1?'s':'')+' urgente'+(urgentCount>1?'s':''):'Bonne journée ✓';
-  updateTodoBadgeTech(sections);
-
-  var c=document.getElementById('todo-tech-container');if(!c)return;
-  c.innerHTML=sections.map(function(sec){
-    var bg=sec.color+'12';var border=sec.color+'40';
-    return '<div style="background:'+bg+';border:1.5px solid '+border+';border-left:4px solid '+sec.color+';border-radius:12px;padding:14px;margin-bottom:12px;">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:'+(sec.items.length?'12px':'0')+';"><div style="font-size:12px;font-weight:800;color:'+sec.color+';text-transform:uppercase;letter-spacing:0.5px;">'+sec.icon+' '+sec.titre+'</div>'
-      +'<span style="background:'+sec.color+';color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:800;">'+sec.items.length+'</span></div>'
-      +(sec.items.length===0?'<div style="color:#94a3b8;font-size:12px;">'+sec.empty+'</div>'
-        :sec.items.slice(0,4).map(function(item){return '<div style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:6px;border:1px solid '+border+';">'+sec.render(item)+'</div>';}).join('')
-        +(sec.items.length>4?'<div style="font-size:11px;color:'+sec.color+';text-align:center;margin-top:6px;font-weight:700;">+'+(sec.items.length-4)+' de plus →</div>':''))
-      +'</div>';
-  }).join('');
-}
-
-function updateTodoBadgeTech(sections){
-  var rdvs=getRdvs();
-  var nomTech=localStorage.getItem('pl_tech_nom')||'';
-  var today=todayStr();
-  var rdvsMoi=rdvs.filter(function(r){return !nomTech||r.technicien===nomTech;});
-  var rapports=JSON.parse(localStorage.getItem('pl_rapports')||'[]');
-  var urgences=JSON.parse(localStorage.getItem('pl_urgences')||'[]');
-  var total=(sections
-    ? sections.slice(0,3).reduce(function(s,sec){return s+sec.items.length;},0)
-    : rdvsMoi.filter(function(r){return r.dateRdv===today&&r.statut!=='Termine'&&r.statut!=='Annule';}).length
-      +urgences.filter(function(u){return u.statut!=='Resolu'&&u.statut!=='Résolu'&&(!nomTech||u.technicien===nomTech);}).length
-      +rdvsMoi.filter(function(r){
-        if(r.statut!=='Termine')return false;
-        return !rapports.find(function(rp){return rp.clientNom===r.clientNom&&rp.date===r.dateRdv;});
-      }).length
-  );
-  var lbl=document.getElementById('bnav-todo-label');
-  if(lbl)lbl.textContent=total>0?'À faire ('+total+')':'À faire';
-  var btn=document.getElementById('bnav-todo');
-  if(btn)btn.style.color=total>0?'var(--blue)':'';
-  var tbadge=document.getElementById('tnav-todo-badge');
-  if(tbadge){if(total>0){tbadge.textContent=total;tbadge.style.display='inline';}else{tbadge.style.display='none';}}
-  return total;
 }
 
 function showNotif(msg){
@@ -2042,13 +1646,31 @@ function soumettreDevis(){
 
 /* ---- CHAT ---- */
 const getMessages=()=>JSON.parse(localStorage.getItem("pl_chat")||"[]");
-const saveMessages=m=>localStorage.setItem("pl_chat",JSON.stringify(m));
+const saveMessages=m=>{var v=JSON.stringify(m);localStorage.setItem("pl_chat",v);if(window.gfSync)gfSync("pl_chat",v);};
+
+var _chatDest='DISPATCH';
+var _chatDestLabels={DISPATCH:'Conversation avec le Dispatch 📋',SECRETAIRE:'Conversation avec la Secrétaire 🗂️',PATRON:'Conversation avec le Patron 👔'};
+
+function selChatDest(role){
+  _chatDest=role;
+  ['DISPATCH','SECRETAIRE','PATRON'].forEach(function(r){
+    var b=document.getElementById('chat-dest-'+r);
+    if(b){b.style.background=r===role?'#0d2d52':'none';b.style.color=r===role?'#fff':'#64748b';}
+  });
+  var lbl=document.getElementById('chat-dest-label');
+  if(lbl)lbl.textContent=_chatDestLabels[role]||'';
+  renderChat();
+  setTimeout(function(){var el=document.getElementById('chat-messages');if(el)el.scrollTop=el.scrollHeight;},80);
+}
 
 function ouvrirChat(){
   document.getElementById("modal-chat").classList.remove("hidden");
   document.getElementById("chat-badge").classList.add("hidden");
-  renderChat();
-  setTimeout(()=>{const el=document.getElementById("chat-messages");if(el)el.scrollTop=el.scrollHeight;},100);
+  document.getElementById("chat-badge").textContent='0';
+  var navBadge=document.getElementById("bnav-msg-badge");
+  if(navBadge){navBadge.style.display='none';navBadge.textContent='';}
+  selChatDest(_chatDest);
+  setTimeout(function(){var el=document.getElementById("chat-messages");if(el)el.scrollTop=el.scrollHeight;},100);
 }
 
 function envoyerMessage(){
@@ -2056,7 +1678,7 @@ function envoyerMessage(){
   const txt=input.value.trim();
   if(!txt||!currentUser)return;
   const msgs=getMessages();
-  msgs.push({id:Date.now(),from:currentUser.nom,role:currentUser.role,text:txt,ts:new Date().toISOString()});
+  msgs.push({id:Date.now(),from:currentUser.nom,role:currentUser.role||'TECHNICIEN',to:_chatDest,text:txt,ts:new Date().toISOString()});
   saveMessages(msgs);
   input.value="";
   renderChat();
@@ -2067,12 +1689,24 @@ function envoyerMessage(){
 function renderChat(){
   const el=document.getElementById("chat-messages");
   if(!el)return;
-  const msgs=getMessages();
-  if(!msgs.length){el.innerHTML=`<div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0;">Demarrez la conversation avec le dispatch...</div>`;return;}
-  el.innerHTML=msgs.map(m=>{
+  const all=getMessages();
+  // Afficher la conversation avec le destinataire sélectionné
+  const msgs=all.filter(function(m){
+    // Messages que j'ai envoyés à ce destinataire
+    var estEnvoyeParMoi=currentUser&&m.from===currentUser.nom&&m.to===_chatDest;
+    // Messages reçus depuis ce destinataire (ou ce rôle) pour moi ou pour les techs
+    var estRecu=m.role===_chatDest&&(!m.to||m.to==='TECHNICIEN'||m.to==='ALL'||(currentUser&&m.to===currentUser.nom));
+    return estEnvoyeParMoi||estRecu;
+  });
+  if(!msgs.length){
+    el.innerHTML='<div style="text-align:center;color:#94a3b8;font-size:13px;padding:30px 0;">Aucun message avec '+(_chatDestLabels[_chatDest]||_chatDest).replace('Conversation avec ','').replace(/ 📋| 🗂️| 👔/,'')+'</div>';
+    return;
+  }
+  el.innerHTML=msgs.map(function(m){
     const isMe=currentUser&&m.from===currentUser.nom;
     const heure=new Date(m.ts).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
-    return`<div class="chat-msg ${isMe?"me":"other"}"><div>${m.text}</div><div class="chat-msg-meta">${isMe?"Moi":m.from} · ${heure}</div></div>`;
+    const jour=new Date(m.ts).toLocaleDateString("fr-FR",{day:"numeric",month:"short"});
+    return'<div class="chat-msg '+(isMe?"me":"other")+'"><div>'+m.text+'</div><div class="chat-msg-meta">'+(isMe?'Moi':m.from)+' · '+jour+' '+heure+'</div></div>';
   }).join("");
   el.scrollTop=el.scrollHeight;
 }
@@ -2082,210 +1716,27 @@ function pollChat(){
   const msgs=getMessages();
   const modal=document.getElementById("modal-chat");
   if(msgs.length>lastChatCount){
+    // Compter les nouveaux messages adressés à moi (TECHNICIEN)
+    const nouveaux=msgs.slice(lastChatCount).filter(function(m){
+      return m.from!==currentUser.nom&&(m.to==='TECHNICIEN'||m.to===currentUser.nom||m.to==='ALL'||!m.to);
+    });
     if(modal&&!modal.classList.contains("hidden")){
       renderChat();
-    } else {
-      const nb=msgs.length-lastChatCount;
-      const last=msgs[msgs.length-1];
-      if(last.from!==currentUser.nom){
-        showNotif("Message de "+last.from+": "+last.text.slice(0,40));
-        const badge=document.getElementById("chat-badge");
-        badge.textContent=nb;badge.classList.remove("hidden");
-      }
+    } else if(nouveaux.length>0){
+      const last=nouveaux[nouveaux.length-1];
+      showNotif("Message de "+last.from+": "+last.text.slice(0,40));
+      const badge=document.getElementById("chat-badge");
+      var cur=parseInt(badge.textContent||'0');
+      badge.textContent=cur+nouveaux.length;
+      badge.classList.remove("hidden");
+      var navBadge=document.getElementById("bnav-msg-badge");
+      if(navBadge){navBadge.textContent=cur+nouveaux.length;navBadge.style.display='block';}
     }
     lastChatCount=msgs.length;
   }
 }
 
 // ── CONTRATS TECH ──
-// ── CONTRATS TECH — fonctions support ──
-function getClientsContrat(){return JSON.parse(localStorage.getItem('pl_clients')||'[]');}
-function rechercherClientContrat(val){
-  var box=document.getElementById('tct-client-results');if(!box)return;
-  if(!val||val.length<2){box.style.display='none';return;}
-  var found=getClientsContrat().filter(function(c){
-    return(c.nom||'').toLowerCase().includes(val.toLowerCase())||(c.tel||'').includes(val);
-  }).slice(0,5);
-  if(!found.length){box.style.display='none';return;}
-  box.innerHTML=found.map(function(c){
-    var safe=JSON.stringify(c).replace(/"/g,'&quot;');
-    return'<div onclick="remplirClientContrat(JSON.parse(this.dataset.c))" data-c="'+safe+'" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9;font-size:13px;" onmouseover="this.style.background=\'#f8fafc\'" onmouseout="this.style.background=\'\'">'
-    +'<div style="font-weight:700;">'+c.nom+'</div>'
-    +'<div style="font-size:11px;color:#64748b;">'+(c.tel||'')+(c.adresse?' · '+c.adresse.slice(0,30):'')+'</div></div>';
-  }).join('');
-  box.style.display='block';
-}
-function remplirClientContrat(c){
-  var set=function(id,v){var e=document.getElementById(id);if(e)e.value=v||'';};
-  set('tct-client-search',c.nom||'');set('tct-client-nom',c.nom||'');
-  set('tct-tel',c.tel||'');set('tct-email',c.email||'');set('tct-adresse',c.adresse||'');
-  var box=document.getElementById('tct-client-results');if(box)box.style.display='none';
-}
-function toggleFormuleInfo(){
-  var d=document.getElementById('tct-formule-info');
-  var a=document.getElementById('tct-info-arrow');
-  if(!d)return;
-  var open=d.style.display!=='none';
-  d.style.display=open?'none':'block';
-  if(a)a.textContent=open?'▼':'▲';
-}
-function selFreqContrat(val,btn){
-  var inp=document.getElementById('tct-freq');if(inp)inp.value=val;
-  document.querySelectorAll('.tct-freq-btn').forEach(function(b){b.style.background='#f1f5f9';b.style.color='#64748b';});
-  btn.style.background='#0d2d52';btn.style.color='#fff';
-}
-function selModeContrat(val,btn){
-  var inp=document.getElementById('tct-mode');if(inp)inp.value=val;
-  document.querySelectorAll('.tct-mode-btn').forEach(function(b){b.style.background='#f1f5f9';b.style.color='#64748b';});
-  btn.style.background='#0d2d52';btn.style.color='#fff';
-}
-function toggleContratView(view){
-  var form=document.getElementById('form-contrat-tech');
-  var liste=document.getElementById('liste-contrats-tech-wrap');
-  if(view==='form'){if(form)form.style.display='';if(liste)liste.style.display='none';}
-  else{if(form)form.style.display='none';if(liste)liste.style.display='';renderContratsTech();}
-  document.querySelectorAll('.tct-view-btn').forEach(function(b){b.style.background='#f1f5f9';b.style.color='#64748b';});
-  var btn=document.getElementById('tct-btn-'+view);
-  if(btn){btn.style.background='#0d2d52';btn.style.color='#fff';}
-}
-function notifierSecretaireContrat(c){
-  try{
-    var courriers=JSON.parse(localStorage.getItem('pl_courrier')||'[]');
-    courriers.unshift({id:Date.now(),de:'Tech: '+c.tech,sujet:'Nouveau contrat signé — '+c.client,
-      corps:'Contrat '+c.formule+' signé pour '+c.client+' ('+c.tel+') — '+c.equipement+' — '+c.montant+'€/an. Adresse: '+c.adresse+'. Email: '+(c.email||'non renseigné')+'. Merci de préparer la facture et d\'envoyer le contrat par email.',
-      date:new Date().toISOString(),lu:false,type:'contrat'});
-    var v=JSON.stringify(courriers);localStorage.setItem('pl_courrier',v);
-    if(window.gfSync)gfSync('pl_courrier',v);
-  }catch(e){}
-}
-var _dernierContrat=null;
-var _lastContratSaved=null;
-function envoyerContratMail(){
-  var c=_dernierContrat;if(!c)return;
-  var num='CTR-'+new Date().getFullYear()+'-'+String(c.id).slice(-4);
-  var sujet=encodeURIComponent('Votre contrat d\'entretien GreenFlow — '+num);
-  var corps=encodeURIComponent('Bonjour '+c.client+',\n\nNous avons le plaisir de vous confirmer la souscription de votre contrat d\'entretien GreenFlow Technologies.\n\nFormule : '+c.formule+'\nÉquipement : '+c.equipement+(c.marque?' '+c.marque:'')+(c.modele?' '+c.modele:'')+'\nMontant : '+c.montant+'€/an\nDébut : '+new Date(c.debut).toLocaleDateString('fr-FR')+'\n\nVotre technicien référent : '+c.tech+'\n\nPour toute question : 05 46 53 02 52 ou greenflow@greenflow-flow.net\n\nCordialement,\nL\'équipe GreenFlow Technologies');
-  var dest=(c.email||'');
-  window.open('mailto:'+dest+'?subject='+sujet+'&body='+corps,'_blank');
-}
-function envoyerMailContrat(){
-  var c=_lastContratSaved||_dernierContrat;
-  if(c)notifierSecretaireContrat(c);
-}
-function majPrixContrat(){
-  var eq=document.getElementById('tct-equipement');
-  if(!eq)return;
-  var val=eq.value;
-  var note=document.getElementById('tct-clim-note');
-  if(note)note.style.display=val==='Climatisation'?'block':'none';
-  if(!PRIX_CONTRATS_T[val])return;
-  var prix=PRIX_CONTRATS_T[val];
-  var pe=document.getElementById('prix-essentiel');if(pe)pe.innerHTML=prix.Essentiel+'€<span style="font-size:11px;font-weight:400;color:#64748b;">/an</span>';
-  var pc=document.getElementById('prix-confort');if(pc)pc.innerHTML=prix.Confort+'€<span style="font-size:11px;font-weight:400;color:#64748b;">/an</span>';
-  var pp=document.getElementById('prix-premium');if(pp)pp.innerHTML=prix.Premium+'€<span style="font-size:11px;font-weight:400;color:#64748b;">/an</span>';
-}
-function selectFormule(f){
-  var inp=document.getElementById('tct-formule');if(inp)inp.value=f;
-  ['essentiel','confort','premium'].forEach(function(n){
-    var card=document.getElementById('card-'+n);
-    if(!card)return;
-    if(n===f.toLowerCase()){
-      card.style.borderColor=f==='Premium'?'#f59e0b':f==='Confort'?'#2e7d32':'#0d2d52';
-      card.style.boxShadow='0 4px 16px rgba(0,0,0,0.12)';
-      card.style.transform='translateY(-2px)';
-    }else{
-      card.style.borderColor='#e2e8f0';
-      card.style.boxShadow='none';
-      card.style.transform='none';
-    }
-  });
-}
-function genererContratPDFTech(c){
-  if(!c)return;
-  var num='CTR-'+new Date().getFullYear()+'-'+String(c.id).slice(-4);
-  var FEAT={
-    Essentiel:['✓ Vérification complète de l\'installation','✓ 1 visite d\'entretien par an','✓ Nettoyage des composants essentiels','✓ Nettoyage du bac','✓ Attestation d\'entretien'],
-    Confort:['✓ Tout ce qui est inclus dans ESSENTIEL','✓ Prise en charge plus rapide','✓ Déplacement dépannage inclus','✓ Rétablissement prioritaire','✓ Interventions plus rapides (si pièces disponibles)','✓ Conseil au client'],
-    Premium:['✓ Tout ce qui est inclus dans CONFORT','✓ 10% à 20% sur les pièces','✓ Remise sur la main d\'œuvre','✓ Assistance téléphonique permanente (24h/7j)','✓ Dispatching personnalisé','✓ Carnet livret annuel sécurisé','✓ Technicien dédié']
-  };
-  var features=(FEAT[c.formule]||FEAT.Confort).join('<br>');
-  var freqLabel={mensuel:'Mensuel',trimestriel:'Trimestriel',annuel:'Annuel (1 paiement)'}[c.freq||'annuel']||'Annuel';
-  var modeLabel={prelevement:'Prélèvement automatique',cheque:'Chèque',virement:'Virement bancaire'}[c.mode||'prelevement']||'Prélèvement automatique';
-  var today=new Date().toLocaleDateString('fr-FR');
-  var finContrat=c.prochaine?new Date(c.prochaine).toLocaleDateString('fr-FR'):'-';
-  var debutContrat=c.debut?new Date(c.debut).toLocaleDateString('fr-FR'):today;
-  var PRIX=PRIX_CONTRATS_T;
-  var formuleHtml=['Essentiel','Confort','Premium'].map(function(f){
-    var p=(PRIX[c.equipement]||{})[f]||'—';var actif=c.formule===f;
-    return'<div style="flex:1;border:2px solid '+(actif?'#2e7d32':'#e2e8f0')+';border-radius:8px;padding:8px;text-align:center;background:'+(actif?'#f0fdf4':'#fff')+';">'
-    +(f==='Confort'?'<div style="font-size:8px;background:#2563eb;color:#fff;border-radius:4px;padding:1px 6px;display:inline-block;margin-bottom:3px;">Le + populaire</div>':f==='Premium'?'<div style="font-size:8px;color:#d97706;">⭐</div>':'<div style="font-size:8px;">&nbsp;</div>')
-    +'<div style="font-weight:800;font-size:10px;text-transform:uppercase;color:'+(actif?'#166534':'#374151')+';margin-bottom:3px;">'+f+'</div>'
-    +'<div style="font-size:14px;font-weight:900;color:'+(actif?'#2e7d32':'#94a3b8')+';">'+p+'€/an</div></div>';
-  }).join('');
-  var w=window.open('','_blank','width=900,height=700');if(!w)return;
-  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Contrat '+num+'</title>'
-  +'<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;color:#1a1a2e;font-size:12px;padding:20px;background:#fff;}'
-  +'@media print{@page{size:A4;margin:1cm;}body{padding:10px;}}'
-  +'.hdr{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #2e7d32;padding-bottom:14px;margin-bottom:14px;}'
-  +'.logo{font-size:20px;font-weight:900;color:#0d2d52;}.logo span{color:#2e7d32;}'
-  +'.sec{margin-bottom:12px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;}'
-  +'.sec-h{background:#0d2d52;color:#fff;padding:7px 12px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}'
-  +'.sec-b{padding:10px 12px;}.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:7px;}'
-  +'.fld label{font-size:8px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:2px;}'
-  +'.fld .v{font-size:11px;font-weight:600;border-bottom:1px solid #e2e8f0;padding:3px 0;min-height:18px;}'
-  +'.sign-g{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:10px;}'
-  +'.sign-b{border:1.5px dashed #94a3b8;border-radius:6px;height:70px;display:flex;align-items:flex-end;padding:5px 8px;font-size:8px;color:#94a3b8;}'
-  +'.feat{font-size:10px;line-height:2;color:#374151;background:#f8fafc;padding:8px 10px;border-radius:6px;margin-top:7px;}'
-  +'.foot{margin-top:10px;border-top:1px solid #e2e8f0;padding-top:8px;display:flex;justify-content:space-between;font-size:9px;color:#94a3b8;}'
-  +'.cond{font-size:8px;color:#64748b;line-height:1.6;margin-top:7px;border-top:1px solid #f1f5f9;padding-top:7px;}</style>'
-  +'</head><body>'
-  +'<div class="hdr"><div>'
-  +'<div class="logo">Green<span>Flow</span> <span style="font-size:10px;background:#2e7d32;color:#fff;border-radius:3px;padding:1px 5px;font-weight:700;vertical-align:middle;">TECHNOLOGIES</span></div>'
-  +'<div style="font-size:9px;color:#64748b;letter-spacing:1px;text-transform:uppercase;margin-top:2px;">Plomberie · Chauffage · Climatisation</div>'
-  +'<div style="font-size:9px;color:#64748b;margin-top:2px;">📍 5 rue des Bois-Fleuris, 17700 SAINTES &nbsp;|&nbsp; ☎ 05 46 53 02 52 &nbsp;|&nbsp; ✉ greenflow@greenflow-flow.net</div>'
-  +'</div><div style="text-align:right;">'
-  +'<div style="font-size:18px;font-weight:900;color:#0d2d52;text-transform:uppercase;">Contrat d\'entretien</div>'
-  +'<div style="font-size:9px;color:#64748b;letter-spacing:1px;">Tranquillité · Performance · Sérénité</div>'
-  +'<div style="font-size:13px;font-weight:700;color:#2e7d32;margin-top:4px;">'+num+'</div>'
-  +'<div style="font-size:9px;color:#64748b;">Signé le '+today+'</div></div></div>'
-  +'<div class="sec"><div class="sec-h">1. Informations client</div><div class="sec-b">'
-  +'<div class="row2"><div class="fld"><label>Nom complet</label><div class="v">'+(c.client||'')+'</div></div>'
-  +'<div class="fld"><label>Téléphone</label><div class="v">'+(c.tel||'')+'</div></div></div>'
-  +'<div class="row2"><div class="fld"><label>Email</label><div class="v">'+(c.email||'')+'</div></div>'
-  +'<div class="fld"><label>N° Contrat</label><div class="v">'+num+'</div></div></div>'
-  +'<div class="fld"><label>Adresse</label><div class="v">'+(c.adresse||'')+'</div></div>'
-  +'</div></div>'
-  +'<div class="sec"><div class="sec-h">2. Équipement</div><div class="sec-b">'
-  +'<div class="row2"><div class="fld"><label>Type</label><div class="v">'+(c.equipement||'')+'</div></div>'
-  +'<div class="fld"><label>Marque</label><div class="v">'+(c.marque||'')+'</div></div></div>'
-  +'<div class="row2"><div class="fld"><label>Modèle</label><div class="v">'+(c.modele||'')+'</div></div>'
-  +'<div class="fld"><label>Année d\'installation</label><div class="v">'+(c.annee||'')+'</div></div></div>'
-  +(c.serie?'<div class="fld"><label>N° de série</label><div class="v">'+c.serie+'</div></div>':'')
-  +'</div></div>'
-  +'<div class="sec"><div class="sec-h">3. Formule choisie</div><div class="sec-b">'
-  +'<div style="display:flex;gap:6px;margin-bottom:8px;">'+formuleHtml+'</div>'
-  +'<div class="feat">'+features+'</div>'
-  +'</div></div>'
-  +'<div class="sec"><div class="sec-h">4. Tarifs et modalités de paiement</div><div class="sec-b">'
-  +'<div class="row2"><div class="fld"><label>Montant annuel TTC</label><div class="v" style="font-size:15px;font-weight:800;color:#2e7d32;">'+c.montant+'€</div></div>'
-  +'<div class="fld"><label>Fréquence</label><div class="v">'+freqLabel+'</div></div></div>'
-  +'<div class="row2"><div class="fld"><label>Mode de paiement</label><div class="v">'+modeLabel+'</div></div>'
-  +'<div class="fld"><label>Début du contrat</label><div class="v">'+debutContrat+'</div></div></div>'
-  +'<div class="fld"><label>Prochaine visite / Renouvellement</label><div class="v">'+finContrat+'</div></div>'
-  +(c.notes?'<div class="fld" style="margin-top:6px;"><label>Notes</label><div class="v">'+c.notes+'</div></div>':'')
-  +'</div></div>'
-  +'<div class="sec"><div class="sec-h">5. Signatures</div><div class="sec-b">'
-  +'<div class="sign-g">'
-  +'<div><div style="font-size:9px;font-weight:700;color:#64748b;margin-bottom:5px;">CLIENT — Bon pour accord, lu et approuvé :</div><div class="sign-b">Signature</div></div>'
-  +'<div><div style="font-size:9px;font-weight:700;color:#64748b;margin-bottom:5px;">POUR GREENFLOW — Technicien : '+(c.tech||'')+'</div><div class="sign-b">Signature</div></div>'
-  +'</div>'
-  +'<div class="cond">CONDITIONS GÉNÉRALES : Contrat conclu pour une durée d\'un an renouvelable par tacite reconduction. Résiliation par LRAR 30 jours avant l\'échéance. GreenFlow Technologies se réserve le droit de modifier les tarifs avec préavis de 30 jours. DROIT DE RÉTRACTATION : Le client peut se rétracter dans un délai de 14 jours à compter de la signature par notification écrite adressée à GreenFlow Technologies, 5 rue des Bois-Fleuris, 17700 Saintes.</div>'
-  +'</div></div>'
-  +'<div class="foot"><div>GreenFlow Technologies · SIRET : [VOTRE SIRET] · RGE certifié</div><div>☎ 05 46 53 02 52 · greenflow@greenflow-flow.net · 24h/7j</div><div style="color:#2e7d32;font-weight:700;">'+num+'</div></div>'
-  +'</body></html>');
-  w.document.close();setTimeout(function(){w.print();},500);
-}
-
 var PRIX_CONTRATS_T={
   'Chaudière':{Essentiel:149,Confort:199,Premium:279},
   'Pompe à chaleur':{Essentiel:189,Confort:249,Premium:329},
@@ -2293,7 +1744,6 @@ var PRIX_CONTRATS_T={
   'Ballon thermodynamique':{Essentiel:129,Confort:179,Premium:249},
   "Adoucisseur d'eau":{Essentiel:119,Confort:169,Premium:219},
 };
-
 function getContratsTech(){try{return JSON.parse(localStorage.getItem('pl_contrats')||'[]');}catch(e){return[];}}
 function saveContratsTech(arr){var s=JSON.stringify(arr);localStorage.setItem('pl_contrats',s);if(window.gfSync)gfSync('pl_contrats',s);}
 function calcPrixContratTech(){
@@ -2319,49 +1769,36 @@ function selectFormuleTech(f){
   calcPrixContratTech();
 }
 function sauvegarderContratTech(){
-  var g=function(id){var e=document.getElementById(id);return e?e.value.trim():'';};
-  var client=g('tct-client-nom')||g('tct-client-search');
-  var equip=g('tct-equipement');
-  var formule=g('tct-formule')||'Confort';
-  if(!client||!equip){showNotif('Client et équipement requis');return;}
+  var client=document.getElementById('tct-client').value.trim();
+  var equip=document.getElementById('tct-equip').value;
+  var formule=document.getElementById('tct-formule').value||'Confort';
+  if(!client||!equip){if(window.notif)notif('Client et équipement requis');return;}
   var montant=(PRIX_CONTRATS_T[equip]||{})[formule]||0;
-  if(!montant){showNotif('Sélectionnez un équipement et une formule');return;}
+  if(!montant)return;
   var debut=new Date().toISOString().slice(0,10);
   var proch=new Date();proch.setFullYear(proch.getFullYear()+1);
   var techNom=currentUser?currentUser.nom:'';
-  var obj={id:Date.now(),client:client,tel:g('tct-tel'),email:g('tct-email'),
-    adresse:g('tct-adresse'),equipement:equip,marque:g('tct-marque'),modele:g('tct-modele'),
-    annee:g('tct-annee'),serie:g('tct-serie'),formule:formule,type:formule+' — '+equip,
-    tech:techNom,freq:g('tct-freq')||'annuel',mode:g('tct-mode')||'prelevement',
-    montant:montant,debut:debut,prochaine:proch.toISOString().slice(0,10),
-    notes:g('tct-notes-contrat'),statut:'Actif',creeAt:new Date().toISOString()};
-  var arr=getContratsTech();arr.unshift(obj);saveContratsTech(arr);
-  // RDV entretien annuel automatique
+  var arr=getContratsTech();
+  arr.unshift({id:Date.now(),client:client,tel:document.getElementById('tct-tel').value.trim(),adresse:document.getElementById('tct-adresse').value.trim(),equipement:equip,formule:formule,type:formule+' — '+equip,tech:techNom,freq:'annuel',montant:montant,debut:debut,prochaine:proch.toISOString().slice(0,10),statut:'Actif',creeAt:new Date().toISOString()});
+  saveContratsTech(arr);
+  // Créer RDV entretien annuel automatique
   (function(){
     var rdvs=JSON.parse(localStorage.getItem('pl_rdvs')||'[]');
-    var deja=rdvs.find(function(r){return r.clientNom===obj.client&&r.dateRdv===obj.prochaine&&r.type&&r.type.indexOf('Entretien')>=0;});
+    var proch=arr[0].prochaine;
+    var deja=rdvs.find(function(r){return r.clientNom===arr[0].client&&r.dateRdv===proch&&r.type&&r.type.indexOf('Entretien')>=0;});
     if(!deja){
-      rdvs.push({id:Date.now()+1,clientNom:obj.client,clientTel:obj.tel,adresse:obj.adresse,type:'Entretien '+obj.equipement+' (Contrat '+obj.formule+')',dateRdv:obj.prochaine,heureRdv:'09:00',technicien:obj.tech||'',prix:0,statut:'À planifier',notes:'RDV annuel automatique — contrat '+obj.formule,contratId:obj.id,creeAt:new Date().toISOString()});
+      rdvs.push({id:Date.now()+1,clientNom:arr[0].client,clientTel:arr[0].tel,adresse:arr[0].adresse,type:'Entretien '+arr[0].equipement+' (Contrat '+arr[0].formule+')',dateRdv:proch,heureRdv:'09:00',technicien:arr[0].tech||'',prix:0,statut:'À planifier',notes:'RDV annuel automatique — contrat '+arr[0].formule,contratId:arr[0].id,creeAt:new Date().toISOString()});
       var v=JSON.stringify(rdvs);localStorage.setItem('pl_rdvs',v);if(window.gfSync)gfSync('pl_rdvs',v);
     }
   })();
-  // Notifier secrétaire + activer bouton mail
-  notifierSecretaireContrat(obj);
-  _dernierContrat=obj;
-  _lastContratSaved=obj;
-  var mailBtn=document.getElementById('tct-btn-mail');if(mailBtn)mailBtn.style.display='';
-  var btnMail=document.getElementById('btn-envoyer-mail-contrat');if(btnMail){btnMail.disabled=false;btnMail.style.background='#0d2d52';btnMail.style.color='#fff';btnMail.style.cursor='pointer';}
-  var successMsg=document.getElementById('tct-success-msg');if(successMsg)successMsg.style.display='block';
-  // Reset form
-  ['tct-client-search','tct-client-nom','tct-tel','tct-email','tct-adresse','tct-marque','tct-modele','tct-annee','tct-serie','tct-notes-contrat'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
-  var eqEl=document.getElementById('tct-equipement');if(eqEl)eqEl.value='';
+  ['tct-client','tct-tel','tct-adresse'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('tct-equip').value='';
   document.getElementById('tct-formule').value='Confort';
   ['Essentiel','Premium'].forEach(function(x){var c=document.getElementById('tctf-'+x);if(c)c.classList.remove('ct-fcard-sel');});
   var cc=document.getElementById('tctf-Confort');if(cc)cc.classList.add('ct-fcard-sel');
   calcPrixContratTech();
   renderContratsTech();
-  showNotif('Contrat '+formule+' signé pour '+client+' — '+montant+'€/an ✓');
-  genererContratPDFTech(obj);
+  if(window.notif)notif('Contrat '+formule+' signé pour '+client+' — '+montant+'€/an');
 }
 function renderContratsTech(){
   var techNom=currentUser?currentUser.nom:'';
@@ -2376,25 +1813,16 @@ function renderContratsTech(){
   if(!lEl)return;
   if(!mine.length){lEl.innerHTML='<div style="text-align:center;padding:24px;color:#94a3b8;font-size:12px;">Aucun contrat signé — propose le contrat à ton prochain client !</div>';return;}
   lEl.innerHTML=mine.map(function(c){
-    var fColor=c.formule==='Premium'?{bg:'#fefce8',tx:'#92400e'}:c.formule==='Confort'?{bg:'#eff6ff',tx:'#1d4ed8'}:{bg:'#f0fdf4',tx:'#166534'};
-    var num='CTR-'+new Date().getFullYear()+'-'+String(c.id).slice(-4);
     return'<div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid var(--green);border-radius:14px;padding:14px 16px;margin-bottom:10px;">'
-    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
     +'<div><div style="font-weight:700;font-size:14px;">'+c.client+'</div>'
-    +(c.adresse?'<div style="color:#64748b;font-size:11px;margin-top:1px;">📍 '+c.adresse+'</div>':'')
-    +'<div style="color:#64748b;font-size:11px;margin-top:2px;">'+(c.marque||'')+(c.modele?' '+c.modele:'')+(c.annee?' ('+c.annee+')':'')+'</div>'
-    +'<div style="margin-top:4px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">'
-    +(c.tel?'<a href="tel:'+c.tel+'" style="color:#2563eb;font-size:12px;">📞 '+c.tel+'</a>':'')
-    +(c.email?'<a href="mailto:'+c.email+'" style="color:#7c3aed;font-size:11px;">✉ '+c.email+'</a>':'')
-    +'</div></div>'
-    +'<div style="text-align:right;"><span style="display:inline-block;background:'+fColor.bg+';color:'+fColor.tx+';font-size:9px;font-weight:700;padding:3px 8px;border-radius:6px;">'+c.formule+'</span>'
-    +'<div style="color:var(--green);font-weight:800;font-size:16px;margin-top:4px;">'+c.montant+'€/an</div>'
-    +'<div style="font-size:9px;color:#94a3b8;margin-top:1px;">'+num+'</div></div></div>'
-    +'<div style="color:#64748b;font-size:10px;margin-bottom:8px;">🔧 '+c.equipement+' &nbsp;·&nbsp; 📅 Prochaine visite : '+c.prochaine+'</div>'
-    +'<div style="display:flex;gap:6px;">'
-    +'<button onclick="genererContratPDFTech('+JSON.stringify(c).replace(/"/g,'&quot;')+')" style="flex:1;background:#f1f5f9;border:none;border-radius:8px;padding:7px;font-size:11px;font-weight:700;color:#475569;cursor:pointer;">🖨️ PDF</button>'
-    +(c.email?'<button onclick="_dernierContrat='+JSON.stringify(c).replace(/"/g,'&quot;')+';envoyerContratMail()" style="flex:1;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:7px;font-size:11px;font-weight:700;color:#166534;cursor:pointer;">✉️ Mail</button>':'')
-    +'</div></div>';
+    +'<div style="color:#64748b;font-size:11px;margin-top:2px;">'+(c.equipement||c.type)+'</div>'
+    +(c.tel?'<a href="tel:'+c.tel+'" style="color:#2563eb;font-size:12px;">'+c.tel+'</a>':'')+'</div>'
+    +'<div style="text-align:right;"><span style="display:inline-block;background:'+(c.formule==='Premium'?'#fefce8':c.formule==='Confort'?'#eff6ff':'#f0fdf4')+';color:'+(c.formule==='Premium'?'#92400e':c.formule==='Confort'?'#1d4ed8':'#166534')+';font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px;">'+c.formule+'</span>'
+    +'<div style="color:var(--green);font-weight:800;font-size:15px;margin-top:4px;">'+c.montant+'€/an</div></div>'
+    +'</div>'
+    +'<div style="color:#94a3b8;font-size:10px;margin-top:8px;">Prochaine visite : '+c.prochaine+'</div>'
+    +'</div>';
   }).join('');
 }
 
@@ -2666,10 +2094,17 @@ function renderKpiTech(){
   const termines=mesRdvs.filter(r=>r.statut==='Termine'||r.statut==='Paye').length;
   const caJour=mesRdvs.reduce((s,r)=>s+(r.prixVente||0),0);
   const urgences=JSON.parse(localStorage.getItem('pl_urgences')||'[]').filter(u=>u.technicien===currentUser.nom&&u.statut==='Active').length;
+  // Objectif mensuel équipe — Point 5
+  const allRdvs=getRdvs();
+  const moisStr2=todayStr().slice(0,7);
+  const caMois=allRdvs.filter(r=>(r.dateRdv||'').startsWith(moisStr2)&&(r.statut==='Termine'||r.statut==='Paye')).reduce((s,r)=>s+(r.prixVente||0),0);
+  const objMois=Math.round(Number(localStorage.getItem('pl_objectif')||960000)/12);
+  const pctMois=Math.min(100,Math.round(caMois/objMois*100));
   d.innerHTML=`
     <div class="sc" style="border-left:3px solid var(--green);padding:10px 12px;"><div class="lbl">MES RDV</div><div style="font-weight:800;font-size:18px;color:var(--blue);">${mesRdvs.length}</div><div style="font-size:10px;color:var(--muted);">${termines} terminés</div></div>
     <div class="sc" style="border-left:3px solid #1d4ed8;padding:10px 12px;"><div class="lbl">CA GÉNÉRÉ</div><div style="font-weight:800;font-size:18px;color:var(--green);">${caJour.toLocaleString('fr-FR')}€</div></div>
-    <div class="sc" style="border-left:3px solid ${urgences?'#dc2626':'#16a34a'};padding:10px 12px;"><div class="lbl">URGENCES</div><div style="font-weight:800;font-size:18px;color:${urgences?'#dc2626':'#16a34a'};">${urgences}</div></div>`;
+    <div class="sc" style="border-left:3px solid ${urgences?'#dc2626':'#16a34a'};padding:10px 12px;"><div class="lbl">URGENCES</div><div style="font-weight:800;font-size:18px;color:${urgences?'#dc2626':'#16a34a'};">${urgences}</div></div>
+    <div class="sc" style="border-left:3px solid #7c3aed;padding:10px 12px;grid-column:1/-1;"><div class="lbl">🎯 OBJECTIF ÉQUIPE (mois)</div><div style="font-weight:800;font-size:16px;color:#7c3aed;">${caMois.toLocaleString('fr-FR')}€ / ${objMois.toLocaleString('fr-FR')}€</div><div style="background:#ede9fe;border-radius:4px;height:6px;margin-top:6px;"><div style="background:#7c3aed;height:6px;border-radius:4px;width:${pctMois}%;transition:width 0.6s;"></div></div><div style="font-size:10px;color:var(--muted);margin-top:3px;">${pctMois}% atteint</div></div>`;
 }
 
 /* ---- ENVOYER DEVIS RAPIDE ---- */
@@ -2693,265 +2128,6 @@ function envoyerDevisRapide(){
   showNotif('Demande de devis envoyée au patron !');
 }
 
-
-/* ─────────────────────────────────────────────────
-   STOCKAGE DEVIS
-───────────────────────────────────────────────── */
-function getDevis(){return JSON.parse(localStorage.getItem('pl_devis')||'[]');}
-function saveDevis(d){var v=JSON.stringify(d);localStorage.setItem('pl_devis',v);if(window.gfSync)gfSync('pl_devis',v);}
-
-// ── ACTIONS RDV TECH (modifier / décaler / annuler) ──
-var _rdvTechActionId = null;
-function ouvrirActionsRdvTech(id, tab){
-  _rdvTechActionId = id;
-  var rdv = getRdvs().find(function(r){return r.id===id;});
-  if(!rdv) return;
-  var title = document.getElementById('modal-rdv-tech-title');
-  if(title) title.textContent = rdv.clientNom + ' — ' + rdv.dateRdv + (rdv.heureRdv?' à '+rdv.heureRdv:'');
-  // Pré-remplir Modifier
-  var d=document.getElementById('rdvt-date'); if(d)d.value=rdv.dateRdv||'';
-  var h=document.getElementById('rdvt-heure'); if(h)h.value=rdv.heureRdv||'';
-  var p=document.getElementById('rdvt-prix'); if(p)p.value=rdv.prixVente||0;
-  var n=document.getElementById('rdvt-notes'); if(n)n.value=rdv.notes||'';
-  // Pré-remplir Décaler
-  var dd=document.getElementById('rdvt-decal-date'); if(dd)dd.value=rdv.dateRdv||'';
-  var dh=document.getElementById('rdvt-decal-heure'); if(dh)dh.value=rdv.heureRdv||'';
-  var dr=document.getElementById('rdvt-decal-raison'); if(dr)dr.value='';
-  var an=document.getElementById('rdvt-annul-notes'); if(an)an.value='';
-  switchRdvTechTab(tab||'modif');
-  document.getElementById('modal-rdv-tech-overlay').style.display='block';
-  document.getElementById('modal-rdv-tech').style.display='block';
-}
-function fermerActionsRdvTech(){
-  document.getElementById('modal-rdv-tech-overlay').style.display='none';
-  document.getElementById('modal-rdv-tech').style.display='none';
-  _rdvTechActionId=null;
-}
-function switchRdvTechTab(tab){
-  ['modif','decal','annul'].forEach(function(t){
-    var s=document.getElementById('rdvt-section-'+t);
-    var b=document.getElementById('rdvt-tab-'+t);
-    if(s)s.style.display=t===tab?'block':'none';
-    if(b){b.style.background=t===tab?'#0d2d52':'none';b.style.color=t===tab?'#fff':'#64748b';}
-  });
-}
-function sauvegarderModifRdvTech(){
-  if(!_rdvTechActionId) return;
-  var rdvs=getRdvs();
-  var idx=rdvs.findIndex(function(r){return r.id===_rdvTechActionId;});
-  if(idx<0) return;
-  var ancDate=rdvs[idx].dateRdv, ancHeure=rdvs[idx].heureRdv;
-  var d=document.getElementById('rdvt-date').value;
-  var h=document.getElementById('rdvt-heure').value;
-  var p=parseFloat(document.getElementById('rdvt-prix').value)||rdvs[idx].prixVente;
-  var n=document.getElementById('rdvt-notes').value;
-  rdvs[idx].dateRdv=d||ancDate;
-  rdvs[idx].heureRdv=h||ancHeure;
-  rdvs[idx].prixVente=p;
-  rdvs[idx].notes=n;
-  rdvs[idx].modifAt=new Date().toISOString();
-  var v=JSON.stringify(rdvs);localStorage.setItem('pl_rdvs',v);if(window.gfSync)gfSync('pl_rdvs',v);
-  // Log modif dans pl_annulations
-  try{
-    var log=JSON.parse(localStorage.getItem('pl_annulations')||'[]');
-    log.push({id:Date.now(),type:'modif',clientNom:rdvs[idx].clientNom,typeIntervention:rdvs[idx].type,technicien:rdvs[idx].technicien,dateRdv:rdvs[idx].dateRdv,heureRdv:rdvs[idx].heureRdv,ancienneDate:ancDate,ancienneHeure:ancHeure,par:currentUser?currentUser.nom:'Tech',ts:new Date().toISOString()});
-    var lv=JSON.stringify(log);localStorage.setItem('pl_annulations',lv);if(window.gfSync)gfSync('pl_annulations',lv);
-  }catch(e){}
-  fermerActionsRdvTech();
-  renderRdv();
-  showNotif('RDV modifié ✓');
-}
-function confirmerDecalageTech(){
-  if(!_rdvTechActionId) return;
-  var rdvs=getRdvs();
-  var idx=rdvs.findIndex(function(r){return r.id===_rdvTechActionId;});
-  if(idx<0) return;
-  var ancDate=rdvs[idx].dateRdv, ancHeure=rdvs[idx].heureRdv;
-  var newDate=document.getElementById('rdvt-decal-date').value;
-  var newHeure=document.getElementById('rdvt-decal-heure').value;
-  var raison=document.getElementById('rdvt-decal-raison').value;
-  if(!newDate){showNotif('Indiquez la nouvelle date');return;}
-  rdvs[idx].dateRdv=newDate;
-  rdvs[idx].heureRdv=newHeure||rdvs[idx].heureRdv;
-  rdvs[idx].statut='Confirme';
-  rdvs[idx].notes=(rdvs[idx].notes?rdvs[idx].notes+'\n':'')+('Décalé de '+ancDate+(ancHeure?' '+ancHeure:'')+(raison?' — '+raison:''));
-  rdvs[idx].modifAt=new Date().toISOString();
-  var v=JSON.stringify(rdvs);localStorage.setItem('pl_rdvs',v);if(window.gfSync)gfSync('pl_rdvs',v);
-  // Log
-  try{
-    var log=JSON.parse(localStorage.getItem('pl_annulations')||'[]');
-    log.push({id:Date.now(),type:'decalage',clientNom:rdvs[idx].clientNom,typeIntervention:rdvs[idx].type,technicien:rdvs[idx].technicien,ancienneDate:ancDate,ancienneHeure:ancHeure,nouvDate:newDate,nouvHeure:newHeure,raison:raison,par:currentUser?currentUser.nom:'Tech',ts:new Date().toISOString()});
-    var lv=JSON.stringify(log);localStorage.setItem('pl_annulations',lv);if(window.gfSync)gfSync('pl_annulations',lv);
-  }catch(e){}
-  fermerActionsRdvTech();
-  renderRdv();
-  showNotif('RDV décalé au '+newDate+' ✓');
-}
-function confirmerAnnulationTech(){
-  if(!_rdvTechActionId) return;
-  var rdvs=getRdvs();
-  var idx=rdvs.findIndex(function(r){return r.id===_rdvTechActionId;});
-  if(idx<0) return;
-  var raison=document.getElementById('rdvt-annul-raison').value;
-  var notes=document.getElementById('rdvt-annul-notes').value;
-  // Log avant d'annuler
-  try{
-    var log=JSON.parse(localStorage.getItem('pl_annulations')||'[]');
-    log.push({id:Date.now(),type:'annulation',clientNom:rdvs[idx].clientNom,typeIntervention:rdvs[idx].type,technicien:rdvs[idx].technicien,dateRdv:rdvs[idx].dateRdv,heureRdv:rdvs[idx].heureRdv,raison:raison+(notes?' — '+notes:''),par:currentUser?currentUser.nom:'Tech',ts:new Date().toISOString()});
-    var lv=JSON.stringify(log);localStorage.setItem('pl_annulations',lv);if(window.gfSync)gfSync('pl_annulations',lv);
-  }catch(e){}
-  rdvs[idx].statut='Annule';
-  rdvs[idx].raisonAnnulation=raison+(notes?' — '+notes:'');
-  rdvs[idx].annuleAt=new Date().toISOString();
-  var v=JSON.stringify(rdvs);localStorage.setItem('pl_rdvs',v);if(window.gfSync)gfSync('pl_rdvs',v);
-  fermerActionsRdvTech();
-  renderRdv();
-  showNotif('RDV annulé — '+raison);
-}
-
-/* ─────────────────────────────────────────────────
-   PAGE ACCUEIL — DASHBOARD
-───────────────────────────────────────────────── */
-function renderAccueil(){
-  if(!currentUser)return;
-
-  // Salutation & date
-  var jours=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-  var moisNoms=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-  var now=new Date();
-  var dateStr=jours[now.getDay()]+' '+now.getDate()+' '+moisNoms[now.getMonth()]+' '+now.getFullYear();
-  var el=document.getElementById('acc-date');if(el)el.textContent=dateStr;
-  var prenom=currentUser.nom.split(' ')[0];
-  var salutEl=document.getElementById('acc-salut');
-  if(salutEl)salutEl.textContent='Bonjour, '+prenom+' !';
-
-  // Statut actuel
-  var dispos=JSON.parse(localStorage.getItem('pl_dispos')||'{}');
-  var statut=(dispos[currentUser.nom]||{}).statut||'Disponible';
-  var statutColors={Disponible:'#16a34a','En intervention':'#f97316',Pause:'#eab308',Indisponible:'#ef4444'};
-  var statutColor=statutColors[statut]||'#16a34a';
-  var pillEl=document.getElementById('acc-statut-pill');
-  if(pillEl)pillEl.innerHTML='<span style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;color:#fff;">'
-    +'<span style="width:7px;height:7px;border-radius:50%;background:'+statutColor+';display:inline-block;"></span>'+statut+'</span>';
-
-  // Stats du jour
-  var rdvs=getMesRdvs().filter(function(r){return r.dateRdv===todayStr();});
-  var done=rdvs.filter(function(r){return r.statut==='Termine'||r.statut==='Paye';}).length;
-  var ca=rdvs.reduce(function(s,r){return s+(r.prixVente||0);},0);
-  var s=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
-  s('acc-rdv-total',rdvs.length);
-  s('acc-rdv-done',done);
-  s('acc-ca',ca+'€');
-  // Primes du mois
-  var primes=getPrimes();
-  var moisPrimes=(primes[currentUser.nom]||{})[moisStr()]||{total:0};
-  s('acc-primes',moisPrimes.total+'€');
-
-  // Prochain RDV
-  var pending=rdvs.filter(function(r){return r.statut!=='Termine'&&r.statut!=='Paye'&&r.statut!=='Annule';})
-    .sort(function(a,b){return a.heureRdv.localeCompare(b.heureRdv);});
-  var card=document.getElementById('acc-next-rdv-card');
-  if(card){
-    if(pending.length){
-      card.classList.remove('hidden');
-      s('acc-next-heure','→ '+pending[0].heureRdv);
-      s('acc-next-client',pending[0].clientNom);
-      s('acc-next-sub',pending[0].type+' · '+(pending[0].adresse||'').split(',')[0]);
-    } else {
-      card.classList.add('hidden');
-    }
-  }
-
-  // Demandes de devis
-  var devis=getDevis().filter(function(d){return d.statut==='Nouveau';});
-  var countEl=document.getElementById('acc-devis-count');
-  if(countEl)countEl.textContent=devis.length;
-  var listEl=document.getElementById('acc-devis-list');
-  if(listEl){
-    if(!devis.length){
-      listEl.innerHTML='<div class="empty-state" style="padding:24px 0;"><div class="empty-icon">📭</div><div>Aucune demande de devis en attente</div></div>';
-    } else {
-      listEl.innerHTML=devis.slice(0,10).map(function(d){
-        var statColor=d.statut==='Nouveau'?'#f97316':d.statut==='Traité'?'#16a34a':'#64748b';
-        var statBg=d.statut==='Nouveau'?'#fff7ed':d.statut==='Traité'?'#dcfce7':'#f1f5f9';
-        return '<div class="devis-card">'
-          +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;">'
-          +'<div style="flex:1;">'
-          +'<div style="font-weight:700;font-size:14px;color:#0d2d52;">'+d.clientNom+'</div>'
-          +'<div style="font-size:12px;color:#64748b;margin-top:2px;">'+(d.type||d.description||'—')+'</div>'
-          +(d.montant||d.prixEstimatif?'<div style="color:#16a34a;font-weight:800;font-size:14px;margin-top:3px;">'+(d.montant||d.prixEstimatif)+'€ estimé</div>':'')
-          +'<div style="font-size:10px;color:#94a3b8;margin-top:3px;">'+(d.date||'')+(d.source?' · Source : '+d.source:'')+(d.creePar?' · Par : '+d.creePar:'')+(d.technicien?' · '+d.technicien:'')+'</div>'
-          +'</div>'
-          +'<span class="devis-statut-badge" style="background:'+statBg+';color:'+statColor+';">'+d.statut+'</span>'
-          +'</div>'
-          +'<div style="display:flex;gap:6px;flex-wrap:wrap;">'
-          +(d.statut==='Nouveau'?'<button onclick="marquerDevisTraite('+d.id+')" style="background:#dcfce7;color:#16a34a;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">✓ Traité</button>':'')
-          +'<button onclick="creerRdvDepuisDevis('+d.id+')" style="background:#eff6ff;color:#1d4ed8;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">📅 Créer RDV</button>'
-          +'</div>'
-          +'</div>';
-      }).join('');
-    }
-  }
-}
-
-function marquerDevisTraite(devisId){
-  var devis=getDevis();
-  var d=devis.find(function(x){return String(x.id)===String(devisId);});
-  if(d)d.statut='Traité';
-  saveDevis(devis);
-  renderAccueil();
-  showNotif('Devis marqué comme traité !');
-}
-
-function creerRdvDepuisDevis(devisId){
-  var devis=getDevis();
-  var d=devis.find(function(x){return String(x.id)===String(devisId);});
-  if(!d)return;
-  showNotif('Redirection vers l\'agenda — créez le RDV manuellement pour '+d.clientNom);
-  showPage('agenda');
-}
-
-function toggleFormDevisTech(){
-  var f=document.getElementById('form-devis-tech');
-  if(!f)return;
-  f.classList.toggle('open');
-  if(f.classList.contains('open'))f.scrollIntoView({behavior:'smooth',block:'start'});
-}
-
-function envoyerDevisTech(){
-  if(!currentUser)return;
-  var client=(document.getElementById('fdt-client')||{}).value||'';
-  var tel=(document.getElementById('fdt-tel')||{}).value||'';
-  var adresse=(document.getElementById('fdt-adresse')||{}).value||'';
-  var type=(document.getElementById('fdt-type')||{}).value||'';
-  var montant=Number((document.getElementById('fdt-montant')||{}).value||0);
-  var desc=(document.getElementById('fdt-desc')||{}).value||'';
-  if(!client.trim()){showNotif('Remplissez le nom du client');return;}
-  var devis=getDevis();
-  devis.push({
-    id:Date.now(),
-    clientNom:client,
-    clientTel:tel,
-    adresse:adresse,
-    type:type,
-    montant:montant||undefined,
-    description:desc,
-    statut:'Nouveau',
-    source:'tech',
-    creePar:currentUser.nom,
-    technicien:currentUser.nom,
-    date:todayStr()
-  });
-  saveDevis(devis);
-  // Reset formulaire
-  ['fdt-client','fdt-tel','fdt-adresse','fdt-montant','fdt-desc'].forEach(function(id){
-    var el=document.getElementById(id);if(el)el.value='';
-  });
-  toggleFormDevisTech();
-  renderAccueil();
-  showNotif('Devis créé et envoyé au patron !');
-}
-
 window.onload=()=>{
   document.querySelectorAll(".pin-input").forEach((el,i,arr)=>{
     el.addEventListener("input",()=>{if(el.value&&i<arr.length-1)arr[i+1].focus();});
@@ -2965,8 +2141,7 @@ window.onload=()=>{
 window.addEventListener('storage',e=>{
   if(!['pl_rdvs','pl_urgences','pl_dispos','pl_rapports'].includes(e.key))return;
   if(!currentUser)return;
-  renderRdv();renderKPI();checkUrgences();renderRecapJournee();updateTodoBadgeTech();
-  if(!document.getElementById('page-todo').classList.contains('hidden'))renderToDoTech();});
+  renderRdv();renderKPI();checkUrgences();renderRecapJournee();});
 
 // BroadcastChannel direct — même navigateur, même appareil (plus fiable que StorageEvent)
 var _techBC=null;
@@ -2987,17 +2162,14 @@ if(_techBC){
 }
 
 // Polling toutes les 5s — filet de sécurité si BroadcastChannel/Firebase défaillant
-var _rdvSnap='',_disposSnap='',_urgSnap='';
+var _rdvSnap='';
 setInterval(function(){
   if(!currentUser)return;
   const h=localStorage.getItem('pl_rdvs')||'';
-  if(h!==_rdvSnap){_rdvSnap=h;renderRdv();renderKPI();checkUrgences();renderRecapJournee();}
-  const d=localStorage.getItem('pl_dispos')||'';
-  if(d!==_disposSnap){_disposSnap=d;renderKPI();}
-  const u=localStorage.getItem('pl_urgences')||'';
-  if(u!==_urgSnap){_urgSnap=u;checkUrgences();renderKPI();}
-  var pageAcc=document.getElementById('page-accueil');
-  if(pageAcc&&!pageAcc.classList.contains('hidden'))renderAccueil();
+  if(h!==_rdvSnap){
+    _rdvSnap=h;
+    renderRdv();renderKPI();checkUrgences();renderRecapJournee();
+  }
 },5000);
 </script>
 
@@ -3007,20 +2179,24 @@ setInterval(function(){
   <span class="chat-badge hidden" id="chat-badge">0</span>
 </button>
 
-<!-- MODAL CHAT -->
+<!-- MODAL CHAT MESSAGERIE -->
 <div class="modal-bg hidden" id="modal-chat">
-  <div class="modal-sheet">
-    <div class="modal-header">
-      <div>
-        <div class="modal-title">MESSAGERIE</div>
-        <div class="modal-subtitle">Chat avec le Dispatch</div>
-      </div>
-      <button class="modal-close" onclick="closeModal('modal-chat')">x</button>
+  <div class="modal-sheet" style="padding:16px 16px 20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div style="font-size:13px;font-weight:800;color:#0d2d52;letter-spacing:1px;">💬 MESSAGERIE</div>
+      <button class="modal-close" onclick="closeModal('modal-chat')">×</button>
     </div>
-    <div class="chat-messages" id="chat-messages"></div>
-    <div class="chat-input-row">
+    <!-- Sélection destinataire -->
+    <div style="display:flex;gap:6px;background:#f1f5f9;border-radius:10px;padding:4px;margin-bottom:12px;">
+      <button id="chat-dest-DISPATCH" onclick="selChatDest('DISPATCH')" style="flex:1;background:#0d2d52;color:#fff;border:none;border-radius:8px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;">📋 Dispatch</button>
+      <button id="chat-dest-SECRETAIRE" onclick="selChatDest('SECRETAIRE')" style="flex:1;background:none;color:#64748b;border:none;border-radius:8px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;">🗂️ Secrétaire</button>
+      <button id="chat-dest-PATRON" onclick="selChatDest('PATRON')" style="flex:1;background:none;color:#64748b;border:none;border-radius:8px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;">👔 Patron</button>
+    </div>
+    <div id="chat-dest-label" style="font-size:11px;color:#64748b;margin-bottom:8px;text-align:center;">Conversation avec le Dispatch</div>
+    <div class="chat-messages" id="chat-messages" style="height:55vh;"></div>
+    <div class="chat-input-row" style="margin-top:10px;">
       <input type="text" id="chat-input" class="chat-input" placeholder="Votre message..." onkeydown="if(event.key==='Enter')envoyerMessage()">
-      <button class="action-btn btn-green" onclick="envoyerMessage()" style="flex:0 0 auto;padding:10px 18px;">Envoyer</button>
+      <button class="action-btn btn-green" onclick="envoyerMessage()" style="flex:0 0 auto;padding:10px 16px;">Envoyer</button>
     </div>
   </div>
 </div>
@@ -3388,65 +2564,6 @@ if('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 }
 </script>
-
-<!-- MODAL ACTIONS RDV TECH (modifier / décaler / annuler) -->
-<div id="modal-rdv-tech-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;" onclick="fermerActionsRdvTech()"></div>
-<div id="modal-rdv-tech" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;z-index:201;padding:20px 16px 40px;max-height:92vh;overflow-y:auto;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-    <div style="font-size:13px;font-weight:800;color:#0d2d52;" id="modal-rdv-tech-title">RDV</div>
-    <button onclick="fermerActionsRdvTech()" style="background:#f1f5f9;border:none;border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer;color:#64748b;">×</button>
-  </div>
-  <!-- Onglets -->
-  <div style="display:flex;gap:6px;background:#f1f5f9;border-radius:10px;padding:4px;margin-bottom:16px;">
-    <button id="rdvt-tab-modif" onclick="switchRdvTechTab('modif')" style="flex:1;background:#0d2d52;color:#fff;border:none;border-radius:8px;padding:8px 4px;font-size:12px;font-weight:700;cursor:pointer;">✏️ Modifier</button>
-    <button id="rdvt-tab-decal" onclick="switchRdvTechTab('decal')" style="flex:1;background:none;color:#64748b;border:none;border-radius:8px;padding:8px 4px;font-size:12px;font-weight:700;cursor:pointer;">📅 Décaler</button>
-    <button id="rdvt-tab-annul" onclick="switchRdvTechTab('annul')" style="flex:1;background:none;color:#64748b;border:none;border-radius:8px;padding:8px 4px;font-size:12px;font-weight:700;cursor:pointer;">❌ Annuler</button>
-  </div>
-  <!-- Section Modifier -->
-  <div id="rdvt-section-modif">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-      <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">DATE</label><input type="date" class="fi" id="rdvt-date"></div>
-      <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">HEURE</label><input type="time" class="fi" id="rdvt-heure"></div>
-    </div>
-    <div style="margin-bottom:10px;"><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">PRIX (€)</label><input type="number" class="fi" id="rdvt-prix"></div>
-    <div style="margin-bottom:14px;"><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">NOTES</label><textarea class="fi" id="rdvt-notes" rows="2" style="resize:vertical;"></textarea></div>
-    <div style="display:flex;gap:8px;">
-      <button onclick="fermerActionsRdvTech()" style="flex:1;background:#f1f5f9;border:none;border-radius:10px;padding:13px;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;">Annuler</button>
-      <button onclick="sauvegarderModifRdvTech()" style="flex:2;background:#0d2d52;color:#fff;border:none;border-radius:10px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;">💾 Sauvegarder</button>
-    </div>
-  </div>
-  <!-- Section Décaler -->
-  <div id="rdvt-section-decal" style="display:none;">
-    <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#c2410c;">Indiquer la nouvelle date/heure et la raison.</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-      <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">NOUVELLE DATE</label><input type="date" class="fi" id="rdvt-decal-date"></div>
-      <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">HEURE</label><input type="time" class="fi" id="rdvt-decal-heure"></div>
-    </div>
-    <div style="margin-bottom:14px;"><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">RAISON DU DÉCALAGE</label><textarea class="fi" id="rdvt-decal-raison" rows="2" placeholder="Client indisponible, problème technique..." style="resize:vertical;"></textarea></div>
-    <div style="display:flex;gap:8px;">
-      <button onclick="fermerActionsRdvTech()" style="flex:1;background:#f1f5f9;border:none;border-radius:10px;padding:13px;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;">Annuler</button>
-      <button onclick="confirmerDecalageTech()" style="flex:2;background:#f59e0b;color:#fff;border:none;border-radius:10px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;">📅 Confirmer le décalage</button>
-    </div>
-  </div>
-  <!-- Section Annuler -->
-  <div id="rdvt-section-annul" style="display:none;">
-    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#dc2626;">Cette action est définitive. Le RDV sera masqué de l'agenda.</div>
-    <div style="margin-bottom:14px;"><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">RAISON DE L'ANNULATION</label>
-      <select class="fi" id="rdvt-annul-raison">
-        <option value="Client absent">Client absent</option>
-        <option value="Client a annulé">Client a annulé</option>
-        <option value="Problème technique">Problème technique</option>
-        <option value="Doublon">Doublon</option>
-        <option value="Autre">Autre</option>
-      </select>
-    </div>
-    <div style="margin-bottom:14px;"><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">PRÉCISIONS (optionnel)</label><textarea class="fi" id="rdvt-annul-notes" rows="2" style="resize:vertical;"></textarea></div>
-    <div style="display:flex;gap:8px;">
-      <button onclick="fermerActionsRdvTech()" style="flex:1;background:#f1f5f9;border:none;border-radius:10px;padding:13px;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;">Retour</button>
-      <button onclick="confirmerAnnulationTech()" style="flex:2;background:#dc2626;color:#fff;border:none;border-radius:10px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;">❌ Confirmer l'annulation</button>
-    </div>
-  </div>
-</div>
 
 </body>
 </html>
