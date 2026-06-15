@@ -858,6 +858,164 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div id="liste-passation"></div>
 </div>
 
+<div id="page-contrats-d" class="hidden">
+
+  <!-- HEADER -->
+  <div style="background:linear-gradient(135deg,#0d2d52,#1a4a7a);border-radius:16px;padding:18px 16px;color:#fff;margin-bottom:16px;">
+    <div style="font-size:10px;letter-spacing:2px;font-weight:700;opacity:0.7;margin-bottom:4px;">CONTRATS D'ENTRETIEN</div>
+    <div style="font-size:18px;font-weight:800;margin-bottom:4px;">Tranquillité, Performance &amp; Sérénité</div>
+    <div style="font-size:12px;opacity:0.75;">Nos contrats sont conçus pour assurer tranquillité d'esprit, performance optimale et sécurité tout au long de l'année.</div>
+  </div>
+
+  <!-- EXPLICATION FORMULES (accordéon) -->
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;margin-bottom:14px;overflow:hidden;">
+    <button onclick="toggleExplContratD()" style="width:100%;background:none;border:none;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+      <span style="font-size:13px;font-weight:700;color:#0d2d52;">📋 Que comprend chaque contrat ?</span>
+      <span id="expl-contrat-d-icon" style="font-size:16px;color:#64748b;">▼</span>
+    </button>
+    <div id="expl-contrat-d-body" style="display:none;padding:0 16px 16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+        <!-- ESSENTIEL -->
+        <div style="border:2px solid #22c55e;border-radius:12px;padding:12px;background:#f0fdf4;">
+          <div style="font-size:10px;font-weight:800;color:#15803d;letter-spacing:1px;margin-bottom:6px;">ESSENTIEL</div>
+          <div style="font-size:11px;color:#166534;margin-bottom:4px;font-weight:700;">Le minimum obligatoire</div>
+          <div style="font-size:10px;color:#166534;line-height:1.6;">✓ Vérification complète de l'installation<br>✓ Contrôle des composants<br>✓ Nettoyage des composants essentiels<br>✓ Réglages de base<br>✓ Mesures électriques et sécurités<br>✓ Attestation entretien conforme</div>
+        </div>
+        <!-- CONFORT -->
+        <div style="border:2px solid #3b82f6;border-radius:12px;padding:12px;background:#eff6ff;position:relative;">
+          <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#3b82f6;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:6px;white-space:nowrap;">Le + choisi</div>
+          <div style="font-size:10px;font-weight:800;color:#1d4ed8;letter-spacing:1px;margin-bottom:6px;">CONFORT</div>
+          <div style="font-size:11px;color:#1e40af;margin-bottom:4px;font-weight:700;">Meilleur rapport qualité/prix</div>
+          <div style="font-size:10px;color:#1e40af;line-height:1.6;">✓ Tout ESSENTIEL inclus<br>✓ Dépannage prioritaire inclus<br>✓ Déplacement dépannage inclus<br>✓ Main-d'œuvre incluse<br>✓ Rappels entretien automatiques<br>✓ Service client prioritaire</div>
+        </div>
+        <!-- PREMIUM -->
+        <div style="border:2px solid #f59e0b;border-radius:12px;padding:12px;background:#fffbeb;">
+          <div style="font-size:10px;font-weight:800;color:#b45309;letter-spacing:1px;margin-bottom:6px;">PREMIUM ⭐</div>
+          <div style="font-size:11px;color:#92400e;margin-bottom:4px;font-weight:700;">La tranquillité totale</div>
+          <div style="font-size:10px;color:#92400e;line-height:1.6;">✓ Tout CONFORT inclus<br>✓ Pièces à -15% à -20%<br>✓ Remise sur factures annuelles<br>✓ Bonne mine d'or à saisir<br>✓ Client privilégié — file d'attente prioritaire<br>✓ Rapport d'inspection visuelle annuel</div>
+        </div>
+      </div>
+      <!-- Tableau comparatif -->
+      <table style="width:100%;font-size:10px;border-collapse:collapse;">
+        <thead>
+          <tr style="background:#f8fafc;">
+            <th style="text-align:left;padding:6px 8px;color:#64748b;font-weight:700;border-bottom:1px solid #e2e8f0;">SERVICE INCLUS</th>
+            <th style="text-align:center;padding:6px;color:#15803d;font-weight:800;border-bottom:1px solid #e2e8f0;">ESSENTIEL</th>
+            <th style="text-align:center;padding:6px;color:#1d4ed8;font-weight:800;border-bottom:1px solid #e2e8f0;">CONFORT</th>
+            <th style="text-align:center;padding:6px;color:#b45309;font-weight:800;border-bottom:1px solid #e2e8f0;">PREMIUM</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${[
+            ['Entretien annuel','✓','✓','✓'],
+            ['Mise en sécurité','✓','✓','✓'],
+            ['Réglage brûleur / circuit','✓','✓','✓'],
+            ['Rapport entretien','✓','✓','✓'],
+            ['Dépannage prioritaire','—','✓','✓'],
+            ['Déplacement inclus','—','✓','✓'],
+            ['Main-d\'œuvre incluse','—','✓','✓'],
+            ['Remise pièces 15-20%','—','—','✓'],
+            ['Remise factures annuelles','—','—','✓'],
+          ].map(r=>`<tr><td style="padding:5px 8px;border-bottom:1px solid #f1f5f9;color:#374151;">${r[0]}</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;color:${r[1]==='✓'?'#16a34a':'#94a3b8'};">${r[1]}</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;color:${r[2]==='✓'?'#2563eb':'#94a3b8'};">${r[2]}</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;color:${r[3]==='✓'?'#d97706':'#94a3b8'};">${r[3]}</td></tr>`).join('')}
+        </tbody>
+      </table>
+      <!-- Tarifs par équipement -->
+      <div style="margin-top:12px;font-size:10px;font-weight:800;color:#0d2d52;letter-spacing:1px;margin-bottom:6px;">NOS TARIFS PAR ÉQUIPEMENT (TTC)</div>
+      <table style="width:100%;font-size:10px;border-collapse:collapse;">
+        <thead><tr style="background:#f8fafc;"><th style="text-align:left;padding:6px 8px;color:#64748b;border-bottom:1px solid #e2e8f0;">Équipement</th><th style="text-align:center;padding:6px;color:#15803d;border-bottom:1px solid #e2e8f0;">ESSENTIEL</th><th style="text-align:center;padding:6px;color:#1d4ed8;border-bottom:1px solid #e2e8f0;">CONFORT</th><th style="text-align:center;padding:6px;color:#b45309;border-bottom:1px solid #e2e8f0;">PREMIUM</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:5px 8px;border-bottom:1px solid #f1f5f9;">🔥 Chaudière</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">149€</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">199€</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">279€</td></tr>
+          <tr style="background:#f8fafc;"><td style="padding:5px 8px;border-bottom:1px solid #f1f5f9;">♨️ Pompe à chaleur</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">189€</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">249€</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">329€</td></tr>
+          <tr><td style="padding:5px 8px;border-bottom:1px solid #f1f5f9;">❄️ Climatisation</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">139€</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">199€</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">269€</td></tr>
+          <tr style="background:#f8fafc;"><td style="padding:5px 8px;border-bottom:1px solid #f1f5f9;">💧 Ballon thermo.</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">129€</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">179€</td><td style="text-align:center;padding:5px;border-bottom:1px solid #f1f5f9;font-weight:700;">249€</td></tr>
+          <tr><td style="padding:5px 8px;">🚰 Adoucisseur</td><td style="text-align:center;padding:5px;font-weight:700;">119€</td><td style="text-align:center;padding:5px;font-weight:700;">169€</td><td style="text-align:center;padding:5px;font-weight:700;">219€</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FORMULAIRE NOUVEAU CONTRAT -->
+  <div style="background:#fff;border:1.5px solid #dde3ec;border-top:3px solid #3a8c30;border-radius:14px;padding:16px;margin-bottom:16px;">
+    <div style="font-size:10px;font-weight:800;color:#3a8c30;letter-spacing:1.5px;margin-bottom:12px;">NOUVEAU CONTRAT</div>
+
+    <!-- Recherche client -->
+    <div style="position:relative;margin-bottom:8px;">
+      <input type="text" id="dct-search" placeholder="🔍 Rechercher un client (nom, tél, adresse)..." oninput="rechercherClientContratD(this.value)" style="width:100%;background:#f7f9fc;border:1.5px solid #dde3ec;border-radius:10px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;">
+      <div id="dct-search-results" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid #3a8c30;border-radius:10px;z-index:50;max-height:180px;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.12);"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+      <input type="text" id="dct-client" placeholder="Nom du client *" style="background:#f7f9fc;border:1.5px solid #dde3ec;border-radius:10px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;">
+      <input type="tel" id="dct-tel" placeholder="Téléphone" style="background:#f7f9fc;border:1.5px solid #dde3ec;border-radius:10px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;">
+    </div>
+    <input type="text" id="dct-adresse" placeholder="Adresse d'intervention" style="width:100%;background:#f7f9fc;border:1.5px solid #dde3ec;border-radius:10px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;margin-bottom:8px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+      <input type="email" id="dct-email" placeholder="Email client (pour envoi)" style="background:#f7f9fc;border:1.5px solid #dde3ec;border-radius:10px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;">
+      <select id="dct-tech" style="background:#f7f9fc;border:1.5px solid #dde3ec;border-radius:10px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;cursor:pointer;"></select>
+    </div>
+
+    <!-- Équipement -->
+    <div style="font-size:10px;font-weight:800;color:#64748b;letter-spacing:1px;margin-bottom:6px;">ÉQUIPEMENT</div>
+    <select id="dct-equip" onchange="calcPrixContratD()" style="width:100%;background:#f7f9fc;border:1.5px solid #dde3ec;border-radius:10px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;cursor:pointer;margin-bottom:12px;">
+      <option value="">— Choisir l'équipement —</option>
+      <option value="Chaudière">🔥 Chaudière (gaz / fioul / condensation)</option>
+      <option value="Pompe à chaleur">♨️ Pompe à chaleur (PAC air/eau)</option>
+      <option value="Climatisation">❄️ Climatisation (PAC air/air)</option>
+      <option value="Ballon thermodynamique">💧 Ballon thermodynamique</option>
+      <option value="Adoucisseur d'eau">🚰 Adoucisseur d'eau</option>
+    </select>
+
+    <!-- Formules -->
+    <div style="font-size:10px;font-weight:800;color:#64748b;letter-spacing:1px;margin-bottom:8px;">FORMULE</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
+      <div id="dctf-Essentiel" onclick="selectFormuleD('Essentiel')" style="border:2px solid #e2e8f0;border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all 0.2s;">
+        <div style="font-size:10px;font-weight:800;color:#64748b;letter-spacing:1px;">ESSENTIEL</div>
+        <div id="dctfp-Essentiel" style="font-size:18px;font-weight:800;color:#0d2d52;margin:6px 0;">—</div>
+        <div style="font-size:9px;color:#94a3b8;">Entretien annuel</div>
+      </div>
+      <div id="dctf-Confort" onclick="selectFormuleD('Confort')" style="border:2px solid #3b82f6;border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;background:#eff6ff;position:relative;transition:all 0.2s;">
+        <div style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:#3b82f6;color:#fff;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;white-space:nowrap;">Le + choisi</div>
+        <div style="font-size:10px;font-weight:800;color:#1d4ed8;letter-spacing:1px;">CONFORT</div>
+        <div id="dctfp-Confort" style="font-size:18px;font-weight:800;color:#1d4ed8;margin:6px 0;">—</div>
+        <div style="font-size:9px;color:#3b82f6;">+ priorité panne</div>
+      </div>
+      <div id="dctf-Premium" onclick="selectFormuleD('Premium')" style="border:2px solid #e2e8f0;border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all 0.2s;">
+        <div style="font-size:10px;font-weight:800;color:#64748b;letter-spacing:1px;">PREMIUM ⭐</div>
+        <div id="dctfp-Premium" style="font-size:18px;font-weight:800;color:#0d2d52;margin:6px 0;">—</div>
+        <div style="font-size:9px;color:#94a3b8;">+ remise pièces</div>
+      </div>
+    </div>
+    <input type="hidden" id="dct-formule" value="Confort">
+
+    <!-- Prix -->
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:11px;color:#15803d;font-weight:600;">Montant annuel TTC</div>
+      <div style="font-size:22px;font-weight:800;color:#15803d;" id="dct-prix-display">—</div>
+    </div>
+
+    <!-- Mode de paiement -->
+    <div style="font-size:10px;font-weight:800;color:#64748b;letter-spacing:1px;margin-bottom:6px;">MODE DE PAIEMENT</div>
+    <div style="display:flex;gap:6px;margin-bottom:12px;">
+      <button id="dct-mode-cb" onclick="selModeContratD('CB')" style="flex:1;background:#0d2d52;color:#fff;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer;">💳 CB</button>
+      <button id="dct-mode-vir" onclick="selModeContratD('Virement')" style="flex:1;background:#f1f5f9;color:#64748b;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer;">🏦 Virement</button>
+      <button id="dct-mode-chq" onclick="selModeContratD('Chèque')" style="flex:1;background:#f1f5f9;color:#64748b;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer;">📝 Chèque</button>
+      <button id="dct-mode-prel" onclick="selModeContratD('Prélèvement')" style="flex:1;background:#f1f5f9;color:#64748b;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer;">🔄 Prélèvement</button>
+    </div>
+    <input type="hidden" id="dct-mode" value="CB">
+
+    <textarea id="dct-notes" placeholder="Notes / observations..." style="width:100%;background:#f7f9fc;border:1.5px solid #dde3ec;border-radius:10px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;height:64px;resize:none;margin-bottom:12px;"></textarea>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <button onclick="sauvegarderContratD()" style="background:linear-gradient(135deg,#3a8c30,#5ab048);color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">✅ Valider le contrat</button>
+      <button onclick="genererContratPDFD()" style="background:linear-gradient(135deg,#0d2d52,#1a4a7a);color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">📄 Aperçu PDF</button>
+    </div>
+  </div>
+
+  <!-- LISTE CONTRATS -->
+  <div style="font-size:10px;font-weight:800;color:#64748b;letter-spacing:1.5px;margin-bottom:8px;">CONTRATS CRÉÉS</div>
+  <div id="liste-contrats-d"></div>
+</div>
+
 <div id="page-rappels" class="hidden">
   <div style="font-weight:700;color:#0d2d52;font-size:13px;margin-bottom:4px;">🔔 Rappels &amp; relances</div>
   <div style="color:#64748b;font-size:11px;margin-bottom:14px;">Calculé automatiquement depuis devis, contrats et rapports</div>
@@ -1499,6 +1657,7 @@ var NAV_GROUPS_D={
   ],
   commercial:[
     {p:'devis',label:'💼 Devis',id:'nav-devis'},
+    {p:'contrats-d',label:'📋 Contrats',id:'nav-contrats-d'},
     {p:'appels',label:'📞 Appels'},
   ],
 };
@@ -1519,7 +1678,7 @@ function showGroupD(g){
   if(!items.some(function(i){return i.p===_dpPage;})&&items.length)showPage(items[0].p);
 }
 function showPage(page){
-  var pages=["dashboard","dispos","urgences","nouveau-rdv","tous-rdv","validation","rapports","sav","devis","facturation","procedures","infos","clients","appels","stock","compta","gantt","passation","rappels"];
+  var pages=["dashboard","dispos","urgences","nouveau-rdv","tous-rdv","validation","rapports","sav","devis","facturation","procedures","infos","clients","appels","stock","compta","gantt","passation","rappels","contrats-d"];
   for(var i=0;i<pages.length;i++){var el=document.getElementById("page-"+pages[i]);if(el)el.classList.add("hidden");}
   var pageEl=document.getElementById("page-"+page);if(pageEl)pageEl.classList.remove("hidden");
   _dpPage=page;
@@ -1561,6 +1720,7 @@ function showPage(page){
   if(page==='gantt')renderGantt();
   if(page==='passation')renderPassation();
   if(page==='rappels')renderRappels();
+  if(page==='contrats-d')renderContratsD();
 }
 
 // STOCK PIÈCES
@@ -3193,6 +3353,259 @@ function renderPassation(){
     +'<div style="font-size:13px;color:#1e293b;line-height:1.5;">'+n.texte+'</div>'
     +'</div>';
   }).join('');
+}
+
+/* ── CONTRATS D'ENTRETIEN — DISPATCH ── */
+var PRIX_CONTRATS_D={
+  'Chaudière':{Essentiel:149,Confort:199,Premium:279},
+  'Pompe à chaleur':{Essentiel:189,Confort:249,Premium:329},
+  'Climatisation':{Essentiel:139,Confort:199,Premium:269},
+  'Ballon thermodynamique':{Essentiel:129,Confort:179,Premium:249},
+  "Adoucisseur d'eau":{Essentiel:119,Confort:169,Premium:219}
+};
+var _dctMode='CB';
+
+function getContratsD(){return JSON.parse(localStorage.getItem('pl_contrats')||'[]');}
+function saveContratsD(arr){var v=JSON.stringify(arr);localStorage.setItem('pl_contrats',v);if(window.gfSync)gfSync('pl_contrats',v);}
+
+function toggleExplContratD(){
+  var body=document.getElementById('expl-contrat-d-body');
+  var icon=document.getElementById('expl-contrat-d-icon');
+  if(!body)return;
+  var open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  if(icon)icon.textContent=open?'▼':'▲';
+}
+
+function rechercherClientContratD(val){
+  var res=document.getElementById('dct-search-results');
+  if(!res)return;
+  if(!val||val.length<2){res.style.display='none';return;}
+  var clients=JSON.parse(localStorage.getItem('pl_clients')||'[]');
+  var q=val.toLowerCase();
+  var matches=clients.filter(function(c){
+    return (c.nom||'').toLowerCase().includes(q)||(c.tel||'').includes(q)||(c.adresse||'').toLowerCase().includes(q);
+  }).slice(0,6);
+  if(!matches.length){res.style.display='none';return;}
+  res.innerHTML=matches.map(function(c){
+    return '<div onclick="remplirClientContratD('+JSON.stringify(c).replace(/"/g,'&quot;')+')" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9;font-size:12px;" onmouseover="this.style.background=\'#f0fdf4\'" onmouseout="this.style.background=\'#fff\'"><b>'+c.nom+'</b><span style="color:#64748b;margin-left:8px;">'+( c.tel||'')+'</span><br><span style="color:#94a3b8;font-size:10px;">'+(c.adresse||'')+'</span></div>';
+  }).join('');
+  res.style.display='block';
+}
+
+function remplirClientContratD(c){
+  document.getElementById('dct-client').value=c.nom||'';
+  document.getElementById('dct-tel').value=c.tel||'';
+  document.getElementById('dct-adresse').value=c.adresse||'';
+  document.getElementById('dct-email').value=c.email||'';
+  document.getElementById('dct-search').value=c.nom||'';
+  document.getElementById('dct-search-results').style.display='none';
+}
+
+function calcPrixContratD(){
+  var equip=document.getElementById('dct-equip').value;
+  var formule=document.getElementById('dct-formule').value||'Confort';
+  ['Essentiel','Confort','Premium'].forEach(function(f){
+    var prices=PRIX_CONTRATS_D[equip]||{};
+    var el=document.getElementById('dctfp-'+f);
+    if(el)el.textContent=prices[f]?prices[f]+'€/an':'—';
+  });
+  var prix=(PRIX_CONTRATS_D[equip]||{})[formule]||null;
+  var disp=document.getElementById('dct-prix-display');
+  if(disp)disp.textContent=prix?prix+'€/an':'—';
+}
+
+function selectFormuleD(f){
+  document.getElementById('dct-formule').value=f;
+  ['Essentiel','Confort','Premium'].forEach(function(x){
+    var card=document.getElementById('dctf-'+x);
+    if(!card)return;
+    if(x===f){
+      card.style.borderColor=x==='Essentiel'?'#22c55e':x==='Confort'?'#3b82f6':'#f59e0b';
+      card.style.background=x==='Essentiel'?'#f0fdf4':x==='Confort'?'#eff6ff':'#fffbeb';
+    } else {
+      card.style.borderColor='#e2e8f0';
+      card.style.background=x==='Confort'?'#f8fafc':'#fff';
+    }
+  });
+  calcPrixContratD();
+}
+
+function selModeContratD(mode){
+  _dctMode=mode;
+  document.getElementById('dct-mode').value=mode;
+  ['CB','Virement','Chèque','Prélèvement'].forEach(function(m){
+    var btn=document.getElementById('dct-mode-'+{CB:'cb',Virement:'vir',Chèque:'chq',Prélèvement:'prel'}[m]);
+    if(btn){btn.style.background=m===mode?'#0d2d52':'#f1f5f9';btn.style.color=m===mode?'#fff':'#64748b';}
+  });
+}
+
+function sauvegarderContratD(){
+  var client=document.getElementById('dct-client').value.trim();
+  var equip=document.getElementById('dct-equip').value;
+  var formule=document.getElementById('dct-formule').value||'Confort';
+  if(!client){showNotif('Nom du client requis');return;}
+  if(!equip){showNotif('Équipement requis');return;}
+  var prix=(PRIX_CONTRATS_D[equip]||{})[formule]||0;
+  var contrat={
+    id:Date.now(),
+    clientNom:client,
+    clientTel:document.getElementById('dct-tel').value.trim(),
+    clientAdresse:document.getElementById('dct-adresse').value.trim(),
+    clientEmail:document.getElementById('dct-email').value.trim(),
+    technicien:(document.getElementById('dct-tech')||{}).value||'',
+    equipement:equip,
+    formule:formule,
+    montant:prix,
+    modePaiement:document.getElementById('dct-mode').value||'CB',
+    notes:document.getElementById('dct-notes').value.trim(),
+    statut:'Actif',
+    dateContrat:new Date().toISOString().slice(0,10),
+    creePar:'DISPATCH',
+    creeAt:new Date().toISOString()
+  };
+  var contrats=getContratsD();
+  contrats.push(contrat);
+  saveContratsD(contrats);
+  // Reset
+  ['dct-client','dct-tel','dct-adresse','dct-email','dct-notes','dct-search'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('dct-equip').value='';
+  document.getElementById('dct-formule').value='Confort';
+  document.getElementById('dct-prix-display').textContent='—';
+  selectFormuleD('Confort');
+  renderContratsD();
+  showNotif('✅ Contrat '+formule+' créé pour '+client+' !');
+}
+
+function genererContratPDFD(){
+  var client=document.getElementById('dct-client').value.trim()||'Client';
+  var equip=document.getElementById('dct-equip').value||'—';
+  var formule=document.getElementById('dct-formule').value||'Confort';
+  var prix=(PRIX_CONTRATS_D[equip]||{})[formule]||0;
+  var adr=document.getElementById('dct-adresse').value.trim();
+  var tel=document.getElementById('dct-tel').value.trim();
+  var mode=document.getElementById('dct-mode').value||'CB';
+  var today=new Date().toLocaleDateString('fr-FR');
+  var inclus={Essentiel:['Entretien annuel complet','Vérification des sécurités','Réglage du brûleur / circuit','Rapport d\'entretien signé','Attestation de conformité'],Confort:['Tout ESSENTIEL inclus','Dépannage prioritaire inclus','Déplacement dépannage offert','Main-d\'œuvre dépannage incluse','Rappels entretien automatiques','Service client prioritaire'],Premium:['Tout CONFORT inclus','Remise 15-20% sur les pièces','Remise sur factures annuelles','File d\'attente prioritaire absolue','Rapport d\'inspection visuelle annuel','Client VIP GreenFlow']};
+  var w=window.open('','_blank','width=794,height=1123');
+  if(!w)return;
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Contrat GreenFlow — ${client}</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0;font-family:'Arial',sans-serif;}body{background:#fff;color:#1a2537;font-size:11px;padding:20px;}
+  .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;padding-bottom:14px;border-bottom:3px solid #3a8c30;}
+  .logo-area h1{color:#0d2d52;font-size:20px;font-weight:900;letter-spacing:-0.5px;}
+  .logo-area p{color:#3a8c30;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+  .titre-zone{text-align:right;}.titre-zone h2{font-size:18px;font-weight:900;color:#0d2d52;text-transform:uppercase;letter-spacing:1px;}
+  .titre-zone p{font-size:9px;color:#64748b;font-style:italic;}
+  .section{margin-bottom:14px;padding:12px 14px;border:1px solid #e2e8f0;border-radius:8px;}
+  .section-title{font-size:9px;font-weight:800;color:#0d2d52;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .field{margin-bottom:4px;}.field label{font-size:8px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;}
+  .field span{font-size:11px;font-weight:600;color:#1a2537;}
+  .formule-badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+  .f-ess{background:#f0fdf4;color:#15803d;border:2px solid #22c55e;}
+  .f-con{background:#eff6ff;color:#1d4ed8;border:2px solid #3b82f6;}
+  .f-pre{background:#fffbeb;color:#92400e;border:2px solid #f59e0b;}
+  .inclus-list{list-style:none;}.inclus-list li{padding:3px 0;font-size:10px;color:#374151;}
+  .inclus-list li::before{content:"✓ ";color:#3a8c30;font-weight:700;}
+  .prix-zone{background:linear-gradient(135deg,#0d2d52,#1a4a7a);color:#fff;border-radius:10px;padding:14px;text-align:center;margin:12px 0;}
+  .prix-zone .montant{font-size:32px;font-weight:900;letter-spacing:-1px;}
+  .prix-zone .label{font-size:9px;opacity:0.7;text-transform:uppercase;letter-spacing:1px;}
+  .sig-zone{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px;}
+  .sig-box{border:1px solid #e2e8f0;border-radius:8px;padding:12px;text-align:center;}
+  .sig-line{border-bottom:1px solid #94a3b8;height:50px;margin:10px 0;}
+  .sig-label{font-size:8px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;}
+  .footer{margin-top:14px;padding-top:10px;border-top:1px solid #e2e8f0;font-size:8px;color:#94a3b8;text-align:center;}
+  .mentions{background:#f8fafc;border-radius:6px;padding:8px;font-size:7px;color:#94a3b8;margin-top:10px;line-height:1.5;}
+  </style></head><body>
+  <div class="header">
+    <div class="logo-area"><h1>GreenFlow</h1><p>Technologies</p><p style="margin-top:4px;font-size:8px;color:#94a3b8;">Plomberie · Chauffage · Climatisation</p></div>
+    <div class="titre-zone"><h2>Votre Contrat d'Entretien</h2><p>Tranquillité, Performance &amp; Sérénité</p><p style="margin-top:4px;">N° ${Date.now().toString().slice(-6)} · Date : ${today}</p></div>
+  </div>
+  <div class="grid2">
+    <div class="section"><div class="section-title">1. Informations Client</div>
+      <div class="field"><label>Nom</label><span>${client}</span></div>
+      <div class="field"><label>Téléphone</label><span>${tel||'—'}</span></div>
+      <div class="field"><label>Adresse</label><span>${adr||'—'}</span></div>
+    </div>
+    <div class="section"><div class="section-title">2. Équipement</div>
+      <div class="field"><label>Type d'équipement</label><span>${equip}</span></div>
+      <div class="field"><label>Mode de paiement</label><span>${mode}</span></div>
+      <div class="field"><label>Date de signature</label><span>${today}</span></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">3. Formule choisie</div>
+    <span class="formule-badge f-${formule==='Essentiel'?'ess':formule==='Confort'?'con':'pre'}">${formule}</span>
+    <ul class="inclus-list">${inclus[formule].map(function(i){return '<li>'+i+'</li>';}).join('')}</ul>
+  </div>
+  <div class="prix-zone">
+    <div class="label">Montant annuel TTC</div>
+    <div class="montant">${prix}€</div>
+    <div style="font-size:10px;opacity:0.7;margin-top:4px;">soit ${Math.round(prix/12)}€/mois · Paiement : ${mode}</div>
+  </div>
+  <div class="section">
+    <div class="section-title">4. Conditions</div>
+    <div style="font-size:10px;color:#374151;line-height:1.7;">Le présent contrat est conclu pour une durée d'un (1) an à compter de la date de signature, renouvelable tacitement. GreenFlow Technologies s'engage à réaliser l'entretien annuel conformément aux préconisations du fabricant. En cas de résiliation, un préavis de 30 jours est requis avant l'échéance annuelle.</div>
+  </div>
+  <div class="sig-zone">
+    <div class="sig-box"><div class="sig-label">Signature du client</div><div class="sig-line"></div><div style="font-size:9px;color:#94a3b8;">Lu et approuvé</div></div>
+    <div class="sig-box"><div class="sig-label">GreenFlow Technologies</div><div class="sig-line"></div><div style="font-size:9px;color:#94a3b8;">Cachet et signature</div></div>
+  </div>
+  <div class="mentions">Conformément à l'article L221-18 du Code de la consommation, vous disposez d'un délai de 14 jours à compter de la signature pour exercer votre droit de rétractation. GreenFlow Technologies — RC Pro assurée — Certifié RGE</div>
+  <div class="footer">GreenFlow Technologies · contact@greenflow.fr · 24h/24 7j/7</div>
+  </body></html>`);
+  w.document.close();
+  setTimeout(function(){w.print();},600);
+}
+
+function renderContratsD(){
+  // Remplir select technicien
+  var techSel=document.getElementById('dct-tech');
+  if(techSel){
+    var techs=JSON.parse(localStorage.getItem('pl_techs')||'[]');
+    techSel.innerHTML='<option value="">— Technicien —</option>'+techs.map(function(t){return'<option value="'+(t.nom||t)+'">'+( t.nom||t)+'</option>';}).join('');
+  }
+  var el=document.getElementById('liste-contrats-d');if(!el)return;
+  var contrats=getContratsD().slice().reverse();
+  if(!contrats.length){el.innerHTML='<div style="text-align:center;padding:24px;color:#94a3b8;font-size:12px;">Aucun contrat créé</div>';return;}
+  var couleurs={Essentiel:{bg:'#f0fdf4',col:'#15803d',bord:'#22c55e'},Confort:{bg:'#eff6ff',col:'#1d4ed8',bord:'#3b82f6'},Premium:{bg:'#fffbeb',col:'#92400e',bord:'#f59e0b'}};
+  el.innerHTML=contrats.map(function(c){
+    var col=couleurs[c.formule]||{bg:'#f8fafc',col:'#64748b',bord:'#e2e8f0'};
+    return'<div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid '+col.bord+';border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,0.05);">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">'
+      +'<div><div style="font-weight:800;font-size:13px;color:#0d2d52;">'+c.clientNom+'</div>'
+      +'<div style="font-size:11px;color:#64748b;margin-top:2px;">'+c.equipement+' · '+(c.clientAdresse||'')+'</div>'
+      +'<div style="font-size:10px;color:#94a3b8;margin-top:2px;">'+( c.clientTel||'')+(c.technicien?' · 👷 '+c.technicien:'')+'</div></div>'
+      +'<div style="text-align:right;flex-shrink:0;"><span style="background:'+col.bg+';color:'+col.col+';font-size:9px;font-weight:700;padding:2px 8px;border-radius:6px;">'+c.formule+'</span>'
+      +'<div style="font-size:16px;font-weight:800;color:'+col.col+';margin-top:4px;">'+(c.montant||'—')+'€</div>'
+      +'<div style="font-size:9px;color:#94a3b8;">'+( c.dateContrat||'')+'</div></div></div>'
+      +'<div style="display:flex;gap:6px;margin-top:8px;">'
+      +'<button onclick="genererContratPDFExistD('+c.id+')" style="flex:1;background:#f1f5f9;border:none;border-radius:8px;padding:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">📄 PDF</button>'
+      +'<button onclick="supprimerContratD('+c.id+')" style="background:#fef2f2;border:none;border-radius:8px;padding:6px 10px;font-size:11px;color:#dc2626;cursor:pointer;font-family:inherit;">✕</button>'
+      +'</div></div>';
+  }).join('');
+}
+
+function genererContratPDFExistD(id){
+  var c=getContratsD().find(function(x){return x.id===id;});
+  if(!c)return;
+  var map={'dct-client':'clientNom','dct-tel':'clientTel','dct-adresse':'clientAdresse','dct-email':'clientEmail'};
+  Object.keys(map).forEach(function(fid){
+    var el=document.getElementById(fid);
+    if(el)el.value=c[map[fid]]||'';
+  });
+  document.getElementById('dct-equip').value=c.equipement||'';
+  document.getElementById('dct-formule').value=c.formule||'Confort';
+  document.getElementById('dct-mode').value=c.modePaiement||'CB';
+  genererContratPDFD();
+}
+
+function supprimerContratD(id){
+  if(!confirm('Supprimer ce contrat ?'))return;
+  var arr=getContratsD().filter(function(c){return c.id!==id;});
+  saveContratsD(arr);
+  renderContratsD();
+  showNotif('Contrat supprimé');
 }
 
 /* ── FEATURE 3 — RAPPELS & RELANCES ── */
