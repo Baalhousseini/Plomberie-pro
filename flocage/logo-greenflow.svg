@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 220" width="600" height="220">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 220" width="820" height="220">
   <defs>
     <linearGradient id="goutte2" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%"   stop-color="#3bbce8" />
@@ -34,7 +34,7 @@
   </text>
 
   <!-- Ligne bleue -->
-  <line x1="185" y1="132" x2="588" y2="132" stroke="#3bbce8" stroke-width="2.5"/>
+  <line x1="185" y1="132" x2="808" y2="132" stroke="#3bbce8" stroke-width="2.5"/>
 
   <!-- Technologies -->
   <text x="190" y="175"
