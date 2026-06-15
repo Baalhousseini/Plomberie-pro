@@ -5592,6 +5592,87 @@ async function sendAI(){
   </div>
 </div>
 
+<script>
+/* ── MODAL LEAD COMMERCIAL ── */
+var _leadActifId = null;
+function ouvrirModalLead(id) {
+  _leadActifId = id;
+  var devis = JSON.parse(localStorage.getItem('pl_devis')||'[]');
+  var lead = devis.find(function(d){ return d.id===id; });
+  if(!lead) return;
+  var header = document.getElementById('modal-lead-header');
+  if(header) header.innerHTML = '<div style="font-weight:800;font-size:15px;color:#0d2d52;">'+lead.clientNom+'</div><div style="font-size:12px;color:#64748b;">'+lead.type+' — '+lead.montant+'€</div>';
+  var telBtn = document.getElementById('modal-lead-tel-btn');
+  if(telBtn) telBtn.href = 'tel:'+(lead.clientTel||'');
+  var noteEl = document.getElementById('modal-lead-note');
+  if(noteEl) noteEl.value = lead.note||'';
+  var hist = document.getElementById('modal-lead-historique');
+  if(hist && lead.historique && lead.historique.length) {
+    hist.innerHTML = '<div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:6px;">Historique</div>'+lead.historique.map(function(h){ return '<div style="font-size:11px;color:#64748b;padding:3px 0;border-bottom:1px solid #f1f5f9;">'+new Date(h.ts).toLocaleDateString('fr-FR')+' — '+h.action+'</div>'; }).join('');
+  } else if(hist) hist.innerHTML = '';
+  document.getElementById('modal-lead-overlay').style.display='block';
+  document.getElementById('modal-lead').style.display='block';
+}
+function fermerModalLead() {
+  document.getElementById('modal-lead-overlay').style.display='none';
+  document.getElementById('modal-lead').style.display='none';
+  _leadActifId = null;
+}
+function actionLead(action) {
+  if(!_leadActifId) return;
+  var devis = JSON.parse(localStorage.getItem('pl_devis')||'[]');
+  var idx = devis.findIndex(function(d){ return d.id===_leadActifId; });
+  if(idx<0) return;
+  var labels = {devis_envoye:'Devis envoyé',accepte_tel:'Accepté par téléphone',signe:'Devis signé',relance:'Relancé',perdu:'Affaire perdue'};
+  devis[idx].statut = action==='signe'?'Signé':action==='perdu'?'Perdu':'En cours';
+  devis[idx].historique = devis[idx].historique||[];
+  devis[idx].historique.push({action:labels[action]||action, ts:new Date().toISOString()});
+  var v = JSON.stringify(devis);
+  localStorage.setItem('pl_devis', v);
+  if(window.gfSync) gfSync('pl_devis', v);
+  showNotif('✅ '+( labels[action]||action));
+  fermerModalLead();
+  if(typeof renderDevis==='function') renderDevis();
+}
+function ouvrirSectionRdvCom() {
+  var s = document.getElementById('section-rdv-com-lead');
+  if(s) s.classList.remove('hidden');
+}
+function fermerSectionRdvCom() {
+  var s = document.getElementById('section-rdv-com-lead');
+  if(s) s.classList.add('hidden');
+}
+function confirmerRdvComLead() {
+  if(!_leadActifId) return;
+  var date = document.getElementById('rdvcom-lead-date').value;
+  var heure = document.getElementById('rdvcom-lead-heure').value;
+  var adresse = document.getElementById('rdvcom-lead-adresse').value;
+  if(!date||!heure){ showNotif('Date et heure requises'); return; }
+  var devis = JSON.parse(localStorage.getItem('pl_devis')||'[]');
+  var lead = devis.find(function(d){ return d.id===_leadActifId; });
+  var rdvs = getRdvs ? getRdvs() : JSON.parse(localStorage.getItem('pl_rdvs')||'[]');
+  rdvs.push({id:Date.now(),clientNom:lead?lead.clientNom:'',clientTel:lead?lead.clientTel:'',adresse:adresse,type:lead?lead.type:'Commercial',dateRdv:date,heureRdv:heure,statut:'Planifié',notes:'RDV commercial — Devis #'+(lead?lead.id:''),creePar:'patron-lead'});
+  var v = JSON.stringify(rdvs);
+  localStorage.setItem('pl_rdvs', v);
+  if(window.gfSync) gfSync('pl_rdvs', v);
+  actionLead('rdv_programme');
+  fermerSectionRdvCom();
+  showNotif('📅 RDV créé le '+date+' à '+heure);
+}
+function sauvegarderNoteLead() {
+  if(!_leadActifId) return;
+  var note = (document.getElementById('modal-lead-note')||{}).value||'';
+  var devis = JSON.parse(localStorage.getItem('pl_devis')||'[]');
+  var idx = devis.findIndex(function(d){ return d.id===_leadActifId; });
+  if(idx<0) return;
+  devis[idx].note = note;
+  var v = JSON.stringify(devis);
+  localStorage.setItem('pl_devis', v);
+  if(window.gfSync) gfSync('pl_devis', v);
+  showNotif('Note sauvegardée');
+}
+</script>
+
 <!-- WIDGET MESSAGERIE TECH -->
 <button id="msg-tech-fab" onclick="ouvrirMsgTech()" style="position:fixed;bottom:20px;left:20px;width:52px;height:52px;background:#7c3aed;color:#fff;border:none;border-radius:50%;font-size:20px;cursor:pointer;z-index:90;box-shadow:0 4px 20px rgba(124,58,237,0.4);display:none;">
   💬<span id="msg-tech-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;border-radius:10px;padding:1px 5px;font-size:10px;font-weight:700;min-width:16px;text-align:center;"></span>
@@ -5646,7 +5727,7 @@ function renderMsgTechTechs(){
   if(!_msgTechSelectedTech||!techsSet[_msgTechSelectedTech])_msgTechSelectedTech=techs[0];
   c.innerHTML=techs.map(function(t){
     var actif=t===_msgTechSelectedTech;
-    return'<button onclick="selMsgTech(''+t+'')" style="background:'+(actif?'#7c3aed':'#f1f5f9')+';color:'+(actif?'#fff':'#64748b')+';border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;">👷 '+t+'</button>';
+    return'<button onclick="selMsgTech(\''+t+'\')" style="background:'+(actif?'#7c3aed':'#f1f5f9')+';color:'+(actif?'#fff':'#64748b')+';border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;">👷 '+t+'</button>';
   }).join('');
 }
 function selMsgTech(nom){

@@ -3317,7 +3317,7 @@ function renderMsgTechTechs(){
   if(!_msgTechSelectedTech||!techsSet[_msgTechSelectedTech])_msgTechSelectedTech=techs[0];
   c.innerHTML=techs.map(function(t){
     var actif=t===_msgTechSelectedTech;
-    return'<button onclick="selMsgTech(''+t+'')" style="background:'+(actif?'#7c3aed':'#f1f5f9')+';color:'+(actif?'#fff':'#64748b')+';border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;">👷 '+t+'</button>';
+    return'<button onclick="selMsgTech(\''+t+'\')" style="background:'+(actif?'#7c3aed':'#f1f5f9')+';color:'+(actif?'#fff':'#64748b')+';border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;">👷 '+t+'</button>';
   }).join('');
 }
 function selMsgTech(nom){
