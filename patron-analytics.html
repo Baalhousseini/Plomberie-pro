@@ -5,75 +5,103 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>GreenFlow - Analytics Direction</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Poppins',sans-serif;}
-:root{--primary:#1a3a5c;--green:#4a9c3f;--gl:#7bc144;--accent:#2d6a9f;--bg:#f0f4f8;--border:#e2e8f0;--text:#1a2537;--tl:#64748b;--sh:0 2px 12px rgba(26,58,92,0.08);--red:#ef4444;--ora:#f97316;--yel:#eab308;}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif;}
+:root{
+  --blue:#0d2d52;
+  --blue2:#1a4a7a;
+  --green:#3a8c30;
+  --green-light:#5ab048;
+  --green-bg:#f0f9ee;
+  --bg:#f4f6f9;
+  --card:#ffffff;
+  --border:#dde3ec;
+  --text:#0d1b2e;
+  --muted:#6b7a8f;
+  --shadow:0 1px 4px rgba(13,45,82,0.08),0 4px 16px rgba(13,45,82,0.06);
+  --shadow-lg:0 4px 24px rgba(13,45,82,0.14);
+}
 body{background:var(--bg);color:var(--text);min-height:100vh;}
 .hidden{display:none!important;}
-
-/* LOGIN */
-#login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:linear-gradient(135deg,#1a3a5c 0%,#2d6a9f 50%,#4a9c3f 100%);}
-.login-box{background:#fff;border-radius:24px;padding:40px 32px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.2);text-align:center;}
-.field{margin-bottom:16px;text-align:left;}
-.field label{display:block;color:var(–tl);font-size:11px;letter-spacing:1px;font-weight:600;margin-bottom:6px;}
-.field input{width:100%;background:#f8fafc;border:2px solid var(–border);border-radius:12px;padding:12px 16px;color:var(–text);font-size:15px;outline:none;}
-.field input:focus{border-color:var(–green);}
+#login{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:#0d2d52;}
+.login-box{background:#fff;border-radius:20px;padding:40px 32px 36px;width:100%;max-width:380px;box-shadow:0 24px 64px rgba(0,0,0,0.28);}
+.logo-area{text-align:center;margin-bottom:28px;}
+.login-title{color:var(--blue);font-size:17px;font-weight:700;text-align:center;margin-bottom:24px;letter-spacing:-0.2px;}
+.field{margin-bottom:16px;}
+.field label{display:block;color:var(--muted);font-size:10px;letter-spacing:1.2px;font-weight:700;margin-bottom:7px;text-transform:uppercase;}
+.field input{width:100%;background:#f7f9fc;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:15px;outline:none;transition:border-color 0.2s;}
+.field input:focus{border-color:var(--blue2);}
 .pin-row{display:flex;gap:10px;justify-content:center;margin:10px 0;}
-.pin-input{width:56px!important;height:56px;text-align:center;font-size:22px;font-weight:800;background:#f8fafc;border:2px solid var(–border);border-radius:12px;color:var(–green);outline:none;}
-.btn-login{width:100%;background:linear-gradient(135deg,var(–primary),var(–green));color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;}
-.error-msg{color:#ef4444;font-size:13px;margin-top:10px;}
-
-/* APP */
-#app{display:none;}
-.header{background:linear-gradient(135deg,var(–primary),var(–accent));padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(26,58,92,0.2);}
-.btn-back{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;}
-.btn-logout{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;}
-.nav{background:#fff;border-bottom:2px solid var(–border);display:flex;overflow-x:auto;}
-.nav button{flex:1;min-width:80px;background:none;border:none;border-bottom:3px solid transparent;padding:11px 6px;color:var(–tl);cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;transition:all 0.2s;font-family:'Poppins',sans-serif;}
-.nav button.active{color:var(–green);border-bottom-color:var(–green);}
+.pin-input{width:56px!important;height:56px;text-align:center;font-size:22px;font-weight:800;background:#f7f9fc;border:1.5px solid var(--border);border-radius:10px;color:var(--blue);outline:none;transition:border-color 0.2s;}
+.pin-input:focus{border-color:var(--blue2);}
+.btn-login{width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;margin-top:12px;letter-spacing:0.3px;transition:background 0.2s;}
+.btn-login:hover{background:var(--blue2);}
+.error-msg{color:#dc2626;font-size:12px;text-align:center;margin-top:10px;font-weight:600;}
+.login-footer{color:rgba(255,255,255,0.45);font-size:11px;text-align:center;margin-top:20px;letter-spacing:0.5px;}
+.header{background:var(--blue);padding:0 16px;height:56px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,0.18);}
+.header-logo{height:28px;}
+.header-right{display:flex;align-items:center;gap:10px;}
+.btn-logout{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);border-radius:8px;padding:7px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:background 0.2s;}
+.btn-logout:hover,.btn-back:hover{background:rgba(255,255,255,0.18);}
+.btn-back{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;}
+.module-nav{background:#0a2240;display:flex;gap:4px;padding:8px 14px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid rgba(255,255,255,0.06);}
+.module-nav::-webkit-scrollbar{display:none;}
+.mnav-btn{flex-shrink:0;background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:7px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.18s;white-space:nowrap;}
+.mnav-btn.active,.mnav-btn:hover{background:#3a8c30;border-color:#3a8c30;color:#fff;}
+.nav{background:#fff;border-bottom:2px solid var(--border);display:flex;overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.nav button{flex:1;min-width:80px;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;padding:13px 8px;color:var(--muted);cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;transition:all 0.18s;font-family:'Inter',sans-serif;letter-spacing:0.2px;}
+.nav button.active{color:var(--green);border-bottom-color:var(--green);}
 .content{max-width:700px;margin:0 auto;padding:16px;}
-.card{background:#fff;border:1px solid var(–border);border-radius:16px;padding:16px 18px;margin-bottom:12px;box-shadow:var(–sh);}
-.card.g{border-left:4px solid var(–green);}
-.card.b{border-left:4px solid var(–accent);}
-.card.o{border-left:4px solid var(–ora);}
-.card.r{border-left:4px solid var(–red);}
-.card.y{border-left:4px solid var(–yel);}
-.card.p{border-left:4px solid #8b5cf6;}
-.lbl{color:var(–tl);font-size:10px;letter-spacing:1.5px;margin-bottom:8px;font-weight:700;}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow);}
+.card.g{border-left:4px solid var(--green);}
+.card.b{border-left:4px solid var(--blue2);}
+.card.o{border-left:4px solid #ea580c;}
+.card.r{border-left:4px solid #dc2626;}
+.card.y{border-left:4px solid #ca8a04;}
+.card.p{border-left:4px solid #7c3aed;}
+.card.accent-green{border-left:4px solid var(--green);}
+.card.accent-blue{border-left:4px solid var(--blue2);}
+.lbl{color:var(--muted);font-size:9px;letter-spacing:1.8px;margin-bottom:8px;font-weight:700;text-transform:uppercase;}
+.badge,.bdg{display:inline-flex;align-items:center;border-radius:6px;padding:3px 9px;font-size:10px;font-weight:700;letter-spacing:0.3px;}
+.badge-blue,.bdg-b{background:#dbeafe;color:#1d4ed8;}
+.badge-green,.bdg-g{background:#dcfce7;color:#166534;}
+.badge-orange,.bdg-o{background:#fff7ed;color:#c2410c;}
+.badge-yellow,.bdg-y{background:#fefce8;color:#854d0e;}
+.badge-gray{background:#f1f5f9;color:#475569;}
+.bdg-r{background:#fee2e2;color:#dc2626;}
+.btn,.action-btn{border:none;border-radius:9px;padding:9px 14px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Inter',sans-serif;transition:all 0.18s;}
+.btn-primary,.btn-g{background:var(--green);color:#fff;}
+.btn-primary:hover,.btn-g:hover{background:var(--green-light);}
+.btn-b{background:#eff6ff;color:#1d4ed8;}
+.btn-o,.btn-orange{background:#fff7ed;color:#c2410c;}
+.btn-gray,.btn-gray{background:#f1f5f9;color:#475569;}
+.btn-r{background:#fee2e2;color:#dc2626;}
+.btn-full{width:100%;display:block;padding:12px;text-align:center;}
+.form-select,.fi,.fs{width:100%;background:#f7f9fc;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:13px;outline:none;box-sizing:border-box;font-family:'Inter',sans-serif;margin-bottom:8px;}
+.form-select:focus,.fi:focus,.fs:focus{border-color:var(--blue2);}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-.sc{background:#fff;border:1px solid var(–border);border-radius:12px;padding:12px;box-shadow:var(–sh);}
-.sv{font-weight:800;font-size:20px;margin-top:4px;}
-.pb{background:#e2e8f0;border-radius:6px;height:8px;margin-top:6px;overflow:hidden;}
+.sc{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;box-shadow:var(--shadow);}
+.sv{font-weight:800;font-size:20px;margin-top:4px;letter-spacing:-0.3px;}
+.pb{background:#e2e8f0;border-radius:6px;height:6px;margin-top:6px;overflow:hidden;}
 .pf{height:100%;border-radius:6px;transition:width 0.5s;}
 .br{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-.bl{color:var(–tl);font-size:11px;min-width:100px;}
+.bl{color:var(--muted);font-size:11px;min-width:100px;}
 .bt{flex:1;background:#e2e8f0;border-radius:6px;height:20px;overflow:hidden;}
 .bf{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:10px;font-weight:600;transition:width 0.5s;}
-.bdg{display:inline-block;border-radius:8px;padding:3px 10px;font-size:10px;font-weight:700;}
-.bdg-g{background:#dcfce7;color:#15803d;}
-.bdg-r{background:#fee2e2;color:#b91c1c;}
-.bdg-y{background:#fef9c3;color:#854d0e;}
-.bdg-b{background:#dbeafe;color:#1d4ed8;}
-.bdg-o{background:#ffedd5;color:#c2410c;}
-.btn{border:none;border-radius:10px;padding:9px 14px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;}
-.btn-g{background:#dcfce7;color:#15803d;}
-.btn-b{background:#dbeafe;color:#1d4ed8;}
-.btn-o{background:#ffedd5;color:#c2410c;}
-.btn-gray{background:#f1f5f9;color:#475569;}
-.btn-r{background:#fee2e2;color:#b91c1c;}
-.btn-full{width:100%;display:block;padding:12px;}
-.fi{width:100%;background:#f8fafc;border:2px solid var(–border);border-radius:10px;padding:10px 14px;color:var(–text);font-size:13px;outline:none;box-sizing:border-box;font-family:'Poppins',sans-serif;margin-bottom:8px;}
-.fs{width:100%;background:#f8fafc;border:2px solid var(–border);border-radius:10px;padding:10px 14px;color:var(–text);font-size:13px;outline:none;box-sizing:border-box;font-family:'Poppins',sans-serif;margin-bottom:8px;}
-.tr{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(–border);}
+.tr{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
 .tr:last-child{border-bottom:none;}
-.kpi{background:linear-gradient(135deg,var(–primary),var(–accent));border-radius:16px;padding:20px;color:#fff;margin-bottom:12px;}
-.kpiv{font-size:30px;font-weight:800;color:#7bc144;}
-.kpil{font-size:11px;opacity:0.8;letter-spacing:1px;}
-.notif{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(–green);color:#fff;border-radius:12px;padding:12px 20px;font-weight:700;font-size:14px;z-index:999;animation:si 0.3s ease;}
-@keyframes si{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-.empty{text-align:center;padding:30px 0;color:var(–tl);}
+.kpi{background:var(--blue);border-radius:14px;padding:20px;color:#fff;margin-bottom:12px;}
+.kpiv{font-size:30px;font-weight:800;color:#5ab048;letter-spacing:-1px;}
+.kpil{font-size:11px;opacity:0.7;letter-spacing:1px;text-transform:uppercase;}
+.notif{position:fixed;top:72px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;border-radius:10px;padding:11px 20px;font-weight:700;font-size:13px;z-index:999;animation:si 0.3s ease;box-shadow:var(--shadow-lg);}
+@keyframes si{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.empty,.empty-state{text-align:center;padding:30px 0;color:var(--muted);}
+.fact-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);}
 </style>
 
 </head>
@@ -130,10 +158,13 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
     </div>
   </div>
 
+  <div class="module-nav hidden" id="module-nav"></div>
+
   <div class="nav">
     <button class="active" onclick="showPage('finances')">💰 Finances</button>
     <button onclick="showPage('rh')">👥 RH</button>
     <button onclick="showPage('commercial')">📈 Commercial</button>
+    <button onclick="showPage('benchmark')">🏆 Benchmark</button>
     <button onclick="showPage('strategie')">🎯 Strategie</button>
   </div>
 
@@ -208,6 +239,30 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   <div class="card b"><div class="lbl">10 — PANIER MOYEN</div><div id="com-panier"></div></div>
   <div class="card o"><div class="lbl">11 — SAISONNALITE — CA PAR MOIS</div><div id="com-saison"></div></div>
   <div class="card y"><div class="lbl">12 — TOP 10 CLIENTS LES PLUS RENTABLES</div><div id="com-top"></div></div>
+  <div class="card" style="border-left:4px solid #7c3aed;background:#faf5ff;">
+    <div class="lbl" style="color:#7c3aed;">CA DIRECT vs MANDANTS — RÉPARTITION</div>
+    <div id="com-mandants"></div>
+  </div>
+</div>
+
+<!-- BENCHMARK 12M€ -->
+<div id="page-benchmark" class="hidden">
+  <div class="card g">
+    <div class="lbl">KPIs OPÉRATIONNELS RÉELS</div>
+    <div id="bm-kpis" class="g2" style="gap:8px;"></div>
+  </div>
+  <div class="card b">
+    <div class="lbl">BENCHMARK VS OBJECTIF 12M€</div>
+    <div id="bm-table"></div>
+  </div>
+  <div class="card p">
+    <div class="lbl">🎯 ROADMAP — TOP 5 ACTIONS PRIORITAIRES</div>
+    <div id="bm-roadmap"></div>
+  </div>
+  <div class="card y">
+    <div class="lbl">📊 CONTRATS MAINTENANCE — PROGRESSION</div>
+    <div id="bm-contrats"></div>
+  </div>
 </div>
 
 <!-- STRATEGIE -->
@@ -316,6 +371,7 @@ const sAlertes=v=>localStorage.setItem("pl_alertes",JSON.stringify(v));
 const moisStr=()=>new Date().toISOString().slice(0,7);
 const fmt=n=>Number(n).toLocaleString("fr-FR");
 const el=id=>document.getElementById(id);
+const getTechNoms=()=>{try{const e=JSON.parse(localStorage.getItem('pl_fiches_emp')||'[]');if(e.length)return e.map(t=>t.nom).filter(Boolean);}catch(err){}return['Technicien 1','Technicien 2'];};
 
 // AUTH
 document.querySelectorAll(".pin-input").forEach((e,i,arr)=>{
@@ -335,6 +391,23 @@ function lancerApp(){
   el("login").style.display="none";
   el("app").style.display="block";
   renderFinances();
+  renderModuleNav();
+  window.addEventListener('storage',function(e){
+    var pages={finances:'page-finances',rh:'page-rh',commercial:'page-commercial',strategie:'page-strategie'};
+    function pageActive(id){var p=el(id);return p&&p.style.display!=='none'&&!p.classList.contains('hidden');}
+    if(e.key==='pl_rapports'||e.key==='pl_rdvs'||e.key==='pl_primes'){
+      notif('Donnees mises a jour');
+      if(pageActive('page-finances'))renderFinances();
+      if(pageActive('page-commercial'))renderCommercial();
+      if(pageActive('page-rh'))renderRH();
+    }
+    if(e.key==='pl_devis'){
+      if(pageActive('page-commercial'))renderCommercial();
+    }
+    if(e.key==='pl_savs'||e.key==='pl_conges'){
+      if(pageActive('page-rh'))renderRH();
+    }
+  });
 }
 
 function logout(){
@@ -344,12 +417,13 @@ function logout(){
 }
 
 function showPage(p){
-  ["finances","rh","commercial","strategie"].forEach(x=>el("page-"+x).classList.add("hidden"));
+  ["finances","rh","commercial","benchmark","strategie"].forEach(x=>el("page-"+x).classList.add("hidden"));
   el("page-"+p).classList.remove("hidden");
-  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["finances","rh","commercial","strategie"][i]===p));
+  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["finances","rh","commercial","benchmark","strategie"][i]===p));
   if(p==="finances")renderFinances();
   if(p==="rh")renderRH();
   if(p==="commercial")renderCommercial();
+  if(p==="benchmark")renderBenchmark();
   if(p==="strategie")renderStrategie();
 }
 
@@ -396,13 +470,13 @@ function renderRH(){
   const sal=Number(el("rh-salaire")?.value||2500);
   const heu=Number(el("rh-heures")?.value||151);
   const cH=Math.round(sal*1.45/heu);
-  el("rh-cout").innerHTML=["Technicien 1","Technicien 2"].map(nom=>{
+  el("rh-cout").innerHTML=getTechNoms().map(nom=>{
     const mes=raps.filter(r=>r.technicien===nom&&r.date?.startsWith(mois));
     const ca=mes.reduce((s,r)=>s+(r.montantFinal||0),0);
     const rent=Math.round(ca/(sal*1.45)*100);
     return`<div class="tr"><div><div style="font-weight:700;">${nom}</div><div style="color:var(--tl);font-size:12px;">CA: ${fmt(ca)} EUR</div></div><div style="text-align:right;"><div style="color:var(--green);font-weight:800;font-size:16px;">${cH} EUR/h</div><span class="bdg ${rent>=150?"bdg-g":rent>=100?"bdg-y":"bdg-r"}">${rent}% rentable</span></div></div>`;
   }).join("");
-  el("rh-prod").innerHTML=["Technicien 1","Technicien 2"].map(nom=>{
+  el("rh-prod").innerHTML=getTechNoms().map(nom=>{
     const mes=raps.filter(r=>r.technicien===nom&&r.heureDebut&&r.heureFin);
     if(!mes.length)return`<div class="tr"><span>${nom}</span><span style="color:var(--tl);">Pas de donnee</span></div>`;
     const durees=mes.map(r=>{const[dh,dm]=r.heureDebut.split(":").map(Number),[fh,fm]=r.heureFin.split(":").map(Number);return(fh*60+fm)-(dh*60+dm);}).filter(d=>d>0);
@@ -412,7 +486,7 @@ function renderRH(){
   const conges=CONGES();
   const jours=conges.reduce((s,c)=>s+Math.max(0,Math.ceil((new Date(c.fin)-new Date(c.debut))/86400000)+1),0);
   el("rh-abs").innerHTML=`<div class="g3"><div class="sc"><div class="lbl">JOURS ABS.</div><div class="sv" style="color:var(--ora);">${jours}</div></div><div class="sc"><div class="lbl">TAUX</div><div class="sv" style="color:var(--ora);">${Math.round(jours/22*100)}%</div></div><div class="sc"><div class="lbl">CONGES</div><div class="sv" style="color:var(--accent);">${conges.length}</div></div></div>`;
-  el("rh-eval").innerHTML=["Technicien 1","Technicien 2"].map(nom=>{
+  el("rh-eval").innerHTML=getTechNoms().map(nom=>{
     const mes=raps.filter(r=>r.technicien===nom&&r.date?.startsWith(mois));
     const ca=mes.reduce((s,r)=>s+(r.montantFinal||0),0);
     const ventes=mes.reduce((s,r)=>s+(r.ventes?.length||0),0);
@@ -431,14 +505,62 @@ function renderCommercial(){
   const caE=pipe.filter(p=>p.statut!=="Perdu").reduce((s,p)=>s+Math.round((p.montant||0)*p.proba/100),0);
   el("com-pipeline").innerHTML=`<div style="background:#f0f9f0;border-radius:10px;padding:12px;margin-bottom:12px;display:flex;justify-content:space-between;"><span style="color:var(--green);font-size:12px;font-weight:600;">CA pipeline estime</span><span style="color:var(--green);font-weight:800;font-size:18px;">${fmt(caE)} EUR</span></div>${pipe.length?pipe.map((p,i)=>`<div style="background:#f8fafc;border-radius:10px;padding:12px;margin-bottom:8px;border-left:3px solid ${p.proba>=75?"#4a9c3f":p.proba>=50?"#2d6a9f":"#f97316"};"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><div><div style="font-weight:700;font-size:13px;">${p.client}</div><div style="color:var(--tl);font-size:12px;">${p.type}</div></div><div style="text-align:right;"><div style="color:var(--green);font-weight:800;">${fmt(p.montant)} EUR</div><span class="bdg ${p.proba>=75?"bdg-g":p.proba>=50?"bdg-b":"bdg-o"}">${p.proba}%</span></div></div><div style="display:flex;gap:6px;"><button class="btn btn-g" style="padding:5px 10px;font-size:11px;" onclick="majPipe(${i},'Gagne')">Gagne</button><button class="btn btn-gray" style="padding:5px 10px;font-size:11px;" onclick="majPipe(${i},'Perdu')">Perdu</button><button class="btn btn-gray" style="padding:5px 10px;font-size:11px;" onclick="delPipe(${i})">Suppr.</button></div></div>`).join(""):`<div class="empty">Aucune opportunite</div>`}`;
   const pM=raps.length?Math.round(raps.reduce((s,r)=>s+(r.montantFinal||0),0)/raps.length):0;
-  el("com-panier").innerHTML=`<div style="text-align:center;padding:16px 0;"><div style="color:var(--green);font-weight:800;font-size:32px;">${fmt(pM)} EUR</div><div style="color:var(--tl);font-size:12px;">panier moyen global</div></div>${["Technicien 1","Technicien 2"].map(nom=>{const mes=raps.filter(r=>r.technicien===nom);const p=mes.length?Math.round(mes.reduce((s,r)=>s+(r.montantFinal||0),0)/mes.length):0;return`<div class="tr"><span style="font-weight:600;">${nom}</span><div><span style="color:var(--green);font-weight:700;">${fmt(p)} EUR</span><span style="color:var(--tl);font-size:11px;margin-left:8px;">${mes.length} interv.</span></div></div>`;}).join("")}`;
+  el("com-panier").innerHTML=`<div style="text-align:center;padding:16px 0;"><div style="color:var(--green);font-weight:800;font-size:32px;">${fmt(pM)} EUR</div><div style="color:var(--tl);font-size:12px;">panier moyen global</div></div>${getTechNoms().map(nom=>{const mes=raps.filter(r=>r.technicien===nom);const p=mes.length?Math.round(mes.reduce((s,r)=>s+(r.montantFinal||0),0)/mes.length):0;return`<div class="tr"><span style="font-weight:600;">${nom}</span><div><span style="color:var(--green);font-weight:700;">${fmt(p)} EUR</span><span style="color:var(--tl);font-size:11px;margin-left:8px;">${mes.length} interv.</span></div></div>`;}).join("")}`;
   const parM={};raps.forEach(r=>{const m=r.date?.slice(5,7);if(m){if(!parM[m])parM[m]={ca:0,n:0};parM[m].ca+=r.montantFinal||0;parM[m].n++;}});
   const noms=["","Jan","Fev","Mar","Avr","Mai","Jun","Jul","Aou","Sep","Oct","Nov","Dec"];
   const maxS=Math.max(...Object.values(parM).map(m=>m.ca),1);
   el("com-saison").innerHTML=Object.entries(parM).sort((a,b)=>b[1].ca-a[1].ca).map(([m,d])=>`<div class="br"><div class="bl">${noms[Number(m)]||m}</div><div class="bt"><div class="bf" style="width:${Math.round(d.ca/maxS*100)}%;background:#dbeafe;color:#1d4ed8;">${fmt(d.ca)} EUR</div></div><span style="color:var(--tl);font-size:10px;">${d.n}x</span></div>`).join("")||`<div class="empty">Pas assez de donnees</div>`;
-  const cli={};raps.forEach(r=>{if(!cli[r.clientNom])cli[r.clientNom]={ca:0,n:0,tel:r.clientTel};cli[r.clientNom].ca+=r.montantFinal||0;cli[r.clientNom].n++;});
+  // Build mandant lookup from rdvs
+  const _rdvs=JSON.parse(localStorage.getItem('pl_rdvs')||'[]');
+  const _rdvById={};_rdvs.forEach(r=>_rdvById[r.id]=r);
+  // Map clientNom → mandant source
+  const _cliMand={};
+  raps.forEach(r=>{
+    const rdv=_rdvById[r.rdvId]||{};
+    const mand=r.mandant||rdv.mandant||'';
+    if(!_cliMand[r.clientNom])_cliMand[r.clientNom]='';
+    if(mand&&!_cliMand[r.clientNom])_cliMand[r.clientNom]=mand;
+  });
+  const cli={};raps.forEach(r=>{
+    if(!cli[r.clientNom])cli[r.clientNom]={ca:0,n:0,tel:r.clientTel,mand:_cliMand[r.clientNom]||''};
+    cli[r.clientNom].ca+=r.montantFinal||0;cli[r.clientNom].n++;
+  });
   const top=Object.entries(cli).sort((a,b)=>b[1].ca-a[1].ca).slice(0,10);
-  el("com-top").innerHTML=top.length?top.map(([nom,d],i)=>`<div class="tr"><div style="display:flex;align-items:center;gap:10px;"><div style="width:22px;height:22px;border-radius:6px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;">${i+1}</div><div><div style="font-weight:600;font-size:13px;">${nom}</div><div style="color:var(--tl);font-size:11px;">${d.n} interv.</div></div></div><div style="text-align:right;"><div style="color:var(--green);font-weight:800;">${fmt(d.ca)} EUR</div><a href="tel:${d.tel}" style="color:var(--accent);font-size:11px;">${d.tel}</a></div></div>`).join(""):`<div class="empty">Aucun client</div>`;
+  el("com-top").innerHTML=top.length?top.map(([nom,d],i)=>`<div class="tr"><div style="display:flex;align-items:center;gap:10px;"><div style="width:22px;height:22px;border-radius:6px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;">${i+1}</div><div><div style="font-weight:600;font-size:13px;">${nom}${d.mand?`<span style="margin-left:6px;background:#f3e8ff;color:#7c3aed;border-radius:4px;padding:1px 6px;font-size:9px;font-weight:700;">via ${d.mand}</span>`:''}</div><div style="color:var(--tl);font-size:11px;">${d.n} interv.${d.mand?' · CA comptabilisé chez '+d.mand:''}</div></div></div><div style="text-align:right;"><div style="color:${d.mand?'#7c3aed':'var(--green)'};font-weight:800;">${fmt(d.ca)} EUR</div><a href="tel:${d.tel}" style="color:var(--accent);font-size:11px;">${d.tel}</a></div></div>`).join(""):`<div class="empty">Aucun client</div>`;
+
+  // Mandants breakdown
+  const mands={};
+  raps.forEach(r=>{
+    const rdv=_rdvById[r.rdvId]||{};
+    const mand=r.mandant||rdv.mandant||'';
+    if(mand){if(!mands[mand])mands[mand]={ca:0,n:0};mands[mand].ca+=r.montantFinal||0;mands[mand].n++;}
+  });
+  const caTotal=raps.reduce((s,r)=>s+(r.montantFinal||0),0);
+  const caMand=Object.values(mands).reduce((s,m)=>s+m.ca,0);
+  const caDirect=caTotal-caMand;
+  const pctMand=caTotal>0?Math.round(caMand/caTotal*100):0;
+  const pctDir=100-pctMand;
+  const topMands=Object.entries(mands).sort((a,b)=>b[1].ca-a[1].ca);
+  el("com-mandants").innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div style="background:#f0fdf4;border-radius:12px;padding:14px;text-align:center;border:2px solid #86efac;">
+        <div style="font-size:9px;color:#15803d;font-weight:700;letter-spacing:1px;margin-bottom:4px;">CA DIRECT</div>
+        <div style="font-size:22px;font-weight:800;color:#15803d;">${fmt(caDirect)} €</div>
+        <div style="font-size:11px;color:#15803d;font-weight:600;">${pctDir}% du CA total</div>
+      </div>
+      <div style="background:#faf5ff;border-radius:12px;padding:14px;text-align:center;border:2px solid #ddd6fe;">
+        <div style="font-size:9px;color:#7c3aed;font-weight:700;letter-spacing:1px;margin-bottom:4px;">CA MANDANTS</div>
+        <div style="font-size:22px;font-weight:800;color:#7c3aed;">${fmt(caMand)} €</div>
+        <div style="font-size:11px;color:#7c3aed;font-weight:600;">${pctMand}% du CA total</div>
+      </div>
+    </div>
+    <div style="background:#e2e8f0;border-radius:100px;height:10px;margin-bottom:14px;">
+      <div style="background:linear-gradient(90deg,#16a34a ${pctDir}%,#7c3aed ${pctDir}%);height:10px;border-radius:100px;"></div>
+    </div>
+    ${topMands.length?`<div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#7c3aed;margin-bottom:8px;">DÉTAIL PAR MANDANT</div>`+topMands.map(([m,d])=>{
+      const pct=caTotal>0?Math.round(d.ca/caTotal*100):0;
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #ede9fe;"><div><div style="font-weight:700;font-size:13px;color:#1a2537;">🏢 ${m}</div><div style="color:#64748b;font-size:11px;">${d.n} interventions · ${pct}% du CA</div></div><div style="text-align:right;"><div style="color:#7c3aed;font-weight:800;font-size:15px;">${fmt(d.ca)} €</div><div style="color:#64748b;font-size:11px;">Ticket moy. ${d.n?fmt(Math.round(d.ca/d.n)):0} €</div></div></div>`;
+    }).join(""):`<div style="text-align:center;color:#94a3b8;font-size:12px;padding:16px 0;">Aucun RDV mandant enregistré — utilisez le champ Mandant lors de la création des RDV</div>`}`;
 }
 
 // STRATEGIE
@@ -494,6 +616,108 @@ function saveConc(){const n=el("conc-nom")?.value.trim();if(!n){notif("Nom requi
 function delConc(i){const c=gConc();c.splice(i,1);sConc(c);renderStrategie();}
 function saveAlerte(){const s=el("ale-seuil")?.value;const c=el("ale-contact")?.value.trim();if(!s||!c){notif("Remplis seuil et contact");return;}const a=gAlertes();a.push({type:el("ale-type")?.value,seuil:s,contact:c});sAlertes(a);el("ale-seuil").value="";el("ale-contact").value="";renderStrategie();notif("Alerte activee !");}
 function delAlerte(i){const a=gAlertes();a.splice(i,1);sAlertes(a);renderStrategie();}
+
+// BENCHMARK 12M€
+function renderBenchmark(){
+  const raps=R();
+  const rdvs=JSON.parse(localStorage.getItem('pl_rdvs')||'[]');
+  const contrats=JSON.parse(localStorage.getItem('pl_contrats')||'[]').filter(c=>c.statut==='Actif');
+  const mois=moisStr();
+
+  // TPI — Taux Premier Passage
+  const rapsTotal=raps.length;
+  const rapsSolved=raps.filter(r=>r.checklistScore&&r.checklistScore.split('/')[0]===r.checklistScore.split('/')[1]).length;
+  const tpi=rapsTotal?Math.round(rapsSolved/rapsTotal*100):0;
+  const tpiColor=tpi>=85?'#15803d':tpi>=70?'#c2410c':'#b91c1c';
+
+  // Délai moyen (jours entre datePriseContact et dateRdv)
+  const rdvsAvecDelai=rdvs.filter(r=>r.datePriseContact&&r.dateRdv&&r.dateRdv!==r.datePriseContact);
+  const delaiMoyJours=rdvsAvecDelai.length?rdvsAvecDelai.reduce((s,r)=>{
+    const diff=(new Date(r.dateRdv)-new Date(r.datePriseContact))/86400000;
+    return s+(diff>0?diff:0);
+  },0)/rdvsAvecDelai.length:0;
+  const delaiH=Math.round(delaiMoyJours*24);
+  const delaiColor=delaiH<=4?'#15803d':delaiH<=24?'#c2410c':'#b91c1c';
+
+  // CA par technicien (annualisé)
+  const techs=['Technicien 1','Technicien 2'];
+  const caTechs=techs.map(t=>raps.filter(r=>r.technicien===t).reduce((s,r)=>s+(r.montantFinal||0),0));
+  const caParTech=Math.round(caTechs.reduce((s,c)=>s+c,0)/Math.max(techs.length,1));
+
+  // Taux retour client
+  const telMap={};
+  rdvs.forEach(r=>{if(r.clientTel){const k=r.clientTel.replace(/\s/g,'');if(!telMap[k])telMap[k]=0;telMap[k]++;}});
+  const totalClients=Object.keys(telMap).length;
+  const retourClients=Object.values(telMap).filter(n=>n>=2).length;
+  const tauxRetour=totalClients?Math.round(retourClients/totalClients*100):0;
+  const retourColor=tauxRetour>=40?'#15803d':tauxRetour>=25?'#c2410c':'#b91c1c';
+
+  el('bm-kpis').innerHTML=[
+    ['TPI',tpi+'%','Taux Premier Passage',tpiColor],
+    ['Délai',delaiH>0?delaiH+'h':'—','Contact → Intervention',delaiColor],
+    ['CA/Tech',fmt(caParTech)+'€','Panier total moyen',caParTech>=150000?'#15803d':'#c2410c'],
+    ['Retour',tauxRetour+'%','Clients 2+ visites',retourColor],
+  ].map(([v,sub,l,c])=>`<div class="sc" style="border-left:3px solid ${c};"><div class="lbl">${l.toUpperCase()}</div><div class="sv" style="color:${c};font-size:22px;">${v}</div><div style="font-size:11px;color:var(--muted);">${sub}</div></div>`).join('');
+
+  const rows=[
+    ['TPI (premier passage)',tpi+'%','> 85%',tpi>=85?'🟢':tpi>=70?'🟡':'🔴'],
+    ['Délai urgence',delaiH>0?delaiH+'h':'—','< 4h',delaiH<=4?'🟢':delaiH<=24?'🟡':'🔴'],
+    ['CA par technicien',fmt(caParTech)+'€','>150k€/an',caParTech>=150000?'🟢':caParTech>=80000?'🟡':'🔴'],
+    ['Taux retour client',tauxRetour+'%','>40%',tauxRetour>=40?'🟢':tauxRetour>=25?'🟡':'🔴'],
+    ['Contrats maintenance',contrats.length,'200 cible',contrats.length>=200?'🟢':contrats.length>=50?'🟡':'🔴'],
+  ];
+  el('bm-table').innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr>${['KPI','Actuel','Objectif 12M€','Statut'].map(h=>`<th style="text-align:left;color:var(--muted);font-size:9px;font-weight:700;text-transform:uppercase;padding:6px 4px;border-bottom:1px solid var(--border);">${h}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map(([k,v,o,s])=>`<tr><td style="padding:8px 4px;font-weight:600;">${k}</td><td style="padding:8px 4px;font-weight:800;">${v}</td><td style="padding:8px 4px;color:var(--muted);">${o}</td><td style="padding:8px 4px;font-size:16px;">${s}</td></tr>`).join('')}</tbody>
+  </table>`;
+
+  const gRoadmap=()=>JSON.parse(localStorage.getItem('pl_roadmap')||'{}');
+  const sRoadmap=v=>localStorage.setItem('pl_roadmap',JSON.stringify(v));
+  const road=gRoadmap();
+  const actions=[
+    ['booking','booking.html en ligne','→ +25% volume sans appel supplémentaire'],
+    ['sms','SMS automatiques Twilio','→ -40% no-shows, +12pts NPS'],
+    ['contrats','50 contrats maintenance','→ +10k€/mois récurrent stable'],
+    ['qualipac','Certification QualiPAC RGE','→ Accès MaPrimeRénov\' + CEE'],
+    ['homeserve','Rejoindre réseau HomeServe/IZI EDF','→ Flux garanti 200+ interventions/mois'],
+  ];
+  el('bm-roadmap').innerHTML=actions.map(([k,t,d])=>{
+    const s=road[k]||'todo';
+    return`<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <button onclick="toggleRoadmap('${k}')" style="font-size:18px;background:none;border:none;cursor:pointer;flex-shrink:0;margin-top:-2px;">${s==='done'?'✅':s==='doing'?'🔄':'⬜'}</button>
+      <div style="flex:1;"><div style="font-weight:700;font-size:13px;">${t}</div><div style="font-size:11px;color:var(--muted);">${d}</div></div>
+    </div>`;
+  }).join('');
+
+  window._toggleRoadmapFn=(k)=>{const r=gRoadmap();const s=r[k]||'todo';r[k]=s==='todo'?'doing':s==='doing'?'done':'todo';sRoadmap(r);renderBenchmark();};
+
+  const mrr=contrats.reduce((s,c)=>s+(c.periodicite==='mensuel'?c.tarif:(c.tarif||0)/12),0);
+  const pct200=Math.min(100,Math.round(contrats.length/200*100));
+  el('bm-contrats').innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px;"><span><strong>${contrats.length}</strong> contrats actifs</span><span style="color:#7c3aed;font-weight:700;">MRR : ${Math.round(mrr)}€/mois</span></div><div class="pb"><div class="pf" style="width:${pct200}%;background:#7c3aed;"></div></div><div style="font-size:11px;color:var(--muted);margin-top:4px;">${pct200}% de l'objectif 200 — ARR potentiel à 200 contrats : ${Math.round(mrr/Math.max(contrats.length,1)*200*12)}€/an</div>`;
+}
+
+window.toggleRoadmap=function(k){if(window._toggleRoadmapFn)window._toggleRoadmapFn(k);}
+
+var MODULE_CURRENT='patron-analytics.html';
+var MODULES_NAV=[
+  {file:'index.html',label:'Technicien',icon:'👷',roles:['TECHNICIEN','PATRON','DISPATCH']},
+  {file:'dispatch.html',label:'Dispatch',icon:'📋',roles:['DISPATCH','PATRON']},
+  {file:'patron.html',label:'Patron',icon:'👔',roles:['PATRON']},
+  {file:'patron-analytics.html',label:'Analytics',icon:'📊',roles:['PATRON']},
+  {file:'secretaire.html',label:'Secrétariat',icon:'🗂️',roles:['PATRON','DISPATCH']},
+  {file:'crm.html',label:'CRM',icon:'👥',roles:['PATRON']},
+  {file:'contrats.html',label:'Contrats',icon:'📋',roles:['PATRON']},
+  {file:'booking.html',label:'Booking',icon:'🌐',roles:['PATRON']},
+];
+function naviguerVers(f){if(f===MODULE_CURRENT)return;var b=location.href.substring(0,location.href.lastIndexOf('/')+1);location.href=b+f;}
+function getCurrentRoleAnalytics(){var id=localStorage.getItem("pl_analytics_session");if(!id)return null;return id==="patron"?"PATRON":"DISPATCH";}
+function renderModuleNav(){
+  var nav=el('module-nav');if(!nav)return;
+  var role=getCurrentRoleAnalytics();if(!role)return;
+  var v=MODULES_NAV.filter(function(m){return m.roles.indexOf(role)>=0;});if(v.length<=1)return;
+  nav.classList.remove('hidden');
+  nav.innerHTML=v.map(function(m){return '<button class="mnav-btn'+(m.file===MODULE_CURRENT?' active':'')+'" onclick="naviguerVers(\''+m.file+'\')">'+(m.icon)+' '+(m.label)+'</button>';}).join('');
+}
 
 window.onload=()=>{
   document.querySelectorAll(".pin-input").forEach((e,i,arr)=>{

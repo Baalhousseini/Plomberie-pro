@@ -3,213 +3,345 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0d2d52">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GreenFlow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>GreenFlow - Espace Technicien</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Poppins',sans-serif;}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif;}
 :root{
-  --primary:#1a3a5c;
-  --green:#4a9c3f;
-  --green-light:#7bc144;
-  --accent:#2d6a9f;
-  --bg:#f0f4f8;
+  --blue:#0d2d52;
+  --blue2:#1a4a7a;
+  --green:#3a8c30;
+  --green-light:#5ab048;
+  --green-bg:#f0f9ee;
+  --bg:#f4f6f9;
   --card:#ffffff;
-  --border:#e2e8f0;
-  --text:#1a2537;
-  --text-light:#64748b;
-  --shadow:0 2px 12px rgba(26,58,92,0.08);
+  --border:#dde3ec;
+  --text:#0d1b2e;
+  --muted:#6b7a8f;
+  --shadow:0 1px 4px rgba(13,45,82,0.08),0 4px 16px rgba(13,45,82,0.06);
+  --shadow-lg:0 4px 24px rgba(13,45,82,0.14);
 }
 body{background:var(--bg);color:var(--text);min-height:100vh;}
 .hidden{display:none!important;}
 
-/* LOGIN */
-#login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:linear-gradient(135deg,#1a3a5c 0%,#2d6a9f 50%,#4a9c3f 100%);}
-.login-box{background:#fff;border-radius:24px;padding:40px 32px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
-.logo-area{text-align:center;margin-bottom:32px;}
-.logo-img{width:180px;margin-bottom:8px;}
-.logo-tagline{color:var(–text-light);font-size:12px;letter-spacing:1px;}
-.login-title{color:var(–primary);font-size:20px;font-weight:700;text-align:center;margin-bottom:24px;}
+/* ── LOGIN ── */
+#login{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:#0d2d52;}
+.login-box{background:#fff;border-radius:20px;padding:40px 32px 36px;width:100%;max-width:380px;box-shadow:0 24px 64px rgba(0,0,0,0.28);}
+.logo-area{text-align:center;margin-bottom:28px;}
+.login-title{color:var(--blue);font-size:17px;font-weight:700;text-align:center;margin-bottom:24px;letter-spacing:-0.2px;}
 .field{margin-bottom:16px;}
-.field label{display:block;color:var(–text-light);font-size:11px;letter-spacing:1px;font-weight:600;margin-bottom:6px;}
-.field input{width:100%;background:#f8fafc;border:2px solid var(–border);border-radius:12px;padding:12px 16px;color:var(–text);font-size:15px;outline:none;transition:border-color 0.2s;}
-.field input:focus{border-color:var(–green);}
+.field label{display:block;color:var(--muted);font-size:10px;letter-spacing:1.2px;font-weight:700;margin-bottom:7px;text-transform:uppercase;}
+.field input{width:100%;background:#f7f9fc;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:15px;outline:none;transition:border-color 0.2s;}
+.field input:focus{border-color:var(--blue2);}
 .pin-row{display:flex;gap:10px;justify-content:center;margin:10px 0;}
-.pin-input{width:56px!important;height:56px;text-align:center;font-size:22px;font-weight:800;background:#f8fafc;border:2px solid var(–border);border-radius:12px;color:var(–green);outline:none;transition:border-color 0.2s;}
-.pin-input:focus{border-color:var(–green);}
-.btn-login{width:100%;background:linear-gradient(135deg,var(–primary),var(–green));color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;transition:opacity 0.2s;}
-.btn-login:hover{opacity:0.9;}
-.error-msg{color:#ef4444;font-size:13px;text-align:center;margin-top:10px;}
+.pin-input{width:56px!important;height:56px;text-align:center;font-size:22px;font-weight:800;background:#f7f9fc;border:1.5px solid var(--border);border-radius:10px;color:var(--blue);outline:none;transition:border-color 0.2s;}
+.pin-input:focus{border-color:var(--blue2);}
+.btn-login{width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;margin-top:12px;letter-spacing:0.3px;transition:background 0.2s;}
+.btn-login:hover{background:var(--blue2);}
+.error-msg{color:#dc2626;font-size:12px;text-align:center;margin-top:10px;font-weight:600;}
+.login-footer{color:rgba(255,255,255,0.45);font-size:11px;text-align:center;margin-top:20px;letter-spacing:0.5px;}
 
-/* HEADER */
-.header{background:linear-gradient(135deg,var(–primary),var(–accent));padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(26,58,92,0.2);}
-.header-logo{height:32px;}
+/* ── HEADER ── */
+.header{background:var(--blue);padding:0 16px;height:56px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,0.18);}
+.header-logo{height:28px;}
 .header-right{display:flex;align-items:center;gap:10px;}
 .ca-box{text-align:right;}
-.ca-amount{color:#7bc144;font-weight:800;font-size:16px;}
-.ca-label{color:rgba(255,255,255,0.6);font-size:9px;letter-spacing:1px;}
-.btn-logout{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;}
-.btn-theme{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:8px;padding:7px 10px;font-size:12px;cursor:pointer;}
+.ca-amount{color:#5ab048;font-weight:800;font-size:15px;line-height:1;}
+.ca-label{color:rgba(255,255,255,0.45);font-size:9px;letter-spacing:1px;text-transform:uppercase;}
+.btn-logout{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);border-radius:8px;padding:7px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:background 0.2s;}
+.btn-logout:hover{background:rgba(255,255,255,0.18);}
 
-/* USER INFO */
-.user-bar{background:var(–primary);padding:10px 16px;display:flex;align-items:center;gap:10px;}
-.user-avatar{width:36px;height:36px;border-radius:10px;background:rgba(123,193,68,0.2);border:2px solid #7bc144;color:#7bc144;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;}
-.user-name{color:#fff;font-weight:700;font-size:14px;}
-.user-role{color:rgba(255,255,255,0.5);font-size:10px;letter-spacing:1px;}
+/* ── USER BAR ── */
+.user-bar{background:#152f52;padding:10px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.07);}
+.user-avatar{width:36px;height:36px;border-radius:9px;background:rgba(90,176,72,0.18);border:1.5px solid #5ab048;color:#5ab048;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0;}
+.user-name{color:#fff;font-weight:700;font-size:13px;line-height:1.2;}
+.user-role{color:rgba(255,255,255,0.45);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
 
-/* NAV */
-.nav{background:#fff;border-bottom:2px solid var(–border);display:flex;overflow-x:auto;box-shadow:var(–shadow);}
-.nav button{flex:1;min-width:80px;background:none;border:none;border-bottom:3px solid transparent;padding:12px 8px;color:var(–text-light);cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;transition:all 0.2s;font-family:'Poppins',sans-serif;}
-.nav button.active{color:var(–green);border-bottom-color:var(–green);}
+/* ── APP SWITCHER ── */
+.app-sw{position:relative;}
+.app-sw-btn{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:10px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.18s;white-space:nowrap;}
+.app-sw-btn:hover{background:rgba(255,255,255,0.18);}
+.app-sw-drop{position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:10px;box-shadow:0 8px 32px rgba(0,0,0,0.18);z-index:200;min-width:240px;display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.app-sw-drop.hidden{display:none!important;}
+.app-sw-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;cursor:pointer;font-size:11px;font-weight:700;color:#1e293b;text-align:center;transition:all 0.15s;}
+.app-sw-item:hover{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;}
+.app-sw-item.active{background:#dcfce7;border-color:#86efac;color:#166534;}
+.app-sw-icon{font-size:22px;line-height:1;}
+.ct-fcard{flex:1;border:2px solid #e2e8f0;border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;transition:all 0.18s;position:relative;background:#f8fafc;}
+.ct-fcard.ct-fcard-sel{border-color:var(--green);background:#f0fdf4;}
+.ct-fcard-title{font-size:11px;font-weight:800;color:var(--blue);letter-spacing:0.5px;}
+.ct-fcard-price{font-size:17px;font-weight:800;color:var(--green);margin:4px 0;}
+.ct-fcard-sub{font-size:9px;color:#64748b;line-height:1.3;}
+.ct-fcard-badge{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-size:8px;font-weight:700;padding:2px 7px;border-radius:10px;white-space:nowrap;}
+.fi{width:100%;background:#f7f9fc;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:13px;outline:none;box-sizing:border-box;font-family:'Inter',sans-serif;margin-bottom:8px;}
+.fi:focus{border-color:var(--blue2);}
+.btn{border:none;border-radius:10px;padding:11px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:background 0.2s;}
+.btn-g{background:var(--green);color:#fff;}
+.btn-full{width:100%;}
 
-/* CONTENT */
-.content{max-width:600px;margin:0 auto;padding:16px;}
+/* ── INNER NAV TABS ── */
+.nav{background:#fff;border-bottom:2px solid var(--border);display:flex;overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.nav button{flex:1;min-width:80px;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;padding:13px 8px;color:var(--muted);cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;transition:all 0.18s;font-family:'Inter',sans-serif;letter-spacing:0.2px;}
+.nav button.active{color:var(--green);border-bottom-color:var(--green);}
 
-/* CARDS */
-.card{background:#fff;border:1px solid var(–border);border-radius:16px;padding:16px 18px;margin-bottom:12px;box-shadow:var(–shadow);}
-.card.accent-green{border-left:4px solid var(–green);}
-.card.accent-blue{border-left:4px solid var(–accent);}
-.card.accent-orange{border-left:4px solid #f97316;}
-.card.accent-yellow{border-left:4px solid #eab308;}
-.card.accent-purple{border-left:4px solid #8b5cf6;}
-.lbl{color:var(–text-light);font-size:10px;letter-spacing:1.5px;margin-bottom:8px;font-weight:700;}
+/* ── CONTENT ── */
+.content{max-width:620px;margin:0 auto;padding:16px;}
 
-/* STATUT */
-.statut-btns{display:flex;gap:6px;flex-wrap:wrap;}
-.statut-btn{flex:1;min-width:100px;background:#f8fafc;border:2px solid var(–border);border-radius:10px;padding:9px 6px;color:var(–text-light);cursor:pointer;font-size:11px;font-weight:600;text-align:center;transition:all 0.15s;font-family:'Poppins',sans-serif;}
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;background:#edf0f5;border-radius:10px;padding:4px;margin-bottom:16px;}
+.tab-btn{flex:1;background:none;border:none;border-radius:8px;padding:9px 4px;color:var(--muted);cursor:pointer;font-size:11px;font-weight:600;transition:all 0.18s;font-family:'Inter',sans-serif;}
+.tab-btn.active{background:#fff;color:var(--blue);box-shadow:var(--shadow);}
 
-/* TABS */
-.tabs{display:flex;gap:4px;background:#f0f4f8;border-radius:12px;padding:4px;margin-bottom:16px;}
-.tab-btn{flex:1;background:none;border:none;border-radius:10px;padding:9px 4px;color:var(–text-light);cursor:pointer;font-size:11px;font-weight:600;transition:all 0.2s;font-family:'Poppins',sans-serif;}
-.tab-btn.active{background:#fff;color:var(–green);box-shadow:var(–shadow);}
+/* ── CARDS ── */
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow);}
+.card.accent-green{border-left:4px solid var(--green);}
+.card.accent-blue{border-left:4px solid var(--blue2);}
+.card.accent-orange{border-left:4px solid #ea580c;}
+.card.accent-yellow{border-left:4px solid #ca8a04;}
+.card.accent-purple{border-left:4px solid #7c3aed;}
+.lbl{color:var(--muted);font-size:9px;letter-spacing:1.8px;margin-bottom:8px;font-weight:700;text-transform:uppercase;}
 
-/* CARTE RDV */
-.carte-rdv{background:#fff;border:1px solid var(–border);border-radius:16px;margin-bottom:10px;overflow:hidden;box-shadow:var(–shadow);}
-.carte-rdv.today{border-left:4px solid var(–accent);}
-.carte-rdv.done{border-left:4px solid var(–green);opacity:0.8;}
+/* ── RDV CARTE ── */
+.carte-rdv{background:#fff;border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);}
+.carte-rdv.today{border-left:4px solid var(--blue2);}
+.carte-rdv.done{border-left:4px solid var(--green);opacity:0.75;}
 .carte-header{padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;}
-.carte-heure{color:var(–accent);font-weight:800;font-size:15px;}
-.carte-nom{font-weight:700;font-size:14px;color:var(–text);}
-.carte-sub{color:var(–text-light);font-size:12px;margin-top:2px;}
-.carte-prix{color:var(–green);font-weight:800;font-size:16px;text-align:right;}
-.badge{display:inline-block;border-radius:8px;padding:3px 10px;font-size:10px;font-weight:700;}
+.carte-heure{color:var(--blue2);font-weight:800;font-size:15px;letter-spacing:-0.3px;}
+.carte-nom{font-weight:700;font-size:14px;color:var(--text);}
+.carte-sub{color:var(--muted);font-size:12px;margin-top:2px;}
+.carte-prix{color:var(--green);font-weight:800;font-size:16px;text-align:right;}
+.badge{display:inline-flex;align-items:center;border-radius:6px;padding:3px 9px;font-size:10px;font-weight:700;letter-spacing:0.3px;}
 .badge-blue{background:#dbeafe;color:#1d4ed8;}
-.badge-green{background:#dcfce7;color:#15803d;}
-.badge-orange{background:#ffedd5;color:#c2410c;}
-.badge-yellow{background:#fef9c3;color:#854d0e;}
+.badge-green{background:#dcfce7;color:#166534;}
+.badge-orange{background:#fff7ed;color:#c2410c;}
+.badge-yellow{background:#fefce8;color:#854d0e;}
+.badge-gray{background:#f1f5f9;color:#475569;}
 
-/* CARTE BODY */
-.carte-body{padding:0 16px 16px;border-top:1px solid var(–border);}
+/* ── CARTE BODY ── */
+.carte-body{padding:0 16px 16px;border-top:1px solid var(--border);}
 .info-item{margin-top:12px;}
-.info-val{color:var(–text);font-size:13px;margin-top:3px;}
-.info-val a{color:var(–accent);text-decoration:none;font-weight:600;}
-.notes-box{background:#f8fafc;border-radius:10px;padding:10px 12px;color:var(–text-light);font-size:13px;font-style:italic;margin-top:4px;border-left:3px solid var(–green);}
-.prix-box{background:linear-gradient(135deg,#f0f9f0,#e8f5e8);border:1px solid #c3e6c3;border-radius:12px;padding:12px 16px;margin-top:12px;}
-.prix-val{color:var(–green);font-weight:800;font-size:26px;}
-.prix-note{color:#64748b;font-size:11px;margin-top:2px;}
+.info-val{color:var(--text);font-size:13px;margin-top:3px;line-height:1.5;}
+.info-val a{color:var(--blue2);text-decoration:none;font-weight:600;}
+.notes-box{background:#f7f9fc;border-radius:9px;padding:10px 12px;color:var(--muted);font-size:13px;font-style:italic;margin-top:4px;border-left:3px solid var(--green);}
+.prix-box{background:linear-gradient(135deg,#f0f9ee,#e6f5e3);border:1px solid #c5e6c0;border-radius:12px;padding:12px 16px;margin-top:12px;}
+.prix-val{color:var(--green);font-weight:800;font-size:28px;letter-spacing:-0.5px;}
+.prix-note{color:var(--muted);font-size:11px;margin-top:2px;}
 
-/* STATUTS RDV */
+/* ── STATUTS ── */
 .statuts-rdv{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;}
-.statut-rdv-btn{flex:1;min-width:75px;border:2px solid var(–border);border-radius:10px;padding:8px 4px;cursor:pointer;font-size:11px;font-weight:600;text-align:center;background:#f8fafc;color:var(–text-light);transition:all 0.2s;font-family:'Poppins',sans-serif;}
+.statut-rdv-btn{flex:1;min-width:75px;border:1.5px solid var(--border);border-radius:9px;padding:8px 4px;cursor:pointer;font-size:11px;font-weight:600;text-align:center;background:#f7f9fc;color:var(--muted);transition:all 0.18s;font-family:'Inter',sans-serif;}
+.statut-btns{display:flex;gap:6px;flex-wrap:wrap;}
+.statut-btn{flex:1;min-width:100px;background:#f7f9fc;border:1.5px solid var(--border);border-radius:9px;padding:9px 6px;color:var(--muted);cursor:pointer;font-size:11px;font-weight:600;text-align:center;transition:all 0.15s;font-family:'Inter',sans-serif;}
 
-/* CHRONO */
-.chrono-box{background:#f8fafc;border:1px solid var(–border);border-radius:12px;padding:12px 14px;margin-top:12px;display:flex;justify-content:space-between;align-items:center;}
-.chrono-time{font-size:22px;font-weight:800;color:var(–green);}
-
-/* ACTIONS */
+/* ── ACTIONS ── */
 .actions-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
-.action-btn{flex:1;border:none;border-radius:10px;padding:11px 8px;cursor:pointer;font-size:12px;font-weight:600;text-align:center;font-family:'Poppins',sans-serif;transition:all 0.2s;}
-.btn-blue{background:#dbeafe;color:#1d4ed8;}
-.btn-green{background:#dcfce7;color:#15803d;}
+.action-btn{flex:1;border:none;border-radius:9px;padding:11px 8px;cursor:pointer;font-size:12px;font-weight:600;text-align:center;font-family:'Inter',sans-serif;transition:all 0.18s;}
+.btn-blue{background:#eff6ff;color:#1d4ed8;}
+.btn-green{background:#f0fdf4;color:#166534;}
 .btn-gray{background:#f1f5f9;color:#475569;}
-.btn-orange{background:#ffedd5;color:#c2410c;}
+.btn-orange{background:#fff7ed;color:#c2410c;}
 
-/* PERF */
+/* ── CHRONO / TRAJET ── */
+.chrono-box{background:#f7f9fc;border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-top:12px;display:flex;justify-content:space-between;align-items:center;}
+.chrono-time{font-size:22px;font-weight:800;color:var(--green);letter-spacing:-0.5px;}
+.trajet-box{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:10px 14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;}
+.trajet-time{font-size:18px;font-weight:800;color:#c2410c;}
+
+/* ── PERF ── */
 .perf-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
-.perf-card{background:#f8fafc;border-radius:12px;padding:12px 14px;border:1px solid var(–border);}
-.perf-val{font-weight:800;font-size:20px;margin-top:4px;}
-.progress-bar{background:#e2e8f0;border-radius:6px;height:8px;margin-top:8px;overflow:hidden;}
+.perf-card{background:#f7f9fc;border-radius:12px;padding:12px 14px;border:1px solid var(--border);}
+.perf-val{font-weight:800;font-size:20px;margin-top:4px;letter-spacing:-0.3px;}
+.progress-bar{background:#e2e8f0;border-radius:6px;height:6px;margin-top:8px;overflow:hidden;}
 .progress-fill{height:100%;border-radius:6px;transition:width 0.5s;}
 
-/* SEMAINE */
+/* ── SEMAINE ── */
 .semaine-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-.semaine-nav button{background:#f1f5f9;border:1px solid var(–border);color:var(–text);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;}
-.jour-cell{background:#fff;border:1px solid var(–border);border-radius:10px;padding:6px 4px;min-height:80px;box-shadow:var(–shadow);}
-.jour-cell.today{border-color:var(–green);background:#f0f9f0;}
-.jour-nom{color:var(–text-light);font-size:9px;font-weight:700;letter-spacing:1px;text-align:center;margin-bottom:4px;}
-.jour-num{font-size:16px;font-weight:800;text-align:center;margin-bottom:4px;color:var(–text);}
-.jour-cell.today .jour-num{color:var(–green);}
+.semaine-nav button{background:#f1f5f9;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Inter',sans-serif;}
+.jour-cell{background:#fff;border:1px solid var(--border);border-radius:10px;padding:6px 4px;min-height:80px;box-shadow:var(--shadow);}
+.jour-cell.today{border-color:var(--green);background:var(--green-bg);}
+.jour-nom{color:var(--muted);font-size:9px;font-weight:700;letter-spacing:1px;text-align:center;margin-bottom:4px;text-transform:uppercase;}
+.jour-num{font-size:16px;font-weight:800;text-align:center;margin-bottom:4px;color:var(--text);}
+.jour-cell.today .jour-num{color:var(--green);}
 .rdv-mini{border-radius:4px;padding:3px 4px;margin-bottom:2px;font-size:9px;font-weight:600;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
 
-/* MODAL */
+/* ── MODAL ── */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;overflow-y:auto;}
-.modal-sheet{background:#fff;border-radius:24px 24px 0 0;min-height:100vh;padding:20px 16px 40px;margin-top:40px;}
+.modal-sheet{background:#fff;border-radius:20px 20px 0 0;min-height:100vh;padding:20px 16px 40px;margin-top:40px;}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
-.modal-title{color:var(–green);font-size:11px;letter-spacing:2px;font-weight:700;}
-.modal-subtitle{font-size:17px;font-weight:800;margin-top:2px;color:var(–text);}
-.modal-close{background:#f1f5f9;border:none;color:var(–text-light);border-radius:8px;width:34px;height:34px;font-size:18px;cursor:pointer;}
+.modal-title{color:var(--green);font-size:10px;letter-spacing:2px;font-weight:700;text-transform:uppercase;}
+.modal-subtitle{font-size:17px;font-weight:800;margin-top:2px;color:var(--text);letter-spacing:-0.3px;}
+.modal-close{background:#f1f5f9;border:none;color:var(--muted);border-radius:8px;width:34px;height:34px;font-size:18px;cursor:pointer;}
 
-/* SCRIPT */
-.script-box{background:linear-gradient(135deg,#f0f9f0,#e8f5e8);border:1px solid #c3e6c3;border-radius:16px;padding:18px;line-height:1.9;color:var(–text);font-size:14px;white-space:pre-wrap;margin-bottom:16px;}
+/* ── PIÈCES ── */
+.piece-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);}
+.piece-item:last-child{border-bottom:none;}
+.piece-del{background:#fee2e2;border:none;color:#dc2626;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:14px;font-weight:700;flex-shrink:0;}
 
-/* PHOTOS */
+/* ── HIST CLIENT ── */
+.hist-client-item{background:#f7f9fc;border-radius:8px;padding:8px 10px;margin-bottom:6px;border-left:3px solid var(--blue2);}
+
+/* ── SCRIPT VENTE ── */
+.script-box{background:linear-gradient(135deg,#f0f9ee,#e6f5e3);border:1px solid #c5e6c0;border-radius:14px;padding:18px;line-height:1.9;color:var(--text);font-size:14px;white-space:pre-wrap;margin-bottom:16px;}
+
+/* ── PHOTOS ── */
 .photos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
-.photo-slot{height:100px;border:2px dashed var(–border);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(–text-light);position:relative;overflow:hidden;background:#f8fafc;transition:border-color 0.2s;}
-.photo-slot:hover{border-color:var(–green);}
+.photo-slot{height:100px;border:2px dashed var(--border);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);position:relative;overflow:hidden;background:#f7f9fc;}
 .photo-slot img{width:100%;height:100%;object-fit:cover;}
-.photo-del{position:absolute;top:4px;right:4px;background:#ef4444;border:none;color:#fff;border-radius:5px;width:22px;height:22px;cursor:pointer;font-size:12px;}
-.photo-label{font-size:9px;font-weight:700;letter-spacing:1px;margin-top:4px;color:var(–text-light);}
+.photo-del{position:absolute;top:4px;right:4px;background:#dc2626;border:none;color:#fff;border-radius:5px;width:22px;height:22px;cursor:pointer;font-size:12px;}
+.photo-label{font-size:9px;font-weight:700;letter-spacing:1px;margin-top:4px;color:var(--muted);}
 
-/* CHECKLIST */
-.check-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(–border);cursor:pointer;}
+/* ── CHECKLIST ── */
+.check-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;}
 .check-item:last-child{border-bottom:none;}
-.check-box{width:22px;height:22px;border-radius:6px;border:2px solid var(–border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;background:#fff;}
-.check-box.checked{background:var(–green);border-color:var(–green);color:#fff;}
-.check-text{font-size:13px;color:var(–text);}
+.check-box{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.18s;background:#fff;}
+.check-box.checked{background:var(--green);border-color:var(--green);color:#fff;}
+.check-text{font-size:13px;color:var(--text);}
 
-/* SIGNATURE */
-#signatureCanvas{width:100%;height:180px;background:#f8fafc;border:2px dashed var(–border);border-radius:12px;touch-action:none;cursor:crosshair;}
-
-/* VENTES */
-.vente-item{background:#fff;border:2px solid var(–border);border-radius:12px;margin-bottom:8px;overflow:hidden;transition:all 0.2s;box-shadow:var(–shadow);}
-.vente-item.selected{background:#f0f9f0;border-color:var(–green);}
+/* ── VENTES ── */
+.vente-item{background:#fff;border:1.5px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;transition:all 0.18s;box-shadow:var(--shadow);}
+.vente-item.selected{background:var(--green-bg);border-color:var(--green);}
 .vente-row{padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
 .vente-icon{font-size:20px;margin-right:10px;}
-.vente-name{font-size:13px;font-weight:600;color:var(–text);}
-.vente-type{color:var(–text-light);font-size:10px;margin-top:1px;}
-.vente-prime{color:var(–green);font-weight:700;font-size:12px;}
+.vente-name{font-size:13px;font-weight:600;color:var(--text);}
+.vente-type{color:var(--muted);font-size:10px;margin-top:1px;}
+.vente-prime{color:var(--green);font-weight:700;font-size:12px;}
 
-/* PRIME */
-.prime-bar{background:#f0f9f0;border:1px solid #c3e6c3;border-radius:12px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-.prime-label{color:var(–green);font-size:12px;font-weight:600;}
-.prime-amount{color:var(–green);font-weight:800;font-size:18px;}
+/* ── PRIMES ── */
+.prime-bar{background:var(--green-bg);border:1px solid #c5e6c0;border-radius:12px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.prime-label{color:var(--green);font-size:12px;font-weight:600;}
+.prime-amount{color:var(--green);font-weight:800;font-size:18px;}
+.objectif-card{background:#f7f9fc;border-radius:12px;padding:14px;margin-top:10px;border:1px solid var(--border);}
 
-/* OBJECTIF */
-.objectif-card{background:#f8fafc;border-radius:12px;padding:14px;margin-top:10px;border:1px solid var(–border);}
-
-/* SUCCESS */
+/* ── SUCCÈS ── */
 .success-box{text-align:center;padding:40px 20px;}
 .success-icon{font-size:60px;margin-bottom:16px;}
-.success-title{color:var(–green);font-size:22px;font-weight:800;margin-bottom:8px;}
-.success-sub{color:var(–text-light);font-size:14px;margin-bottom:24px;}
-.prime-win{background:#f0f9f0;border:2px solid #c3e6c3;border-radius:16px;padding:20px;margin-bottom:20px;display:inline-block;}
-.prime-win-label{color:var(–green);font-size:11px;letter-spacing:1px;font-weight:700;}
-.prime-win-amount{color:var(–green);font-weight:800;font-size:36px;margin-top:4px;}
+.success-title{color:var(--green);font-size:22px;font-weight:800;margin-bottom:8px;letter-spacing:-0.4px;}
+.success-sub{color:var(--muted);font-size:14px;margin-bottom:24px;}
+.prime-win{background:var(--green-bg);border:2px solid #c5e6c0;border-radius:14px;padding:20px;margin-bottom:20px;display:inline-block;}
+.prime-win-label{color:var(--green);font-size:10px;letter-spacing:1.5px;font-weight:700;text-transform:uppercase;}
+.prime-win-amount{color:var(--green);font-weight:800;font-size:36px;margin-top:4px;letter-spacing:-1px;}
 
-/* HISTORIQUE */
-.hist-item{background:#fff;border:1px solid var(–border);border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:var(–shadow);}
+/* ── HISTORIQUE ── */
+.hist-item{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow);}
 
-/* NOTIF */
-.notif{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(–green);color:#fff;border-radius:12px;padding:12px 20px;font-weight:700;font-size:14px;z-index:999;animation:slideIn 0.3s ease;box-shadow:0 4px 20px rgba(74,156,63,0.3);}
-@keyframes slideIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+/* ── CHAT ── */
+.chat-fab{position:fixed;bottom:24px;right:20px;width:54px;height:54px;background:var(--blue);color:#fff;border:none;border-radius:50%;font-size:20px;cursor:pointer;z-index:90;box-shadow:var(--shadow-lg);transition:transform 0.2s;}
+.chat-fab:hover{transform:scale(1.08);}
+.chat-badge{position:absolute;top:-4px;right:-4px;background:#dc2626;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.chat-msg{padding:10px 14px;border-radius:14px;margin-bottom:8px;max-width:82%;font-size:13px;line-height:1.5;}
+.chat-msg.me{background:var(--blue);color:#fff;align-self:flex-end;margin-left:auto;}
+.chat-msg.other{background:#f1f5f9;color:var(--text);}
+.chat-msg-meta{font-size:10px;margin-top:3px;opacity:0.65;}
+.chat-messages{display:flex;flex-direction:column;min-height:180px;max-height:48vh;overflow-y:auto;padding:4px 0;}
+.chat-input-row{display:flex;gap:8px;margin-top:12px;}
+.chat-input{flex:1;background:#f7f9fc;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:14px;outline:none;font-family:'Inter',sans-serif;}
+.chat-input:focus{border-color:var(--blue2);}
 
-textarea{width:100%;background:#f8fafc;border:2px solid var(–border);border-radius:10px;padding:10px 14px;color:var(–text);font-size:14px;outline:none;resize:vertical;font-family:'Poppins',sans-serif;box-sizing:border-box;transition:border-color 0.2s;}
-textarea:focus{border-color:var(–green);}
-input[type=number]{width:100%;background:#f8fafc;border:2px solid var(–border);border-radius:10px;padding:12px 14px;color:var(–green);font-size:24px;font-weight:800;outline:none;box-sizing:border-box;}
+/* ── NOTIF ── */
+.notif{position:fixed;top:72px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;border-radius:10px;padding:11px 20px;font-weight:700;font-size:13px;z-index:999;animation:slideIn 0.3s ease;box-shadow:var(--shadow-lg);}
+@keyframes slideIn{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
-.empty-state{text-align:center;padding:40px 0;color:var(–text-light);}
+/* ── INPUTS ── */
+textarea{width:100%;background:#f7f9fc;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:14px;outline:none;resize:vertical;font-family:'Inter',sans-serif;box-sizing:border-box;}
+textarea:focus{border-color:var(--blue2);}
+input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--green);font-size:24px;font-weight:800;outline:none;box-sizing:border-box;}
+.empty-state{text-align:center;padding:40px 0;color:var(--muted);}
 .empty-icon{font-size:40px;margin-bottom:12px;}
+#signatureCanvas{width:100%;height:180px;background:#f7f9fc;border:2px dashed var(--border);border-radius:10px;touch-action:none;cursor:crosshair;}
+
+/* ── BOTTOM NAV ── */
+.nav{display:none!important;}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1.5px solid var(--border);display:flex;z-index:80;box-shadow:0 -4px 20px rgba(13,45,82,0.10);}
+.bnav-btn{flex:1;background:none;border:none;padding:10px 4px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:9px;font-weight:700;font-family:'Inter',sans-serif;transition:color 0.15s;line-height:1;letter-spacing:0.3px;text-transform:uppercase;position:relative;}
+.bnav-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+.bnav-btn.active{color:var(--blue);}
+.bnav-btn:active{opacity:0.6;}
+
+/* ── KPI DASHBOARD ── */
+.kpi-dashboard{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px 14px 12px;background:var(--blue);}
+.kpi-card{background:rgba(255,255,255,0.09);border-radius:10px;padding:10px 6px;text-align:center;border:1px solid rgba(255,255,255,0.07);}
+.kpi-icon{font-size:16px;margin-bottom:4px;}
+.kpi-val{font-size:20px;font-weight:800;color:#fff;line-height:1;letter-spacing:-0.5px;}
+.kpi-label{color:rgba(255,255,255,0.5);font-size:8px;font-weight:700;letter-spacing:0.8px;margin-top:3px;text-transform:uppercase;}
+.kpi-green{color:#5ab048!important;}
+.kpi-blue{color:#60a5fa!important;}
+.kpi-gold{color:#fbbf24!important;}
+
+/* ── URGENT BANNER ── */
+.urgent-banner{background:#dc2626;color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;position:sticky;top:56px;z-index:45;}
+.urgent-banner.pulse{animation:pulseRed 1.8s ease-in-out infinite;}
+@keyframes pulseRed{0%,100%{background:#dc2626}50%{background:#b91c1c}}
+.urgent-dot{width:9px;height:9px;border-radius:50%;background:#fff;animation:blinkDot 0.9s ease-in-out infinite;flex-shrink:0;}
+@keyframes blinkDot{0%,100%{opacity:1}50%{opacity:0.15}}
+.urgent-close{background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:5px;width:24px;height:24px;font-size:16px;cursor:pointer;margin-left:auto;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;}
+
+/* ── INT ID ── */
+.int-id{font-size:9px;color:var(--muted);font-weight:700;letter-spacing:0.8px;background:#f1f5f9;border-radius:4px;padding:2px 6px;font-variant-numeric:tabular-nums;}
+
+/* ── OVERRIDES ── */
+.content{padding-bottom:84px!important;}
+.chat-fab{bottom:86px!important;}
+
+/* ── STATUT BADGE USER-BAR ── */
+.statut-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;transition:all 0.3s;margin-left:auto;}
+.statut-dot-ani{width:7px;height:7px;border-radius:50%;animation:pulseDot 2s ease-in-out infinite;flex-shrink:0;}
+@keyframes pulseDot{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+
+/* ── RECAP JOURNEE ── */
+.recap-jour{background:linear-gradient(135deg,var(--blue),var(--blue2));border-radius:14px;padding:14px 16px;margin-bottom:12px;}
+.recap-jour-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+.recap-jour-item{text-align:center;}
+.recap-jour-val{font-size:22px;font-weight:800;color:#fff;line-height:1;letter-spacing:-0.5px;}
+.recap-jour-lbl{font-size:8px;color:rgba(255,255,255,0.5);font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-top:3px;}
+.next-rdv-bar{background:rgba(255,255,255,0.1);border-radius:10px;padding:10px 12px;margin-top:10px;display:flex;align-items:center;gap:12px;}
+.next-rdv-time{font-size:16px;font-weight:800;color:#fbbf24;flex-shrink:0;}
+.next-rdv-info{font-size:12px;font-weight:700;color:#fff;}
+.next-rdv-sub{font-size:11px;color:rgba(255,255,255,0.55);margin-top:2px;}
+
+
+/* ── SHARE RAPPORT ── */
+.share-btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.share-btn{flex:1;min-width:80px;border:none;border-radius:10px;padding:12px 8px;cursor:pointer;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:5px;transition:opacity 0.2s;}
+.share-btn:active{opacity:0.7;}
+.share-wa{background:#25d366;color:#fff;}
+.share-sms{background:var(--blue);color:#fff;}
+.share-copy{background:#f1f5f9;color:var(--text);}
+
+/* ── STATUT BAR RAPIDE ── */
+.sbar-btn{flex-shrink:0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;}
+.sbar-btn.sbar-active{background:#3a8c30;border-color:#3a8c30;color:#fff;}
+
+/* ── FORM FIELDS ── */
+.form-field{margin-bottom:14px;}
+.form-field label{display:block;color:var(--muted);font-size:10px;letter-spacing:1.2px;font-weight:700;margin-bottom:6px;text-transform:uppercase;}
+.form-input{width:100%;background:#fff;border:2px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-size:14px;font-weight:500;outline:none;box-sizing:border-box;font-family:'Inter',sans-serif;transition:border-color 0.2s,box-shadow 0.2s;}
+.form-input:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(26,74,122,0.08);}
+.form-textarea{width:100%;background:#fff;border:2px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-size:14px;outline:none;resize:vertical;box-sizing:border-box;font-family:'Inter',sans-serif;min-height:80px;}
+.form-select{width:100%;background:#fff;border:2px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-size:14px;outline:none;box-sizing:border-box;font-family:'Inter',sans-serif;appearance:none;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.sc{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;box-shadow:var(--shadow);}
+.card.green{border-left:4px solid var(--green);}
+.card.red{border-left:4px solid #dc2626;}
+.card.blue{border-left:4px solid var(--blue2);}
+.btn-primary{background:var(--green);color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:background 0.2s;}
+.btn-primary:active{background:var(--green-light);}
+.btn-full{width:100%;}
+
+/* RDV card voir détails */
+.voir-details{display:flex;align-items:center;justify-content:center;gap:4px;padding:8px;color:#64748b;font-size:11px;font-weight:600;border-top:1px solid #f1f5f9;background:#fafbff;cursor:pointer;user-select:none;}
+.voir-details:active{background:#f1f5f9;}
 </style>
+
 
 </head>
 <body>
@@ -277,6 +409,14 @@ input[type=number]{width:100%;background:#f8fafc;border:2px solid var(–border)
       <text x="75" y="52" font-family="Arial,sans-serif" font-size="22" font-weight="900" fill="#7bc144">flow</text>
     </svg>
     <div class="header-right">
+      <div class="app-sw" id="app-sw">
+        <button class="app-sw-btn" id="app-sw-btn" style="display:none;" onclick="toggleAppSw()">
+          <span style="font-size:15px;line-height:1;">⊞</span>
+          <span id="app-sw-label">Applications</span>
+          <span style="font-size:9px;opacity:0.6;">▾</span>
+        </button>
+        <div class="app-sw-drop hidden" id="app-sw-drop"></div>
+      </div>
       <div class="ca-box">
         <div class="ca-amount" id="headerCA">0 EUR</div>
         <div class="ca-label">AUJOURD'HUI</div>
@@ -291,6 +431,33 @@ input[type=number]{width:100%;background:#f8fafc;border:2px solid var(–border)
       <div class="user-name" id="headerNom">Technicien</div>
       <div class="user-role">TECHNICIEN PLOMBERIE</div>
     </div>
+    <div class="statut-badge" id="statut-badge" style="background:rgba(90,176,72,0.15);color:#5ab048;">
+      <div class="statut-dot-ani" id="statut-dot" style="background:#5ab048;"></div>
+      <span id="statut-badge-text">Disponible</span>
+    </div>
+  </div>
+
+  <!-- KPI DASHBOARD -->
+  <div class="kpi-dashboard" id="kpi-dashboard">
+    <div class="kpi-card"><div class="kpi-icon">📅</div><div class="kpi-val" id="kpi-total">—</div><div class="kpi-label">RDV jour</div></div>
+    <div class="kpi-card"><div class="kpi-icon">✅</div><div class="kpi-val kpi-green" id="kpi-done">—</div><div class="kpi-label">Terminés</div></div>
+    <div class="kpi-card"><div class="kpi-icon">💶</div><div class="kpi-val kpi-blue" id="kpi-ca">—</div><div class="kpi-label">CA € jour</div></div>
+    <div class="kpi-card"><div class="kpi-icon">🏆</div><div class="kpi-val kpi-gold" id="kpi-prime">—</div><div class="kpi-label">Primes €</div></div>
+  </div>
+
+  <!-- STATUT BAR RAPIDE -->
+  <div id="statut-bar" style="background:#0a2240;padding:8px 14px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid rgba(255,255,255,0.08);">
+    <button onclick="changerStatut('Disponible',this)" class="sbar-btn sbar-active">🟢 Dispo</button>
+    <button onclick="changerStatut('En intervention',this)" class="sbar-btn">🔧 En inter.</button>
+    <button onclick="changerStatut('Pause',this)" class="sbar-btn">⏸ Pause</button>
+    <button onclick="changerStatut('Indisponible',this)" class="sbar-btn">🔴 Indispo</button>
+  </div>
+
+  <!-- URGENT BANNER -->
+  <div id="urgent-banner" class="urgent-banner hidden pulse">
+    <div class="urgent-dot"></div>
+    <span id="urgent-text">INTERVENTION URGENTE</span>
+    <button class="urgent-close" onclick="fermerUrgent()">×</button>
   </div>
 
   <div class="nav">
@@ -298,11 +465,55 @@ input[type=number]{width:100%;background:#f8fafc;border:2px solid var(–border)
     <button onclick="showPage('semaine')">Semaine</button>
     <button onclick="showPage('perf')">Performances</button>
     <button onclick="showPage('historique')">Historique</button>
+    <button onclick="showPage('contrats')">📋 Contrats</button>
   </div>
 
   <div class="content">
     <!-- AGENDA -->
     <div id="page-agenda">
+
+      <!-- RECAP JOURNEE -->
+      <div class="recap-jour" id="recap-jour">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:rgba(255,255,255,0.6);text-transform:uppercase;">Ma journée</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);font-weight:600;" id="recap-date"></div>
+        </div>
+        <div class="recap-jour-grid">
+          <div class="recap-jour-item"><div class="recap-jour-val" id="rj-total">—</div><div class="recap-jour-lbl">RDV total</div></div>
+          <div class="recap-jour-item"><div class="recap-jour-val" style="color:#5ab048;" id="rj-done">—</div><div class="recap-jour-lbl">Terminés</div></div>
+          <div class="recap-jour-item"><div class="recap-jour-val" style="color:#fbbf24;" id="rj-ca">—</div><div class="recap-jour-lbl">CA € jour</div></div>
+        </div>
+        <div class="next-rdv-bar hidden" id="next-rdv-bar">
+          <div class="next-rdv-time" id="next-rdv-time">—</div>
+          <div>
+            <div class="next-rdv-info" id="next-rdv-info">—</div>
+            <div class="next-rdv-sub" id="next-rdv-sub">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI PERSO DU TECH -->
+      <div class="g3" id="kpi-tech-strip" style="margin-bottom:12px;"></div>
+
+      <!-- DEVIS RAPIDE -->
+      <div id="form-devis-rapide" class="card green" style="margin-bottom:12px;">
+        <div class="lbl">DEMANDER UN DEVIS AU PATRON</div>
+        <div class="form-field"><label>CLIENT</label><input type="text" class="form-input" id="dq-client" placeholder="Nom du client"></div>
+        <div class="form-field"><label>DESCRIPTION DES TRAVAUX</label><textarea class="form-textarea" id="dq-desc" rows="3" placeholder="Décrire précisément les travaux à chiffrer..."></textarea></div>
+        <div class="grid-2">
+          <div class="form-field"><label>TYPE</label>
+            <select class="form-select" id="dq-type">
+              <option>Remplacement chaudière</option><option>Installation sanitaire</option>
+              <option>Rénovation salle de bain</option><option>Installation VMC</option>
+              <option>Travaux urgents</option><option>Autre</option>
+            </select>
+          </div>
+          <div class="form-field"><label>MONTANT ESTIMÉ (€)</label><input type="number" class="form-input" id="dq-montant" placeholder="0"></div>
+        </div>
+        <div class="form-field"><label>PHOTOS (optionnel)</label><input type="file" id="dq-photos" accept="image/*" multiple style="font-size:12px;color:var(--text);"></div>
+        <button class="btn-primary btn-full" style="padding:13px;" onclick="envoyerDevisRapide()">📋 Envoyer la demande de devis au patron</button>
+      </div>
+
       <div class="card accent-green">
         <div class="lbl">MON STATUT</div>
         <div class="statut-btns">
@@ -313,9 +524,12 @@ input[type=number]{width:100%;background:#f8fafc;border:2px solid var(–border)
         </div>
       </div>
       <div class="tabs">
-        <button class="tab-btn active" onclick="showVue('auj',this)">Aujourd'hui</button>
-        <button class="tab-btn" onclick="showVue('venir',this)">A venir</button>
-        <button class="tab-btn" onclick="showVue('passes',this)">Passes</button>
+        <button class="tab-btn active" onclick="showVue('auj',this)" id="tab-auj">Aujourd'hui</button>
+        <button class="tab-btn" onclick="showVue('venir',this)" id="tab-venir">A venir</button>
+        <button class="tab-btn" onclick="showVue('passes',this)" id="tab-passes">Passes</button>
+      </div>
+      <div style="text-align:right;margin-bottom:8px;">
+        <button onclick="renderRdv();renderTabsBadges();showNotif('Agenda actualise');" style="background:none;border:none;color:#4a9c3f;font-size:12px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;">↻ Actualiser</button>
       </div>
       <div id="liste-rdv"></div>
     </div>
@@ -376,6 +590,91 @@ input[type=number]{width:100%;background:#f8fafc;border:2px solid var(–border)
 </div>
 
   </div>
+
+  <!-- CONTRATS D'ENTRETIEN TECH -->
+  <div id="page-contrats" class="hidden">
+    <div style="background:linear-gradient(135deg,var(--blue),var(--blue2));border-radius:14px;padding:14px 16px;color:#fff;margin-bottom:14px;">
+      <div style="font-size:10px;letter-spacing:2px;font-weight:700;opacity:0.7;margin-bottom:6px;">VENDRE UN CONTRAT D'ENTRETIEN</div>
+      <div style="font-size:12px;opacity:0.85;">Propose un contrat à ton client — sélectionne son équipement et la formule adaptée.</div>
+    </div>
+    <div id="contrats-tech-kpi" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;"></div>
+    <div id="form-contrat-tech">
+      <div class="card" style="border-top:3px solid var(--green);">
+        <div class="lbl" style="color:var(--green);">NOUVEAU CONTRAT</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <input type="text" class="fi" id="tct-client" placeholder="Nom du client">
+          <input type="tel" class="fi" id="tct-tel" placeholder="Téléphone">
+        </div>
+        <input type="text" class="fi" id="tct-adresse" placeholder="Adresse d'intervention">
+        <div class="lbl" style="margin-top:4px;">ÉQUIPEMENT</div>
+        <select class="fi" id="tct-equip" onchange="calcPrixContratTech()">
+          <option value="">— Choisir l'équipement —</option>
+          <option value="Chaudière">🔥 Chaudière (gaz / fioul / condensation)</option>
+          <option value="Pompe à chaleur">♨️ Pompe à chaleur (PAC air/eau)</option>
+          <option value="Climatisation">❄️ Climatisation (PAC air/air)</option>
+          <option value="Ballon thermodynamique">💧 Ballon thermodynamique</option>
+          <option value="Adoucisseur d'eau">🚰 Adoucisseur d'eau</option>
+        </select>
+        <div id="clim-note-tech" class="hidden" style="color:#64748b;font-size:10px;margin:-4px 0 8px;padding:0 4px;">+ 39€ par unité intérieure supplémentaire</div>
+        <div class="lbl" style="margin-top:4px;">FORMULE</div>
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+          <div class="ct-fcard" id="tctf-Essentiel" onclick="selectFormuleTech('Essentiel')">
+            <div class="ct-fcard-title">ESSENTIEL</div>
+            <div class="ct-fcard-price" id="tctfp-Essentiel">—</div>
+            <div class="ct-fcard-sub">Entretien annuel</div>
+          </div>
+          <div class="ct-fcard ct-fcard-sel" id="tctf-Confort" onclick="selectFormuleTech('Confort')">
+            <div class="ct-fcard-badge">Le + choisi</div>
+            <div class="ct-fcard-title">CONFORT</div>
+            <div class="ct-fcard-price" id="tctfp-Confort">—</div>
+            <div class="ct-fcard-sub">+ priorité panne</div>
+          </div>
+          <div class="ct-fcard" id="tctf-Premium" onclick="selectFormuleTech('Premium')">
+            <div class="ct-fcard-title">PREMIUM ⭐</div>
+            <div class="ct-fcard-price" id="tctfp-Premium">—</div>
+            <div class="ct-fcard-sub">+ remise pièces</div>
+          </div>
+        </div>
+        <input type="hidden" id="tct-formule" value="Confort">
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:11px;color:#15803d;font-weight:600;">Montant annuel TTC</div>
+          <div style="font-size:20px;font-weight:800;color:#15803d;" id="tct-prix-display">—</div>
+        </div>
+        <button class="btn btn-g btn-full" onclick="sauvegarderContratTech()">✅ Valider le contrat</button>
+      </div>
+    </div>
+    <div class="lbl" style="margin-top:16px;">MES CONTRATS SIGNÉS</div>
+    <div id="liste-contrats-tech"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="bnav-btn active" id="bnav-agenda" onclick="showPage('agenda')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Agenda</span>
+    </button>
+    <button class="bnav-btn" id="bnav-semaine" onclick="showPage('semaine')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Semaine</span>
+    </button>
+    <button class="bnav-btn" id="bnav-perf" onclick="showPage('perf')">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>Perfs</span>
+    </button>
+    <button class="bnav-btn" id="bnav-historique" onclick="showPage('historique')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span>Historique</span>
+    </button>
+    <button class="bnav-btn" id="bnav-contrats" onclick="showPage('contrats')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
+      <span>Contrats</span>
+    </button>
+    <button class="bnav-btn" id="bnav-messages" onclick="ouvrirChat()">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span>Messages</span>
+      <span id="bnav-msg-badge" style="display:none;position:absolute;top:6px;right:12px;background:#dc2626;color:#fff;border-radius:10px;padding:1px 5px;font-size:9px;font-weight:700;min-width:14px;text-align:center;"></span>
+    </button>
+  </nav>
 </div>
 
 <!-- MODAL SCRIPT IA -->
@@ -450,6 +749,10 @@ input[type=number]{width:100%;background:#f8fafc;border:2px solid var(–border)
       </div>
       <div style="color:var(--text-light);font-size:12px;text-align:right;">Debut<br><span style="color:var(--green);font-weight:700;" id="chrono-debut"></span></div>
     </div>
+    <div class="trajet-box hidden" id="trajet-box">
+      <div><div class="lbl" style="margin-bottom:2px;color:#ea580c;">TRAJET EN COURS</div><div class="trajet-time" id="trajet-display">00:00</div></div>
+      <div style="font-size:26px;">🚗</div>
+    </div>
   </div>
 
   <div class="card accent-orange" style="margin-bottom:12px;">
@@ -495,6 +798,46 @@ input[type=number]{width:100%;background:#f8fafc;border:2px solid var(–border)
     <div style="margin-top:8px;text-align:right;color:var(--text-light);font-size:12px;" id="check-count">0/6 points</div>
   </div>
 
+  <div class="card accent-purple" style="margin-bottom:12px;">
+    <div class="lbl">PIECES ET MATERIAUX UTILISES</div>
+    <div id="liste-pieces" style="margin-top:8px;"></div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <input type="text" id="piece-nom" placeholder="Piece ou materiau..." style="flex:1;background:#f8fafc;border:2px solid #e2e8f0;border-radius:10px;padding:10px 12px;color:#1a2537;font-size:13px;outline:none;font-family:'Poppins',sans-serif;" onkeydown="if(event.key==='Enter'){addPiece();event.preventDefault();}">
+      <input type="number" id="piece-qte" min="1" value="1" style="width:65px;background:#f8fafc;border:2px solid #e2e8f0;border-radius:10px;padding:10px 8px;color:#1a2537;font-size:13px;outline:none;font-family:'Poppins',sans-serif;text-align:center;">
+      <button class="action-btn btn-green" onclick="addPiece()" style="flex:0 0 auto;padding:10px 18px;">+</button>
+    </div>
+  </div>
+
+  <!-- CHAMPS RAPPORT ENRICHIS -->
+  <input type="hidden" id="rp-rdv-id">
+  <div class="card accent-blue" style="margin-bottom:12px;">
+    <div class="lbl">SATISFACTION & SUIVI</div>
+    <div class="form-field"><label>SATISFACTION CLIENT</label>
+      <select id="rp-satisfaction" class="form-select">
+        <option value="5">⭐⭐⭐⭐⭐ Très satisfait</option>
+        <option value="4">⭐⭐⭐⭐ Satisfait</option>
+        <option value="3">⭐⭐⭐ Neutre</option>
+        <option value="2">⭐⭐ Insatisfait</option>
+        <option value="1">⭐ Très insatisfait</option>
+      </select>
+    </div>
+    <div class="form-field"><label>PIÈCES UTILISÉES (résumé)</label>
+      <textarea id="rp-pieces" class="form-textarea" rows="2" placeholder="Ex: Joint 3/4 (x2), Vanne équerre..."></textarea>
+    </div>
+    <div class="form-field"><label>RETOUR NÉCESSAIRE ?</label>
+      <select id="rp-retour" class="form-select">
+        <option value="non">Non — intervention terminée</option>
+        <option value="oui-pieces">Oui — pièces à commander</option>
+        <option value="oui-suite">Oui — suite des travaux</option>
+        <option value="oui-garantie">Oui — retour garantie</option>
+      </select>
+    </div>
+    <div class="grid-2">
+      <div class="form-field"><label>HEURE DÉBUT</label><input type="text" id="rp-heure-debut" class="form-input" placeholder="09:00" readonly></div>
+      <div class="form-field"><label>HEURE FIN</label><input type="text" id="rp-heure-fin" class="form-input" placeholder="10:00" readonly></div>
+    </div>
+  </div>
+
   <div class="card accent-green" style="margin-bottom:12px;">
     <div class="lbl">VENTES ADDITIONNELLES</div>
     <div class="prime-bar hidden" id="prime-bar">
@@ -502,13 +845,6 @@ input[type=number]{width:100%;background:#f8fafc;border:2px solid var(–border)
       <span class="prime-amount" id="prime-total">0 EUR</span>
     </div>
     <div id="liste-ventes"></div>
-  </div>
-
-  <div class="card" style="margin-bottom:12px;border:2px solid #c3e6c3;">
-    <div class="lbl">SIGNATURE CLIENT</div>
-    <div style="color:var(--text-light);font-size:12px;margin-bottom:8px;">Faire signer le client sur l'ecran</div>
-    <canvas id="signatureCanvas"></canvas>
-    <button class="action-btn btn-gray" style="margin-top:8px;width:100%;" onclick="clearSignature()">Effacer la signature</button>
   </div>
 
   <div class="card accent-yellow" style="margin-bottom:12px;">
@@ -528,6 +864,31 @@ input[type=number]{width:100%;background:#f8fafc;border:2px solid var(–border)
     </div>
   </div>
 
+  <div class="card accent-blue" style="margin-bottom:12px;">
+    <div class="lbl">SIGNATURE CLIENT</div>
+    <div style="color:var(--text-light);font-size:11px;margin-bottom:8px;">Le client signe pour valider les travaux effectués</div>
+    <canvas id="signatureCanvas" style="width:100%;height:160px;background:#f7f9fc;border:2px dashed var(--border);border-radius:10px;touch-action:none;cursor:crosshair;display:block;"></canvas>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button onclick="effacerSignature()" style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;padding:8px 14px;font-size:12px;color:#64748b;cursor:pointer;">Effacer</button>
+      <div id="sig-status" style="flex:1;display:flex;align-items:center;color:var(--text-light);font-size:12px;padding-left:8px;">En attente de signature...</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:12px;background:linear-gradient(135deg,#0d2d52,#1a4a7a);color:#fff;">
+    <div class="lbl" style="color:rgba(255,255,255,0.7);">ENCAISSEMENT SUR PLACE</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;margin-bottom:12px;">
+      <button id="enc-cb" onclick="setEncaissement('CB')" style="background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);border-radius:10px;padding:12px 8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;">💳 Carte</button>
+      <button id="enc-esp" onclick="setEncaissement('Espèces')" style="background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);border-radius:10px;padding:12px 8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;">💵 Espèces</button>
+      <button id="enc-cheque" onclick="setEncaissement('Chèque')" style="background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);border-radius:10px;padding:12px 8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;">📄 Chèque</button>
+      <button id="enc-vir" onclick="setEncaissement('Virement')" style="background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);border-radius:10px;padding:12px 8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;">🏦 Virement</button>
+    </div>
+    <div id="enc-selected" style="text-align:center;color:rgba(255,255,255,0.4);font-size:12px;">Aucun mode sélectionné — laissez vide si paiement différé</div>
+    <input type="hidden" id="enc-mode" value="">
+    <div style="margin-top:10px;" id="enc-lien-stripe-div" style="display:none;">
+      <button onclick="envoyerLienPaiement()" style="width:100%;background:#7bc144;border:none;border-radius:10px;padding:12px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">📲 Envoyer lien de paiement au client</button>
+    </div>
+  </div>
+
   <div style="display:flex;gap:10px;padding-bottom:30px;">
     <button class="action-btn btn-gray" onclick="closeModal('modal-rapport')" style="flex:0 0 auto;">Retour</button>
     <button class="action-btn btn-green" id="btn-terminer" onclick="soumettre()" style="flex:1;background:linear-gradient(135deg,var(--green),var(--green-light));color:#fff;font-weight:700;">Terminer et Envoyer</button>
@@ -543,7 +904,20 @@ input[type=number]{width:100%;background:#f8fafc;border:2px solid var(–border)
       <div class="prime-win-label">PRIME GAGNEE CE RAPPORT</div>
       <div class="prime-win-amount" id="prime-win-amount"></div>
     </div>
-    <button class="btn-login" style="max-width:200px;margin:0 auto;" onclick="closeModal('modal-rapport')">Retour a l'agenda</button>
+    <div style="margin:12px 0 4px;">
+      <div style="color:var(--muted);font-size:11px;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">Envoyer le rapport au client</div>
+      <div class="share-btns">
+        <button class="share-btn share-wa" onclick="partagerWA()">💬 WhatsApp</button>
+        <button class="share-btn share-sms" onclick="partagerSMS()">📱 SMS</button>
+        <button class="share-btn share-copy" onclick="copierRapport()">📋 Copier</button>
+      </div>
+    </div>
+    <div id="avis-google-section" class="hidden" style="margin-top:14px;background:linear-gradient(135deg,#fef9c3,#fefce8);border:2px solid #fde68a;border-radius:14px;padding:14px 16px;text-align:center;">
+      <div style="font-size:14px;font-weight:700;color:#92400e;margin-bottom:4px;">⭐ Client très satisfait !</div>
+      <div style="font-size:12px;color:#78350f;margin-bottom:10px;">Demandez un avis Google — chaque avis booste votre visibilité</div>
+      <button onclick="demanderAvisGoogle()" style="background:#4285f4;border:none;border-radius:10px;padding:10px 20px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;width:100%;">⭐ Envoyer demande d'avis Google</button>
+    </div>
+    <button class="btn-login" style="max-width:200px;margin:16px auto 0;" onclick="closeModal('modal-rapport')">Retour a l'agenda</button>
   </div>
 </div>
 
@@ -582,13 +956,15 @@ const DEMO=[
 let currentUser=null,currentVue="auj",currentRdv=null,expandedId=null;
 let photosAvant=[null,null,null],photosApres=[null,null,null];
 let ventesSelectionnees=[],heureDebut="",chronoInterval=null,chronoStart=null;
-let signatureCtx=null,isDrawing=false,statutRdvCurrent="En route";
+let statutRdvCurrent="En route";
 let recognition=null,isRecording=false,semaineOffset=0;
+let piecesUtilisees=[],trajetStart=null,trajetInterval=null;
+let chatInterval=null,lastChatCount=0,lastRdvCount=0,devisRdv=null;
 
 const getRdvs=()=>{const s=localStorage.getItem("pl_rdvs");if(s)return JSON.parse(s);localStorage.setItem("pl_rdvs",JSON.stringify(DEMO));return DEMO;};
-const saveRdvs=r=>localStorage.setItem("pl_rdvs",JSON.stringify(r));
+const saveRdvs=r=>{const v=JSON.stringify(r);localStorage.setItem("pl_rdvs",v);if(window.gfSync)gfSync("pl_rdvs",v);};
 const getRapports=()=>JSON.parse(localStorage.getItem("pl_rapports")||"[]");
-const saveRapports=r=>localStorage.setItem("pl_rapports",JSON.stringify(r));
+const saveRapports=r=>{const v=JSON.stringify(r);localStorage.setItem("pl_rapports",v);if(window.gfSync)gfSync("pl_rapports",v);};
 const getPrimes=()=>JSON.parse(localStorage.getItem("pl_primes")||"{}");
 const savePrimes=p=>localStorage.setItem("pl_primes",JSON.stringify(p));
 
@@ -607,14 +983,68 @@ function seConnecter(){
   lancerApp();
 }
 
+const STATUT_COLORS={'Disponible':'#4a9c3f','En intervention':'#f97316','Pause':'#eab308','Indisponible':'#ef4444','Non connecte':'#94a3b8'};
+
+
 function lancerApp(){
   document.getElementById("login").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
   const av=document.getElementById("headerAvatar");
   av.textContent=currentUser.avatar;
   document.getElementById("headerNom").textContent=currentUser.nom;
-  updateCA();renderRdv();renderPerf();renderSemaine();renderHistorique();
-  initSignature();verifierAlertes();
+  updateCA();renderRdv();renderTabsBadges();renderPerf();renderSemaine();renderHistorique();
+  renderKPI();checkUrgences();renderRecapJournee();renderTeamDispos();renderKpiTech();
+  verifierAlertes();
+  document.getElementById("chat-fab").classList.remove("hidden");
+  renderModuleNav();
+  lastRdvCount=getMesRdvs().length;
+  lastChatCount=getMessages().length;
+  if(window.gfListen)gfListen(function(key,val){
+    localStorage.setItem(key,val);
+    window.dispatchEvent(new StorageEvent('storage',{key:key,newValue:val,storageArea:localStorage}));
+  });
+  setInterval(()=>{
+    const n=getMesRdvs().length;
+    if(n>lastRdvCount){showNotif((n-lastRdvCount)+" nouveau(x) RDV !");renderRdv();}
+    lastRdvCount=n;
+  },15000);
+  chatInterval=setInterval(pollChat,8000);
+  window.addEventListener('storage',e=>{
+    if(!currentUser)return;
+    if(e.key==='pl_rdvs'){
+      const mes=getMesRdvs();
+      const nouveau=mes.filter(r=>r.dateRdv>=todayStr()&&r.dateRdv>=(todayStr())).sort((a,b)=>b.id-a.id)[0];
+      if(mes.length>lastRdvCount&&nouveau)showNotif('Nouveau RDV : '+nouveau.clientNom+' le '+nouveau.dateRdv+' a '+nouveau.heureRdv);
+      lastRdvCount=mes.length;
+      renderRdv();
+      renderTabsBadges();
+    }
+    if(e.key==='pl_urgences'&&currentUser){
+      const urgs=JSON.parse(e.newValue||'[]');
+      const recentes=urgs.filter(u=>u.technicien===currentUser.nom&&u.statut==='Active'&&(Date.now()-u.id)<120000);
+      if(recentes.length){
+        showNotif('🚨 URGENCE ASSIGNÉE : '+recentes[0].clientNom+' — '+recentes[0].type);
+        renderRdv();
+      }
+    }
+    if(e.key==='pl_chat')pollChat();
+  });
+  // GPS tracking — partage position toutes les 30 secondes
+  function partagerPosition(){
+    if(!currentUser||!navigator.geolocation)return;
+    navigator.geolocation.getCurrentPosition(pos=>{
+      const positions=JSON.parse(localStorage.getItem('pl_positions')||'{}');
+      const dispos=JSON.parse(localStorage.getItem('pl_dispos')||'{}');
+      const statut=(dispos[currentUser]||{}).statut||'Disponible';
+      positions[currentUser.nom]={lat:pos.coords.latitude,lng:pos.coords.longitude,statut,updatedAt:new Date().toISOString(),precision:Math.round(pos.coords.accuracy)};
+      const v=JSON.stringify(positions);
+      localStorage.setItem('pl_positions',v);
+      if(window.gfSync)gfSync('pl_positions',v);
+    },err=>{},
+    {enableHighAccuracy:true,timeout:10000,maximumAge:15000});
+  }
+  partagerPosition();
+  setInterval(partagerPosition,30000);
 }
 
 function logout(){
@@ -625,14 +1055,17 @@ function logout(){
 }
 
 function showPage(page){
-  ["agenda","semaine","perf","historique"].forEach(p=>document.getElementById("page-"+p).classList.add("hidden"));
+  ["agenda","semaine","perf","historique","contrats"].forEach(p=>document.getElementById("page-"+p).classList.add("hidden"));
   document.getElementById("page-"+page).classList.remove("hidden");
+  document.querySelectorAll(".bnav-btn").forEach(b=>b.classList.remove("active"));
+  const ab=document.getElementById("bnav-"+page);if(ab)ab.classList.add("active");
   document.querySelectorAll(".nav button").forEach((b,i)=>{
-    b.classList.toggle("active",["agenda","semaine","perf","historique"][i]===page);
+    b.classList.toggle("active",["agenda","semaine","perf","historique","contrats"][i]===page);
   });
   if(page==="perf")renderPerf();
   if(page==="semaine")renderSemaine();
   if(page==="historique")renderHistorique();
+  if(page==="contrats")renderContratsTech();
 }
 
 function showVue(vue,btn){
@@ -645,6 +1078,12 @@ function showVue(vue,btn){
 function setStatut(statut,color,btn){
   document.querySelectorAll(".statut-btn").forEach(b=>{b.style.background="";b.style.color="";b.style.borderColor="";});
   btn.style.background=color+"20";btn.style.color=color;btn.style.borderColor=color;
+  const badge=document.getElementById('statut-badge');
+  const dot=document.getElementById('statut-dot');
+  const txt=document.getElementById('statut-badge-text');
+  if(badge){badge.style.background=color+'20';badge.style.color=color;}
+  if(dot)dot.style.background=color;
+  if(txt)txt.textContent=statut;
   const d=JSON.parse(localStorage.getItem("pl_dispos")||"{}");
   d[currentUser.nom]={statut,updatedAt:new Date().toISOString()};
   localStorage.setItem("pl_dispos",JSON.stringify(d));
@@ -658,56 +1097,102 @@ function getMesRdvs(){
   return rdvs.filter(r=>r.technicien===currentUser.nom);
 }
 
+function renderTabsBadges(){
+  const rdvs=getMesRdvs(),today=todayStr();
+  const nAuj=rdvs.filter(r=>r.dateRdv===today&&r.statut!=="Termine").length;
+  const nVenir=rdvs.filter(r=>r.dateRdv>today).length;
+  const nPasses=rdvs.filter(r=>r.dateRdv<today).length;
+  const tA=document.getElementById("tab-auj");
+  const tV=document.getElementById("tab-venir");
+  const tP=document.getElementById("tab-passes");
+  if(tA)tA.textContent=nAuj>0?"Aujourd'hui ("+nAuj+")":"Aujourd'hui";
+  if(tV){tV.textContent=nVenir>0?"A venir ("+nVenir+")":"A venir";tV.style.color=nVenir>0?"#f97316":"";}
+  if(tP)tP.textContent=nPasses>0?"Passes ("+nPasses+")":"Passes";
+}
+
 function renderRdv(){
-  updateCA();
+  updateCA();renderKPI();checkUrgences();renderRecapJournee();renderKpiTech();
   const rdvs=getMesRdvs(),today=todayStr();
   let liste;
   if(currentVue==="auj")liste=rdvs.filter(r=>r.dateRdv===today).sort((a,b)=>a.heureRdv.localeCompare(b.heureRdv));
   else if(currentVue==="venir")liste=rdvs.filter(r=>r.dateRdv>today).sort((a,b)=>a.dateRdv.localeCompare(b.dateRdv));
   else liste=rdvs.filter(r=>r.dateRdv<today).sort((a,b)=>b.dateRdv.localeCompare(a.dateRdv));
   const c=document.getElementById("liste-rdv");
+  renderTabsBadges();
   if(!liste.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div>Aucun RDV</div>`;return;}
   c.innerHTML=liste.map(r=>carteHtml(r)).join("");
 }
 
 function carteHtml(r){
-  const isToday=r.dateRdv===todayStr(),isDone=r.statut==="Termine",isExp=expandedId===r.id;
+  const isToday=r.dateRdv===todayStr(),isDone=r.statut==="Termine"||r.statut==="Paye",isExp=expandedId===r.id;
+  const isEnCours=r.statut==="En cours";
+  const isUrgent=r.type&&/urgent|urgence|depannage/i.test(r.type);
   const cls=isDone?"done":isToday?"today":"";
-  const badge=isDone?`<span class="badge badge-green">TERMINE</span>`:isToday?`<span class="badge badge-blue">AUJOURD'HUI</span>`:"";
-  const dateLabel=r.dateRdv!==todayStr()?`<span style="color:var(--text-light);font-size:11px;margin-left:4px;">${new Date(r.dateRdv+"T12:00").toLocaleDateString("fr-FR",{day:"numeric",month:"short"})}</span>`:"";
+  // Badge statut coloré
+  const statutColor=isDone?'#16a34a':isEnCours?'#f97316':'#1d4ed8';
+  const statutLabel=isDone?'TERMINÉ':isEnCours?'EN COURS':'PRÉVU';
+  const statutBadge=`<span style="background:${statutColor}18;color:${statutColor};border:1px solid ${statutColor}40;border-radius:6px;padding:3px 9px;font-size:10px;font-weight:700;">${statutLabel}</span>`;
+  const urgBadge=isUrgent&&!isDone?`<span class="badge" style="background:#fee2e2;color:#dc2626;">⚡ URGENT</span>`:"";
+  const dateLabel=r.dateRdv!==todayStr()?`<span style="color:var(--muted);font-size:11px;margin-left:4px;">${new Date(r.dateRdv+"T12:00").toLocaleDateString("fr-FR",{day:"numeric",month:"short"})}</span>`:"";
+  const mapsUrl='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(r.adresse||'')+'&travelmode=driving';
+  // Boutons action rapide dans le header
+  const quickActions=isToday&&!isDone?`<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+    <a href="tel:${r.clientTel}" style="flex:1;min-width:70px;background:#eff6ff;color:#1d4ed8;border:none;border-radius:8px;padding:8px 6px;font-size:11px;font-weight:700;text-align:center;text-decoration:none;display:block;">📞 ${r.clientTel}</a>
+    <button onclick="event.stopPropagation();window.open('${mapsUrl}','_blank')" style="flex:1;min-width:70px;background:#fff7ed;color:#c2410c;border:none;border-radius:8px;padding:8px 6px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">🗺️ Y aller</button>
+    ${!isEnCours?`<button onclick="event.stopPropagation();demarrerIntervention(${r.id})" style="flex:1;min-width:70px;background:#f0fdf4;color:#166534;border:1.5px solid #86efac;border-radius:8px;padding:8px 6px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">▶ Démarrer</button>`:""}
+    ${isEnCours?`<button onclick="event.stopPropagation();terminerEtRapport(${r.id})" style="flex:1;min-width:70px;background:#f0fdf4;color:#15803d;border:1.5px solid #86efac;border-radius:8px;padding:8px 6px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">✓ Terminer</button>`:""}
+  </div>`:"";
   return`<div class="carte-rdv ${cls}">
   <div class="carte-header" onclick="toggleCarte(${r.id})">
     <div style="flex:1;">
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px;">
         <span class="carte-heure">${r.heureRdv}</span>${dateLabel}
-        <span class="carte-nom">${r.clientNom}</span>${badge}
+        <span class="int-id">${genIntId(r)}</span>
+        ${statutBadge}${urgBadge}
       </div>
+      <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:2px;">${r.clientNom}</div>
       <div class="carte-sub">${r.type} · ${r.adresse.split(",")[0]}</div>
+      ${r.notes?`<div style="font-size:11px;color:#6b7a8f;margin-top:3px;font-style:italic;">📝 ${r.notes}</div>`:""}
     </div>
     <div style="text-align:right;flex-shrink:0;">
-      <div class="carte-prix">${r.prixVente} EUR</div>
-      <div style="color:var(--text-light);font-size:14px;margin-top:4px;">${isExp?"▲":"▼"}</div>
+      <div class="carte-prix" style="color:var(--green);font-weight:800;font-size:16px;">${r.prixVente} €</div>
+      <div style="color:var(--muted);font-size:14px;margin-top:4px;">${isExp?"▲":"▼"}</div>
     </div>
   </div>
+  ${isToday&&!isDone?`<div style="padding:0 14px 12px;">${quickActions}</div>`:""}
+  ${!isExp?`<div class="voir-details" onclick="toggleCarte(${r.id})">Voir détails complets ▼</div>`:""}
   ${isExp?carteBodyHtml(r,isToday,isDone):""}
 </div>`;
 }
 
 function carteBodyHtml(r,isToday,isDone){
+  const histClient=getRapports().filter(rap=>rap.clientNom===r.clientNom).slice(-3).reverse();
+  const histHtml=histClient.length?`<div class="info-item"><div class="lbl">HISTORIQUE CLIENT (${histClient.length} visite(s))</div>${histClient.map(h=>`<div class="hist-client-item"><div style="display:flex;justify-content:space-between;"><span style="font-weight:600;font-size:12px;">${h.type}</span><span style="color:#4a9c3f;font-weight:700;font-size:12px;">${h.montantFinal||0} EUR</span></div><div style="color:#64748b;font-size:11px;">${h.date||""} · ${h.checklistScore||""}</div></div>`).join("")}</div>`:"";
+  const mapsUrl='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(r.adresse||'')+'&travelmode=driving';
+  const isEnCours=r.statut==='En cours';
   return`<div class="carte-body">
-  <div class="info-item"><div class="lbl">ADRESSE</div><div class="info-val">${r.adresse}</div></div>
-  <div class="info-item"><div class="lbl">TELEPHONE</div><div class="info-val"><a href="tel:${r.clientTel}">${r.clientTel}</a></div></div>
-  ${r.notes?`<div class="info-item"><div class="lbl">NOTES PATRON</div><div class="notes-box">${r.notes}</div></div>`:""}
+  <div class="info-item"><div class="lbl">ADRESSE</div>
+    <div class="info-val" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+      <span>${r.adresse}</span>
+      <a href="${mapsUrl}" target="_blank" style="flex-shrink:0;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap;">🗺️ Y aller</a>
+    </div>
+  </div>
+  <div class="info-item"><div class="lbl">TELEPHONE</div><div class="info-val" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><a href="tel:${r.clientTel}" style="color:var(--blue2);font-weight:700;font-size:15px;">📞 ${r.clientTel}</a>${(()=>{try{const c=JSON.parse(localStorage.getItem('pl_contrats')||'[]');const h=c.some(x=>x.clientTel===r.clientTel&&x.statut==='Actif');return h?'<span style="background:#f0fdf4;color:#16a34a;border:1px solid #86efac;border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;">📋 Contrat actif</span>':'';}catch(e){return '';}})()}</div></div>
+  ${r.notes?`<div class="info-item"><div class="lbl">NOTE DISPATCH</div><div class="notes-box">${r.notes}</div></div>`:""}
+  ${histHtml}
   <div class="prix-box">
     <div class="lbl">PRIX A FACTURER</div>
-    <div class="prix-val">${r.prixVente} EUR</div>
+    <div class="prix-val" style="color:var(--green);">${r.prixVente} €</div>
     <div class="prix-note">Ne pas descendre sans accord patron</div>
   </div>
+  ${r.heureDebut?`<div style="margin-top:8px;font-size:11px;color:var(--muted);">⏱ Démarré à ${r.heureDebut}${r.heureFin?' · Terminé à '+r.heureFin:''}</div>`:""}
   ${!isDone?`<div class="actions-row">
     <button class="action-btn btn-blue" onclick="ouvrirScript(${r.id})">Script IA</button>
-    ${isToday?`<button class="action-btn btn-green" onclick="ouvrirRapport(${r.id})">Demarrer</button>`:""}
-    <button class="action-btn btn-gray" onclick="window.open('https://maps.google.com/?q=${encodeURIComponent(r.adresse)}','_blank')">GPS</button>
-    <button class="action-btn btn-gray" onclick="window.open('tel:${r.clientTel}')">Appel</button>
+    ${isToday&&!isEnCours?`<button class="action-btn btn-green" onclick="demarrerIntervention(${r.id})" style="background:#f0fdf4;color:#166634;">▶ Démarrer</button>`:""}
+    ${isToday&&isEnCours?`<button class="action-btn btn-green" onclick="terminerEtRapport(${r.id})" style="background:#dcfce7;color:#15803d;">✓ Terminer</button>`:""}
+    ${isToday&&!isEnCours?`<button class="action-btn btn-orange" onclick="ouvrirDevisSurPlace(${r.id})">Devis</button>`:""}
+    <button class="action-btn btn-gray" onclick="ouvrirRapport(${r.id})">Rapport</button>
+    <button class="action-btn" style="background:${getFicheLogement(r.clientTel)?'#fef9c3;color:#854d0e;border:1px solid #fde047':'#f8fafc;color:#475569;border:1px solid #e2e8f0'};border-radius:9px;padding:11px 8px;" onclick="ouvrirFicheLogement('${r.clientTel}','${r.clientNom}','${(r.adresse||'').replace(/'/g,"\\'")}')">🏠 ${getFicheLogement(r.clientTel)?'Fiche ✓':'Fiche'}</button>
   </div>`:""}
 </div>`;
 }
@@ -838,10 +1323,27 @@ function showEtape(e){
     document.getElementById("montantFinal").value=currentRdv.prixVente;
     document.getElementById("description").value="";
     document.getElementById("chrono-debut").textContent=heureDebut;
+    piecesUtilisees=[];renderPieces();
+    document.getElementById("trajet-box").classList.add("hidden");
+    if(trajetInterval){clearInterval(trajetInterval);trajetInterval=null;}trajetStart=null;
     renderSlotsAvant();renderSlotsApres();renderVentes();startChrono();
     document.querySelectorAll(".check-item").forEach(i=>{i.querySelector(".check-box").classList.remove("checked");});
     updateCheckCount();
-    if(signatureCtx)signatureCtx.clearRect(0,0,signatureCtx.canvas.width,signatureCtx.canvas.height);
+    // Pré-remplir champs enrichis
+    const si=id=>document.getElementById(id);
+    if(si('rp-rdv-id'))si('rp-rdv-id').value=currentRdv.id;
+    if(si('rp-heure-debut'))si('rp-heure-debut').value=heureDebut;
+    if(si('rp-heure-fin'))si('rp-heure-fin').value='';
+    if(si('rp-satisfaction'))si('rp-satisfaction').value='5';
+    if(si('rp-pieces'))si('rp-pieces').value='';
+    if(si('rp-retour'))si('rp-retour').value='non';
+    // Reset encaissement
+    var encMode=document.getElementById('enc-mode');if(encMode)encMode.value='';
+    var encSel=document.getElementById('enc-selected');if(encSel)encSel.textContent='Aucun mode sélectionné — laissez vide si paiement différé';
+    ['enc-cb','enc-esp','enc-cheque','enc-vir'].forEach(function(id){var el=document.getElementById(id);if(el){el.style.background='rgba(255,255,255,0.1)';el.style.borderColor='rgba(255,255,255,0.2)';}});
+    // Init signature canvas
+    effacerSignature();
+    setTimeout(initSignatureCanvas,100);
   }
 }
 
@@ -861,6 +1363,23 @@ function setStatutRdv(s,color,btn){
   statutRdvCurrent=s;
   document.querySelectorAll(".statut-rdv-btn").forEach(b=>{b.style.background="#f8fafc";b.style.color="var(--text-light)";b.style.borderColor="var(--border)";});
   btn.style.background=color+"20";btn.style.color=color;btn.style.borderColor=color+"60";
+  if(s==="En route"){
+    trajetStart=Date.now();
+    document.getElementById("trajet-box").classList.remove("hidden");
+    document.getElementById("trajet-display").textContent="00:00";
+    if(trajetInterval)clearInterval(trajetInterval);
+    trajetInterval=setInterval(()=>{
+      const sec=Math.floor((Date.now()-trajetStart)/1000);
+      const m=Math.floor(sec/60),sc=sec%60;
+      document.getElementById("trajet-display").textContent=String(m).padStart(2,"0")+":"+String(sc).padStart(2,"0");
+    },1000);
+  } else if(s==="Arrive"&&trajetStart){
+    if(trajetInterval){clearInterval(trajetInterval);trajetInterval=null;}
+    const sec=Math.floor((Date.now()-trajetStart)/1000);
+    const m=Math.floor(sec/60),sc=sec%60;
+    document.getElementById("trajet-display").textContent=String(m).padStart(2,"0")+":"+String(sc).padStart(2,"0")+" ✓";
+    trajetStart=null;
+  }
   showNotif("Statut : "+s);
 }
 
@@ -905,22 +1424,6 @@ function updateCheckCount(){
   el.style.color=done===total?"var(--green)":"var(--text-light)";
 }
 
-function initSignature(){
-  const canvas=document.getElementById("signatureCanvas");
-  if(!canvas)return;
-  canvas.width=canvas.offsetWidth||320;canvas.height=180;
-  signatureCtx=canvas.getContext("2d");
-  signatureCtx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--green')||"#4a9c3f";
-  signatureCtx.lineWidth=2;signatureCtx.lineCap="round";
-  const getPos=e=>{const r=canvas.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};};
-  canvas.addEventListener("mousedown",e=>{isDrawing=true;const p=getPos(e);signatureCtx.beginPath();signatureCtx.moveTo(p.x,p.y);});
-  canvas.addEventListener("mousemove",e=>{if(!isDrawing)return;const p=getPos(e);signatureCtx.lineTo(p.x,p.y);signatureCtx.stroke();});
-  canvas.addEventListener("mouseup",()=>isDrawing=false);
-  canvas.addEventListener("touchstart",e=>{e.preventDefault();isDrawing=true;const p=getPos(e);signatureCtx.beginPath();signatureCtx.moveTo(p.x,p.y);},{passive:false});
-  canvas.addEventListener("touchmove",e=>{e.preventDefault();if(!isDrawing)return;const p=getPos(e);signatureCtx.lineTo(p.x,p.y);signatureCtx.stroke();},{passive:false});
-  canvas.addEventListener("touchend",()=>isDrawing=false);
-}
-function clearSignature(){if(signatureCtx)signatureCtx.clearRect(0,0,signatureCtx.canvas.width,signatureCtx.canvas.height);}
 
 function toggleVocal(){
   if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){showNotif("Reconnaissance vocale non supportee");return;}
@@ -976,47 +1479,105 @@ function updatePrimeTotal(){
 }
 
 function soumettre(){
-  if(chronoInterval)clearInterval(chronoInterval);
-  const heureFin=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
-  const totalPrimes=ventesSelectionnees.reduce((s,v)=>s+(v.primeChoisie||v.primeMin),0);
-  const desc=document.getElementById("description").value.trim()||"Intervention effectuee";
-  const canvas=document.getElementById("signatureCanvas");
-  const signature=canvas?canvas.toDataURL():null;
-  const checksDone=document.querySelectorAll(".check-box.checked").length;
-  const rapport={
-    id:Date.now(),rdvId:currentRdv.id,clientNom:currentRdv.clientNom,
-    clientTel:currentRdv.clientTel,adresse:currentRdv.adresse,
-    type:currentRdv.type,technicien:currentUser.nom,
-    heureDebut,heureFin,date:todayStr(),statutRdv:statutRdvCurrent,
-    description:desc,montantFinal:Number(document.getElementById("montantFinal").value),
-    prixInitial:currentRdv.prixVente,
-    photosAvant:photosAvant.filter(Boolean).map(p=>p.url),
-    photosApres:photosApres.filter(Boolean).map(p=>p.url),
-    ventes:ventesSelectionnees,totalPrimes,signature,
-    checklistScore:checksDone+"/6",
-    soumisLe:new Date().toISOString(),statut:"En attente facturation"
-  };
-  const rapports=getRapports();rapports.push(rapport);saveRapports(rapports);
-  const devis=ventesSelectionnees.filter(v=>v.type==="devis");
-  if(devis.length){
-    const d=JSON.parse(localStorage.getItem("pl_devis")||"[]");
-    devis.forEach(v=>d.push({id:Date.now()+Math.random(),type:v.label,clientNom:currentRdv.clientNom,clientTel:currentRdv.clientTel,adresse:currentRdv.adresse,technicien:currentUser.nom,date:todayStr(),statut:"Nouveau"}));
-    localStorage.setItem("pl_devis",JSON.stringify(d));
+  try {
+    if(chronoInterval)clearInterval(chronoInterval);
+    const heureFin=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+    // Mettre à jour heure fin dans le champ
+    const heureFinEl=document.getElementById('rp-heure-fin');
+    if(heureFinEl)heureFinEl.value=heureFin;
+    const totalPrimes=ventesSelectionnees.reduce((s,v)=>s+(v.primeChoisie||v.primeMin),0);
+    const desc=document.getElementById("description").value.trim()||"Intervention effectuee";
+    const checksDone=document.querySelectorAll(".check-box.checked").length;
+    const rapportId=Date.now();
+    // Lire champs enrichis
+    const satisfaction=Number((document.getElementById('rp-satisfaction')||{}).value||5);
+    const piecesNotes=(document.getElementById('rp-pieces')||{}).value||'';
+    const retourReqEl=document.getElementById('rp-retour');
+    const retourRequis=retourReqEl?retourReqEl.value:'non';
+
+    const rapport={
+      id:rapportId,rdvId:currentRdv.id,clientNom:currentRdv.clientNom,
+      clientTel:currentRdv.clientTel,adresse:currentRdv.adresse,
+      type:currentRdv.type,technicien:currentUser.nom,
+      mandant:currentRdv.mandant||'',canal:currentRdv.canal||'',
+      heureDebut,heureFin,date:todayStr(),statutRdv:statutRdvCurrent,
+      description:desc,montantFinal:Number(document.getElementById("montantFinal").value),
+      prixInitial:currentRdv.prixVente,
+      nbPhotosAvant:photosAvant.filter(Boolean).length,
+      nbPhotosApres:photosApres.filter(Boolean).length,
+      ventes:ventesSelectionnees,totalPrimes,
+      pieces:piecesUtilisees,piecesNotes,
+      satisfaction,retourRequis,
+      checklistScore:checksDone+"/6",
+      modeEncaissement:(document.getElementById('enc-mode')||{}).value||'',
+      mandant:currentRdv.mandant||'',canal:currentRdv.canal||'Terrain',
+      signature:getSignatureData(),
+      soumisLe:new Date().toISOString(),statut:"En attente facturation"
+    };
+
+    const rapports=getRapports();rapports.push(rapport);
+    try { saveRapports(rapports); }
+    catch(e){
+      const light={...rapport,signature:null};
+      try { saveRapports([...rapports.slice(-4).map(r=>({...r,signature:null})),light]); }
+      catch(e2){ saveRapports([light]); }
+    }
+
+    const devis=ventesSelectionnees.filter(v=>v.type==="devis");
+    if(devis.length){
+      const d=JSON.parse(localStorage.getItem("pl_devis")||"[]");
+      devis.forEach(v=>d.push({id:Date.now()+Math.random(),type:v.label,clientNom:currentRdv.clientNom,clientTel:currentRdv.clientTel,adresse:currentRdv.adresse,technicien:currentUser.nom,date:todayStr(),statut:"Nouveau"}));
+      localStorage.setItem("pl_devis",JSON.stringify(d));
+    }
+    const mois=moisStr(),primes=getPrimes();
+    if(!primes[currentUser.nom])primes[currentUser.nom]={};
+    if(!primes[currentUser.nom][mois])primes[currentUser.nom][mois]={total:0,ventes:0,ca:0};
+    primes[currentUser.nom][mois].total+=totalPrimes;
+    primes[currentUser.nom][mois].ventes+=ventesSelectionnees.length;
+    primes[currentUser.nom][mois].ca+=Number(document.getElementById("montantFinal").value);
+    savePrimes(primes);
+
+    saveRdvs(getRdvs().map(r=>r.id===currentRdv.id?{...r,statut:"Termine",rapportId}:r));
+
+    // Remettre statut tech à Disponible
+    if(currentUser){
+      const disposPost=JSON.parse(localStorage.getItem('pl_dispos')||'{}');
+      disposPost[currentUser.nom]={statut:'Disponible',updatedAt:new Date().toISOString()};
+      const vDispos=JSON.stringify(disposPost);
+      localStorage.setItem('pl_dispos',vDispos);
+      if(window.gfSync)gfSync('pl_dispos',vDispos);
+      // Synchroniser la statut-bar
+      document.querySelectorAll('.sbar-btn').forEach(b=>b.classList.remove('sbar-active'));
+      const dispoBtn=document.querySelector('.sbar-btn[onclick*="Disponible"]');
+      if(dispoBtn)dispoBtn.classList.add('sbar-active');
+      const badge=document.getElementById('statut-badge');
+      const dot=document.getElementById('statut-dot');
+      const txt=document.getElementById('statut-badge-text');
+      if(badge){badge.style.background='#4a9c3f20';badge.style.color='#4a9c3f';}
+      if(dot)dot.style.background='#4a9c3f';
+      if(txt)txt.textContent='Disponible';
+    }
+
+    // SMS terminé au client
+    if(currentRdv.clientTel){
+      const refT='INT-'+String(currentRdv.id).slice(-5);
+      envoyerSMSTech(currentRdv.clientTel,'termine',{ref:refT,montant:Number(document.getElementById("montantFinal").value)||''});
+    }
+    showEtape("succes");
+    if(totalPrimes>0){
+      document.getElementById("prime-win").classList.remove("hidden");
+      document.getElementById("prime-win-amount").textContent=totalPrimes+" EUR";
+    }
+    // Avis Google si satisfaction >= 4
+    if(satisfaction>=4){
+      var avisEl=document.getElementById('avis-google-section');
+      if(avisEl)avisEl.classList.remove('hidden');
+    }
+    renderRdv();renderHistorique();renderKPI();checkUrgences();renderRecapJournee();
+  } catch(err){
+    showNotif("Erreur: "+err.message);
+    console.error("soumettre:",err);
   }
-  const mois=moisStr(),primes=getPrimes();
-  if(!primes[currentUser.nom])primes[currentUser.nom]={};
-  if(!primes[currentUser.nom][mois])primes[currentUser.nom][mois]={total:0,ventes:0,ca:0};
-  primes[currentUser.nom][mois].total+=totalPrimes;
-  primes[currentUser.nom][mois].ventes+=ventesSelectionnees.length;
-  primes[currentUser.nom][mois].ca+=Number(document.getElementById("montantFinal").value);
-  savePrimes(primes);
-  saveRdvs(getRdvs().map(r=>r.id===currentRdv.id?{...r,statut:"Termine",rapport}:r));
-  showEtape("succes");
-  if(totalPrimes>0){
-    document.getElementById("prime-win").classList.remove("hidden");
-    document.getElementById("prime-win-amount").textContent=totalPrimes+" EUR";
-  }
-  renderRdv();renderHistorique();
 }
 
 function closeModal(id){
@@ -1031,6 +1592,523 @@ function showNotif(msg){
   document.body.appendChild(n);setTimeout(()=>n.remove(),3500);
 }
 
+/* ---- PIECES ---- */
+function addPiece(){
+  const nom=document.getElementById("piece-nom").value.trim();
+  const qte=parseInt(document.getElementById("piece-qte").value)||1;
+  if(!nom)return;
+  piecesUtilisees.push({nom,qte});
+  document.getElementById("piece-nom").value="";
+  document.getElementById("piece-qte").value="1";
+  renderPieces();
+}
+function removePiece(i){piecesUtilisees.splice(i,1);renderPieces();}
+function renderPieces(){
+  const el=document.getElementById("liste-pieces");
+  if(!el)return;
+  el.innerHTML=piecesUtilisees.length
+    ?piecesUtilisees.map((p,i)=>`<div class="piece-item"><span style="flex:1;font-size:13px;font-weight:600;">${p.nom}</span><span style="color:#8b5cf6;font-weight:700;font-size:13px;">x${p.qte}</span><button class="piece-del" onclick="removePiece(${i})">x</button></div>`).join("")
+    :`<div style="color:#94a3b8;font-size:12px;padding:6px 0;">Aucune piece ajoutee</div>`;
+}
+
+/* ---- DEVIS SUR PLACE ---- */
+function ouvrirDevisSurPlace(id){
+  devisRdv=getRdvs().find(r=>r.id===id);
+  document.getElementById("devis-client-nom").textContent=devisRdv.clientNom+" · "+devisRdv.adresse.split(",")[0];
+  document.getElementById("devis-type").value=devisRdv.type||"";
+  document.getElementById("devis-desc").value="";
+  document.getElementById("devis-prix").value="";
+  document.getElementById("modal-devis").classList.remove("hidden");
+}
+function soumettreDevis(){
+  if(!devisRdv)return;
+  const type=document.getElementById("devis-type").value.trim()||devisRdv.type;
+  const desc=document.getElementById("devis-desc").value.trim();
+  const prix=Number(document.getElementById("devis-prix").value)||0;
+  const d=JSON.parse(localStorage.getItem("pl_devis")||"[]");
+  d.push({id:Date.now(),type,description:desc,clientNom:devisRdv.clientNom,clientTel:devisRdv.clientTel,adresse:devisRdv.adresse,technicien:currentUser?currentUser.nom:"",date:todayStr(),prixEstimatif:prix,statut:"Nouveau",source:"terrain"});
+  localStorage.setItem("pl_devis",JSON.stringify(d));
+  closeModal("modal-devis");
+  showNotif("Devis envoye au patron !");
+}
+
+/* ---- CHAT ---- */
+const getMessages=()=>JSON.parse(localStorage.getItem("pl_chat")||"[]");
+const saveMessages=m=>{var v=JSON.stringify(m);localStorage.setItem("pl_chat",v);if(window.gfSync)gfSync("pl_chat",v);};
+
+var _chatDest='DISPATCH';
+var _chatDestLabels={DISPATCH:'Conversation avec le Dispatch 📋',SECRETAIRE:'Conversation avec la Secrétaire 🗂️',PATRON:'Conversation avec le Patron 👔'};
+
+function selChatDest(role){
+  _chatDest=role;
+  ['DISPATCH','SECRETAIRE','PATRON'].forEach(function(r){
+    var b=document.getElementById('chat-dest-'+r);
+    if(b){b.style.background=r===role?'#0d2d52':'none';b.style.color=r===role?'#fff':'#64748b';}
+  });
+  var lbl=document.getElementById('chat-dest-label');
+  if(lbl)lbl.textContent=_chatDestLabels[role]||'';
+  renderChat();
+  setTimeout(function(){var el=document.getElementById('chat-messages');if(el)el.scrollTop=el.scrollHeight;},80);
+}
+
+function ouvrirChat(){
+  document.getElementById("modal-chat").classList.remove("hidden");
+  document.getElementById("chat-badge").classList.add("hidden");
+  document.getElementById("chat-badge").textContent='0';
+  var navBadge=document.getElementById("bnav-msg-badge");
+  if(navBadge){navBadge.style.display='none';navBadge.textContent='';}
+  selChatDest(_chatDest);
+  setTimeout(function(){var el=document.getElementById("chat-messages");if(el)el.scrollTop=el.scrollHeight;},100);
+}
+
+function envoyerMessage(){
+  const input=document.getElementById("chat-input");
+  const txt=input.value.trim();
+  if(!txt||!currentUser)return;
+  const msgs=getMessages();
+  msgs.push({id:Date.now(),from:currentUser.nom,role:currentUser.role||'TECHNICIEN',to:_chatDest,text:txt,ts:new Date().toISOString()});
+  saveMessages(msgs);
+  input.value="";
+  renderChat();
+  const el=document.getElementById("chat-messages");
+  if(el)el.scrollTop=el.scrollHeight;
+}
+
+function renderChat(){
+  const el=document.getElementById("chat-messages");
+  if(!el)return;
+  const all=getMessages();
+  // Afficher la conversation avec le destinataire sélectionné
+  const msgs=all.filter(function(m){
+    // Messages que j'ai envoyés à ce destinataire
+    var estEnvoyeParMoi=currentUser&&m.from===currentUser.nom&&m.to===_chatDest;
+    // Messages reçus depuis ce destinataire (ou ce rôle) pour moi ou pour les techs
+    var estRecu=m.role===_chatDest&&(!m.to||m.to==='TECHNICIEN'||m.to==='ALL'||(currentUser&&m.to===currentUser.nom));
+    return estEnvoyeParMoi||estRecu;
+  });
+  if(!msgs.length){
+    el.innerHTML='<div style="text-align:center;color:#94a3b8;font-size:13px;padding:30px 0;">Aucun message avec '+(_chatDestLabels[_chatDest]||_chatDest).replace('Conversation avec ','').replace(/ 📋| 🗂️| 👔/,'')+'</div>';
+    return;
+  }
+  el.innerHTML=msgs.map(function(m){
+    const isMe=currentUser&&m.from===currentUser.nom;
+    const heure=new Date(m.ts).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+    const jour=new Date(m.ts).toLocaleDateString("fr-FR",{day:"numeric",month:"short"});
+    return'<div class="chat-msg '+(isMe?"me":"other")+'"><div>'+m.text+'</div><div class="chat-msg-meta">'+(isMe?'Moi':m.from)+' · '+jour+' '+heure+'</div></div>';
+  }).join("");
+  el.scrollTop=el.scrollHeight;
+}
+
+function pollChat(){
+  if(!currentUser)return;
+  const msgs=getMessages();
+  const modal=document.getElementById("modal-chat");
+  if(msgs.length>lastChatCount){
+    // Compter les nouveaux messages adressés à moi (TECHNICIEN)
+    const nouveaux=msgs.slice(lastChatCount).filter(function(m){
+      return m.from!==currentUser.nom&&(m.to==='TECHNICIEN'||m.to===currentUser.nom||m.to==='ALL'||!m.to);
+    });
+    if(modal&&!modal.classList.contains("hidden")){
+      renderChat();
+    } else if(nouveaux.length>0){
+      const last=nouveaux[nouveaux.length-1];
+      showNotif("Message de "+last.from+": "+last.text.slice(0,40));
+      const badge=document.getElementById("chat-badge");
+      var cur=parseInt(badge.textContent||'0');
+      badge.textContent=cur+nouveaux.length;
+      badge.classList.remove("hidden");
+      var navBadge=document.getElementById("bnav-msg-badge");
+      if(navBadge){navBadge.textContent=cur+nouveaux.length;navBadge.style.display='block';}
+    }
+    lastChatCount=msgs.length;
+  }
+}
+
+// ── CONTRATS TECH ──
+var PRIX_CONTRATS_T={
+  'Chaudière':{Essentiel:149,Confort:199,Premium:279},
+  'Pompe à chaleur':{Essentiel:189,Confort:249,Premium:329},
+  'Climatisation':{Essentiel:139,Confort:199,Premium:269},
+  'Ballon thermodynamique':{Essentiel:129,Confort:179,Premium:249},
+  "Adoucisseur d'eau":{Essentiel:119,Confort:169,Premium:219},
+};
+function getContratsTech(){try{return JSON.parse(localStorage.getItem('pl_contrats')||'[]');}catch(e){return[];}}
+function saveContratsTech(arr){var s=JSON.stringify(arr);localStorage.setItem('pl_contrats',s);if(window.gfSync)gfSync('pl_contrats',s);}
+function calcPrixContratTech(){
+  var equip=document.getElementById('tct-equip').value;
+  var formule=document.getElementById('tct-formule').value||'Confort';
+  var note=document.getElementById('clim-note-tech');
+  if(note)note.classList.toggle('hidden',equip!=='Climatisation');
+  ['Essentiel','Confort','Premium'].forEach(function(f){
+    var prices=PRIX_CONTRATS_T[equip]||{};
+    var el=document.getElementById('tctfp-'+f);
+    if(el)el.textContent=prices[f]?prices[f]+'€/an':'—';
+  });
+  var prix=(PRIX_CONTRATS_T[equip]||{})[formule]||null;
+  var disp=document.getElementById('tct-prix-display');
+  if(disp)disp.textContent=prix?prix+'€/an':'—';
+}
+function selectFormuleTech(f){
+  var inp=document.getElementById('tct-formule');if(inp)inp.value=f;
+  ['Essentiel','Confort','Premium'].forEach(function(x){
+    var card=document.getElementById('tctf-'+x);
+    if(card)card.classList.toggle('ct-fcard-sel',x===f);
+  });
+  calcPrixContratTech();
+}
+function sauvegarderContratTech(){
+  var client=document.getElementById('tct-client').value.trim();
+  var equip=document.getElementById('tct-equip').value;
+  var formule=document.getElementById('tct-formule').value||'Confort';
+  if(!client||!equip){if(window.notif)notif('Client et équipement requis');return;}
+  var montant=(PRIX_CONTRATS_T[equip]||{})[formule]||0;
+  if(!montant)return;
+  var debut=new Date().toISOString().slice(0,10);
+  var proch=new Date();proch.setFullYear(proch.getFullYear()+1);
+  var techNom=currentUser?currentUser.nom:'';
+  var arr=getContratsTech();
+  arr.unshift({id:Date.now(),client:client,tel:document.getElementById('tct-tel').value.trim(),adresse:document.getElementById('tct-adresse').value.trim(),equipement:equip,formule:formule,type:formule+' — '+equip,tech:techNom,freq:'annuel',montant:montant,debut:debut,prochaine:proch.toISOString().slice(0,10),statut:'Actif',creeAt:new Date().toISOString()});
+  saveContratsTech(arr);
+  // Créer RDV entretien annuel automatique
+  (function(){
+    var rdvs=JSON.parse(localStorage.getItem('pl_rdvs')||'[]');
+    var proch=arr[0].prochaine;
+    var deja=rdvs.find(function(r){return r.clientNom===arr[0].client&&r.dateRdv===proch&&r.type&&r.type.indexOf('Entretien')>=0;});
+    if(!deja){
+      rdvs.push({id:Date.now()+1,clientNom:arr[0].client,clientTel:arr[0].tel,adresse:arr[0].adresse,type:'Entretien '+arr[0].equipement+' (Contrat '+arr[0].formule+')',dateRdv:proch,heureRdv:'09:00',technicien:arr[0].tech||'',prix:0,statut:'À planifier',notes:'RDV annuel automatique — contrat '+arr[0].formule,contratId:arr[0].id,creeAt:new Date().toISOString()});
+      var v=JSON.stringify(rdvs);localStorage.setItem('pl_rdvs',v);if(window.gfSync)gfSync('pl_rdvs',v);
+    }
+  })();
+  ['tct-client','tct-tel','tct-adresse'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('tct-equip').value='';
+  document.getElementById('tct-formule').value='Confort';
+  ['Essentiel','Premium'].forEach(function(x){var c=document.getElementById('tctf-'+x);if(c)c.classList.remove('ct-fcard-sel');});
+  var cc=document.getElementById('tctf-Confort');if(cc)cc.classList.add('ct-fcard-sel');
+  calcPrixContratTech();
+  renderContratsTech();
+  if(window.notif)notif('Contrat '+formule+' signé pour '+client+' — '+montant+'€/an');
+}
+function renderContratsTech(){
+  var techNom=currentUser?currentUser.nom:'';
+  var all=getContratsTech();
+  var mine=all.filter(function(c){return c.tech===techNom&&c.statut==='Actif';});
+  var kEl=document.getElementById('contrats-tech-kpi');
+  if(kEl)kEl.innerHTML=[
+    ['Contrats signés',mine.length,'var(--green)'],
+    ['CA récurrent/an',mine.reduce(function(s,c){return s+c.montant;},0).toLocaleString('fr-FR')+'€','var(--blue2)'],
+  ].map(function(x){return'<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px;border-left:3px solid '+x[2]+'"><div style="font-size:9px;color:#64748b;font-weight:700;letter-spacing:1px;text-transform:uppercase;">'+x[0]+'</div><div style="font-size:20px;font-weight:800;color:'+x[2]+';margin-top:4px;">'+x[1]+'</div></div>';}).join('');
+  var lEl=document.getElementById('liste-contrats-tech');
+  if(!lEl)return;
+  if(!mine.length){lEl.innerHTML='<div style="text-align:center;padding:24px;color:#94a3b8;font-size:12px;">Aucun contrat signé — propose le contrat à ton prochain client !</div>';return;}
+  lEl.innerHTML=mine.map(function(c){
+    return'<div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid var(--green);border-radius:14px;padding:14px 16px;margin-bottom:10px;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
+    +'<div><div style="font-weight:700;font-size:14px;">'+c.client+'</div>'
+    +'<div style="color:#64748b;font-size:11px;margin-top:2px;">'+(c.equipement||c.type)+'</div>'
+    +(c.tel?'<a href="tel:'+c.tel+'" style="color:#2563eb;font-size:12px;">'+c.tel+'</a>':'')+'</div>'
+    +'<div style="text-align:right;"><span style="display:inline-block;background:'+(c.formule==='Premium'?'#fefce8':c.formule==='Confort'?'#eff6ff':'#f0fdf4')+';color:'+(c.formule==='Premium'?'#92400e':c.formule==='Confort'?'#1d4ed8':'#166534')+';font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px;">'+c.formule+'</span>'
+    +'<div style="color:var(--green);font-weight:800;font-size:15px;margin-top:4px;">'+c.montant+'€/an</div></div>'
+    +'</div>'
+    +'<div style="color:#94a3b8;font-size:10px;margin-top:8px;">Prochaine visite : '+c.prochaine+'</div>'
+    +'</div>';
+  }).join('');
+}
+
+const MODULE_CURRENT='index.html';
+const MODULES=[
+  {file:'index.html',label:'Technicien',icon:'👷',roles:['TECHNICIEN','PATRON','DISPATCH']},
+  {file:'dispatch.html',label:'Dispatch',icon:'📋',roles:['DISPATCH','PATRON']},
+  {file:'patron.html',label:'Patron',icon:'👔',roles:['PATRON']},
+  {file:'patron-analytics.html',label:'Analytics',icon:'📊',roles:['PATRON']},
+  {file:'secretaire.html',label:'Secrétariat',icon:'🗂️',roles:['PATRON','DISPATCH']},
+  {file:'crm.html',label:'CRM',icon:'👥',roles:['PATRON','DISPATCH']},
+  {file:'contrats.html',label:'Contrats',icon:'📋',roles:['PATRON','DISPATCH']},
+  {file:'suivi.html',label:'Suivi client',icon:'📍',roles:['PATRON','DISPATCH']},
+  {file:'mandant-portal.html',label:'Portail mandants',icon:'🏢',roles:['PATRON']},
+];
+function naviguerVers(f){if(f===MODULE_CURRENT)return;const b=location.href.substring(0,location.href.lastIndexOf('/')+1);location.href=b+f;}
+function toggleAppSw(){const d=document.getElementById('app-sw-drop');if(d)d.classList.toggle('hidden');}
+document.addEventListener('click',function(e){const sw=document.getElementById('app-sw');if(sw&&!sw.contains(e.target)){const d=document.getElementById('app-sw-drop');if(d)d.classList.add('hidden');}});
+function renderModuleNav(){
+  const btn=document.getElementById('app-sw-btn');
+  const drop=document.getElementById('app-sw-drop');
+  if(!btn||!drop)return;
+  const role=currentUser?currentUser.role:null;if(!role)return;
+  const v=MODULES.filter(m=>m.roles.includes(role));
+  if(v.length<=1){btn.style.display='none';return;}
+  btn.style.display='flex';
+  drop.innerHTML=v.map(m=>`<div class="app-sw-item${m.file===MODULE_CURRENT?' active':''}" onclick="naviguerVers('${m.file}');document.getElementById('app-sw-drop').classList.add('hidden')"><span class="app-sw-icon">${m.icon}</span><span>${m.label}</span></div>`).join('');
+}
+
+/* ---- RECAP JOURNEE ---- */
+function renderRecapJournee(){
+  if(!currentUser)return;
+  const rdvs=getMesRdvs().filter(r=>r.dateRdv===todayStr());
+  const done=rdvs.filter(r=>r.statut==='Termine').length;
+  const ca=rdvs.reduce((s,r)=>s+(r.prixVente||0),0);
+  const s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  s('rj-total',rdvs.length);s('rj-done',done);s('rj-ca',ca+'€');
+  const now=new Date();
+  s('recap-date',now.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'}));
+  const pending=rdvs.filter(r=>r.statut!=='Termine').sort((a,b)=>a.heureRdv.localeCompare(b.heureRdv));
+  const bar=document.getElementById('next-rdv-bar');
+  if(!bar)return;
+  if(pending.length){
+    bar.classList.remove('hidden');
+    s('next-rdv-time','→ '+pending[0].heureRdv);
+    s('next-rdv-info',pending[0].clientNom);
+    s('next-rdv-sub',pending[0].type+' · '+pending[0].adresse.split(',')[0]);
+  } else if(rdvs.length>0&&done===rdvs.length){
+    bar.classList.remove('hidden');
+    s('next-rdv-time','🎉');s('next-rdv-info','Tous les RDV terminés !');s('next-rdv-sub','Excellente journée !');
+  } else {
+    bar.classList.add('hidden');
+  }
+}
+
+/* ---- PARTAGE RAPPORT ---- */
+// SIGNATURE ÉLECTRONIQUE
+var _sigCanvas=null,_sigCtx=null,_sigDrawing=false,_sigHasData=false;
+function initSignatureCanvas(){
+  _sigCanvas=document.getElementById('signatureCanvas');
+  if(!_sigCanvas)return;
+  // Set real pixel dimensions
+  _sigCanvas.width=_sigCanvas.offsetWidth||300;
+  _sigCanvas.height=160;
+  _sigCtx=_sigCanvas.getContext('2d');
+  _sigCtx.strokeStyle='#0d2d52';_sigCtx.lineWidth=2.5;_sigCtx.lineCap='round';_sigCtx.lineJoin='round';
+  _sigCanvas.addEventListener('mousedown',function(e){_sigDrawing=true;_sigCtx.beginPath();var r=_sigCanvas.getBoundingClientRect();_sigCtx.moveTo(e.clientX-r.left,e.clientY-r.top);});
+  _sigCanvas.addEventListener('mousemove',function(e){if(!_sigDrawing)return;var r=_sigCanvas.getBoundingClientRect();_sigCtx.lineTo(e.clientX-r.left,e.clientY-r.top);_sigCtx.stroke();_setSigStatus();});
+  _sigCanvas.addEventListener('mouseup',function(){_sigDrawing=false;});
+  _sigCanvas.addEventListener('touchstart',function(e){e.preventDefault();_sigDrawing=true;_sigCtx.beginPath();var t=e.touches[0],r=_sigCanvas.getBoundingClientRect();_sigCtx.moveTo(t.clientX-r.left,t.clientY-r.top);},{passive:false});
+  _sigCanvas.addEventListener('touchmove',function(e){e.preventDefault();if(!_sigDrawing)return;var t=e.touches[0],r=_sigCanvas.getBoundingClientRect();_sigCtx.lineTo(t.clientX-r.left,t.clientY-r.top);_sigCtx.stroke();_setSigStatus();},{passive:false});
+  _sigCanvas.addEventListener('touchend',function(){_sigDrawing=false;});
+}
+function _setSigStatus(){
+  _sigHasData=true;
+  var s=document.getElementById('sig-status');
+  if(s)s.innerHTML='<span style="color:#16a34a;font-weight:600;">✓ Signature enregistrée</span>';
+}
+function effacerSignature(){
+  if(_sigCtx)_sigCtx.clearRect(0,0,_sigCanvas.width,_sigCanvas.height);
+  _sigHasData=false;
+  var s=document.getElementById('sig-status');
+  if(s)s.textContent='En attente de signature...';
+}
+function getSignatureData(){
+  if(!_sigCanvas||!_sigHasData)return null;
+  return _sigCanvas.toDataURL('image/png');
+}
+
+function demanderAvisGoogle(){
+  if(!currentRdv)return;
+  // Lien Google Maps / Google My Business — à remplacer par votre vrai lien
+  var lienGoogle='https://search.google.com/local/writereview?placeid=VOTRE_PLACE_ID';
+  var msg='Bonjour '+currentRdv.clientNom+', merci pour votre confiance ! Si vous êtes satisfait(e), votre avis Google nous aide beaucoup : '+lienGoogle+' — GreenFlow Technologies 🙏';
+  if(currentRdv.clientTel){
+    window.open('sms:'+currentRdv.clientTel+'?body='+encodeURIComponent(msg));
+    // Tracker l'avis demandé
+    var avis=JSON.parse(localStorage.getItem('pl_avis')||'[]');
+    avis.push({id:Date.now(),rdvId:currentRdv.id,client:currentRdv.clientNom,tel:currentRdv.clientTel,date:todayStr(),tech:currentUser?currentUser.nom:'',sent:true});
+    localStorage.setItem('pl_avis',JSON.stringify(avis));
+    showNotif('Demande d\'avis envoyée par SMS !');
+  } else {
+    window.open(lienGoogle,'_blank');
+  }
+  document.getElementById('avis-google-section').classList.add('hidden');
+}
+
+function setEncaissement(mode){
+  document.getElementById('enc-mode').value=mode;
+  ['CB','Espèces','Chèque','Virement'].forEach(function(m){
+    var id={'CB':'enc-cb','Espèces':'enc-esp','Chèque':'enc-cheque','Virement':'enc-vir'}[m];
+    var el=document.getElementById(id);if(!el)return;
+    if(m===mode){el.style.background='rgba(123,193,68,0.3)';el.style.borderColor='#7bc144';el.style.color='#fff';}
+    else{el.style.background='rgba(255,255,255,0.1)';el.style.borderColor='rgba(255,255,255,0.2)';el.style.color='#fff';}
+  });
+  var sel=document.getElementById('enc-selected');
+  if(sel)sel.innerHTML='<span style="color:#7bc144;font-weight:700;">✓ Paiement : '+mode+'</span>';
+  var stripeDiv=document.getElementById('enc-lien-stripe-div');
+  if(stripeDiv)stripeDiv.style.display=mode==='CB'?'block':'none';
+}
+
+async function envoyerLienPaiement(){
+  if(!currentRdv)return;
+  var montant=Number(document.getElementById('montantFinal').value)||currentRdv.prixVente||0;
+  if(!montant){showNotif('Saisis le montant final');return;}
+  try{
+    var r=await fetch('/api/stripe-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rdvId:currentRdv.id,montant:montant*100,client:currentRdv.clientNom,description:currentRdv.type||'Intervention'})});
+    var d=await r.json();
+    if(d.url){
+      var msg='GreenFlow Technologies — Règlement intervention : '+d.url;
+      if(currentRdv.clientTel){window.open('sms:'+currentRdv.clientTel+'?body='+encodeURIComponent(msg));}
+      showNotif('Lien de paiement envoyé !');
+    }
+  }catch(e){showNotif('Lien de paiement en mode démo — configurez Stripe sur Vercel');}
+}
+
+function partagerWA(){
+  if(!currentRdv)return;
+  const montant=document.getElementById('montantFinal')?.value||currentRdv.prixVente;
+  const txt=`✅ *Intervention terminée — GreenFlow Technologies*\n\n📋 Réf: *${genIntId(currentRdv)}*\n👤 ${currentRdv.clientNom}\n📍 ${currentRdv.adresse}\n🔧 ${currentRdv.type}\n💶 *${montant} EUR*\n\nMerci de votre confiance.`;
+  window.open('https://api.whatsapp.com/send?text='+encodeURIComponent(txt),'_blank');
+}
+function partagerSMS(){
+  if(!currentRdv)return;
+  const tel=(currentRdv.clientTel||'').replace(/\s/g,'');
+  const montant=document.getElementById('montantFinal')?.value||currentRdv.prixVente;
+  const txt=`Bonjour, votre intervention GreenFlow (ref ${genIntId(currentRdv)}) est terminée. Montant: ${montant} EUR. Merci de votre confiance.`;
+  window.open('sms:'+tel+'?body='+encodeURIComponent(txt));
+}
+function copierRapport(){
+  if(!currentRdv||!currentUser)return;
+  const montant=document.getElementById('montantFinal')?.value||currentRdv.prixVente;
+  const txt=`RAPPORT D'INTERVENTION — GreenFlow Technologies\n${'─'.repeat(40)}\nRéférence : ${genIntId(currentRdv)}\nDate       : ${todayStr()}\nTechnicien : ${currentUser.nom}\nClient     : ${currentRdv.clientNom}\nAdresse    : ${currentRdv.adresse}\nType       : ${currentRdv.type}\nMontant    : ${montant} EUR\nStatut     : Terminé ✓`;
+  navigator.clipboard?.writeText(txt).then(()=>showNotif('Rapport copié !')).catch(()=>showNotif('Rapport copié !'));
+}
+
+/* ---- INT ID ---- */
+function genIntId(rdv){
+  const d=(rdv.dateRdv||todayStr()).replace(/-/g,'');
+  return 'INT-'+d+'-'+String(rdv.id).slice(-3).padStart(3,'0');
+}
+
+/* ---- KPI DASHBOARD ---- */
+function renderKPI(){
+  if(!currentUser)return;
+  const rdvs=getMesRdvs().filter(r=>r.dateRdv===todayStr());
+  const total=rdvs.length;
+  const done=rdvs.filter(r=>r.statut==='Termine').length;
+  const ca=rdvs.reduce((s,r)=>s+(r.prixVente||0),0);
+  const rapportsMois=getRapports().filter(r=>r.technicien===currentUser.nom&&r.date?.startsWith(moisStr()));
+  const prime=rapportsMois.reduce((s,r)=>s+(r.totalPrimes||0),0);
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('kpi-total',total);set('kpi-done',done);set('kpi-ca',ca+'€');set('kpi-prime',prime+'€');
+}
+
+/* ---- URGENCE BANNER ---- */
+function checkUrgences(){
+  const rdvs=getMesRdvs().filter(r=>r.dateRdv===todayStr()&&r.statut!=='Termine');
+  const u=rdvs.find(r=>r.type&&/urgent|urgence|depannage/i.test(r.type));
+  const b=document.getElementById('urgent-banner');
+  if(!b)return;
+  if(u){
+    b.classList.remove('hidden');
+    const t=document.getElementById('urgent-text');
+    if(t)t.textContent='⚡ URGENT — '+u.clientNom+' à '+u.heureRdv+' — '+u.type;
+  } else {
+    b.classList.add('hidden');
+  }
+}
+function fermerUrgent(){const b=document.getElementById('urgent-banner');if(b)b.classList.add('hidden');}
+
+/* ---- DÉMARRER INTERVENTION ---- */
+async function envoyerSMSTech(tel,type,data){
+  if(!tel)return;
+  try{
+    await fetch('/api/sms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:tel,type:type,data:data||{}})});
+  }catch(e){}
+}
+function demarrerIntervention(rdvId){
+  const rdvs=getRdvs();
+  const r=rdvs.find(x=>x.id===rdvId);
+  if(!r)return;
+  r.statut='En cours';
+  r.heureDebut=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  saveRdvs(rdvs);
+  // SMS en route automatique
+  if(r.clientTel){
+    const ref=r.id?'INT-'+String(r.id).slice(-5):'';
+    envoyerSMSTech(r.clientTel,'en_route',{technicien:currentUser?currentUser.nom:'',ref,eta:'30-45 min'});
+  }
+  // Mettre à jour dispo tech
+  const dispos=JSON.parse(localStorage.getItem('pl_dispos')||'{}');
+  if(currentUser){
+    dispos[currentUser.nom]={statut:'En intervention',updatedAt:new Date().toISOString(),rdvEnCours:r.clientNom};
+    const v=JSON.stringify(dispos);
+    localStorage.setItem('pl_dispos',v);
+    if(window.gfSync)gfSync('pl_dispos',v);
+  }
+  // Synchroniser la statut-bar
+  document.querySelectorAll('.sbar-btn').forEach(b=>b.classList.remove('sbar-active'));
+  const interBtn=document.querySelector('.sbar-btn[onclick*="En intervention"]');
+  if(interBtn)interBtn.classList.add('sbar-active');
+  renderRdv();
+  renderKpiTech();
+  showNotif('🚗 En route vers '+r.clientNom+' — SMS envoyé');
+}
+
+/* ---- TERMINER ET OUVRIR RAPPORT ---- */
+function terminerEtRapport(rdvId){
+  const rdvs=getRdvs();
+  const r=rdvs.find(x=>x.id===rdvId);
+  if(!r)return;
+  r.statut='Termine';
+  r.heureFin=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  saveRdvs(rdvs);
+  // Ouvrir le rapport pré-rempli via ouvrirRapport
+  ouvrirRapport(rdvId);
+  showNotif('Intervention terminée — remplissez le rapport');
+}
+
+/* ---- CHANGER STATUT VIA BARRE RAPIDE ---- */
+function changerStatut(statut,btn){
+  if(!currentUser)return;
+  const dispos=JSON.parse(localStorage.getItem('pl_dispos')||'{}');
+  dispos[currentUser.nom]={statut,updatedAt:new Date().toISOString()};
+  const v=JSON.stringify(dispos);
+  localStorage.setItem('pl_dispos',v);
+  if(window.gfSync)gfSync('pl_dispos',v);
+  document.querySelectorAll('.sbar-btn').forEach(b=>b.classList.remove('sbar-active'));
+  if(btn)btn.classList.add('sbar-active');
+  // Synchroniser aussi le badge user-bar
+  const STATUT_BTN_COLORS={Disponible:'#4a9c3f','En intervention':'#f97316',Pause:'#eab308',Indisponible:'#ef4444'};
+  const color=STATUT_BTN_COLORS[statut]||'#4a9c3f';
+  const badge=document.getElementById('statut-badge');
+  const dot=document.getElementById('statut-dot');
+  const txt=document.getElementById('statut-badge-text');
+  if(badge){badge.style.background=color+'20';badge.style.color=color;}
+  if(dot)dot.style.background=color;
+  if(txt)txt.textContent=statut;
+    showNotif('Statut : '+statut);
+}
+
+/* ---- KPI PERSO DU TECH ---- */
+function renderKpiTech(){
+  const d=document.getElementById('kpi-tech-strip');
+  if(!d||!currentUser)return;
+  const today=todayStr();
+  const mesRdvs=getMesRdvs().filter(r=>r.dateRdv===today);
+  const termines=mesRdvs.filter(r=>r.statut==='Termine'||r.statut==='Paye').length;
+  const caJour=mesRdvs.reduce((s,r)=>s+(r.prixVente||0),0);
+  const urgences=JSON.parse(localStorage.getItem('pl_urgences')||'[]').filter(u=>u.technicien===currentUser.nom&&u.statut==='Active').length;
+  d.innerHTML=`
+    <div class="sc" style="border-left:3px solid var(--green);padding:10px 12px;"><div class="lbl">MES RDV</div><div style="font-weight:800;font-size:18px;color:var(--blue);">${mesRdvs.length}</div><div style="font-size:10px;color:var(--muted);">${termines} terminés</div></div>
+    <div class="sc" style="border-left:3px solid #1d4ed8;padding:10px 12px;"><div class="lbl">CA GÉNÉRÉ</div><div style="font-weight:800;font-size:18px;color:var(--green);">${caJour.toLocaleString('fr-FR')}€</div></div>
+    <div class="sc" style="border-left:3px solid ${urgences?'#dc2626':'#16a34a'};padding:10px 12px;"><div class="lbl">URGENCES</div><div style="font-weight:800;font-size:18px;color:${urgences?'#dc2626':'#16a34a'};">${urgences}</div></div>`;
+}
+
+/* ---- ENVOYER DEVIS RAPIDE ---- */
+function envoyerDevisRapide(){
+  if(!currentUser)return;
+  const client=(document.getElementById('dq-client')||{}).value||'';
+  const desc=(document.getElementById('dq-desc')||{}).value||'';
+  const type=(document.getElementById('dq-type')||{}).value||'';
+  const montant=Number((document.getElementById('dq-montant')||{}).value||0);
+  if(!client.trim()||!desc.trim()){showNotif('Remplissez le client et la description');return;}
+  const d=JSON.parse(localStorage.getItem('pl_devis')||'[]');
+  const entry={id:Date.now(),type,description:desc,clientNom:client,technicien:currentUser.nom,date:todayStr(),prixEstimatif:montant,statut:'Nouveau',source:'devis-rapide'};
+  d.push(entry);
+  const v=JSON.stringify(d);
+  localStorage.setItem('pl_devis',v);
+  if(window.gfSync)gfSync('pl_devis',v);
+  // Reset formulaire
+  document.getElementById('dq-client').value='';
+  document.getElementById('dq-desc').value='';
+  document.getElementById('dq-montant').value='';
+  showNotif('Demande de devis envoyée au patron !');
+}
+
 window.onload=()=>{
   document.querySelectorAll(".pin-input").forEach((el,i,arr)=>{
     el.addEventListener("input",()=>{if(el.value&&i<arr.length-1)arr[i+1].focus();});
@@ -1039,6 +2117,433 @@ window.onload=()=>{
   const s=localStorage.getItem("pl_session");
   if(s){currentUser=JSON.parse(s);lancerApp();}
 };
+
+// Mise à jour temps réel quand Firebase pousse des données (dispatch → technicien)
+window.addEventListener('storage',e=>{
+  if(!['pl_rdvs','pl_urgences','pl_dispos','pl_rapports'].includes(e.key))return;
+  if(!currentUser)return;
+  renderRdv();renderKPI();checkUrgences();renderRecapJournee();});
+
+// BroadcastChannel direct — même navigateur, même appareil (plus fiable que StorageEvent)
+var _techBC=null;
+try{_techBC=new BroadcastChannel('gf_sync');}catch(ex){}
+if(_techBC){
+  _techBC.onmessage=function(ev){
+    if(!currentUser)return;
+    if(!ev.data||!ev.data.key)return;
+    if(['pl_rdvs','pl_urgences','pl_dispos'].includes(ev.data.key)){
+      try{localStorage.setItem(ev.data.key,ev.data.value);}catch(ex){}
+      renderRdv();renderKPI();checkUrgences();renderRecapJournee();      if(ev.data.key==='pl_rdvs'){
+        const rdvs=getMesRdvs();
+        const nouveau=rdvs.filter(r=>r.statut==='Confirme'&&r.dateRdv>=todayStr()).sort((a,b)=>b.id-a.id)[0];
+        if(nouveau)showNotif('Nouveau RDV : '+nouveau.clientNom+' à '+nouveau.heureRdv);
+      }
+    }
+  };
+}
+
+// Polling toutes les 5s — filet de sécurité si BroadcastChannel/Firebase défaillant
+var _rdvSnap='';
+setInterval(function(){
+  if(!currentUser)return;
+  const h=localStorage.getItem('pl_rdvs')||'';
+  if(h!==_rdvSnap){
+    _rdvSnap=h;
+    renderRdv();renderKPI();checkUrgences();renderRecapJournee();
+  }
+},5000);
+</script>
+
+<!-- CHAT FAB -->
+<button class="chat-fab hidden" id="chat-fab" onclick="ouvrirChat()" title="Chat Dispatch">
+  💬
+  <span class="chat-badge hidden" id="chat-badge">0</span>
+</button>
+
+<!-- MODAL CHAT MESSAGERIE -->
+<div class="modal-bg hidden" id="modal-chat">
+  <div class="modal-sheet" style="padding:16px 16px 20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div style="font-size:13px;font-weight:800;color:#0d2d52;letter-spacing:1px;">💬 MESSAGERIE</div>
+      <button class="modal-close" onclick="closeModal('modal-chat')">×</button>
+    </div>
+    <!-- Sélection destinataire -->
+    <div style="display:flex;gap:6px;background:#f1f5f9;border-radius:10px;padding:4px;margin-bottom:12px;">
+      <button id="chat-dest-DISPATCH" onclick="selChatDest('DISPATCH')" style="flex:1;background:#0d2d52;color:#fff;border:none;border-radius:8px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;">📋 Dispatch</button>
+      <button id="chat-dest-SECRETAIRE" onclick="selChatDest('SECRETAIRE')" style="flex:1;background:none;color:#64748b;border:none;border-radius:8px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;">🗂️ Secrétaire</button>
+      <button id="chat-dest-PATRON" onclick="selChatDest('PATRON')" style="flex:1;background:none;color:#64748b;border:none;border-radius:8px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;">👔 Patron</button>
+    </div>
+    <div id="chat-dest-label" style="font-size:11px;color:#64748b;margin-bottom:8px;text-align:center;">Conversation avec le Dispatch</div>
+    <div class="chat-messages" id="chat-messages" style="height:55vh;"></div>
+    <div class="chat-input-row" style="margin-top:10px;">
+      <input type="text" id="chat-input" class="chat-input" placeholder="Votre message..." onkeydown="if(event.key==='Enter')envoyerMessage()">
+      <button class="action-btn btn-green" onclick="envoyerMessage()" style="flex:0 0 auto;padding:10px 16px;">Envoyer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DEVIS SUR PLACE -->
+<div class="modal-bg hidden" id="modal-devis">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">DEVIS SUR PLACE</div>
+        <div class="modal-subtitle" id="devis-client-nom"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-devis')">x</button>
+    </div>
+    <div class="card accent-blue" style="margin-bottom:12px;">
+      <div class="lbl">TYPE DE TRAVAUX</div>
+      <input type="text" id="devis-type" placeholder="Remplacement chaudiere, installation..." style="width:100%;background:#f8fafc;border:2px solid #e2e8f0;border-radius:10px;padding:12px 14px;color:#1a2537;font-size:14px;outline:none;font-family:'Poppins',sans-serif;margin-top:8px;box-sizing:border-box;">
+    </div>
+    <div class="card accent-green" style="margin-bottom:12px;">
+      <div class="lbl">DESCRIPTION</div>
+      <textarea id="devis-desc" rows="3" placeholder="Travaux necessaires, observations..."></textarea>
+    </div>
+    <div class="card accent-yellow" style="margin-bottom:16px;">
+      <div class="lbl">MONTANT ESTIMATIF (EUR)</div>
+      <input type="number" id="devis-prix" placeholder="0" style="margin-top:8px;">
+    </div>
+    <div style="display:flex;gap:10px;padding-bottom:20px;">
+      <button class="action-btn btn-gray" onclick="closeModal('modal-devis')" style="flex:0 0 auto;">Annuler</button>
+      <button class="action-btn btn-green" onclick="soumettreDevis()" style="flex:1;background:linear-gradient(135deg,#4a9c3f,#7bc144);color:#fff;font-weight:700;">Envoyer au Patron</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FICHE LOGEMENT -->
+<div class="modal-bg hidden" id="modal-fiche-logement">
+  <div class="modal-sheet" style="max-height:92vh;overflow-y:auto;padding-bottom:24px;">
+    <div class="modal-header" style="position:sticky;top:0;background:#fff;z-index:10;padding-bottom:10px;border-bottom:1px solid var(--border);">
+      <div>
+        <div class="modal-title">🏠 FICHE LOGEMENT</div>
+        <div class="modal-subtitle" id="fiche-client-label"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-fiche-logement')">✕</button>
+    </div>
+    <div style="padding-top:12px;">
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:8px 12px;margin-bottom:14px;font-size:11px;color:#166534;font-weight:600;">💡 Ces infos restent attachées au client pour toutes les interventions futures. Auto-sauvegarde à chaque saisie.</div>
+
+      <!-- SECTION LOGEMENT -->
+      <div class="fiche-section">
+        <div class="fiche-section-titre">🏗️ LOGEMENT</div>
+        <div class="fiche-grid">
+          <div class="fiche-field"><label>Type</label>
+            <select class="fiche-select" id="f-type-logement" onchange="autoSaveFiche()">
+              <option value="">—</option><option>Appartement</option><option>Maison</option><option>Studio</option><option>Duplex</option><option>Loft</option><option>Commerce</option>
+            </select>
+          </div>
+          <div class="fiche-field"><label>Surface (m²)</label><input type="number" class="fiche-input" id="f-surface" placeholder="75" min="0" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Étage</label><input type="number" class="fiche-input" id="f-etage" placeholder="3" min="-2" max="50" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Nb pièces</label><input type="number" class="fiche-input" id="f-nb-pieces" placeholder="4" min="1" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Nb SDB / WC</label><input type="text" class="fiche-input" id="f-nb-sdb" placeholder="1 SDB + 1 WC" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Année construction</label><input type="number" class="fiche-input" id="f-annee-const" placeholder="1985" min="1850" max="2025" oninput="autoSaveFiche()"></div>
+        </div>
+      </div>
+
+      <!-- SECTION CHAUFFAGE -->
+      <div class="fiche-section">
+        <div class="fiche-section-titre">🔥 CHAUFFAGE</div>
+        <div class="fiche-grid">
+          <div class="fiche-field" style="grid-column:span 2;"><label>Type de chauffage</label>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;" id="f-chauffage-type-group">
+              <button class="fiche-chip" onclick="toggleChip(this,'f-chauf-gaz')" id="f-chauf-gaz">🔵 Chaudière gaz</button>
+              <button class="fiche-chip" onclick="toggleChip(this,'f-chauf-fioul')" id="f-chauf-fioul">🛢 Fioul</button>
+              <button class="fiche-chip" onclick="toggleChip(this,'f-chauf-elec')" id="f-chauf-elec">⚡ Électrique</button>
+              <button class="fiche-chip" onclick="toggleChip(this,'f-chauf-pac')" id="f-chauf-pac">♻️ PAC air/eau</button>
+              <button class="fiche-chip" onclick="toggleChip(this,'f-chauf-bois')" id="f-chauf-bois">🪵 Poêle à bois</button>
+              <button class="fiche-chip" onclick="toggleChip(this,'f-chauf-plancher')" id="f-chauf-plancher">🌡️ Plancher chauffant</button>
+            </div>
+          </div>
+          <div class="fiche-field"><label>Marque chaudière</label><input type="text" class="fiche-input" id="f-chaud-marque" placeholder="Viessmann, Saunier..." oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Modèle / Réf.</label><input type="text" class="fiche-input" id="f-chaud-modele" placeholder="Vitodens 200-W" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Année installation</label><input type="number" class="fiche-input" id="f-chaud-annee" placeholder="2015" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Dernier entretien</label><input type="month" class="fiche-input" id="f-chaud-entretien" oninput="autoSaveFiche()"></div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+          <label class="fiche-check"><input type="checkbox" id="f-vase" onchange="autoSaveFiche()"> Vase expansion</label>
+          <label class="fiche-check"><input type="checkbox" id="f-purgeur" onchange="autoSaveFiche()"> Purgeur automatique</label>
+          <label class="fiche-check"><input type="checkbox" id="f-disconnecteur" onchange="autoSaveFiche()"> Disconnecteur</label>
+          <label class="fiche-check"><input type="checkbox" id="f-robinets-rad" onchange="autoSaveFiche()"> Robinets radiateurs</label>
+        </div>
+      </div>
+
+      <!-- SECTION RADIATEURS -->
+      <div class="fiche-section">
+        <div class="fiche-section-titre">🌡️ RADIATEURS</div>
+        <div class="fiche-grid">
+          <div class="fiche-field"><label>Type</label>
+            <select class="fiche-select" id="f-rad-type" onchange="autoSaveFiche()">
+              <option value="">—</option><option>Fonte</option><option>Acier</option><option>Aluminium</option><option>Électrique</option><option>Sèche-serviettes</option>
+            </select>
+          </div>
+          <div class="fiche-field"><label>Nombre</label><input type="number" class="fiche-input" id="f-rad-nb" placeholder="6" min="0" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>État général</label>
+            <select class="fiche-select" id="f-rad-etat" onchange="autoSaveFiche()">
+              <option value="">—</option><option>Bon</option><option>Entartrés</option><option>Bruyants</option><option>Fuites</option><option>À remplacer</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+          <label class="fiche-check"><input type="checkbox" id="f-trv" onchange="autoSaveFiche()"> Têtes thermostatiques (TRV)</label>
+          <label class="fiche-check"><input type="checkbox" id="f-thermostat-prog" onchange="autoSaveFiche()"> Thermostat programmable</label>
+          <label class="fiche-check"><input type="checkbox" id="f-thermostat-smart" onchange="autoSaveFiche()"> Thermostat connecté</label>
+        </div>
+      </div>
+
+      <!-- SECTION EAU CHAUDE -->
+      <div class="fiche-section">
+        <div class="fiche-section-titre">💧 EAU CHAUDE SANITAIRE</div>
+        <div class="fiche-grid">
+          <div class="fiche-field" style="grid-column:span 2;"><label>Type</label>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
+              <button class="fiche-chip" onclick="toggleChip(this,'f-ecs-ballon-elec')" id="f-ecs-ballon-elec">⚡ Ballon électrique</button>
+              <button class="fiche-chip" onclick="toggleChip(this,'f-ecs-ballon-gaz')" id="f-ecs-ballon-gaz">🔵 Chauffe-eau gaz</button>
+              <button class="fiche-chip" onclick="toggleChip(this,'f-ecs-instantane')" id="f-ecs-instantane">⚡ Instantané</button>
+              <button class="fiche-chip" onclick="toggleChip(this,'f-ecs-thermo')" id="f-ecs-thermo">♻️ Thermodynamique</button>
+              <button class="fiche-chip" onclick="toggleChip(this,'f-ecs-solaire')" id="f-ecs-solaire">☀️ Solaire</button>
+            </div>
+          </div>
+          <div class="fiche-field"><label>Marque</label><input type="text" class="fiche-input" id="f-ecs-marque" placeholder="Chaffoteaux, Atlantic..." oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Capacité (L)</label><input type="number" class="fiche-input" id="f-ecs-capacite" placeholder="150" min="0" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Année</label><input type="number" class="fiche-input" id="f-ecs-annee" placeholder="2018" oninput="autoSaveFiche()"></div>
+        </div>
+      </div>
+
+      <!-- SECTION PLOMBERIE -->
+      <div class="fiche-section">
+        <div class="fiche-section-titre">🔧 PLOMBERIE</div>
+        <div class="fiche-grid">
+          <div class="fiche-field"><label>Canalisations</label>
+            <select class="fiche-select" id="f-cana-type" onchange="autoSaveFiche()">
+              <option value="">—</option><option>Cuivre</option><option>PER</option><option>PVC</option><option>Galvanisé</option><option>Multicouche</option><option>Mixte</option>
+            </select>
+          </div>
+          <div class="fiche-field"><label>Vanne générale</label>
+            <select class="fiche-select" id="f-vanne-etat" onchange="autoSaveFiche()">
+              <option value="">—</option><option>Bonne</option><option>Usée</option><option>Bloquée</option><option>Introuvable</option>
+            </select>
+          </div>
+          <div class="fiche-field"><label>Pression eau</label>
+            <select class="fiche-select" id="f-pression" onchange="autoSaveFiche()">
+              <option value="">—</option><option>Normale</option><option>Faible</option><option>Trop forte</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+          <label class="fiche-check"><input type="checkbox" id="f-adoucisseur" onchange="autoSaveFiche()"> Adoucisseur d'eau</label>
+          <label class="fiche-check"><input type="checkbox" id="f-dfi" onchange="autoSaveFiche()"> Détecteur fuite individuel</label>
+          <label class="fiche-check"><input type="checkbox" id="f-reducpression" onchange="autoSaveFiche()"> Réducteur de pression</label>
+          <label class="fiche-check"><input type="checkbox" id="f-filtre-line" onchange="autoSaveFiche()"> Filtre en ligne</label>
+        </div>
+      </div>
+
+      <!-- SECTION CLIMATISATION -->
+      <div class="fiche-section">
+        <div class="fiche-section-titre">❄️ CLIMATISATION</div>
+        <div class="fiche-grid">
+          <div class="fiche-field"><label>Présente ?</label>
+            <select class="fiche-select" id="f-clim-present" onchange="autoSaveFiche()">
+              <option value="">—</option><option>Oui</option><option>Non</option>
+            </select>
+          </div>
+          <div class="fiche-field"><label>Nb d'unités</label><input type="number" class="fiche-input" id="f-clim-nb" placeholder="2" min="0" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Marque</label><input type="text" class="fiche-input" id="f-clim-marque" placeholder="Daikin, Mitsubishi..." oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Année</label><input type="number" class="fiche-input" id="f-clim-annee" placeholder="2020" oninput="autoSaveFiche()"></div>
+          <div class="fiche-field"><label>Dernier entretien</label><input type="month" class="fiche-input" id="f-clim-entretien" oninput="autoSaveFiche()"></div>
+        </div>
+      </div>
+
+      <!-- SECTION GAZ -->
+      <div class="fiche-section">
+        <div class="fiche-section-titre">🔵 GAZ</div>
+        <div class="fiche-grid">
+          <div class="fiche-field"><label>Gaz présent ?</label>
+            <select class="fiche-select" id="f-gaz-present" onchange="autoSaveFiche()">
+              <option value="">—</option><option>Oui</option><option>Non</option>
+            </select>
+          </div>
+          <div class="fiche-field"><label>Compteur</label>
+            <select class="fiche-select" id="f-gaz-compteur" onchange="autoSaveFiche()">
+              <option value="">—</option><option>Intérieur</option><option>Extérieur</option><option>Cave</option><option>Commun</option>
+            </select>
+          </div>
+          <div class="fiche-field"><label>Dernier contrôle</label><input type="month" class="fiche-input" id="f-gaz-controle" oninput="autoSaveFiche()"></div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+          <label class="fiche-check"><input type="checkbox" id="f-vanne-gaz" onchange="autoSaveFiche()"> Vanne gaz accessible</label>
+          <label class="fiche-check"><input type="checkbox" id="f-detecteur-gaz" onchange="autoSaveFiche()"> Détecteur de gaz</label>
+          <label class="fiche-check"><input type="checkbox" id="f-detecteur-co" onchange="autoSaveFiche()"> Détecteur CO</label>
+        </div>
+      </div>
+
+      <!-- OPPORTUNITÉS COMMERCIALES -->
+      <div class="fiche-section" style="background:#fef9c3;border-color:#fde047;">
+        <div class="fiche-section-titre" style="color:#854d0e;">💰 OPPORTUNITÉS DÉTECTÉES</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <label class="fiche-check"><input type="checkbox" id="fo-chaudiere" onchange="autoSaveFiche()"> Remplacement chaudière</label>
+          <label class="fiche-check"><input type="checkbox" id="fo-ballon" onchange="autoSaveFiche()"> Nouveau ballon ECS</label>
+          <label class="fiche-check"><input type="checkbox" id="fo-adoucisseur" onchange="autoSaveFiche()"> Adoucisseur d'eau</label>
+          <label class="fiche-check"><input type="checkbox" id="fo-clim" onchange="autoSaveFiche()"> Installation clim</label>
+          <label class="fiche-check"><input type="checkbox" id="fo-trv" onchange="autoSaveFiche()"> Pose têtes TRV</label>
+          <label class="fiche-check"><label class="fiche-check"><input type="checkbox" id="fo-robinets" onchange="autoSaveFiche()"> Remplacement robinets</label>
+          <label class="fiche-check"><input type="checkbox" id="fo-contrat" onchange="autoSaveFiche()"> Contrat entretien annuel</label>
+          <label class="fiche-check"><input type="checkbox" id="fo-thermostat" onchange="autoSaveFiche()"> Thermostat connecté</label>
+          <label class="fiche-check"><input type="checkbox" id="fo-plancher" onchange="autoSaveFiche()"> Plancher chauffant</label>
+          <label class="fiche-check"><input type="checkbox" id="fo-renovation-sdb" onchange="autoSaveFiche()"> Rénovation SDB</label>
+        </div>
+      </div>
+
+      <!-- NOTES LIBRES -->
+      <div class="fiche-section">
+        <div class="fiche-section-titre">📝 NOTES TECHNICIEN</div>
+        <textarea class="fiche-input" id="f-notes-libres" rows="3" placeholder="Accès difficile, vanne rouillée, prévoir remplacement chaudière dans 2 ans, client intéressé par contrat entretien..." style="width:100%;resize:vertical;" oninput="autoSaveFiche()"></textarea>
+      </div>
+
+      <div id="fiche-save-status" style="text-align:center;font-size:11px;color:#16a34a;font-weight:600;margin-top:8px;"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+.fiche-section{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+.fiche-section-titre{font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;}
+.fiche-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.fiche-field label{display:block;font-size:9px;font-weight:700;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:4px;}
+.fiche-input{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;box-sizing:border-box;background:#fafafa;}
+.fiche-select{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;background:#fafafa;}
+.fiche-check{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:6px 10px;background:#f8fafc;border-radius:8px;cursor:pointer;border:1px solid var(--border);}
+.fiche-check input{width:16px;height:16px;cursor:pointer;accent-color:var(--green);}
+.fiche-chip{border:1.5px solid var(--border);border-radius:20px;padding:6px 12px;font-size:11px;font-weight:600;background:#f8fafc;color:var(--text);cursor:pointer;transition:all 0.15s;}
+.fiche-chip.active{background:var(--green);color:#fff;border-color:var(--green);}
+</style>
+
+<script>
+/* ══════════════════════════════════════════
+   FICHE LOGEMENT — MODULE TECHNICIEN
+   ══════════════════════════════════════════ */
+
+var _ficheClientTel = null;
+var _ficheAutoSaveTimer = null;
+var _ficheChips = {};
+
+function getFichesLogement(){ return JSON.parse(localStorage.getItem("pl_fiches_logement") || "{}"); }
+function getFicheLogement(tel){ return getFichesLogement()[tel] || null; }
+
+function saveFicheLogement(tel, data){
+  var fiches = getFichesLogement();
+  fiches[tel] = Object.assign(fiches[tel] || {}, data, {updatedAt: new Date().toISOString(), updatedBy: currentTech ? currentTech.nom : "Tech"});
+  var v = JSON.stringify(fiches);
+  localStorage.setItem("pl_fiches_logement", v);
+  if(window.gfSync) gfSync("pl_fiches_logement", v);
+}
+
+function ouvrirFicheLogement(tel, nom, adresse){
+  _ficheClientTel = tel;
+  _ficheChips = {};
+  document.getElementById("fiche-client-label").textContent = nom + " · " + adresse;
+  document.getElementById("fiche-save-status").textContent = "";
+
+  var fiche = getFicheLogement(tel) || {};
+
+  // Logement
+  _setFiche("f-type-logement", fiche.typeLogement);
+  _setFiche("f-surface", fiche.surface);
+  _setFiche("f-etage", fiche.etage);
+  _setFiche("f-nb-pieces", fiche.nbPieces);
+  _setFiche("f-nb-sdb", fiche.nbSdb);
+  _setFiche("f-annee-const", fiche.anneeConst);
+  // Chauffage
+  _setChips(fiche.chauffageTypes || [], ["f-chauf-gaz","f-chauf-fioul","f-chauf-elec","f-chauf-pac","f-chauf-bois","f-chauf-plancher"]);
+  _setFiche("f-chaud-marque", fiche.chaudMarque);
+  _setFiche("f-chaud-modele", fiche.chaudModele);
+  _setFiche("f-chaud-annee", fiche.chaudAnnee);
+  _setFiche("f-chaud-entretien", fiche.chaudEntretien);
+  _setCb("f-vase", fiche.vase); _setCb("f-purgeur", fiche.purgeur); _setCb("f-disconnecteur", fiche.disconnecteur); _setCb("f-robinets-rad", fiche.robinetsRad);
+  // Radiateurs
+  _setFiche("f-rad-type", fiche.radType); _setFiche("f-rad-nb", fiche.radNb); _setFiche("f-rad-etat", fiche.radEtat);
+  _setCb("f-trv", fiche.trv); _setCb("f-thermostat-prog", fiche.thermostatProg); _setCb("f-thermostat-smart", fiche.thermostatSmart);
+  // ECS
+  _setChips(fiche.ecsTypes || [], ["f-ecs-ballon-elec","f-ecs-ballon-gaz","f-ecs-instantane","f-ecs-thermo","f-ecs-solaire"]);
+  _setFiche("f-ecs-marque", fiche.ecsMarque); _setFiche("f-ecs-capacite", fiche.ecsCapacite); _setFiche("f-ecs-annee", fiche.ecsAnnee);
+  // Plomberie
+  _setFiche("f-cana-type", fiche.canaType); _setFiche("f-vanne-etat", fiche.vanneEtat); _setFiche("f-pression", fiche.pression);
+  _setCb("f-adoucisseur", fiche.adoucisseur); _setCb("f-dfi", fiche.dfi); _setCb("f-reducpression", fiche.reducpression); _setCb("f-filtre-line", fiche.filtreLine);
+  // Clim
+  _setFiche("f-clim-present", fiche.climPresent); _setFiche("f-clim-nb", fiche.climNb); _setFiche("f-clim-marque", fiche.climMarque); _setFiche("f-clim-annee", fiche.climAnnee); _setFiche("f-clim-entretien", fiche.climEntretien);
+  // Gaz
+  _setFiche("f-gaz-present", fiche.gazPresent); _setFiche("f-gaz-compteur", fiche.gazCompteur); _setFiche("f-gaz-controle", fiche.gazControle);
+  _setCb("f-vanne-gaz", fiche.vanneGaz); _setCb("f-detecteur-gaz", fiche.detecteurGaz); _setCb("f-detecteur-co", fiche.detecteurCO);
+  // Opportunités
+  ["fo-chaudiere","fo-ballon","fo-adoucisseur","fo-clim","fo-trv","fo-robinets","fo-contrat","fo-thermostat","fo-plancher","fo-renovation-sdb"].forEach(id => {
+    _setCb(id, (fiche.opportunites||[]).includes(id));
+  });
+  // Notes
+  _setFiche("f-notes-libres", fiche.notes);
+
+  document.getElementById("modal-fiche-logement").classList.remove("hidden");
+}
+
+function _setFiche(id, val){ var el = document.getElementById(id); if(el && val !== undefined && val !== null) el.value = val; }
+function _setCb(id, val){ var el = document.getElementById(id); if(el) el.checked = !!val; }
+function _setChips(active, ids){
+  ids.forEach(id => {
+    var el = document.getElementById(id);
+    if(!el) return;
+    if(active.includes(id)){ el.classList.add("active"); } else { el.classList.remove("active"); }
+  });
+}
+function toggleChip(el, id){ el.classList.toggle("active"); autoSaveFiche(); }
+
+function _readFiche(){
+  var f = {};
+  var g = function(id){ var el=document.getElementById(id); return el?el.value:undefined; };
+  var cb = function(id){ var el=document.getElementById(id); return el?el.checked:false; };
+  // Logement
+  f.typeLogement=g("f-type-logement"); f.surface=g("f-surface")?Number(g("f-surface")):undefined;
+  f.etage=g("f-etage")!==undefined&&g("f-etage")!==""?Number(g("f-etage")):undefined;
+  f.nbPieces=g("f-nb-pieces")?Number(g("f-nb-pieces")):undefined; f.nbSdb=g("f-nb-sdb"); f.anneeConst=g("f-annee-const")?Number(g("f-annee-const")):undefined;
+  // Chauffage
+  f.chauffageTypes=["f-chauf-gaz","f-chauf-fioul","f-chauf-elec","f-chauf-pac","f-chauf-bois","f-chauf-plancher"].filter(id=>{var el=document.getElementById(id);return el&&el.classList.contains("active");});
+  f.chaudMarque=g("f-chaud-marque"); f.chaudModele=g("f-chaud-modele"); f.chaudAnnee=g("f-chaud-annee")?Number(g("f-chaud-annee")):undefined; f.chaudEntretien=g("f-chaud-entretien");
+  f.vase=cb("f-vase"); f.purgeur=cb("f-purgeur"); f.disconnecteur=cb("f-disconnecteur"); f.robinetsRad=cb("f-robinets-rad");
+  // Radiateurs
+  f.radType=g("f-rad-type"); f.radNb=g("f-rad-nb")?Number(g("f-rad-nb")):undefined; f.radEtat=g("f-rad-etat");
+  f.trv=cb("f-trv"); f.thermostatProg=cb("f-thermostat-prog"); f.thermostatSmart=cb("f-thermostat-smart");
+  // ECS
+  f.ecsTypes=["f-ecs-ballon-elec","f-ecs-ballon-gaz","f-ecs-instantane","f-ecs-thermo","f-ecs-solaire"].filter(id=>{var el=document.getElementById(id);return el&&el.classList.contains("active");});
+  f.ecsMarque=g("f-ecs-marque"); f.ecsCapacite=g("f-ecs-capacite")?Number(g("f-ecs-capacite")):undefined; f.ecsAnnee=g("f-ecs-annee")?Number(g("f-ecs-annee")):undefined;
+  // Plomberie
+  f.canaType=g("f-cana-type"); f.vanneEtat=g("f-vanne-etat"); f.pression=g("f-pression");
+  f.adoucisseur=cb("f-adoucisseur"); f.dfi=cb("f-dfi"); f.reducpression=cb("f-reducpression"); f.filtreLine=cb("f-filtre-line");
+  // Clim
+  f.climPresent=g("f-clim-present"); f.climNb=g("f-clim-nb")?Number(g("f-clim-nb")):undefined; f.climMarque=g("f-clim-marque"); f.climAnnee=g("f-clim-annee")?Number(g("f-clim-annee")):undefined; f.climEntretien=g("f-clim-entretien");
+  // Gaz
+  f.gazPresent=g("f-gaz-present"); f.gazCompteur=g("f-gaz-compteur"); f.gazControle=g("f-gaz-controle");
+  f.vanneGaz=cb("f-vanne-gaz"); f.detecteurGaz=cb("f-detecteur-gaz"); f.detecteurCO=cb("f-detecteur-co");
+  // Opportunités
+  f.opportunites=["fo-chaudiere","fo-ballon","fo-adoucisseur","fo-clim","fo-trv","fo-robinets","fo-contrat","fo-thermostat","fo-plancher","fo-renovation-sdb"].filter(cb);
+  // Notes
+  f.notes=g("f-notes-libres");
+  return f;
+}
+
+function autoSaveFiche(){
+  clearTimeout(_ficheAutoSaveTimer);
+  _ficheAutoSaveTimer = setTimeout(function(){
+    if(!_ficheClientTel) return;
+    saveFicheLogement(_ficheClientTel, _readFiche());
+    var st = document.getElementById("fiche-save-status");
+    if(st){ st.textContent = "✓ Sauvegardé"; setTimeout(()=>{ st.textContent=""; }, 2000); }
+    renderRdv();
+  }, 600);
+}
+</script>
+
+<script>
+if('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+}
 </script>
 
 </body>
