@@ -25,27 +25,29 @@
   <polygon points="0,445 1200,388 1200,408 0,465" fill="#4db8e8" opacity="0.7"/>
 
   <!-- LOGO PRINCIPAL en haut à gauche -->
-  <!-- Icône goutte -->
-  <g transform="translate(40, 40) scale(1.5)">
-    <path d="M55,5 C55,5 18,55 18,82 C18,104 34.5,122 55,122 C75.5,122 92,104 92,82 C92,55 55,5 55,5 Z"
+  <!-- Icône goutte + feuille -->
+  <g transform="translate(30, 25)">
+    <path d="M78,5 C78,5 37,61 37,92 C37,116 55,134 78,134 C101,134 119,116 119,92 C119,61 78,5 78,5 Z"
           fill="url(#dropGradR)" />
-    <path d="M55,38 C55,38 75,55 78,75 C78,75 65,88 55,85 C55,85 55,38 55,38 Z"
-          fill="url(#leafGradR)" opacity="0.85"/>
-    <path d="M30,82 Q42,70 55,80 Q68,90 80,78"
-          stroke="white" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.9"/>
-    <path d="M33,95 Q45,84 57,93 Q68,101 80,91"
-          stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.6"/>
+    <path d="M78,34 C78,34 108,58 112,88 C112,88 100,109 78,104 Z"
+          fill="url(#leafGradR)" opacity="0.92"/>
+    <ellipse cx="60" cy="61" rx="8" ry="15" fill="white" opacity="0.22"
+             transform="rotate(-25 60 61)"/>
+    <path d="M49,92 Q63,80 78,90 Q93,100 107,88"
+          stroke="white" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.88"/>
+    <path d="M51,107 Q65,96 79,105 Q93,115 107,103"
+          stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.55"/>
   </g>
 
   <!-- Texte GreenFlow -->
-  <text x="265" y="120" font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
-        font-weight="900" font-size="72" fill="#1a2e5a">
-    <tspan fill="#5cb85c">Green</tspan><tspan fill="#1a2e5a">Flow</tspan>
+  <text x="178" y="112" font-family="'Arial Black', 'Franklin Gothic Heavy', 'Helvetica Neue', Arial, sans-serif"
+        font-weight="900" font-size="80" fill="#1a2e5a">
+    <tspan fill="#4ab84a">Green</tspan><tspan fill="#1a2e5a">Flow</tspan>
   </text>
-  <line x1="265" y1="138" x2="830" y2="138" stroke="#4db8e8" stroke-width="3"/>
-  <text x="265" y="178" font-family="Arial, Helvetica, sans-serif"
-        font-weight="400" font-size="30" fill="#1a2e5a" letter-spacing="12">
-    TECHNOLOGIES
+  <line x1="178" y1="128" x2="840" y2="128" stroke="#3bbce8" stroke-width="3"/>
+  <text x="182" y="168" font-family="Arial, Helvetica, sans-serif"
+        font-weight="300" font-size="32" fill="#1a2e5a" letter-spacing="12">
+    Technologies
   </text>
 
   <!-- Séparateur -->
