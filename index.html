@@ -2288,6 +2288,142 @@ var PRIX_CONTRATS_T={
   'Ballon thermodynamique':{Essentiel:129,Confort:179,Premium:249},
   "Adoucisseur d'eau":{Essentiel:119,Confort:169,Premium:219},
 };
+function getClients(){return JSON.parse(localStorage.getItem('pl_clients')||'[]');}
+
+function rechercherClientContrat(val){
+  var box=document.getElementById('tct-client-results');
+  if(!box)return;
+  if(!val||val.length<2){box.style.display='none';return;}
+  var clients=getClients();
+  var found=clients.filter(function(c){
+    return(c.nom||'').toLowerCase().includes(val.toLowerCase())||(c.tel||'').includes(val);
+  }).slice(0,5);
+  if(!found.length){box.style.display='none';return;}
+  box.innerHTML=found.map(function(c){
+    return'<div onclick="remplirClientContrat('+JSON.stringify(c).replace(/"/g,'&quot;')+')" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9;font-size:13px;" onmouseover="this.style.background=\'#f8fafc\'" onmouseout="this.style.background=\'\'">'
+    +'<div style="font-weight:700;">'+c.nom+'</div>'
+    +'<div style="font-size:11px;color:#64748b;">'+(c.tel||'')+(c.adresse?' · '+c.adresse:'')+'</div>'
+    +'</div>';
+  }).join('');
+  box.style.display='block';
+}
+
+function remplirClientContrat(c){
+  var set=function(id,v){var e=document.getElementById(id);if(e)e.value=v||'';};
+  set('tct-client-search',c.nom||'');
+  set('tct-client-nom',c.nom||'');
+  set('tct-tel',c.tel||'');
+  set('tct-email',c.email||'');
+  set('tct-adresse',c.adresse||'');
+  var box=document.getElementById('tct-client-results');if(box)box.style.display='none';
+}
+
+function majPrixContrat(){
+  var eq=document.getElementById('tct-equipement');
+  if(!eq)return;
+  var val=eq.value;
+  var note=document.getElementById('tct-clim-note');
+  if(note)note.style.display=val==='Climatisation'?'block':'none';
+  if(!val||!PRIX_CONTRATS_T[val])return;
+  var prix=PRIX_CONTRATS_T[val];
+  var pe=document.getElementById('prix-essentiel');if(pe)pe.innerHTML=prix.Essentiel+'€<span style="font-size:11px;font-weight:400;color:#64748b;">/an</span>';
+  var pc=document.getElementById('prix-confort');if(pc)pc.innerHTML=prix.Confort+'€<span style="font-size:11px;font-weight:400;color:#64748b;">/an</span>';
+  var pp=document.getElementById('prix-premium');if(pp)pp.innerHTML=prix.Premium+'€<span style="font-size:11px;font-weight:400;color:#64748b;">/an</span>';
+}
+
+function selectFormule(f){
+  document.getElementById('tct-formule').value=f;
+  ['essentiel','confort','premium'].forEach(function(n){
+    var card=document.getElementById('card-'+n);
+    if(!card)return;
+    if(n===f.toLowerCase()){
+      card.style.borderColor=f==='Premium'?'#f59e0b':f==='Confort'?'#2e7d32':'#0d2d52';
+      card.style.boxShadow='0 4px 16px rgba(0,0,0,0.12)';
+      card.style.transform='translateY(-2px)';
+    }else{
+      card.style.borderColor='#e2e8f0';
+      card.style.boxShadow='none';
+      card.style.transform='none';
+    }
+  });
+}
+
+function selFreqContrat(val,btn){
+  document.getElementById('tct-freq').value=val;
+  document.querySelectorAll('.tct-freq-btn').forEach(function(b){b.style.background='#f1f5f9';b.style.color='#64748b';});
+  btn.style.background='#0d2d52';btn.style.color='#fff';
+}
+
+function selModeContrat(val,btn){
+  document.getElementById('tct-mode').value=val;
+  document.querySelectorAll('.tct-mode-btn').forEach(function(b){b.style.background='#f1f5f9';b.style.color='#64748b';});
+  btn.style.background='#0d2d52';btn.style.color='#fff';
+}
+
+function toggleContratView(view){
+  var form=document.getElementById('form-contrat-tech');
+  var liste=document.getElementById('liste-contrats-tech-wrap');
+  if(view==='form'){if(form)form.style.display='';if(liste)liste.style.display='none';}
+  else{if(form)form.style.display='none';if(liste)liste.style.display='';renderContratsTech();}
+  document.querySelectorAll('.tct-view-btn').forEach(function(b){b.style.background='#f1f5f9';b.style.color='#64748b';});
+  var btn=document.getElementById('tct-btn-'+view);if(btn){btn.style.background='#0d2d52';btn.style.color='#fff';}
+}
+
+var _lastContratSaved=null;
+function envoyerMailContrat(){
+  if(_lastContratSaved)notifierSecretaireContrat(_lastContratSaved);
+}
+
+function genererContratPDFTech(c){
+  var PRIX_CONTRATS_T_PDF=PRIX_CONTRATS_T;
+  var num='CTR-'+new Date().getFullYear()+'-'+String(c.id).slice(-4);
+  var w=window.open('','_blank','width=900,height=700');
+  if(!w)return;
+  var FEAT={
+    Essentiel:['✓ Vérification complète de l'installation','✓ 1 visite d'entretien par an','✓ Nettoyage des composants essentiels','✓ Nettoyage du bac','✓ Attestation d'entretien'],
+    Confort:['✓ Tout ce qui est inclus dans ESSENTIEL','✓ Prise en charge plus rapide','✓ Déplacement dépannage inclus','✓ Rétablissement prioritaire','✓ Interventions plus rapides (si pièces disponibles)','✓ Conseil à votre client'],
+    Premium:['✓ Tout ce qui est inclus dans CONFORT','✓ 10% à 20% sur les pièces','✓ Remise sur la main d'œuvre','✓ Assistance téléphonique permanente','✓ Dispatching personnalisé','✓ Carnet livret annuel sécurisé','✓ Technicien dédié']
+  };
+  var features=(FEAT[c.formule]||FEAT.Confort).join('<br>');
+  var techNom=c.tech||'';
+  var today=new Date().toLocaleDateString('fr-FR');
+  var finContrat=new Date(c.prochaine).toLocaleDateString('fr-FR');
+  var freqLabel={'mensuel':'Mensuel','trimestriel':'Trimestriel','annuel':'Annuel (1 paiement)'}[c.freq||'annuel']||'Annuel';
+  var modeLabel={'prelevement':'Prélèvement automatique','cheque':'Chèque','virement':'Virement bancaire'}[c.mode||'prelevement']||'Prélèvement automatique';
+  var formuleCards=['Essentiel','Confort','Premium'].map(function(f){
+    var p=(PRIX_CONTRATS_T_PDF[c.equipement]||{})[f]||'—';
+    var badge=f==='Confort'?'<div style="font-size:8px;background:#2e7d32;color:#fff;border-radius:4px;padding:1px 6px;margin-bottom:3px;">Le + populaire</div>':f==='Premium'?'<div style="font-size:8px;">⭐</div>':'<div style="font-size:8px;">&nbsp;</div>';
+    return '<div style="flex:1;border:2px solid '+(c.formule===f?(f==='Premium'?'#f59e0b':'#2e7d32'):'#e2e8f0')+';border-radius:8px;padding:8px;text-align:center;font-size:9px;background:'+(c.formule===f?'#f0fdf4':'#fff')+';">'+badge+'<div style="font-weight:800;font-size:11px;text-transform:uppercase;margin-bottom:4px;">'+f+'</div><div style="font-size:16px;font-weight:900;color:#2e7d32;">'+p+'€/an</div></div>';
+  }).join('');
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Contrat '+num+'</title><style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;color:#1a1a2e;font-size:12px;padding:20px;background:#fff;}@media print{@page{size:A4;margin:1cm;}body{padding:10px;}}.header{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #2e7d32;padding-bottom:16px;margin-bottom:16px;}.logo{font-size:22px;font-weight:900;color:#0d2d52;}.logo span{color:#2e7d32;}.logo-sub{font-size:9px;color:#64748b;letter-spacing:1px;text-transform:uppercase;}.title{text-align:right;}.title h1{font-size:18px;font-weight:900;color:#0d2d52;text-transform:uppercase;}.title .sub{font-size:10px;color:#64748b;letter-spacing:1px;}.section{margin-bottom:14px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;}.section-head{background:#0d2d52;color:#fff;padding:8px 14px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}.section-body{padding:12px 14px;}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;}.field label{font-size:9px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;display:block;margin-bottom:3px;}.field .val{font-size:12px;font-weight:600;border-bottom:1px solid #e2e8f0;padding:4px 0;min-height:22px;}.formule-box{display:flex;gap:8px;margin-bottom:8px;}.features{font-size:10px;line-height:2;color:#374151;background:#f8fafc;padding:10px 12px;border-radius:6px;margin-top:8px;}.sign-area{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:12px;}.sign-box{border:1.5px dashed #94a3b8;border-radius:8px;height:80px;display:flex;align-items:flex-end;padding:6px 10px;font-size:9px;color:#94a3b8;}.footer{margin-top:12px;border-top:1px solid #e2e8f0;padding-top:10px;display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#94a3b8;}.cond{font-size:8px;color:#64748b;line-height:1.6;margin-top:8px;border-top:1px solid #f1f5f9;padding-top:8px;}</style></head><body>'
+    +'<div class="header"><div><div class="logo">Green<span>Flow</span> <span style="font-size:11px;background:#2e7d32;color:#fff;border-radius:4px;padding:2px 6px;font-weight:700;vertical-align:middle;">TECHNOLOGIES</span></div><div class="logo-sub">Plomberie · Chauffage · Climatisation</div><div style="font-size:9px;color:#64748b;margin-top:2px;">📍 5 rue des Bois-Fleuris, 17700 SAINTES | ☎ 05 46 53 02 52 | ✉ greenflow@greenflow-flow.net</div></div>'
+    +'<div class="title"><h1>Contrat d'entretien</h1><div class="sub">Tranquillité · Performance · Sérénité</div><div style="margin-top:6px;font-size:11px;font-weight:700;color:#0d2d52;">'+num+'</div><div style="font-size:9px;color:#64748b;">Signé le '+today+'</div></div></div>'
+    +'<div class="section"><div class="section-head">1. Informations client</div><div class="section-body"><div class="row"><div class="field"><label>Nom complet</label><div class="val">'+(c.client||'')+'</div></div><div class="field"><label>Téléphone</label><div class="val">'+(c.tel||'')+'</div></div></div><div class="row"><div class="field"><label>Email</label><div class="val">'+(c.email||'')+'</div></div><div class="field"><label>N° Contrat</label><div class="val">'+num+'</div></div></div><div class="field"><label>Adresse</label><div class="val">'+(c.adresse||'')+'</div></div></div></div>'
+    +'<div class="section"><div class="section-head">2. Objet du contrat — Équipement</div><div class="section-body"><div class="row"><div class="field"><label>Type d'équipement</label><div class="val">'+(c.equipement||'')+'</div></div><div class="field"><label>Marque</label><div class="val">'+(c.marque||'')+'</div></div></div><div class="row"><div class="field"><label>Modèle</label><div class="val">'+(c.modele||'')+'</div></div><div class="field"><label>Année d'installation</label><div class="val">'+(c.annee||'')+'</div></div></div>'+(c.serie?'<div class="field"><label>N° de série</label><div class="val">'+c.serie+'</div></div>':'')+(c.notes?'<div class="field" style="margin-top:6px;"><label>Notes</label><div class="val">'+c.notes+'</div></div>':'')+'</div></div>'
+    +'<div class="section"><div class="section-head">3. Formule choisie</div><div class="section-body"><div class="formule-box">'+formuleCards+'</div><div class="features">'+features+'</div></div></div>'
+    +'<div class="section"><div class="section-head">4. Tarifs et modalités de paiement</div><div class="section-body"><div class="row"><div class="field"><label>Montant annuel TTC</label><div class="val" style="font-size:16px;font-weight:800;color:#2e7d32;">'+(c.montant||'')+'€</div></div><div class="field"><label>Fréquence de paiement</label><div class="val">'+freqLabel+'</div></div></div><div class="row"><div class="field"><label>Mode de paiement</label><div class="val">'+modeLabel+'</div></div><div class="field"><label>Début du contrat</label><div class="val">'+new Date(c.debut).toLocaleDateString('fr-FR')+'</div></div></div><div class="field"><label>Renouvellement / Prochaine visite</label><div class="val">'+finContrat+'</div></div></div></div>'
+    +'<div class="section"><div class="section-head">5. Signatures</div><div class="section-body"><div class="sign-area"><div><div style="font-size:9px;font-weight:700;color:#64748b;margin-bottom:6px;">CLIENT — Bon pour accord, lu et approuvé :</div><div class="sign-box">Signature</div></div><div><div style="font-size:9px;font-weight:700;color:#64748b;margin-bottom:6px;">POUR GREENFLOW — Technicien : '+techNom+'</div><div class="sign-box">Signature</div></div></div><div class="cond">CONDITIONS GÉNÉRALES : Le présent contrat est conclu pour une durée d'un an renouvelable par tacite reconduction. Il peut être résilié par lettre recommandée avec accusé de réception 30 jours avant l'échéance. GreenFlow Technologies se réserve le droit de modifier les tarifs sous réserve d'en informer le client 30 jours à l'avance. FORMULAIRE DE RÉTRACTATION : Pour exercer le droit de rétractation, le client doit notifier sa décision par écrit dans un délai de 14 jours à compter de la signature du présent contrat. Contact : GreenFlow Technologies, 5 rue des Bois-Fleuris, 17700 Saintes.</div></div></div>'
+    +'<div class="footer"><div>GreenFlow Technologies · SIRET : [VOTRE SIRET] · RGE certifié</div><div>📞 05 46 53 02 52 · greenflow@greenflow-flow.net · 24h/7j</div><div style="color:#2e7d32;font-weight:700;">'+num+'</div></div>'
+    +'</body></html>');
+  w.document.close();
+  setTimeout(function(){w.print();},500);
+}
+
+function notifierSecretaireContrat(c){
+  try{
+    var courriers=JSON.parse(localStorage.getItem('pl_courrier')||'[]');
+    courriers.unshift({id:Date.now(),de:'Tech: '+c.tech,sujet:'Nouveau contrat signé — '+c.client,corps:'Contrat '+c.formule+' signé pour '+c.client+' ('+c.tel+') — '+c.equipement+' — '+c.montant+'€/an. Adresse: '+c.adresse+'. Email client: '+(c.email||'non renseigné')+'. Merci de préparer la facture et d'envoyer le contrat par email.',date:new Date().toISOString(),lu:false,type:'contrat'});
+    var v=JSON.stringify(courriers);localStorage.setItem('pl_courrier',v);
+    if(window.gfSync)window.gfSync('pl_courrier',v);
+  }catch(e){}
+  if(c.email){
+    var num='CTR-'+new Date().getFullYear()+'-'+String(c.id).slice(-4);
+    var sujet=encodeURIComponent('Votre contrat d'entretien GreenFlow — '+num);
+    var corps=encodeURIComponent('Bonjour '+c.client+',\n\nNous avons le plaisir de vous confirmer la souscription de votre contrat d'entretien GreenFlow Technologies.\n\nFormule : '+c.formule+'\nÉquipement : '+c.equipement+(c.marque?' '+c.marque:'')+(c.modele?' '+c.modele:'')+'\nMontant : '+c.montant+'€/an\nDébut : '+new Date(c.debut).toLocaleDateString('fr-FR')+'\n\nVotre technicien référent : '+c.tech+'\n\nPour toute question : 05 46 53 02 52 ou greenflow@greenflow-flow.net\n\nCordialement,\nL'équipe GreenFlow Technologies');
+    window.open('mailto:'+c.email+'?subject='+sujet+'&body='+corps,'_blank');
+  }
+}
+
 function getContratsTech(){try{return JSON.parse(localStorage.getItem('pl_contrats')||'[]');}catch(e){return[];}}
 function saveContratsTech(arr){var s=JSON.stringify(arr);localStorage.setItem('pl_contrats',s);if(window.gfSync)gfSync('pl_contrats',s);}
 function calcPrixContratTech(){
