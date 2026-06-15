@@ -444,6 +444,112 @@ body.logged-in #ai-fab{display:flex!important;}
   </div>
 </div>
 
+<!-- MODULE COMMERCIAL -->
+
+<!-- PAGE LEADS / DEMANDES -->
+<div id="page-leads" class="hidden">
+  <div class="card b" style="margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div class="lbl" style="margin:0;">📨 DEMANDES ENTRANTES</div>
+      <button class="btn btn-primary" style="font-size:11px;padding:6px 12px;" onclick="toggleFormLead()">+ Saisir demande</button>
+    </div>
+    <!-- Filtres statut -->
+    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;" id="leads-tabs">
+      <button onclick="filtrerLeads('tous',this)" style="flex-shrink:0;background:#1a4a7a;color:#fff;border:none;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;cursor:pointer;">Tous</button>
+      <button onclick="filtrerLeads('nouveau',this)" style="flex-shrink:0;background:#f0fdf4;color:#15803d;border:1px solid #86efac;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;cursor:pointer;">🔵 Nouveau</button>
+      <button onclick="filtrerLeads('devis_envoye',this)" style="flex-shrink:0;background:#fffbeb;color:#b45309;border:1px solid #fcd34d;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;cursor:pointer;">📧 Devis envoyé</button>
+      <button onclick="filtrerLeads('rdv_fixe',this)" style="flex-shrink:0;background:#eff6ff;color:#1d4ed8;border:1px solid #93c5fd;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;cursor:pointer;">📅 RDV fixé</button>
+      <button onclick="filtrerLeads('signe',this)" style="flex-shrink:0;background:#f0fdf4;color:#15803d;border:1px solid #86efac;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;cursor:pointer;">✅ Signé</button>
+      <button onclick="filtrerLeads('perdu',this)" style="flex-shrink:0;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;cursor:pointer;">❌ Perdu</button>
+    </div>
+    <div id="leads-liste"></div>
+  </div>
+  <!-- Formulaire nouvelle demande -->
+  <div id="form-lead" class="hidden card" style="margin-bottom:12px;border:2px solid #3a8c30;">
+    <div class="lbl" style="color:#3a8c30;margin-bottom:10px;">+ NOUVELLE DEMANDE</div>
+    <input id="lead-nom" class="inp" placeholder="Nom du client *" style="margin-bottom:8px;">
+    <input id="lead-tel" class="inp" placeholder="Téléphone" type="tel" style="margin-bottom:8px;">
+    <input id="lead-email" class="inp" placeholder="Email" type="email" style="margin-bottom:8px;">
+    <input id="lead-type" class="inp" placeholder="Type de prestation (ex: Salle de bain complète)" style="margin-bottom:8px;">
+    <input id="lead-adresse" class="inp" placeholder="Adresse" style="margin-bottom:8px;">
+    <input id="lead-budget" class="inp" placeholder="Budget estimé (€)" type="number" style="margin-bottom:8px;">
+    <select id="lead-source" class="inp" style="margin-bottom:8px;">
+      <option value="">Source du contact</option>
+      <option value="Google">🌐 Google</option>
+      <option value="Recommandation">⭐ Recommandation</option>
+      <option value="Facebook">📣 Facebook</option>
+      <option value="Terrain">🏠 Terrain</option>
+      <option value="Rappel client">📞 Rappel client</option>
+      <option value="Autre">❓ Autre</option>
+    </select>
+    <textarea id="lead-notes" class="inp" placeholder="Notes / description du projet" style="height:60px;resize:none;margin-bottom:10px;"></textarea>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-gray" style="flex:1;" onclick="toggleFormLead()">Annuler</button>
+      <button class="btn btn-g" style="flex:1;" onclick="sauvegarderLead()">✅ Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE MES RDV COMMERCIAUX -->
+<div id="page-com-rdv" class="hidden">
+  <div class="card b" style="margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div class="lbl" style="margin:0;">📅 MES RENDEZ-VOUS COMMERCIAUX</div>
+      <button class="btn btn-primary" style="font-size:11px;padding:6px 12px;" onclick="toggleFormRdvCom()">+ Nouveau RDV</button>
+    </div>
+    <!-- Stats rapides -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;" id="com-rdv-stats"></div>
+    <div id="com-rdv-liste"></div>
+  </div>
+  <!-- Formulaire nouveau RDV com -->
+  <div id="form-rdv-com" class="hidden card" style="margin-bottom:12px;border:2px solid #2563eb;">
+    <div class="lbl" style="color:#2563eb;margin-bottom:10px;">+ NOUVEAU RDV COMMERCIAL</div>
+    <input id="rdvcom-client" class="inp" placeholder="Nom du client *" style="margin-bottom:8px;">
+    <input id="rdvcom-tel" class="inp" placeholder="Téléphone" type="tel" style="margin-bottom:8px;">
+    <input id="rdvcom-type" class="inp" placeholder="Objet du RDV (ex: Estimation salle de bain)" style="margin-bottom:8px;">
+    <input id="rdvcom-adresse" class="inp" placeholder="Adresse" style="margin-bottom:8px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+      <input id="rdvcom-date" class="inp" type="date">
+      <input id="rdvcom-heure" class="inp" type="time" value="09:00">
+    </div>
+    <textarea id="rdvcom-notes" class="inp" placeholder="Notes / préparation" style="height:50px;resize:none;margin-bottom:10px;"></textarea>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-gray" style="flex:1;" onclick="toggleFormRdvCom()">Annuler</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="sauvegarderRdvCom()">✅ Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE PIPELINE COMMERCIAL -->
+<div id="page-pipeline-com" class="hidden">
+  <div class="card b" style="margin-bottom:12px;">
+    <div class="lbl" style="margin-bottom:12px;">📊 PIPELINE COMMERCIAL</div>
+    <!-- KPIs pipeline -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;" id="pipeline-com-kpis"></div>
+    <!-- Objectif mensuel -->
+    <div style="background:#0d2d52;border-radius:12px;padding:12px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div style="color:rgba(255,255,255,0.6);font-size:10px;font-weight:700;text-transform:uppercase;">OBJECTIF MENSUEL</div>
+        <div style="color:#4ade80;font-size:11px;font-weight:700;" id="pipeline-obj-pct">0%</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.1);border-radius:4px;height:6px;overflow:hidden;margin-bottom:6px;">
+        <div id="pipeline-obj-bar" style="height:100%;background:linear-gradient(90deg,#4ade80,#22c55e);border-radius:4px;width:0%;transition:width 0.4s;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <div style="color:#fff;font-weight:800;font-size:16px;" id="pipeline-ca-signe">0€</div>
+        <div style="color:rgba(255,255,255,0.5);font-size:11px;" id="pipeline-obj-label">/ 70 000€ objectif</div>
+      </div>
+    </div>
+    <!-- Funnel visuel -->
+    <div id="pipeline-funnel"></div>
+  </div>
+  <!-- Tableau des affaires en cours -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="lbl" style="margin-bottom:10px;">AFFAIRES EN COURS</div>
+    <div id="pipeline-liste"></div>
+  </div>
+</div>
+
 <!-- À FAIRE -->
 <div id="page-todo" class="hidden">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
@@ -1335,6 +1441,7 @@ function lancerApp(){
   document.querySelectorAll('.ng-btn[data-group]').forEach(b=>b.classList.remove('active'));
   document.getElementById('sub-nav').innerHTML='';
   updateNavBadges();
+  updateLeadsBadge();
   if(window.gfListen)gfListen((key,val)=>{
     localStorage.setItem(key,val);
     window.dispatchEvent(new StorageEvent('storage',{key,newValue:val,storageArea:localStorage}));
@@ -1348,7 +1455,13 @@ function lancerApp(){
       if(!document.getElementById('page-rapports').classList.contains('hidden'))renderRapports();
       if(!document.getElementById('page-todo').classList.contains('hidden'))renderToDo();
     }
+    if(e.key==='pl_rdv_com'){
+      if(!document.getElementById('page-com-rdv').classList.contains('hidden'))renderComRdv();
+    }
     if(e.key==='pl_devis'){
+      updateLeadsBadge();
+      if(!document.getElementById('page-leads').classList.contains('hidden'))renderLeads();
+      if(!document.getElementById('page-pipeline-com').classList.contains('hidden'))renderPipelineCom();
       updateNavBadges();
       renderDashboard();
       const devisArr=JSON.parse(e.newValue||'[]');
@@ -1444,6 +1557,9 @@ const NAV_GROUPS={
     {p:'contrats-cadres',label:'📄 Mandants',id:'nav-contrats-cadres'},
   ],
   commercial:[
+    {p:'leads',label:'📨 Demandes',id:'nav-leads'},
+    {p:'com-rdv',label:'📅 Mes RDV',id:'nav-com-rdv'},
+    {p:'pipeline-com',label:'📊 Pipeline',id:'nav-pipeline-com'},
     {p:'analytics',label:'📊 Analytics',id:'nav-analytics'},
     {p:'crm',label:'👥 CRM & NPS',id:'nav-crm'},
     {p:'mandants',label:'🤝 Mandants',id:'nav-mandants'},
@@ -1498,7 +1614,7 @@ function showPage(p){
     if(p==='dashboard') document.getElementById('ng-home')?.classList.add('active');
     if(p==='params') document.getElementById('ng-params')?.classList.add('active');
   }
-  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps","mandants","contrats-cadres","stock","sous-traitants","appels-offres","organigramme","planning-long","gantt","passation","rappels","appels","todo"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
+  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps","mandants","contrats-cadres","stock","sous-traitants","appels-offres","organigramme","planning-long","gantt","passation","rappels","appels","todo","leads","com-rdv","pipeline-com"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
   const pageEl=document.getElementById("page-"+p);if(pageEl)pageEl.classList.remove("hidden");
   if(p==="dashboard")renderDashboard();
   if(p==="dispatch"){renderDisposDispatch();renderPlanningJour();renderAPlanifierPatron();}
@@ -1528,6 +1644,9 @@ function showPage(p){
   if(p==='rappels')renderRappels();
   if(p==='appels')renderAppelsPatron();
   if(p==='todo')renderToDo();
+  if(p==='leads'){renderLeads();updateLeadsBadge();}
+  if(p==='com-rdv')renderComRdv();
+  if(p==='pipeline-com')renderPipelineCom();
 }
 
 function showAnalytics(p){
@@ -2361,6 +2480,211 @@ var w=window.open('','_blank','width=900,height=700');
 if(!w)return;
 w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Facture '+num+'</title><style>body{font-family:Arial,sans-serif;margin:0;padding:30px;color:#0d1b2e;font-size:13px;}@media print{@page{size:A4;margin:1cm;}body{padding:15px;}}.header{display:flex;justify-content:space-between;border-bottom:3px solid #0d2d52;padding-bottom:20px;margin-bottom:24px;}.logo{font-size:26px;font-weight:900;}.logo span{color:#3a8c30;}table{width:100%;border-collapse:collapse;}th{background:#f7f9fc;padding:10px;text-align:left;font-size:11px;letter-spacing:1px;font-weight:700;color:#64748b;text-transform:uppercase;}td{padding:8px 10px;}</style></head><body><div class="header"><div><div class="logo">Green<span>Flow</span></div><div style="font-size:11px;color:#64748b;margin-top:4px;">Plomberie · Chauffage · Sanitaire</div></div><div style="text-align:right;"><div style="font-size:10px;color:#64748b;letter-spacing:2px;font-weight:700;">FACTURE</div><div style="font-size:22px;font-weight:900;color:#0d2d52;margin-top:4px;">'+num+'</div><div style="font-size:11px;color:#64748b;margin-top:4px;">'+r.date+'</div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-bottom:24px;"><div><div style="font-size:10px;letter-spacing:2px;font-weight:700;color:#64748b;margin-bottom:8px;">CLIENT</div><div style="font-weight:700;font-size:14px;">'+r.clientNom+'</div><div>'+r.clientTel+'</div><div style="color:#64748b;">'+r.adresse+'</div></div><div><div style="font-size:10px;letter-spacing:2px;font-weight:700;color:#64748b;margin-bottom:8px;">TECHNICIEN</div><div>'+r.technicien+'</div><div style="color:#64748b;">'+r.heureDebut+' — '+r.heureFin+'</div></div></div><table><thead><tr><th>Prestation</th><th style="text-align:right;">Montant HT</th><th style="text-align:right;">TVA 10%</th><th style="text-align:right;">TTC</th></tr></thead><tbody><tr><td>'+r.type+(r.description?' — '+r.description.substring(0,80):'')+'</td><td style="text-align:right;">'+ht.toLocaleString("fr-FR")+'€</td><td style="text-align:right;">'+tva.toLocaleString("fr-FR")+'€</td><td style="text-align:right;font-weight:700;">'+r.montantFinal.toLocaleString("fr-FR")+'€</td></tr></tbody><tfoot><tr><td colspan="3" style="text-align:right;padding:10px;font-weight:800;font-size:15px;">TOTAL TTC</td><td style="text-align:right;font-size:18px;font-weight:900;color:#0d2d52;padding:10px;">'+r.montantFinal.toLocaleString("fr-FR")+'€</td></tr></tfoot></table></body></html>');
 w.document.close();setTimeout(function(){w.print();},400);
+}
+
+// ============================================================
+// MODULE COMMERCIAL
+// ============================================================
+function getLeads(){return JSON.parse(localStorage.getItem('pl_devis')||'[]');}
+function saveLeads(arr){var v=JSON.stringify(arr);localStorage.setItem('pl_devis',v);if(window.gfSync)gfSync('pl_devis',v);}
+function getRdvCom(){return JSON.parse(localStorage.getItem('pl_rdv_com')||'[]');}
+function saveRdvCom(arr){var v=JSON.stringify(arr);localStorage.setItem('pl_rdv_com',v);if(window.gfSync)gfSync('pl_rdv_com',v);}
+var _leadsFiltre='tous',_modalLeadId=null;
+function toggleFormLead(){document.getElementById('form-lead').classList.toggle('hidden');}
+function toggleFormRdvCom(){document.getElementById('form-rdv-com').classList.toggle('hidden');}
+function filtrerLeads(f,btn){
+  _leadsFiltre=f;
+  document.querySelectorAll('#leads-tabs button').forEach(function(b){b.style.opacity=b===btn?'1':'0.5';});
+  renderLeads();
+}
+function sauvegarderLead(){
+  var nom=(document.getElementById('lead-nom').value||'').trim();
+  if(!nom){showNotif('Nom obligatoire');return;}
+  var arr=getLeads();
+  arr.push({id:Date.now(),clientNom:nom,clientTel:(document.getElementById('lead-tel').value||'').trim(),clientEmail:(document.getElementById('lead-email').value||'').trim(),type:(document.getElementById('lead-type').value||'').trim()||'Devis',adresse:(document.getElementById('lead-adresse').value||'').trim(),prixEstime:parseFloat(document.getElementById('lead-budget').value)||0,source:document.getElementById('lead-source').value,notes:(document.getElementById('lead-notes').value||'').trim(),statutCom:'nouveau',cible:'commercial',historique:[{label:'Demande créée',ts:new Date().toISOString()}]});
+  saveLeads(arr);toggleFormLead();
+  ['lead-nom','lead-tel','lead-email','lead-type','lead-adresse','lead-budget','lead-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  renderLeads();renderPipelineCom();showNotif('Demande enregistrée ✓');
+}
+function sauvegarderRdvCom(){
+  var client=(document.getElementById('rdvcom-client').value||'').trim();
+  var date=document.getElementById('rdvcom-date').value;
+  if(!client||!date){showNotif('Client et date obligatoires');return;}
+  var arr=getRdvCom();
+  arr.push({id:Date.now(),clientNom:client,clientTel:(document.getElementById('rdvcom-tel').value||'').trim(),type:(document.getElementById('rdvcom-type').value||'').trim()||'RDV commercial',adresse:(document.getElementById('rdvcom-adresse').value||'').trim(),date:date,heure:document.getElementById('rdvcom-heure').value,notes:(document.getElementById('rdvcom-notes').value||'').trim(),statut:'Planifié'});
+  saveRdvCom(arr);toggleFormRdvCom();
+  ['rdvcom-client','rdvcom-tel','rdvcom-type','rdvcom-adresse','rdvcom-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  renderComRdv();showNotif('RDV commercial ajouté ✓');
+}
+var _LEAD_COLORS={nouveau:'#3b82f6',devis_envoye:'#f59e0b',accepte_tel:'#7c3aed',rdv_fixe:'#2563eb',signe:'#16a34a',perdu:'#94a3b8',relance:'#ea580c'};
+var _LEAD_LABELS={nouveau:'Nouveau',devis_envoye:'Devis envoyé',accepte_tel:'Accepté tél.',rdv_fixe:'RDV fixé',signe:'Signé ✓',perdu:'Perdu',relance:'Relance'};
+function renderLeads(){
+  var arr=getLeads();
+  if(_leadsFiltre!=='tous'){
+    if(_leadsFiltre==='nouveau')arr=arr.filter(function(d){return !d.statutCom||d.statutCom==='nouveau';});
+    else arr=arr.filter(function(d){return d.statutCom===_leadsFiltre;});
+  }
+  arr.sort(function(a,b){return (b.id||0)-(a.id||0);});
+  var html='';
+  arr.forEach(function(d){
+    var st=d.statutCom||'nouveau';
+    var c=_LEAD_COLORS[st]||'#94a3b8',l=_LEAD_LABELS[st]||st;
+    var date=d.id?new Date(d.id).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}):'';
+    var lastNote=d.historique&&d.historique.length?d.historique[d.historique.length-1].label:'';
+    html+='<div onclick="ouvrirModalLead(\''+d.id+'\')" style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid '+c+';border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.06);">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
+      +'<div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:13px;color:#1a2537;">'+(d.clientNom||'—')+'</div>'
+      +'<div style="color:#7c3aed;font-size:12px;font-weight:600;">'+(d.type||'Devis')+'</div>'
+      +(d.clientTel?'<div style="color:#64748b;font-size:11px;">📞 '+d.clientTel+'</div>':'')
+      +(d.source?'<div style="color:#64748b;font-size:11px;">via '+d.source+'</div>':'')
+      +(lastNote?'<div style="color:#94a3b8;font-size:10px;margin-top:2px;font-style:italic;">↳ '+lastNote+'</div>':'')+'</div>'
+      +'<div style="text-align:right;flex-shrink:0;">'
+      +'<div style="background:'+c+'20;color:'+c+';border-radius:20px;padding:3px 10px;font-size:10px;font-weight:800;white-space:nowrap;">'+l+'</div>'
+      +'<div style="color:#94a3b8;font-size:10px;margin-top:4px;">'+date+'</div>'
+      +(d.prixEstime?'<div style="color:#16a34a;font-weight:700;font-size:13px;">'+Number(d.prixEstime).toLocaleString('fr-FR')+'€</div>':'')+'</div></div>'
+      +(d.rdvCom?'<div style="margin-top:8px;background:#eff6ff;border-radius:8px;padding:6px 10px;font-size:11px;color:#1d4ed8;">📅 RDV le '+d.rdvCom.date+' à '+d.rdvCom.heure+'</div>':'')
+      +'</div>';
+  });
+  if(!html)html='<div style="text-align:center;padding:32px;color:#94a3b8;font-size:13px;">Aucune demande<br><span style="font-size:11px;">Saisir une demande ou attendre un devis terrain</span></div>';
+  var el=document.getElementById('leads-liste');if(el)el.innerHTML=html;
+}
+function renderComRdv(){
+  var arr=getRdvCom().sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});
+  var today=todayStr();
+  var aVenir=arr.filter(function(r){return r.date>=today&&r.statut!=='Fait';});
+  var passes=arr.filter(function(r){return r.date<today||r.statut==='Fait';});
+  var stats=document.getElementById('com-rdv-stats');
+  if(stats)stats.innerHTML='<div class="sc" style="border-left:3px solid #2563eb;"><div class="lbl">À VENIR</div><div style="font-weight:800;font-size:20px;color:#2563eb;">'+aVenir.length+'</div></div><div class="sc" style="border-left:3px solid #16a34a;"><div class="lbl">RÉALISÉS</div><div style="font-weight:800;font-size:20px;color:#16a34a;">'+passes.length+'</div></div><div class="sc" style="border-left:3px solid #7c3aed;"><div class="lbl">CE MOIS</div><div style="font-weight:800;font-size:20px;color:#7c3aed;">'+arr.filter(function(r){return r.date&&r.date.startsWith(today.substring(0,7));}).length+'</div></div>';
+  var html='';
+  if(aVenir.length){
+    html+='<div style="font-size:11px;font-weight:700;color:#1d4ed8;text-transform:uppercase;margin-bottom:8px;letter-spacing:1px;">À VENIR</div>';
+    aVenir.forEach(function(r){
+      var isToday=r.date===today;
+      html+='<div style="background:'+(isToday?'#eff6ff':'#fff')+';border:2px solid '+(isToday?'#2563eb':'#e2e8f0')+';border-radius:12px;padding:12px 14px;margin-bottom:8px;">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;">'
+        +'<div><div style="font-weight:700;font-size:13px;color:#1a2537;">'+r.clientNom+'</div>'
+        +'<div style="color:#7c3aed;font-size:12px;">'+r.type+'</div>'
+        +(r.adresse?'<div style="color:#64748b;font-size:11px;">📍 '+r.adresse+'</div>':'')+'</div>'
+        +'<div style="text-align:right;"><div style="background:#2563eb;color:#fff;border-radius:8px;padding:4px 10px;font-weight:700;font-size:13px;">'+r.heure+'</div>'
+        +'<div style="color:#64748b;font-size:10px;margin-top:3px;">'+new Date(r.date+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})+'</div>'
+        +(r.clientTel?'<a href="tel:'+r.clientTel+'" onclick="event.stopPropagation()" style="color:#16a34a;font-size:11px;font-weight:700;text-decoration:none;">📞</a>':'')+'</div></div>'
+        +(r.notes?'<div style="margin-top:6px;font-size:11px;color:#64748b;font-style:italic;">'+r.notes+'</div>':'')
+        +'<div style="display:flex;gap:6px;margin-top:8px;">'
+        +'<button onclick="marquerRdvComFait(\''+r.id+'\')" style="background:#16a34a;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">✓ Réalisé</button>'
+        +'<button onclick="supprimerRdvCom(\''+r.id+'\')" style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">Supprimer</button>'
+        +'</div></div>';
+    });
+  }
+  if(passes.length){
+    html+='<div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin:12px 0 8px;letter-spacing:1px;">PASSÉS</div>';
+    passes.slice(0,10).forEach(function(r){
+      html+='<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;margin-bottom:6px;opacity:0.7;">'
+        +'<div style="display:flex;justify-content:space-between;"><div><div style="font-weight:700;font-size:12px;color:#475569;">'+r.clientNom+'</div>'
+        +'<div style="color:#94a3b8;font-size:11px;">'+r.type+'</div></div>'
+        +'<div style="color:#94a3b8;font-size:11px;">'+r.date+' '+r.heure+'</div></div></div>';
+    });
+  }
+  if(!html)html='<div style="text-align:center;padding:32px;color:#94a3b8;">Aucun RDV commercial<br><span style="font-size:11px;">Créer un RDV ou fixer depuis une demande</span></div>';
+  var el=document.getElementById('com-rdv-liste');if(el)el.innerHTML=html;
+}
+function marquerRdvComFait(id){
+  var arr=getRdvCom();var r=arr.find(function(x){return x.id==id;});if(r)r.statut='Fait';
+  saveRdvCom(arr);renderComRdv();showNotif('RDV marqué réalisé ✓');
+}
+function supprimerRdvCom(id){
+  if(!confirm('Supprimer ce RDV ?'))return;
+  saveRdvCom(getRdvCom().filter(function(x){return x.id!=id;}));renderComRdv();
+}
+function renderPipelineCom(){
+  var leads=getLeads();
+  var total=leads.length,nouveaux=leads.filter(function(d){return !d.statutCom||d.statutCom==='nouveau';}).length;
+  var devisEnvoyes=leads.filter(function(d){return d.statutCom==='devis_envoye';}).length;
+  var rdvFixes=leads.filter(function(d){return d.statutCom==='rdv_fixe';}).length;
+  var acceptes=leads.filter(function(d){return d.statutCom==='accepte_tel';}).length;
+  var signes=leads.filter(function(d){return d.statutCom==='signe';}).length;
+  var caSigne=leads.filter(function(d){return d.statutCom==='signe';}).reduce(function(s,d){return s+(d.prixEstime||0);},0);
+  var txConv=total>0?Math.round(signes/total*100):0;
+  var objMois=parseInt(localStorage.getItem('pl_objectif_com')||'70000');
+  var pct=Math.min(100,objMois>0?Math.round(caSigne/objMois*100):0);
+  var kpiEl=document.getElementById('pipeline-com-kpis');
+  if(kpiEl)kpiEl.innerHTML='<div class="sc" style="border-left:3px solid #3b82f6;"><div class="lbl">LEADS TOTAUX</div><div style="font-weight:800;font-size:20px;color:#3b82f6;">'+total+'</div></div><div class="sc" style="border-left:3px solid #f59e0b;"><div class="lbl">DEVIS ENVOYÉS</div><div style="font-weight:800;font-size:20px;color:#f59e0b;">'+devisEnvoyes+'</div></div><div class="sc" style="border-left:3px solid #16a34a;"><div class="lbl">SIGNÉS</div><div style="font-weight:800;font-size:20px;color:#16a34a;">'+signes+'</div></div><div class="sc" style="border-left:3px solid #7c3aed;"><div class="lbl">CONV.</div><div style="font-weight:800;font-size:20px;color:#7c3aed;">'+txConv+'%</div></div>';
+  var pctEl=document.getElementById('pipeline-obj-pct'),barEl=document.getElementById('pipeline-obj-bar'),caEl=document.getElementById('pipeline-ca-signe'),objEl=document.getElementById('pipeline-obj-label');
+  if(pctEl)pctEl.textContent=pct+'%';if(barEl)barEl.style.width=pct+'%';if(caEl)caEl.textContent=caSigne.toLocaleString('fr-FR')+'€';if(objEl)objEl.textContent='/ '+objMois.toLocaleString('fr-FR')+'€ objectif';
+  var funnelEl=document.getElementById('pipeline-funnel');
+  if(funnelEl){
+    var steps=[{label:'Demandes reçues',count:total,color:'#3b82f6'},{label:'Devis envoyé',count:devisEnvoyes,color:'#f59e0b'},{label:'RDV fixé',count:rdvFixes,color:'#8b5cf6'},{label:'Accepté tél.',count:acceptes,color:'#6366f1'},{label:'Signé',count:signes,color:'#16a34a'}];
+    funnelEl.innerHTML=steps.map(function(s){var w=total>0?Math.round(s.count/total*100):0;return '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:#475569;">'+s.label+'</span><span style="font-size:11px;font-weight:700;color:'+s.color+';">'+s.count+' ('+w+'%)</span></div><div style="background:#f1f5f9;border-radius:4px;height:8px;overflow:hidden;"><div style="height:100%;background:'+s.color+';border-radius:4px;width:'+w+'%;transition:width 0.4s;"></div></div></div>';}).join('');
+  }
+  var listeEl=document.getElementById('pipeline-liste');
+  if(listeEl){
+    var enCours=leads.filter(function(d){return d.statutCom!=='perdu'&&d.statutCom!=='signe';}).sort(function(a,b){return (b.id||0)-(a.id||0);}).slice(0,20);
+    listeEl.innerHTML=enCours.length?enCours.map(function(d){var st=d.statutCom||'nouveau';var c=_LEAD_COLORS[st]||'#94a3b8';var l=_LEAD_LABELS[st]||st;return '<div onclick="ouvrirModalLead(\''+d.id+'\')" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f8fafc;border-radius:10px;margin-bottom:6px;cursor:pointer;border-left:3px solid '+c+';"><div><div style="font-weight:700;font-size:12px;">'+d.clientNom+'</div><div style="font-size:11px;color:#64748b;">'+d.type+'</div></div><div style="text-align:right;"><div style="background:'+c+'20;color:'+c+';border-radius:12px;padding:2px 8px;font-size:10px;font-weight:700;">'+l+'</div>'+(d.prixEstime?'<div style="font-size:12px;color:#16a34a;font-weight:700;">'+Number(d.prixEstime).toLocaleString('fr-FR')+'€</div>':'')+'</div></div>';}).join(''):'<div style="color:#94a3b8;text-align:center;padding:20px;font-size:12px;">Aucune affaire en cours</div>';
+  }
+}
+function ouvrirModalLead(id){
+  var leads=getLeads();var d=leads.find(function(x){return x.id==id;});if(!d)return;
+  _modalLeadId=id;
+  var st=d.statutCom||'nouveau';var c=_LEAD_COLORS[st]||'#94a3b8';var l=_LEAD_LABELS[st]||st;
+  var hdr=document.getElementById('modal-lead-header');
+  if(hdr)hdr.innerHTML='<div style="font-weight:800;font-size:16px;color:#1a2537;">'+(d.clientNom||'Client')+'</div><div style="color:#7c3aed;font-size:13px;margin-top:2px;">'+(d.type||'Devis')+(d.adresse?' · '+d.adresse:'')+'</div><div style="display:flex;align-items:center;gap:8px;margin-top:6px;"><span style="background:'+c+'20;color:'+c+';border-radius:20px;padding:3px 12px;font-size:11px;font-weight:800;">'+l+'</span>'+(d.prixEstime?'<span style="color:#16a34a;font-weight:700;font-size:14px;">'+Number(d.prixEstime).toLocaleString('fr-FR')+'€</span>':'')+'</div>';
+  var telBtn=document.getElementById('modal-lead-tel-btn');
+  if(telBtn){if(d.clientTel){telBtn.href='tel:'+d.clientTel;telBtn.style.display='';}else telBtn.style.display='none';}
+  var hist=document.getElementById('modal-lead-historique');
+  if(hist&&d.historique&&d.historique.length)hist.innerHTML='<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:6px;">Historique</div>'+d.historique.slice().reverse().slice(0,8).map(function(h){return '<div style="font-size:11px;color:#475569;padding:4px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#94a3b8;">'+new Date(h.ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+'</span> — '+h.label+'</div>';}).join('');
+  else if(hist)hist.innerHTML='';
+  var noteEl=document.getElementById('modal-lead-note');if(noteEl)noteEl.value='';
+  document.getElementById('section-rdv-com-lead').classList.add('hidden');
+  document.getElementById('modal-lead-overlay').style.display='block';
+  document.getElementById('modal-lead').style.display='block';
+  document.body.style.overflow='hidden';
+}
+function fermerModalLead(){
+  document.getElementById('modal-lead-overlay').style.display='none';
+  document.getElementById('modal-lead').style.display='none';
+  document.body.style.overflow='';_modalLeadId=null;
+}
+function actionLead(type){
+  if(!_modalLeadId)return;
+  var leads=getLeads();var idx=leads.findIndex(function(x){return x.id==_modalLeadId;});if(idx<0)return;
+  var d=leads[idx];var labelMap={devis_envoye:'Devis envoyé au client',accepte_tel:'Accepté par téléphone',signe:'Devis signé ✓',perdu:'Affaire perdue',relance:'Relance effectuée'};
+  if(type!=='relance')d.statutCom=type;
+  d.historique=d.historique||[];
+  d.historique.push({label:labelMap[type]||type,ts:new Date().toISOString()});
+  leads[idx]=d;saveLeads(leads);fermerModalLead();renderLeads();renderPipelineCom();
+  var msgs={devis_envoye:'Devis marqué envoyé ✓',accepte_tel:'Acceptation tél. enregistrée ✓',signe:'Devis signé 🎉',perdu:'Affaire classée perdue',relance:'Relance enregistrée'};
+  showNotif(msgs[type]||'Mis à jour ✓');
+}
+function sauvegarderNoteLead(){
+  if(!_modalLeadId)return;
+  var note=(document.getElementById('modal-lead-note').value||'').trim();if(!note)return;
+  var leads=getLeads();var idx=leads.findIndex(function(x){return x.id==_modalLeadId;});if(idx<0)return;
+  leads[idx].historique=leads[idx].historique||[];
+  leads[idx].historique.push({label:'Note : '+note,ts:new Date().toISOString()});
+  saveLeads(leads);fermerModalLead();renderLeads();showNotif('Note sauvegardée ✓');
+}
+function ouvrirSectionRdvCom(){
+  var el=document.getElementById('section-rdv-com-lead');if(el)el.classList.remove('hidden');
+  var dateEl=document.getElementById('rdvcom-lead-date');if(dateEl)dateEl.value=todayStr();
+  if(_modalLeadId){var d=getLeads().find(function(x){return x.id==_modalLeadId;});var addrEl=document.getElementById('rdvcom-lead-adresse');if(addrEl&&d&&d.adresse)addrEl.value=d.adresse;}
+}
+function fermerSectionRdvCom(){var el=document.getElementById('section-rdv-com-lead');if(el)el.classList.add('hidden');}
+function confirmerRdvComLead(){
+  if(!_modalLeadId)return;
+  var date=document.getElementById('rdvcom-lead-date').value;var heure=document.getElementById('rdvcom-lead-heure').value;
+  if(!date){showNotif('Date obligatoire');return;}
+  var leads=getLeads();var idx=leads.findIndex(function(x){return x.id==_modalLeadId;});if(idx<0)return;
+  var d=leads[idx];var adresse=(document.getElementById('rdvcom-lead-adresse').value||'').trim()||d.adresse||'';
+  d.rdvCom={date:date,heure:heure};d.statutCom='rdv_fixe';
+  d.historique=d.historique||[];d.historique.push({label:'RDV fixé le '+date+' à '+heure,ts:new Date().toISOString()});
+  leads[idx]=d;saveLeads(leads);
+  var rdvs=getRdvCom();rdvs.push({id:Date.now(),clientNom:d.clientNom,clientTel:d.clientTel||'',type:d.type||'RDV commercial',adresse:adresse,date:date,heure:heure,notes:d.notes||'',statut:'Planifié',leadId:_modalLeadId});
+  saveRdvCom(rdvs);fermerModalLead();renderLeads();renderComRdv();renderPipelineCom();
+  showNotif('RDV fixé le '+date+' à '+heure+' ✓');
+}
+function updateLeadsBadge(){
+  var n=getLeads().filter(function(d){return !d.statutCom||d.statutCom==='nouveau';}).length;
+  var btn=document.getElementById('nav-leads');
+  if(btn){btn.textContent=n>0?'📨 Demandes ('+n+')':'📨 Demandes';btn.style.color=n>0?'#dc2626':'';}
 }
 
 // MODALS
@@ -5727,6 +6051,57 @@ async function sendAI(){
 
 <!-- Modal profil tech -->
 <div id="modal-profil-tech" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1050;display:flex;align-items:flex-end;justify-content:center;" onclick="if(event.target===this)this.classList.add('hidden')"></div>
+
+<!-- MODAL ACTION LEAD COMMERCIAL -->
+<div id="modal-lead-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;" onclick="fermerModalLead()"></div>
+<div id="modal-lead" style="display:none;position:fixed;bottom:0;left:0;right:0;max-height:92vh;overflow-y:auto;background:#fff;border-radius:20px 20px 0 0;z-index:3001;padding:20px 16px 32px;">
+  <div style="width:40px;height:4px;background:#e2e8f0;border-radius:2px;margin:0 auto 16px;"></div>
+  <div id="modal-lead-header" style="margin-bottom:16px;"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+    <div onclick="actionLead('devis_envoye')" style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #f59e0b;border-radius:14px;padding:14px;text-align:center;cursor:pointer;">
+      <div style="font-size:24px;margin-bottom:4px;">📧</div><div style="font-weight:700;font-size:12px;color:#b45309;">Devis envoyé</div>
+    </div>
+    <div onclick="actionLead('accepte_tel')" style="background:linear-gradient(135deg,#f3e8ff,#ede9fe);border:2px solid #8b5cf6;border-radius:14px;padding:14px;text-align:center;cursor:pointer;">
+      <div style="font-size:24px;margin-bottom:4px;">📞</div><div style="font-weight:700;font-size:12px;color:#7c3aed;">Accepté par tél.</div>
+    </div>
+    <div onclick="ouvrirSectionRdvCom()" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:14px;padding:14px;text-align:center;cursor:pointer;">
+      <div style="font-size:24px;margin-bottom:4px;">📅</div><div style="font-weight:700;font-size:12px;color:#2563eb;">Fixer un RDV</div>
+    </div>
+    <div onclick="actionLead('signe')" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e;border-radius:14px;padding:14px;text-align:center;cursor:pointer;">
+      <div style="font-size:24px;margin-bottom:4px;">✅</div><div style="font-weight:700;font-size:12px;color:#15803d;">Devis signé</div>
+    </div>
+    <div onclick="actionLead('relance')" style="background:linear-gradient(135deg,#fff7ed,#ffedd5);border:2px solid #fb923c;border-radius:14px;padding:14px;text-align:center;cursor:pointer;">
+      <div style="font-size:24px;margin-bottom:4px;">🔔</div><div style="font-weight:700;font-size:12px;color:#ea580c;">Relancer</div>
+    </div>
+    <div onclick="actionLead('perdu')" style="background:linear-gradient(135deg,#fef2f2,#fee2e2);border:2px solid #ef4444;border-radius:14px;padding:14px;text-align:center;cursor:pointer;">
+      <div style="font-size:24px;margin-bottom:4px;">❌</div><div style="font-weight:700;font-size:12px;color:#dc2626;">Affaire perdue</div>
+    </div>
+  </div>
+  <!-- RDV inline -->
+  <div id="section-rdv-com-lead" class="hidden" style="background:#eff6ff;border:1px solid #93c5fd;border-radius:14px;padding:14px;margin-bottom:16px;">
+    <div style="font-weight:700;font-size:13px;color:#1d4ed8;margin-bottom:10px;">📅 Programmer le RDV</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+      <input id="rdvcom-lead-date" class="inp" type="date">
+      <input id="rdvcom-lead-heure" class="inp" type="time" value="10:00">
+    </div>
+    <input id="rdvcom-lead-adresse" class="inp" placeholder="Adresse du RDV" style="margin-bottom:8px;">
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-gray" style="flex:1;font-size:12px;" onclick="fermerSectionRdvCom()">Annuler</button>
+      <button class="btn btn-primary" style="flex:1;font-size:12px;" onclick="confirmerRdvComLead()">Confirmer RDV</button>
+    </div>
+  </div>
+  <!-- Note rapide -->
+  <div style="margin-bottom:12px;">
+    <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:6px;text-transform:uppercase;">Note rapide</div>
+    <textarea id="modal-lead-note" class="inp" placeholder="Ajouter une note…" style="height:60px;resize:none;"></textarea>
+  </div>
+  <div id="modal-lead-historique" style="margin-bottom:12px;"></div>
+  <div style="display:flex;gap:8px;">
+    <a id="modal-lead-tel-btn" href="#" class="btn btn-g" style="flex:1;text-align:center;text-decoration:none;">📞 Appeler</a>
+    <button class="btn btn-gray" style="flex:1;" onclick="sauvegarderNoteLead()">💾 Note</button>
+    <button class="btn btn-gray" onclick="fermerModalLead()">✕</button>
+  </div>
+</div>
 
 </body>
 </html>
