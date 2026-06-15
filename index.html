@@ -715,21 +715,43 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
 
   <!-- CONTRATS D'ENTRETIEN TECH -->
   <div id="page-contrats" class="hidden">
-    <div style="background:linear-gradient(135deg,var(--blue),var(--blue2));border-radius:14px;padding:14px 16px;color:#fff;margin-bottom:14px;">
-      <div style="font-size:10px;letter-spacing:2px;font-weight:700;opacity:0.7;margin-bottom:6px;">VENDRE UN CONTRAT D'ENTRETIEN</div>
-      <div style="font-size:12px;opacity:0.85;">Propose un contrat à ton client — sélectionne son équipement et la formule adaptée.</div>
+    <!-- Header dégradé bleu + bouton bascule -->
+    <div style="background:linear-gradient(135deg,var(--blue),var(--blue2));border-radius:14px;padding:14px 16px;color:#fff;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:10px;letter-spacing:2px;font-weight:700;opacity:0.7;margin-bottom:4px;">CONTRATS D'ENTRETIEN</div>
+        <div style="font-size:12px;opacity:0.85;">Propose et gère les contrats d'entretien GreenFlow.</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;">
+        <button id="tct-btn-form" class="tct-view-btn" onclick="toggleContratView('form')" style="background:#fff;color:#0d2d52;border:none;border-radius:8px;padding:7px 11px;font-size:11px;font-weight:700;cursor:pointer;">✏️ Nouveau</button>
+        <button id="tct-btn-liste" class="tct-view-btn" onclick="toggleContratView('liste')" style="background:rgba(255,255,255,0.2);color:#fff;border:none;border-radius:8px;padding:7px 11px;font-size:11px;font-weight:700;cursor:pointer;">📋 Mes contrats</button>
+      </div>
     </div>
+
     <div id="contrats-tech-kpi" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;"></div>
+
+    <!-- Formulaire de contrat complet -->
     <div id="form-contrat-tech">
       <div class="card" style="border-top:3px solid var(--green);">
-        <div class="lbl" style="color:var(--green);">NOUVEAU CONTRAT</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <input type="text" class="fi" id="tct-client" placeholder="Nom du client">
+        <div class="lbl" style="color:var(--green);margin-bottom:10px;">NOUVEAU CONTRAT</div>
+
+        <!-- 1. Recherche client temps réel -->
+        <div style="font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">CLIENT</div>
+        <div id="tct-client-search-wrap" style="position:relative;margin-bottom:8px;">
+          <input type="text" class="fi" id="tct-client-search" placeholder="🔍 Rechercher un client..." oninput="rechercherClientContrat(this.value)">
+          <div id="tct-client-results" style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:10px;z-index:100;max-height:180px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.12);"></div>
+        </div>
+
+        <!-- 2. Infos client auto-remplies -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <input type="text" class="fi" id="tct-client-nom" placeholder="Nom complet">
           <input type="tel" class="fi" id="tct-tel" placeholder="Téléphone">
         </div>
-        <input type="text" class="fi" id="tct-adresse" placeholder="Adresse d'intervention">
-        <div class="lbl" style="margin-top:4px;">ÉQUIPEMENT</div>
-        <select class="fi" id="tct-equip" onchange="calcPrixContratTech()">
+        <input type="email" class="fi" id="tct-email" placeholder="Email du client" style="margin-bottom:8px;">
+        <input type="text" class="fi" id="tct-adresse" placeholder="Adresse complète" style="margin-bottom:14px;">
+
+        <!-- 3. Infos équipement -->
+        <div style="font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">ÉQUIPEMENT</div>
+        <select class="fi" id="tct-equip" onchange="calcPrixContratTech()" style="margin-bottom:6px;">
           <option value="">— Choisir l'équipement —</option>
           <option value="Chaudière">🔥 Chaudière (gaz / fioul / condensation)</option>
           <option value="Pompe à chaleur">♨️ Pompe à chaleur (PAC air/eau)</option>
@@ -737,36 +759,96 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
           <option value="Ballon thermodynamique">💧 Ballon thermodynamique</option>
           <option value="Adoucisseur d'eau">🚰 Adoucisseur d'eau</option>
         </select>
-        <div id="clim-note-tech" class="hidden" style="color:#64748b;font-size:10px;margin:-4px 0 8px;padding:0 4px;">+ 39€ par unité intérieure supplémentaire</div>
-        <div class="lbl" style="margin-top:4px;">FORMULE</div>
+        <div id="clim-note-tech" class="hidden" style="color:#0369a1;font-size:10px;background:#eff6ff;border-radius:6px;padding:5px 10px;margin-bottom:8px;">ℹ️ + 39€ par unité intérieure supplémentaire</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <input type="text" class="fi" id="tct-marque" placeholder="Marque">
+          <input type="text" class="fi" id="tct-modele" placeholder="Modèle">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+          <input type="text" class="fi" id="tct-annee" placeholder="Année d'installation">
+          <input type="text" class="fi" id="tct-serie" placeholder="N° de série (optionnel)">
+        </div>
+
+        <!-- 4. Explication des formules (accordéon) -->
+        <button onclick="toggleFormuleInfo()" style="width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 14px;font-size:12px;font-weight:600;color:#475569;cursor:pointer;text-align:left;margin-bottom:8px;">ℹ️ Qu'est-ce que chaque formule comprend ? <span id="tct-info-arrow" style="float:right;">▼</span></button>
+        <div id="tct-formule-info" style="display:none;margin-bottom:12px;overflow-x:auto;">
+          <div style="display:flex;gap:8px;min-width:480px;">
+            <div style="flex:1;border:1px solid #e2e8f0;border-radius:10px;padding:12px;background:#f0fdf4;">
+              <div style="font-weight:800;font-size:11px;color:#166534;text-transform:uppercase;margin-bottom:8px;">ESSENTIEL</div>
+              <div style="font-size:11px;color:#374151;line-height:1.8;">✓ Vérification complète<br>✓ 1 visite d'entretien/an<br>✓ Nettoyage composants essentiels<br>✓ Nettoyage du bac<br>✓ Attestation d'entretien</div>
+            </div>
+            <div style="flex:1;border:2px solid #2563eb;border-radius:10px;padding:12px;background:#eff6ff;">
+              <div style="font-size:9px;background:#2563eb;color:#fff;border-radius:4px;padding:1px 6px;display:inline-block;margin-bottom:4px;">Le + populaire</div>
+              <div style="font-weight:800;font-size:11px;color:#1d4ed8;text-transform:uppercase;margin-bottom:8px;">CONFORT</div>
+              <div style="font-size:11px;color:#374151;line-height:1.8;">✓ Tout l'ESSENTIEL<br>✓ Prise en charge plus rapide<br>✓ Déplacement dépannage inclus<br>✓ Rétablissement prioritaire<br>✓ Interventions plus rapides<br>✓ Conseil au client</div>
+            </div>
+            <div style="flex:1;border:2px solid #d97706;border-radius:10px;padding:12px;background:#fefce8;">
+              <div style="font-size:9px;">⭐ Formule complète</div>
+              <div style="font-weight:800;font-size:11px;color:#92400e;text-transform:uppercase;margin-bottom:8px;">PREMIUM</div>
+              <div style="font-size:11px;color:#374151;line-height:1.8;">✓ Tout le CONFORT<br>✓ 10% à 20% sur les pièces<br>✓ Remise main d'œuvre<br>✓ Assistance téléphonique 24h/7j<br>✓ Dispatching personnalisé<br>✓ Carnet livret annuel sécurisé<br>✓ Technicien dédié</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Sélection formule (3 cartes) -->
+        <div style="font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">FORMULE</div>
         <div style="display:flex;gap:8px;margin-bottom:14px;">
-          <div class="ct-fcard" id="tctf-Essentiel" onclick="selectFormuleTech('Essentiel')">
-            <div class="ct-fcard-title">ESSENTIEL</div>
-            <div class="ct-fcard-price" id="tctfp-Essentiel">—</div>
-            <div class="ct-fcard-sub">Entretien annuel</div>
+          <div class="ct-fcard" id="tctf-Essentiel" onclick="selectFormuleTech('Essentiel')" style="flex:1;cursor:pointer;text-align:center;border:2px solid #e2e8f0;border-radius:12px;padding:10px 6px;transition:all 0.15s;">
+            <div style="font-size:8px;height:16px;"></div>
+            <div class="ct-fcard-title" style="font-weight:800;font-size:10px;text-transform:uppercase;color:#166534;margin-bottom:4px;">ESSENTIEL</div>
+            <div class="ct-fcard-price" id="tctfp-Essentiel" style="font-size:16px;font-weight:800;color:#15803d;">—</div>
+            <div style="font-size:9px;color:#64748b;margin-top:3px;">Entretien annuel</div>
           </div>
-          <div class="ct-fcard ct-fcard-sel" id="tctf-Confort" onclick="selectFormuleTech('Confort')">
-            <div class="ct-fcard-badge">Le + choisi</div>
-            <div class="ct-fcard-title">CONFORT</div>
-            <div class="ct-fcard-price" id="tctfp-Confort">—</div>
-            <div class="ct-fcard-sub">+ priorité panne</div>
+          <div class="ct-fcard ct-fcard-sel" id="tctf-Confort" onclick="selectFormuleTech('Confort')" style="flex:1;cursor:pointer;text-align:center;border:2px solid #2563eb;border-radius:12px;padding:10px 6px;background:#eff6ff;transition:all 0.15s;">
+            <div style="font-size:8px;background:#2563eb;color:#fff;border-radius:4px;padding:1px 5px;display:inline-block;margin-bottom:2px;">Le + populaire</div>
+            <div class="ct-fcard-title" style="font-weight:800;font-size:10px;text-transform:uppercase;color:#1d4ed8;margin-bottom:4px;">CONFORT</div>
+            <div class="ct-fcard-price" id="tctfp-Confort" style="font-size:16px;font-weight:800;color:#1d4ed8;">—</div>
+            <div style="font-size:9px;color:#64748b;margin-top:3px;">+ priorité panne</div>
           </div>
-          <div class="ct-fcard" id="tctf-Premium" onclick="selectFormuleTech('Premium')">
-            <div class="ct-fcard-title">PREMIUM ⭐</div>
-            <div class="ct-fcard-price" id="tctfp-Premium">—</div>
-            <div class="ct-fcard-sub">+ remise pièces</div>
+          <div class="ct-fcard" id="tctf-Premium" onclick="selectFormuleTech('Premium')" style="flex:1;cursor:pointer;text-align:center;border:2px solid #e2e8f0;border-radius:12px;padding:10px 6px;transition:all 0.15s;">
+            <div style="font-size:8px;color:#d97706;">⭐</div>
+            <div class="ct-fcard-title" style="font-weight:800;font-size:10px;text-transform:uppercase;color:#92400e;margin-bottom:4px;">PREMIUM</div>
+            <div class="ct-fcard-price" id="tctfp-Premium" style="font-size:16px;font-weight:800;color:#d97706;">—</div>
+            <div style="font-size:9px;color:#64748b;margin-top:3px;">+ remise pièces</div>
           </div>
         </div>
         <input type="hidden" id="tct-formule" value="Confort">
-        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
           <div style="font-size:11px;color:#15803d;font-weight:600;">Montant annuel TTC</div>
-          <div style="font-size:20px;font-weight:800;color:#15803d;" id="tct-prix-display">—</div>
+          <div style="font-size:22px;font-weight:800;color:#15803d;" id="tct-prix-display">—</div>
         </div>
-        <button class="btn btn-g btn-full" onclick="sauvegarderContratTech()">✅ Valider le contrat</button>
+
+        <!-- 6. Modalités de paiement -->
+        <div style="font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">MODALITÉS DE PAIEMENT</div>
+        <div style="font-size:11px;color:#64748b;margin-bottom:5px;">Fréquence :</div>
+        <div style="display:flex;gap:6px;margin-bottom:10px;">
+          <button class="tct-freq-btn" onclick="selFreqContrat('mensuel',this)" style="flex:1;background:#0d2d52;color:#fff;border:none;border-radius:8px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;">Mensuel</button>
+          <button class="tct-freq-btn" onclick="selFreqContrat('trimestriel',this)" style="flex:1;background:#f1f5f9;color:#64748b;border:none;border-radius:8px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;">Trimestriel</button>
+          <button class="tct-freq-btn" onclick="selFreqContrat('annuel',this)" style="flex:1;background:#f1f5f9;color:#64748b;border:none;border-radius:8px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;">Annuel</button>
+        </div>
+        <input type="hidden" id="tct-freq" value="mensuel">
+        <div style="font-size:11px;color:#64748b;margin-bottom:5px;">Mode de paiement :</div>
+        <div style="display:flex;gap:6px;margin-bottom:14px;">
+          <button class="tct-mode-btn" onclick="selModeContrat('prelevement',this)" style="flex:1;background:#0d2d52;color:#fff;border:none;border-radius:8px;padding:8px 4px;font-size:10px;font-weight:700;cursor:pointer;">Prélèvement</button>
+          <button class="tct-mode-btn" onclick="selModeContrat('cheque',this)" style="flex:1;background:#f1f5f9;color:#64748b;border:none;border-radius:8px;padding:8px 4px;font-size:10px;font-weight:700;cursor:pointer;">Chèque</button>
+          <button class="tct-mode-btn" onclick="selModeContrat('virement',this)" style="flex:1;background:#f1f5f9;color:#64748b;border:none;border-radius:8px;padding:8px 4px;font-size:10px;font-weight:700;cursor:pointer;">Virement</button>
+        </div>
+        <input type="hidden" id="tct-mode" value="prelevement">
+
+        <!-- 7. Notes libres -->
+        <textarea class="fi" id="tct-notes-contrat" placeholder="Notes libres..." rows="2" style="margin-bottom:14px;resize:vertical;"></textarea>
+
+        <!-- 8. Boutons d'action -->
+        <button class="btn btn-g btn-full" onclick="sauvegarderContratTech()" style="margin-bottom:8px;">✅ Valider et générer le contrat PDF</button>
+        <button id="tct-btn-mail" class="btn btn-full" onclick="envoyerContratMail()" style="background:#e2e8f0;color:#475569;display:none;">✉️ Envoyer par mail</button>
       </div>
     </div>
-    <div class="lbl" style="margin-top:16px;">MES CONTRATS SIGNÉS</div>
-    <div id="liste-contrats-tech"></div>
+
+    <!-- Onglet MES CONTRATS SIGNÉS -->
+    <div id="liste-contrats-tech-wrap" style="display:none;">
+      <div class="lbl" style="margin-top:4px;margin-bottom:10px;">MES CONTRATS SIGNÉS</div>
+      <div id="liste-contrats-tech"></div>
+    </div>
   </div>
 
   <!-- À FAIRE TECH -->
