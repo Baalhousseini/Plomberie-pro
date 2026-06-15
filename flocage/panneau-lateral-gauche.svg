@@ -90,12 +90,12 @@
   <!-- Numéro de téléphone -->
   <text x="60" y="435" font-family="'Arial Black', Arial, sans-serif"
         font-weight="900" font-size="52" fill="#1a2e5a">
-    📞 06 12 34 56 78
+    📞 09 53 99 04 89
   </text>
 
   <!-- Site web en bas (sur bande marine) -->
   <text x="60" y="565" font-family="Arial, Helvetica, sans-serif"
         font-weight="400" font-size="30" fill="white" letter-spacing="2">
-    www.greenflow-services.fr
+    www.greenflow-tech.fr
   </text>
 </svg>
