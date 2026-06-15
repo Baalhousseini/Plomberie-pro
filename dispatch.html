@@ -1251,9 +1251,9 @@ function renderTousRdvs(){
   var lundi=new Date(now);lundi.setDate(now.getDate()-now.getDay()+1);lundi.setHours(0,0,0,0);
   var dimanche=new Date(lundi);dimanche.setDate(lundi.getDate()+6);
 
-  var rdvs=all;
-  if(filtreRdvPeriode==='auj')rdvs=all.filter(function(r){return r.dateRdv===todayStr();});
-  if(filtreRdvPeriode==='sem')rdvs=all.filter(function(r){var d=new Date(r.dateRdv+'T12:00');return d>=lundi&&d<=dimanche;});
+  var rdvs=all.filter(function(r){return r.statut!=='Annule';});
+  if(filtreRdvPeriode==='auj')rdvs=rdvs.filter(function(r){return r.dateRdv===todayStr();});
+  if(filtreRdvPeriode==='sem')rdvs=rdvs.filter(function(r){var d=new Date(r.dateRdv+'T12:00');return d>=lundi&&d<=dimanche;});
   if(filtreRdvTech!=='all')rdvs=rdvs.filter(function(r){return r.technicien===filtreRdvTech;});
   else rdvs=rdvs.filter(function(r){return r.technicien!=='À planifier';});
 
@@ -2177,7 +2177,7 @@ function actualiserDispos(){
 }
 
 function renderPlanningJour(){
-  var rdvs=getRdvs().filter(function(r){return r.dateRdv===todayStr();}).sort(function(a,b){return a.heureRdv.localeCompare(b.heureRdv);});
+  var rdvs=getRdvs().filter(function(r){return r.dateRdv===todayStr()&&r.statut!=='Annule';}).sort(function(a,b){return a.heureRdv.localeCompare(b.heureRdv);});
   if(!rdvs.length){document.getElementById("planning-jour").innerHTML='<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">📭</div>Aucun RDV aujourd\'hui</div>';return;}
   var html="";
   for(var i=0;i<rdvs.length;i++){
