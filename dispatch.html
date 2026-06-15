@@ -466,6 +466,22 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
         <div class="form-field"><label>DATE RDV</label><input type="date" class="form-input" id="rdv-date" onchange="updateTechPlanning()"></div>
         <div class="form-field"><label>HEURE RDV</label><input type="time" class="form-input" id="rdv-heure" value="09:00" onchange="scheduleTravelUpdate()"></div>
       </div>
+      <!-- MAJORATIONS TARIFAIRES — Point 2 -->
+      <div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:12px;padding:12px;margin-bottom:10px;">
+        <div style="font-size:10px;font-weight:800;color:#ea580c;letter-spacing:1px;margin-bottom:8px;">⚡ MAJORATIONS TARIFAIRES</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid #fed7aa;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;">
+            <input type="checkbox" id="maj-nuit" onchange="calculerMajoration()"> 🌙 Nuit (+80€)
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid #fed7aa;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;">
+            <input type="checkbox" id="maj-weekend" onchange="calculerMajoration()"> 📅 Weekend (+50€)
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid #fed7aa;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;">
+            <input type="checkbox" id="maj-urgence2h" onchange="calculerMajoration()"> ⚡ Urgence &lt;2h (+60€)
+          </label>
+        </div>
+        <div id="maj-total" style="display:none;margin-top:8px;font-size:13px;font-weight:700;color:#ea580c;"></div>
+      </div>
       <div class="form-field"><label>TECHNICIEN</label>
         <select class="form-select" id="rdv-tech" onchange="updateTechPlanning()"><option>Technicien 1</option><option>Technicien 2</option><option value="À planifier">📋 À planifier</option></select>
       </div>
@@ -845,6 +861,15 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 <div id="page-rappels" class="hidden">
   <div style="font-weight:700;color:#0d2d52;font-size:13px;margin-bottom:4px;">🔔 Rappels &amp; relances</div>
   <div style="color:#64748b;font-size:11px;margin-bottom:14px;">Calculé automatiquement depuis devis, contrats et rapports</div>
+
+  <!-- Section rappels SMS demain — Point 1 -->
+  <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:14px;margin-bottom:14px;">
+    <div style="font-size:11px;font-weight:800;color:#16a34a;letter-spacing:1px;margin-bottom:10px;">📱 RAPPELS SMS — RDV DE DEMAIN</div>
+    <button onclick="envoyerTousRappelsSMS()" style="width:100%;background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:10px;padding:12px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;margin-bottom:12px;">📱 Envoyer tous les rappels de demain</button>
+    <div id="rappels-sms-resume" style="display:none;background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;color:#15803d;margin-bottom:10px;"></div>
+    <div id="rappels-sms-demain-list"></div>
+  </div>
+
   <div id="rappels-list"></div>
 </div>
 
@@ -1141,6 +1166,100 @@ function checkRappelsSMS(){
   if(rdvsDemain.length){
     var nouveaux=rdvsDemain.filter(function(r){return !envoyes['rappel_'+r.id];}).length;
     if(nouveaux>0)showNotif(nouveaux+' rappel(s) SMS envoyé(s) pour les RDV de demain');
+  }
+}
+
+/* ── RAPPELS SMS DEMAIN — Point 1 ── */
+function renderRappelsSMSDemain(){
+  var demain=new Date();demain.setDate(demain.getDate()+1);
+  var dStr=demain.toISOString().slice(0,10);
+  var rdvsDemain=getRdvs().filter(function(r){return r.dateRdv===dStr&&r.statut!=='Annule'&&r.clientTel;});
+  var envoyes=JSON.parse(localStorage.getItem('pl_rappels_sms')||'{}');
+  var listEl=document.getElementById('rappels-sms-demain-list');
+  if(!listEl)return;
+  if(!rdvsDemain.length){
+    listEl.innerHTML='<div style="color:#64748b;font-size:12px;text-align:center;padding:12px;">Aucun RDV avec téléphone pour demain</div>';
+    return;
+  }
+  var html='';
+  rdvsDemain.sort(function(a,b){return (a.heureRdv||'').localeCompare(b.heureRdv||'');}).forEach(function(rdv){
+    var key='rappel_'+rdv.id;
+    var envoye=!!envoyes[key];
+    html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:'+(envoye?'#f0fdf4':'#fff')+';border:1.5px solid '+(envoye?'#86efac':'#e2e8f0')+';border-radius:10px;margin-bottom:8px;">'
+      +'<div style="flex:1;">'
+        +'<div style="font-size:13px;font-weight:700;color:#0d2d52;">'+rdv.clientNom+'</div>'
+        +'<div style="font-size:11px;color:#64748b;">'+(rdv.heureRdv||'—')+' · '+rdv.technicien+'</div>'
+        +'<div style="font-size:10px;color:#94a3b8;">'+rdv.clientTel+'</div>'
+      +'</div>'
+      +(envoye
+        ?'<div style="color:#16a34a;font-size:12px;font-weight:700;">SMS envoyé ✓</div>'
+        :'<button onclick="envoyerRappelSMSUnique('+rdv.id+')" style="background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">📱 Envoyer SMS</button>'
+      )
+      +'</div>';
+  });
+  listEl.innerHTML=html;
+}
+
+async function envoyerRappelSMSUnique(rdvId){
+  var rdv=getRdvs().find(function(r){return r.id===rdvId;});
+  if(!rdv||!rdv.clientTel){showNotif('RDV introuvable ou sans téléphone');return;}
+  var ref='INT-'+(String(rdv.id).slice(-5));
+  try{
+    await fetch('/api/sms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:rdv.clientTel,type:'rappel_j1',data:{date:rdv.dateRdv,heure:rdv.heureRdv,technicien:rdv.technicien,ref:ref}})});
+    var envoyes=JSON.parse(localStorage.getItem('pl_rappels_sms')||'{}');
+    envoyes['rappel_'+rdvId]=new Date().toISOString();
+    localStorage.setItem('pl_rappels_sms',JSON.stringify(envoyes));
+    showNotif('📱 SMS rappel envoyé à '+rdv.clientNom);
+    renderRappelsSMSDemain();
+  }catch(e){showNotif('Erreur envoi SMS');}
+}
+
+async function envoyerTousRappelsSMS(){
+  var demain=new Date();demain.setDate(demain.getDate()+1);
+  var dStr=demain.toISOString().slice(0,10);
+  var rdvsDemain=getRdvs().filter(function(r){return r.dateRdv===dStr&&r.statut!=='Annule'&&r.clientTel;});
+  var envoyes=JSON.parse(localStorage.getItem('pl_rappels_sms')||'{}');
+  var nonEnvoyes=rdvsDemain.filter(function(r){return !envoyes['rappel_'+r.id];});
+  if(!nonEnvoyes.length){
+    var resumeEl=document.getElementById('rappels-sms-resume');
+    if(resumeEl){resumeEl.style.display='block';resumeEl.textContent='Tous les rappels ont déjà été envoyés ✓';}
+    return;
+  }
+  var compteur=0;
+  for(var i=0;i<nonEnvoyes.length;i++){
+    var rdv=nonEnvoyes[i];
+    var ref='INT-'+(String(rdv.id).slice(-5));
+    try{
+      await fetch('/api/sms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:rdv.clientTel,type:'rappel_j1',data:{date:rdv.dateRdv,heure:rdv.heureRdv,technicien:rdv.technicien,ref:ref}})});
+      envoyes['rappel_'+rdv.id]=new Date().toISOString();
+      compteur++;
+    }catch(e){}
+  }
+  localStorage.setItem('pl_rappels_sms',JSON.stringify(envoyes));
+  var resumeEl=document.getElementById('rappels-sms-resume');
+  if(resumeEl){resumeEl.style.display='block';resumeEl.textContent=compteur+' rappel(s) SMS envoyé(s) ✓';}
+  renderRappelsSMSDemain();
+  showNotif(compteur+' rappels SMS envoyés !');
+
+}
+
+/* ── MAJORATIONS TARIFAIRES — Point 2 ── */
+function calculerMajoration(){
+  var nuit=document.getElementById('maj-nuit')&&document.getElementById('maj-nuit').checked;
+  var weekend=document.getElementById('maj-weekend')&&document.getElementById('maj-weekend').checked;
+  var urgence2h=document.getElementById('maj-urgence2h')&&document.getElementById('maj-urgence2h').checked;
+  var total=(nuit?80:0)+(weekend?50:0)+(urgence2h?60:0);
+  var el=document.getElementById('maj-total');
+  if(!el)return;
+  if(total>0){
+    el.style.display='block';
+    var parts=[];
+    if(nuit)parts.push('Nuit +80€');
+    if(weekend)parts.push('Weekend +50€');
+    if(urgence2h)parts.push('Urgence <2h +60€');
+    el.textContent='Total majorations : +'+total+'€ ('+parts.join(' + ')+')';
+  }else{
+    el.style.display='none';
   }
 }
 
@@ -2138,7 +2257,12 @@ function creerRdv(){
   var codeDossier=(document.getElementById("rdv-code-dossier")&&document.getElementById("rdv-code-dossier").value.trim())||"";
   var canal=(document.getElementById("rdv-canal")&&document.getElementById("rdv-canal").value)||"Appel entrant";
   var operateurNom=currentOperateur?currentOperateur.nom:"Opérateur";
-  var rdv={id:Date.now(),clientNom:nom,clientTel:tel,adresse:adresse,type:document.getElementById("rdv-type").value,dateRdv:document.getElementById("rdv-date").value,heureRdv:document.getElementById("rdv-heure").value,technicien:document.getElementById("rdv-tech").value,prixVente:Number(prix),statut:"Confirme",notes:document.getElementById("rdv-notes").value.trim(),mandant:mandant,bonCmd:bonCmd,codeDossier:codeDossier,canal:canal,creePar:operateurNom,operateur:operateurNom,creeAt:new Date().toISOString()};
+  var majNuit=document.getElementById('maj-nuit')&&document.getElementById('maj-nuit').checked;
+  var majWeekend=document.getElementById('maj-weekend')&&document.getElementById('maj-weekend').checked;
+  var majUrgence2h=document.getElementById('maj-urgence2h')&&document.getElementById('maj-urgence2h').checked;
+  var majTotal=(majNuit?80:0)+(majWeekend?50:0)+(majUrgence2h?60:0);
+  var rdv={id:Date.now(),clientNom:nom,clientTel:tel,adresse:adresse,type:document.getElementById("rdv-type").value,dateRdv:document.getElementById("rdv-date").value,heureRdv:document.getElementById("rdv-heure").value,technicien:document.getElementById("rdv-tech").value,prixVente:Number(prix),statut:"Confirme",notes:document.getElementById("rdv-notes").value.trim(),mandant:mandant,bonCmd:bonCmd,codeDossier:codeDossier,canal:canal,creePar:operateurNom,operateur:operateurNom,creeAt:new Date().toISOString(),
+    majoration:{nuit:majNuit,weekend:majWeekend,urgence2h:majUrgence2h,total:majTotal}};
   var rdvs=getRdvs();rdvs.push(rdv);saveRdvs(rdvs);
   // Mettre à jour la base clients
   upsertClient(nom,tel,adresse);
@@ -2154,6 +2278,9 @@ function creerRdv(){
   var aar=document.getElementById("auto-assign-result");if(aar)aar.style.display="none";
   document.getElementById("rdv-date").value=todayStr();
   if(document.getElementById("rdv-mandant"))document.getElementById("rdv-mandant").value="";
+  // Reset majorations
+  ['maj-nuit','maj-weekend','maj-urgence2h'].forEach(function(id){var e=document.getElementById(id);if(e)e.checked=false;});
+  var majEl=document.getElementById('maj-total');if(majEl)majEl.style.display='none';
   showNotif("RDV cree pour "+nom+" !");actualiserTout();
   if(rdv.clientTel&&rdv.technicien!=='À planifier'){
     var msg='GreenFlow Technologies : RDV confirmé le '+rdv.dateRdv+' à '+rdv.heureRdv+'. Technicien : '+rdv.technicien+'. Adresse : '+rdv.adresse+'. Pour toute question : 📞 [VOTRE_NUMÉRO]';
@@ -3070,6 +3197,7 @@ function renderPassation(){
 
 /* ── FEATURE 3 — RAPPELS & RELANCES ── */
 function renderRappels(){
+  renderRappelsSMSDemain();
   var el=document.getElementById('rappels-list');if(!el)return;
   var today=todayStr();
   var items=[];

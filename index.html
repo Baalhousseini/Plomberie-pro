@@ -1563,6 +1563,18 @@ function soumettre(){
       const refT='INT-'+String(currentRdv.id).slice(-5);
       envoyerSMSTech(currentRdv.clientTel,'termine',{ref:refT,montant:Number(document.getElementById("montantFinal").value)||''});
     }
+    // Prompt avis Google — Point 4
+    setTimeout(function(){
+      var lienAvis=localStorage.getItem('pl_google_review_url')||'';
+      if(!lienAvis)return;
+      if(confirm('⭐ Intervention terminée ! Envoyer le lien d\'avis Google au client ?')){
+        var tel=currentRdv.clientTel;
+        if(tel){
+          var msg='Merci pour votre confiance ! Pouvez-vous nous laisser un avis en 1 minute ? '+lienAvis+' — Équipe GreenFlow';
+          fetch('/api/sms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:tel,message:msg})}).catch(function(){});
+        }
+      }
+    },500);
     showEtape("succes");
     if(totalPrimes>0){
       document.getElementById("prime-win").classList.remove("hidden");
@@ -2082,10 +2094,17 @@ function renderKpiTech(){
   const termines=mesRdvs.filter(r=>r.statut==='Termine'||r.statut==='Paye').length;
   const caJour=mesRdvs.reduce((s,r)=>s+(r.prixVente||0),0);
   const urgences=JSON.parse(localStorage.getItem('pl_urgences')||'[]').filter(u=>u.technicien===currentUser.nom&&u.statut==='Active').length;
+  // Objectif mensuel équipe — Point 5
+  const allRdvs=getRdvs();
+  const moisStr2=todayStr().slice(0,7);
+  const caMois=allRdvs.filter(r=>(r.dateRdv||'').startsWith(moisStr2)&&(r.statut==='Termine'||r.statut==='Paye')).reduce((s,r)=>s+(r.prixVente||0),0);
+  const objMois=Math.round(Number(localStorage.getItem('pl_objectif')||960000)/12);
+  const pctMois=Math.min(100,Math.round(caMois/objMois*100));
   d.innerHTML=`
     <div class="sc" style="border-left:3px solid var(--green);padding:10px 12px;"><div class="lbl">MES RDV</div><div style="font-weight:800;font-size:18px;color:var(--blue);">${mesRdvs.length}</div><div style="font-size:10px;color:var(--muted);">${termines} terminés</div></div>
     <div class="sc" style="border-left:3px solid #1d4ed8;padding:10px 12px;"><div class="lbl">CA GÉNÉRÉ</div><div style="font-weight:800;font-size:18px;color:var(--green);">${caJour.toLocaleString('fr-FR')}€</div></div>
-    <div class="sc" style="border-left:3px solid ${urgences?'#dc2626':'#16a34a'};padding:10px 12px;"><div class="lbl">URGENCES</div><div style="font-weight:800;font-size:18px;color:${urgences?'#dc2626':'#16a34a'};">${urgences}</div></div>`;
+    <div class="sc" style="border-left:3px solid ${urgences?'#dc2626':'#16a34a'};padding:10px 12px;"><div class="lbl">URGENCES</div><div style="font-weight:800;font-size:18px;color:${urgences?'#dc2626':'#16a34a'};">${urgences}</div></div>
+    <div class="sc" style="border-left:3px solid #7c3aed;padding:10px 12px;grid-column:1/-1;"><div class="lbl">🎯 OBJECTIF ÉQUIPE (mois)</div><div style="font-weight:800;font-size:16px;color:#7c3aed;">${caMois.toLocaleString('fr-FR')}€ / ${objMois.toLocaleString('fr-FR')}€</div><div style="background:#ede9fe;border-radius:4px;height:6px;margin-top:6px;"><div style="background:#7c3aed;height:6px;border-radius:4px;width:${pctMois}%;transition:width 0.6s;"></div></div><div style="font-size:10px;color:var(--muted);margin-top:3px;">${pctMois}% atteint</div></div>`;
 }
 
 /* ---- ENVOYER DEVIS RAPIDE ---- */
