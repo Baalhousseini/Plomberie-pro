@@ -680,10 +680,23 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
           <span style="color:var(--text-light);font-size:13px;">Objectif</span>
-          <span style="color:var(--text-light);font-weight:700;">5 000 EUR</span>
+          <span style="color:var(--text-light);font-weight:700;" id="obj-montant">25 000 EUR</span>
         </div>
         <div class="progress-bar"><div class="progress-fill" id="obj-bar" style="width:0%;background:var(--green);"></div></div>
         <div style="color:var(--text-light);font-size:11px;margin-top:6px;" id="obj-pct">0% de l'objectif</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;">
+      <div class="lbl">PRIME AUTOMATIQUE</div>
+      <div class="objectif-card" id="prime-auto-card">
+        <div style="color:var(--text-light);font-size:12px;">Calculée en fin de mois : 5% du CA au-delà de l'objectif</div>
+        <div style="margin-top:10px;" id="prime-auto-detail"></div>
+      </div>
+    </div>
+    <div style="margin-top:16px;">
+      <div class="lbl">MON CLASSEMENT CE MOIS</div>
+      <div class="objectif-card" id="classement-tech-card">
+        <div id="classement-tech-detail" style="color:var(--text-light);font-size:12px;">Chargement...</div>
       </div>
     </div>
     <div style="margin-top:16px;">
@@ -1536,10 +1549,23 @@ function renderPerf(){
     ["Ventes add.",data.ventes,"#2d6a9f"],
     ["Interventions",rapports.length,"#1a3a5c"],
   ].map(([l,v,c])=>`<div class="perf-card" style="border-left:3px solid ${c}40"><div class="lbl">${l.toUpperCase()}</div><div class="perf-val" style="color:${c}">${v}</div></div>`).join("");
-  const obj=5000,pct=Math.min(100,Math.round(ca/obj*100));
-  document.getElementById("obj-realise").textContent=ca+" EUR";
+  const objsTechs=JSON.parse(localStorage.getItem('pl_objectifs_techs')||'{}');
+  const obj=objsTechs[currentUser.nom]||25000;
+  const objEl=document.getElementById('obj-montant');if(objEl)objEl.textContent=obj.toLocaleString('fr-FR')+' EUR';
+  const pct=Math.min(100,Math.round(ca/obj*100));
+  document.getElementById("obj-realise").textContent=ca.toLocaleString('fr-FR')+" EUR";
   document.getElementById("obj-bar").style.width=pct+"%";
+  document.getElementById("obj-bar").style.background=pct>=100?'#16a34a':pct>=70?'#ca8a04':'var(--green)';
   document.getElementById("obj-pct").textContent=pct+"% de l'objectif";
+  // Prime automatique
+  const surplus=ca-obj;const primeEl=document.getElementById('prime-auto-detail');
+  if(primeEl){if(surplus>0){const prime=Math.round(surplus*0.05);primeEl.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:12px;color:#16a34a;font-weight:700;">🎯 Objectif dépassé !</div><div style="font-size:11px;color:var(--text-light);">Surplus : +'+surplus.toLocaleString('fr-FR')+'€</div></div><div style="font-size:22px;font-weight:900;color:#16a34a;">+'+prime.toLocaleString('fr-FR')+'€</div></div>';}else{const manque=obj-ca;primeEl.innerHTML='<div style="font-size:12px;color:var(--text-light);">Il manque <strong>'+manque.toLocaleString('fr-FR')+'€</strong> pour déclencher la prime</div>';}}
+  // Classement
+  const rdvsAll=JSON.parse(localStorage.getItem('pl_rdvs')||'[]');const ym=moisStr();
+  const caParTech={};rdvsAll.filter(r=>r.dateRdv&&r.dateRdv.startsWith(ym)).forEach(r=>{if(r.technicien)caParTech[r.technicien]=(caParTech[r.technicien]||0)+(r.prixVente||0);});
+  const sorted=Object.entries(caParTech).sort((a,b)=>b[1]-a[1]);const rank=sorted.findIndex(([n])=>n===currentUser.nom)+1;
+  const medals=['🥇','🥈','🥉'];const clEl=document.getElementById('classement-tech-detail');
+  if(clEl)clEl.innerHTML=sorted.length?sorted.map(([n,v],i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9;${n===currentUser.nom?'background:#f0fdf4;border-radius:8px;padding:6px 8px;':''}">`+(medals[i]||((i+1)+'.'))+` <span style="flex:1;margin-left:8px;font-weight:${n===currentUser.nom?'800':'600'};font-size:13px;">${n}</span><span style="font-weight:800;color:${n===currentUser.nom?'#16a34a':'#0d2d52'};">${v.toLocaleString('fr-FR')}€</span></div>`).join(''):'<div style="color:var(--text-light);font-size:12px;">Aucune donnée ce mois</div>';
   const vPct=Math.min(100,Math.round(data.ventes/10*100));
   document.getElementById("obj-ventes").textContent=data.ventes+" / 10";
   document.getElementById("obj-ventes-bar").style.width=vPct+"%";
