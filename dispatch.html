@@ -725,41 +725,50 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 <div id="page-facturation" class="hidden"></div>
 
 <div id="page-appels" class="hidden">
-  <div class="dispatch-kpi" id="appels-kpi" style="margin-bottom:12px;border-radius:12px;"></div>
-  <div class="card card-green" style="margin-bottom:12px;">
-    <div class="lbl">ENREGISTRER UN APPEL</div>
-    <div class="grid-2">
-      <div class="form-field"><label>N° TÉLÉPHONE</label><input type="tel" class="form-input" id="ap-tel" placeholder="06 XX XX XX XX" oninput="rechercherClientAppel(this.value)"></div>
-      <div class="form-field"><label>CLIENT IDENTIFIÉ</label><input type="text" class="form-input" id="ap-nom" placeholder="Auto-rempli..." readonly style="background:#f7f9fc;"></div>
+  <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e;border-radius:16px;padding:16px;margin-bottom:14px;">
+    <div style="font-size:11px;font-weight:800;color:#15803d;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;">📞 PRISE D'APPEL ENTRANT</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+      <input class="form-input" id="ap-tel" type="tel" placeholder="Téléphone *" oninput="rechercherClientAppel(this.value)">
+      <input class="form-input" id="ap-nom" placeholder="Nom client *">
     </div>
-    <div class="form-field"><label>OBJET DE L'APPEL</label>
-      <select class="form-select" id="ap-objet">
-        <option value="rdv">Demande de RDV</option>
-        <option value="urgence">Urgence</option>
-        <option value="devis">Demande de devis</option>
-        <option value="rappel">Rappel client</option>
-        <option value="annulation">Annulation</option>
-        <option value="reclamation">Réclamation</option>
-        <option value="renseignement">Renseignement</option>
-      </select>
+    <input class="form-input" id="ap-adresse" placeholder="Adresse" style="margin-bottom:10px;width:100%;box-sizing:border-box;">
+    <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:6px;">MOTIF DE L'APPEL</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;" id="ap-type-chips">
+      <button onclick="selectChipD(this,'ap-type-chips','rdv')" data-val="rdv" style="background:#eff6ff;border:2px solid #3b82f6;color:#1d4ed8;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">📅 RDV</button>
+      <button onclick="selectChipD(this,'ap-type-chips','urgence')" data-val="urgence" style="background:#fef2f2;border:2px solid #ef4444;color:#dc2626;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">🚨 Urgence</button>
+      <button onclick="selectChipD(this,'ap-type-chips','sav')" data-val="sav" style="background:#fff7ed;border:2px solid #fb923c;color:#ea580c;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">🔁 SAV</button>
+      <button onclick="selectChipD(this,'ap-type-chips','devis')" data-val="devis" style="background:#f3e8ff;border:2px solid #a855f7;color:#7c3aed;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">📋 Devis</button>
+      <button onclick="selectChipD(this,'ap-type-chips','renseignement')" data-val="renseignement" style="background:#f0fdf4;border:2px solid #22c55e;color:#15803d;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">ℹ️ Renseignement</button>
+      <button onclick="selectChipD(this,'ap-type-chips','reclamation')" data-val="reclamation" style="background:#fef2f2;border:2px solid #f87171;color:#b91c1c;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">⚠️ Réclamation</button>
     </div>
-    <div class="form-field"><label>NOTE</label><textarea class="form-textarea" id="ap-note" rows="2" placeholder="Résumé de l'appel..."></textarea></div>
-    <div class="grid-2">
-      <div class="form-field"><label>DURÉE (min)</label><input type="number" class="form-input" id="ap-duree" placeholder="3" min="0"></div>
-      <div class="form-field"><label>RÉSULTAT</label>
-        <select class="form-select" id="ap-resultat">
-          <option value="rdv_cree">✅ RDV créé</option>
-          <option value="rappel">📞 À rappeler</option>
-          <option value="devis_envoye">📋 Devis à faire</option>
-          <option value="info">ℹ️ Info donnée</option>
-          <option value="hors_zone">🚫 Hors zone</option>
-          <option value="annulation">❌ Annulation</option>
-        </select>
+    <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:6px;">COMMENT ILS NOUS ONT TROUVÉS</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;" id="ap-source-chips">
+      <button onclick="selectChipD(this,'ap-source-chips','Google')" data-val="Google" style="background:#f8fafc;border:1px solid #cbd5e1;color:#475569;border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;">🌐 Google</button>
+      <button onclick="selectChipD(this,'ap-source-chips','Recommandation')" data-val="Recommandation" style="background:#f8fafc;border:1px solid #cbd5e1;color:#475569;border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;">⭐ Recommandation</button>
+      <button onclick="selectChipD(this,'ap-source-chips','Client fidèle')" data-val="Client fidèle" style="background:#f8fafc;border:1px solid #cbd5e1;color:#475569;border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;">🏆 Client fidèle</button>
+      <button onclick="selectChipD(this,'ap-source-chips','Panneau')" data-val="Panneau" style="background:#f8fafc;border:1px solid #cbd5e1;color:#475569;border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;">🪧 Panneau</button>
+      <button onclick="selectChipD(this,'ap-source-chips','Autre')" data-val="Autre" style="background:#f8fafc;border:1px solid #cbd5e1;color:#475569;border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;">❓ Autre</button>
+    </div>
+    <textarea class="form-textarea" id="ap-notes" rows="2" placeholder="Commentaire, détails, code accès, étage…" style="margin-bottom:12px;width:100%;box-sizing:border-box;"></textarea>
+    <!-- Section RDV fixe (cachée par défaut) -->
+    <div id="ap-rdv-section" class="hidden" style="background:#fff;border:1px solid #93c5fd;border-radius:12px;padding:12px;margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:700;color:#1d4ed8;margin-bottom:8px;">📅 DÉTAILS DU RDV</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <input class="form-input" id="ap-rdv-date" type="date">
+        <input class="form-input" id="ap-rdv-heure" type="time" value="09:00">
       </div>
+      <select class="form-select" id="ap-rdv-tech" style="margin-bottom:8px;"></select>
+      <input class="form-input" id="ap-rdv-prix" type="number" placeholder="Prix estimé (€) — optionnel" style="margin-bottom:8px;">
+      <button onclick="creerRdvFixeD()" style="background:#1d4ed8;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:800;cursor:pointer;width:100%;">✅ Confirmer le RDV</button>
     </div>
-    <button class="btn btn-green btn-full" style="padding:12px;" onclick="loggerAppel()">📝 Enregistrer l'appel</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+      <button onclick="loggerAppelSeulD()" style="background:#f8fafc;border:2px solid #cbd5e1;color:#475569;border-radius:10px;padding:12px 8px;font-size:12px;font-weight:700;cursor:pointer;">📞 Juste noter</button>
+      <button onclick="creerRdvAPlanifierD()" style="background:#eff6ff;border:2px solid #3b82f6;color:#1d4ed8;border-radius:10px;padding:12px 8px;font-size:12px;font-weight:700;cursor:pointer;">📋 À planifier →</button>
+    </div>
+    <button onclick="toggleApRdvSection()" style="background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;border:none;border-radius:10px;padding:13px;font-size:13px;font-weight:800;cursor:pointer;width:100%;">📅 Fixer le RDV maintenant →</button>
   </div>
-  <div class="lbl">JOURNAL DES APPELS</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;" id="ap-stats-jour"></div>
+  <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:8px;letter-spacing:1px;">JOURNAL DES APPELS</div>
   <div id="liste-appels"></div>
 </div>
 
@@ -1431,6 +1440,7 @@ function updateNavBadges(){
 
 var NAV_GROUPS_D={
   rdv:[
+    {p:'appels',label:'📞 Appels',id:'nav-appels-d'},
     {p:'nouveau-rdv',label:'+ Nouveau RDV'},
     {p:'tous-rdv',label:'📋 Tous RDV',id:'nav-tous-rdv'},
     {p:'dispos',label:'👷 Équipe'},
@@ -2942,6 +2952,160 @@ function updateTodoBadgeDispatch(){
   var btn=document.getElementById('ng-todo-d');
   if(btn){btn.textContent=total>0?'✅ À faire ('+total+')':'✅ À faire';btn.style.color=total>0?'#dc2626':'';}
   return total;
+}
+
+// ============================================================
+// PRISE D'APPEL DISPATCH
+// ============================================================
+var _apTypeChip='',_apSourceChip='';
+
+function selectChipD(btn,groupId,val){
+  var group=document.getElementById(groupId);
+  if(!group)return;
+  var wasActive=btn.dataset.active==='1';
+  group.querySelectorAll('button').forEach(function(b){
+    b.dataset.active='0';
+    b.style.opacity='0.55';b.style.fontWeight='600';
+  });
+  if(!wasActive){
+    btn.dataset.active='1';btn.style.opacity='1';btn.style.fontWeight='800';
+    if(groupId==='ap-type-chips')_apTypeChip=val;
+    else _apSourceChip=val;
+  } else {
+    if(groupId==='ap-type-chips')_apTypeChip='';
+    else _apSourceChip='';
+  }
+}
+
+function toggleApRdvSection(){
+  var s=document.getElementById('ap-rdv-section');
+  if(!s)return;
+  var hidden=s.classList.contains('hidden');
+  s.classList.toggle('hidden',!hidden);
+  if(hidden){
+    // pré-remplir date et techs
+    var dateEl=document.getElementById('ap-rdv-date');if(dateEl)dateEl.value=todayStr();
+    var techSel=document.getElementById('ap-rdv-tech');
+    if(techSel){
+      var techs=getTechs();
+      techSel.innerHTML='<option value="À planifier">⏳ À planifier</option>'
+        +techs.map(function(t){return '<option value="'+t.nom+'">'+t.nom+'</option>';}).join('');
+    }
+  }
+}
+
+function _getApData(){
+  var nom=(document.getElementById('ap-nom').value||'').trim();
+  var tel=(document.getElementById('ap-tel').value||'').trim();
+  if(!nom&&!tel){showNotif('Nom ou téléphone requis');return null;}
+  return {
+    id:Date.now(),
+    clientNom:nom||'Inconnu',
+    clientTel:tel,
+    adresse:(document.getElementById('ap-adresse').value||'').trim(),
+    type:_apTypeChip||'rdv',
+    source:_apSourceChip||'',
+    notes:(document.getElementById('ap-notes').value||'').trim(),
+    par:getOperateurNom(),
+    ts:new Date().toISOString()
+  };
+}
+
+function _resetApForm(){
+  ['ap-tel','ap-nom','ap-adresse','ap-notes','ap-rdv-prix'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.value='';
+  });
+  ['ap-type-chips','ap-source-chips'].forEach(function(gid){
+    var g=document.getElementById(gid);
+    if(g)g.querySelectorAll('button').forEach(function(b){b.dataset.active='0';b.style.opacity='0.55';b.style.fontWeight='600';});
+  });
+  _apTypeChip='';_apSourceChip='';
+  var s=document.getElementById('ap-rdv-section');if(s)s.classList.add('hidden');
+}
+
+function loggerAppelSeulD(){
+  var data=_getApData();if(!data)return;
+  data.resultat='info';
+  var appels=getAppels();appels.unshift(data);saveAppels(appels);
+  _resetApForm();renderAppels();
+  showNotif('📞 Appel noté ✓');
+}
+
+function creerRdvAPlanifierD(){
+  var data=_getApData();if(!data)return;
+  data.resultat='rdv_planifier';
+  var appels=getAppels();appels.unshift(data);saveAppels(appels);
+  // Créer RDV dans pl_rdvs avec technicien='À planifier'
+  var rdvs=getRdvs();
+  rdvs.push({
+    id:Date.now()+1,
+    clientNom:data.clientNom,clientTel:data.clientTel,
+    adresse:data.adresse,type:data.type==='urgence'?'Urgence':data.type==='sav'?'SAV':data.type==='devis'?'Devis':'Intervention',
+    dateRdv:'',heureRdv:'',technicien:'À planifier',
+    statut:'Confirme',notes:data.notes,canal:data.source||'Appel direct',
+    creePar:'dispatch',prixVente:0
+  });
+  saveRdvs(rdvs);
+  _resetApForm();renderAppels();actualiserTout();
+  showNotif('📋 RDV créé → À planifier ✓');
+}
+
+function creerRdvFixeD(){
+  var data=_getApData();if(!data)return;
+  var date=document.getElementById('ap-rdv-date').value;
+  var heure=document.getElementById('ap-rdv-heure').value;
+  var tech=(document.getElementById('ap-rdv-tech').value)||'À planifier';
+  if(!date){showNotif('Date obligatoire');return;}
+  data.resultat='rdv_cree';
+  var appels=getAppels();appels.unshift(data);saveAppels(appels);
+  var rdvs=getRdvs();
+  rdvs.push({
+    id:Date.now()+1,
+    clientNom:data.clientNom,clientTel:data.clientTel,
+    adresse:data.adresse,type:data.type==='urgence'?'Urgence':data.type==='sav'?'SAV':data.type==='devis'?'Devis':'Intervention',
+    dateRdv:date,heureRdv:heure,technicien:tech,
+    statut:'Confirme',notes:data.notes,canal:data.source||'Appel direct',
+    creePar:'dispatch',prixVente:parseFloat(document.getElementById('ap-rdv-prix').value)||0
+  });
+  saveRdvs(rdvs);
+  _resetApForm();renderAppels();actualiserTout();
+  showNotif('✅ RDV fixé — '+date+' à '+heure+' / '+tech);
+}
+
+function renderAppels(){
+  var appels=getAppels();
+  var today=todayStr();
+  var auj=appels.filter(function(a){return a.ts&&a.ts.startsWith(today);});
+  // Stats jour
+  var statsEl=document.getElementById('ap-stats-jour');
+  if(statsEl){
+    var rdvCrees=auj.filter(function(a){return a.resultat==='rdv_cree'||a.resultat==='rdv_planifier';}).length;
+    statsEl.innerHTML='<div class="sc" style="border-left:3px solid #16a34a;"><div class="lbl">APPELS AUJOURD\'HUI</div><div style="font-weight:800;font-size:20px;color:#16a34a;">'+auj.length+'</div></div>'
+      +'<div class="sc" style="border-left:3px solid #2563eb;"><div class="lbl">RDV CRÉÉS</div><div style="font-weight:800;font-size:20px;color:#2563eb;">'+rdvCrees+'</div></div>'
+      +'<div class="sc" style="border-left:3px solid #7c3aed;"><div class="lbl">TOTAL</div><div style="font-weight:800;font-size:20px;color:#7c3aed;">'+appels.length+'</div></div>';
+  }
+  var ICONS={rdv:'📅',urgence:'🚨',sav:'🔁',devis:'📋',renseignement:'ℹ️',reclamation:'⚠️'};
+  var COLORS_R={rdv_cree:'#16a34a',rdv_planifier:'#2563eb',info:'#64748b',rappel:'#f59e0b'};
+  var LABELS_R={rdv_cree:'RDV fixé ✓',rdv_planifier:'À planifier',info:'Noté',rappel:'À rappeler'};
+  var html=appels.slice(0,50).map(function(a){
+    var icon=ICONS[a.type]||'📞';
+    var color=COLORS_R[a.resultat]||'#64748b';
+    var label=LABELS_R[a.resultat]||a.resultat||'Noté';
+    var dt=a.ts?new Date(a.ts).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'';
+    return '<div style="padding:10px 12px;background:#fff;border-radius:10px;margin-bottom:6px;border-left:3px solid '+color+';box-shadow:0 1px 3px rgba(0,0,0,0.06);">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
+      +'<div><span style="font-size:16px;margin-right:6px;">'+icon+'</span>'
+      +'<span style="font-weight:700;font-size:13px;color:#1a2537;">'+a.clientNom+'</span>'
+      +(a.clientTel?'<span style="color:#64748b;font-size:11px;margin-left:8px;">'+a.clientTel+'</span>':'')+'</div>'
+      +'<div style="text-align:right;">'
+      +'<div style="background:'+color+'20;color:'+color+';border-radius:12px;padding:2px 8px;font-size:10px;font-weight:700;">'+label+'</div>'
+      +'<div style="color:#94a3b8;font-size:10px;margin-top:2px;">'+dt+(a.par?' · '+a.par:'')+'</div></div></div>'
+      +(a.source?'<div style="font-size:11px;color:#64748b;margin-top:2px;">via '+a.source+'</div>':'')
+      +(a.notes?'<div style="font-size:11px;color:#64748b;margin-top:2px;font-style:italic;">'+a.notes+'</div>':'')
+      +'</div>';
+  }).join('');
+  var el=document.getElementById('liste-appels');
+  if(el)el.innerHTML=html||'<div style="color:#94a3b8;text-align:center;padding:20px;font-size:12px;">Aucun appel enregistré</div>';
 }
 
 function showNotif(msg){
