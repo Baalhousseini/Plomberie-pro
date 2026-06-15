@@ -972,6 +972,7 @@ body.logged-in #ai-fab{display:flex!important;}
     <button onclick="showAnalytics('commercial')">📈 Commercial</button>
     <button onclick="showAnalytics('strategie')">🎯 Strategie</button>
     <button onclick="showAnalytics('prevision')" id="atab-prev">🔮 Prévision</button>
+    <button onclick="showAnalytics('annulations')">📉 Annulations</button>
   </div>
   <div id="analytics-finances">
     <div class="kpi">
@@ -1186,6 +1187,32 @@ body.logged-in #ai-fab{display:flex!important;}
     <div class="card r">
       <div class="lbl">ALERTES METEO / SAISONNIERES</div>
       <div id="a-prev-alertes" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <!-- Onglet Annulations & Modifications -->
+  <div id="analytics-annulations" class="hidden">
+    <!-- KPIs taux -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;" id="ann-kpis"></div>
+    <!-- Raisons annulations -->
+    <div class="card r" style="margin-bottom:12px;">
+      <div class="lbl" style="margin-bottom:10px;">TOP RAISONS D'ANNULATION</div>
+      <div id="ann-raisons"></div>
+    </div>
+    <!-- Par technicien -->
+    <div class="card b" style="margin-bottom:12px;">
+      <div class="lbl" style="margin-bottom:10px;">PAR TECHNICIEN</div>
+      <div id="ann-par-tech"></div>
+    </div>
+    <!-- Par mois -->
+    <div class="card" style="margin-bottom:12px;">
+      <div class="lbl" style="margin-bottom:10px;">ÉVOLUTION MENSUELLE</div>
+      <div id="ann-par-mois"></div>
+    </div>
+    <!-- Historique récent -->
+    <div class="card" style="margin-bottom:12px;">
+      <div class="lbl" style="margin-bottom:10px;">HISTORIQUE RÉCENT (30 derniers)</div>
+      <div id="ann-historique"></div>
     </div>
   </div>
 </div>
@@ -1458,6 +1485,9 @@ function lancerApp(){
     if(e.key==='pl_rdv_com'){
       if(!document.getElementById('page-com-rdv').classList.contains('hidden'))renderComRdv();
     }
+    if(e.key==='pl_annulations'){
+      if(!document.getElementById('analytics-annulations').classList.contains('hidden'))renderAnnulations();
+    }
     if(e.key==='pl_devis'){
       updateLeadsBadge();
       if(!document.getElementById('page-leads').classList.contains('hidden'))renderLeads();
@@ -1650,14 +1680,15 @@ function showPage(p){
 }
 
 function showAnalytics(p){
-  ["finances","rh","commercial","strategie","prevision"].forEach(x=>{const d=document.getElementById("analytics-"+x);if(d)d.classList.add("hidden");});
+  ["finances","rh","commercial","strategie","prevision","annulations"].forEach(x=>{const d=document.getElementById("analytics-"+x);if(d)d.classList.add("hidden");});
   const div=document.getElementById("analytics-"+p);if(div)div.classList.remove("hidden");
-  document.querySelectorAll("#analytics-nav button").forEach((b,i)=>b.classList.toggle("active",["finances","rh","commercial","strategie","prevision"][i]===p));
+  document.querySelectorAll("#analytics-nav button").forEach((b,i)=>b.classList.toggle("active",["finances","rh","commercial","strategie","prevision","annulations"][i]===p));
   if(p==="finances")renderFinances();
   if(p==="rh")renderRH();
   if(p==="commercial")renderCommercial();
   if(p==="strategie")renderStrategie();
   if(p==="prevision")renderPrevision();
+  if(p==="annulations")renderAnnulations();
 }
 
 function updateNavBadges(){
@@ -2681,6 +2712,106 @@ function confirmerRdvComLead(){
   saveRdvCom(rdvs);fermerModalLead();renderLeads();renderComRdv();renderPipelineCom();
   showNotif('RDV fixé le '+date+' à '+heure+' ✓');
 }
+function getAnnulationsLog(){return JSON.parse(localStorage.getItem('pl_annulations')||'[]');}
+
+function renderAnnulations(){
+  var log=getAnnulationsLog();
+  var rdvs=getRdvs();
+  var totalRdvs=rdvs.length||1;
+  var annulations=log.filter(function(e){return e.type==='annulation';});
+  var decalages=log.filter(function(e){return e.type==='decalage';});
+  var modifs=log.filter(function(e){return e.type==='modif';});
+  var txAnn=Math.round(annulations.length/totalRdvs*100);
+  var txDec=Math.round(decalages.length/totalRdvs*100);
+
+  // KPIs
+  var kEl=document.getElementById('ann-kpis');
+  if(kEl)kEl.innerHTML='<div class="sc" style="border-left:3px solid #dc2626;"><div class="lbl">ANNULATIONS</div><div style="font-weight:800;font-size:22px;color:#dc2626;">'+annulations.length+'</div><div style="font-size:10px;color:#94a3b8;">'+txAnn+'% des RDV</div></div>'
+    +'<div class="sc" style="border-left:3px solid #f59e0b;"><div class="lbl">DÉCALAGES</div><div style="font-weight:800;font-size:22px;color:#f59e0b;">'+decalages.length+'</div><div style="font-size:10px;color:#94a3b8;">'+txDec+'% des RDV</div></div>'
+    +'<div class="sc" style="border-left:3px solid #7c3aed;"><div class="lbl">MODIFICATIONS</div><div style="font-weight:800;font-size:22px;color:#7c3aed;">'+modifs.length+'</div><div style="font-size:10px;color:#94a3b8;">sur '+totalRdvs+' RDV total</div></div>'
+    +'<div class="sc" style="border-left:3px solid '+(txAnn<=5?'#16a34a':txAnn<=15?'#f59e0b':'#dc2626')+';"><div class="lbl">TAUX GLOBAL</div><div style="font-weight:800;font-size:22px;color:'+(txAnn<=5?'#16a34a':txAnn<=15?'#f59e0b':'#dc2626')+';">'+(txAnn+txDec)+'%</div><div style="font-size:10px;color:#94a3b8;">annul. + décalages</div></div>';
+
+  // Raisons
+  var raisonsEl=document.getElementById('ann-raisons');
+  if(raisonsEl){
+    var raisons={};
+    annulations.concat(decalages).forEach(function(e){if(e.raison){raisons[e.raison]=(raisons[e.raison]||0)+1;}});
+    var sorted=Object.entries(raisons).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
+    var total2=annulations.length+decalages.length||1;
+    raisonsEl.innerHTML=sorted.length
+      ?sorted.map(function(r){
+        var pct=Math.round(r[1]/total2*100);
+        return '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:12px;color:#334155;">'+r[0]+'</span><span style="font-size:12px;font-weight:700;color:#dc2626;">'+r[1]+' ('+pct+'%)</span></div>'
+          +'<div style="background:#f1f5f9;border-radius:4px;height:6px;overflow:hidden;"><div style="height:100%;background:#dc2626;border-radius:4px;width:'+pct+'%;"></div></div></div>';
+      }).join('')
+      :'<div style="color:#94a3b8;font-size:12px;">Aucune annulation enregistrée</div>';
+  }
+
+  // Par technicien
+  var techEl=document.getElementById('ann-par-tech');
+  if(techEl){
+    var byTech={};
+    log.forEach(function(e){
+      if(!byTech[e.technicien])byTech[e.technicien]={ann:0,dec:0,mod:0};
+      if(e.type==='annulation')byTech[e.technicien].ann++;
+      else if(e.type==='decalage')byTech[e.technicien].dec++;
+      else byTech[e.technicien].mod++;
+    });
+    var techRdvs={};rdvs.forEach(function(r){techRdvs[r.technicien]=(techRdvs[r.technicien]||0)+1;});
+    techEl.innerHTML=Object.entries(byTech).sort(function(a,b){return (b[1].ann+b[1].dec)-(a[1].ann+a[1].dec);}).map(function(t){
+      var total3=(techRdvs[t[0]]||1);
+      var tx=Math.round((t[1].ann+t[1].dec)/total3*100);
+      return '<div style="padding:8px 10px;background:#f8fafc;border-radius:8px;margin-bottom:6px;">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;">'
+        +'<div style="font-weight:700;font-size:12px;">'+t[0]+'</div>'
+        +'<div style="font-size:11px;color:#94a3b8;">'+total3+' RDV total</div></div>'
+        +'<div style="display:flex;gap:10px;margin-top:4px;">'
+        +'<span style="font-size:11px;color:#dc2626;">❌ '+t[1].ann+' annul.</span>'
+        +'<span style="font-size:11px;color:#f59e0b;">📅 '+t[1].dec+' décal.</span>'
+        +'<span style="font-size:11px;color:#7c3aed;">✏️ '+t[1].mod+' modif.</span>'
+        +'<span style="font-size:11px;font-weight:700;color:'+(tx<=5?'#16a34a':tx<=15?'#f59e0b':'#dc2626')+';">taux: '+tx+'%</span>'
+        +'</div></div>';
+    }).join('')||'<div style="color:#94a3b8;font-size:12px;">Aucune donnée</div>';
+  }
+
+  // Par mois
+  var moisEl=document.getElementById('ann-par-mois');
+  if(moisEl){
+    var byMois={};
+    log.forEach(function(e){var m=e.ts?e.ts.substring(0,7):'?';if(!byMois[m])byMois[m]={ann:0,dec:0,mod:0};byMois[m][e.type==='annulation'?'ann':e.type==='decalage'?'dec':'mod']++;});
+    var max2=Math.max(1,...Object.values(byMois).map(function(v){return v.ann+v.dec+v.mod;}));
+    moisEl.innerHTML=Object.entries(byMois).sort(function(a,b){return b[0].localeCompare(a[0]);}).slice(0,12).reverse().map(function(m){
+      var tot=m[1].ann+m[1].dec+m[1].mod;var pct=Math.round(tot/max2*100);
+      var label=m[0]==='?'?'?':new Date(m[0]+'-01').toLocaleDateString('fr-FR',{month:'short',year:'2-digit'});
+      return '<div style="margin-bottom:6px;"><div style="display:flex;justify-content:space-between;margin-bottom:2px;"><span style="font-size:11px;color:#475569;">'+label+'</span><span style="font-size:11px;color:#334155;font-weight:700;">'+tot+' ('+m[1].ann+' ann. / '+m[1].dec+' déc.)</span></div>'
+        +'<div style="background:#f1f5f9;border-radius:4px;height:6px;overflow:hidden;"><div style="height:100%;background:#94a3b8;border-radius:4px;width:'+pct+'%;"></div></div></div>';
+    }).join('')||'<div style="color:#94a3b8;font-size:12px;">Aucune donnée mensuelle</div>';
+  }
+
+  // Historique récent
+  var histEl=document.getElementById('ann-historique');
+  if(histEl){
+    var recent=log.slice().reverse().slice(0,30);
+    var icons={annulation:'❌',decalage:'📅',modif:'✏️'};
+    var colors2={annulation:'#dc2626',decalage:'#f59e0b',modif:'#7c3aed'};
+    histEl.innerHTML=recent.length
+      ?recent.map(function(e){
+        var dt=e.ts?new Date(e.ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'?';
+        var detail='';
+        if(e.type==='annulation')detail='Raison : '+e.raison;
+        else if(e.type==='decalage')detail=(e.ancienneDate||'?')+' → '+(e.nouvDate||'?')+' — '+e.raison;
+        else detail=(e.ancienneDate||e.dateRdv||'?')+' → '+(e.nouvDate||e.dateRdv||'?');
+        return '<div style="padding:8px 10px;border-bottom:1px solid #f1f5f9;display:flex;align-items:flex-start;gap:10px;">'
+          +'<span style="font-size:16px;flex-shrink:0;">'+(icons[e.type]||'•')+'</span>'
+          +'<div style="flex:1;"><div style="font-size:12px;font-weight:700;color:'+colors2[e.type]+';text-transform:uppercase;">'+e.type+' — '+e.clientNom+'</div>'
+          +'<div style="font-size:11px;color:#64748b;">'+e.typeIntervention+' · Tech: '+(e.technicien||'?')+' · Par: '+(e.par||'?')+'</div>'
+          +'<div style="font-size:11px;color:#94a3b8;">'+detail+'</div></div>'
+          +'<div style="font-size:10px;color:#94a3b8;flex-shrink:0;">'+dt+'</div></div>';
+      }).join('')
+      :'<div style="color:#94a3b8;font-size:12px;padding:20px;text-align:center;">Aucun événement enregistré</div>';
+  }
+}
+
 function updateLeadsBadge(){
   var n=getLeads().filter(function(d){return !d.statutCom||d.statutCom==='nouveau';}).length;
   var btn=document.getElementById('nav-leads');
