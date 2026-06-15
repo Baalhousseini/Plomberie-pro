@@ -260,7 +260,7 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
 
 /* ── BOTTOM NAV ── */
 .nav{display:none!important;}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1.5px solid var(--border);display:flex;z-index:80;box-shadow:0 -4px 20px rgba(13,45,82,0.10);}
+.bottom-nav{display:none!important;}
 .bnav-btn{flex:1;background:none;border:none;padding:10px 4px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:9px;font-weight:700;font-family:'Inter',sans-serif;transition:color 0.15s;line-height:1;letter-spacing:0.3px;text-transform:uppercase;}
 .bnav-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
 .bnav-btn.active{color:var(--blue);}
@@ -288,8 +288,27 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
 .int-id{font-size:9px;color:var(--muted);font-weight:700;letter-spacing:0.8px;background:#f1f5f9;border-radius:4px;padding:2px 6px;font-variant-numeric:tabular-nums;}
 
 /* ── OVERRIDES ── */
-.content{padding-bottom:84px!important;}
-.chat-fab{bottom:86px!important;}
+.content{padding-bottom:16px!important;}
+.chat-fab{bottom:24px!important;}
+
+/* ── TOP NAV ── */
+.top-nav{display:flex;overflow-x:auto;gap:8px;padding:10px 14px;background:#fff;border-bottom:1px solid #e2e8f0;scrollbar-width:none;}
+.top-nav::-webkit-scrollbar{display:none;}
+.tnav-btn{flex-shrink:0;background:#f1f5f9;border:none;border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;color:#64748b;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;transition:all 0.2s;}
+.tnav-btn.active{background:#0d2d52;color:#fff;}
+
+/* ── ACCUEIL DASHBOARD ── */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.stat-card{border-radius:16px;padding:16px;box-shadow:0 4px 16px rgba(0,0,0,0.1);color:#fff;position:relative;overflow:hidden;}
+.stat-card-val{font-size:28px;font-weight:800;letter-spacing:-0.5px;line-height:1;}
+.stat-card-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;opacity:0.8;margin-top:6px;}
+.stat-card-icon{position:absolute;right:12px;top:12px;font-size:24px;opacity:0.4;}
+.prochain-rdv-card{background:linear-gradient(135deg,#16a34a,#22c55e);border-radius:16px;padding:16px;margin-bottom:16px;color:#fff;box-shadow:0 4px 16px rgba(22,163,74,0.3);}
+.devis-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.devis-statut-badge{display:inline-flex;align-items:center;border-radius:6px;padding:3px 9px;font-size:10px;font-weight:700;}
+.btn-accueil-devis{width:100%;background:linear-gradient(135deg,#0d2d52,#1a4a7a);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.form-devis-tech{background:#fff;border:2px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:16px;display:none;}
+.form-devis-tech.open{display:block;}
 
 /* ── STATUT BADGE USER-BAR ── */
 .statut-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;transition:all 0.3s;margin-left:auto;}
@@ -453,6 +472,17 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
     <button onclick="changerStatut('Indisponible',this)" class="sbar-btn">🔴 Indispo</button>
   </div>
 
+  <!-- TOP NAV -->
+  <div class="top-nav" id="top-nav">
+    <button class="tnav-btn active" id="tnav-accueil" onclick="showPage('accueil')">🏠 Accueil</button>
+    <button class="tnav-btn" id="tnav-agenda" onclick="showPage('agenda')">📅 Agenda</button>
+    <button class="tnav-btn" id="tnav-semaine" onclick="showPage('semaine')">📆 Semaine</button>
+    <button class="tnav-btn" id="tnav-perf" onclick="showPage('perf')">📈 Perfs</button>
+    <button class="tnav-btn" id="tnav-historique" onclick="showPage('historique')">📄 Historique</button>
+    <button class="tnav-btn" id="tnav-contrats" onclick="showPage('contrats')">📋 Contrats</button>
+    <button class="tnav-btn" id="tnav-todo" onclick="showPage('todo')">✅ À faire <span id="tnav-todo-badge" style="display:none;background:#ef4444;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px;"></span></button>
+  </div>
+
   <!-- URGENT BANNER -->
   <div id="urgent-banner" class="urgent-banner hidden pulse">
     <div class="urgent-dot"></div>
@@ -469,6 +499,98 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
   </div>
 
   <div class="content">
+    <!-- ACCUEIL -->
+    <div id="page-accueil">
+
+      <!-- SALUTATION HEADER -->
+      <div style="background:linear-gradient(135deg,#0d2d52,#1a4a7a);border-radius:0 0 20px 20px;padding:20px 18px 24px;margin-bottom:16px;margin-top:-16px;">
+        <div style="font-size:11px;color:rgba(255,255,255,0.55);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;" id="acc-date">Lundi 15 juin 2026</div>
+        <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.3px;" id="acc-salut">Bonjour !</div>
+        <div style="margin-top:8px;" id="acc-statut-pill"></div>
+      </div>
+
+      <!-- STAT CARDS 2x2 -->
+      <div class="stat-grid">
+        <div class="stat-card" style="background:linear-gradient(135deg,#0d2d52,#1a4a7a);">
+          <div class="stat-card-icon">📅</div>
+          <div class="stat-card-val" id="acc-rdv-total">—</div>
+          <div class="stat-card-lbl">RDV du jour</div>
+        </div>
+        <div class="stat-card" style="background:linear-gradient(135deg,#16a34a,#22c55e);">
+          <div class="stat-card-icon">✅</div>
+          <div class="stat-card-val" id="acc-rdv-done">—</div>
+          <div class="stat-card-lbl">Terminés</div>
+        </div>
+        <div class="stat-card" style="background:linear-gradient(135deg,#f97316,#fb923c);">
+          <div class="stat-card-icon">💶</div>
+          <div class="stat-card-val" id="acc-ca">—</div>
+          <div class="stat-card-lbl">CA du jour</div>
+        </div>
+        <div class="stat-card" style="background:linear-gradient(135deg,#7c3aed,#a855f7);">
+          <div class="stat-card-icon">🏆</div>
+          <div class="stat-card-val" id="acc-primes">—</div>
+          <div class="stat-card-lbl">Primes du mois</div>
+        </div>
+      </div>
+
+      <!-- PROCHAIN RDV -->
+      <div class="prochain-rdv-card hidden" id="acc-next-rdv-card">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:0.8;margin-bottom:8px;">⏰ Prochain RDV</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <div style="flex:1;">
+            <div style="font-size:20px;font-weight:800;letter-spacing:-0.3px;" id="acc-next-heure">—</div>
+            <div style="font-size:14px;font-weight:700;margin-top:2px;" id="acc-next-client">—</div>
+            <div style="font-size:12px;opacity:0.8;margin-top:2px;" id="acc-next-sub">—</div>
+          </div>
+          <button onclick="showPage('agenda')" style="background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:#fff;border-radius:10px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;">Voir →</button>
+        </div>
+      </div>
+
+      <!-- BOUTON CREER DEVIS -->
+      <button class="btn-accueil-devis" onclick="toggleFormDevisTech()">
+        <span style="font-size:18px;">📋</span>
+        <span>Créer un devis</span>
+      </button>
+
+      <!-- FORMULAIRE CREATION DEVIS (hidden par defaut) -->
+      <div class="form-devis-tech" id="form-devis-tech">
+        <div style="font-size:11px;font-weight:800;color:#0d2d52;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">📋 NOUVEAU DEVIS</div>
+        <div class="form-field"><label>NOM DU CLIENT</label><input type="text" class="form-input" id="fdt-client" placeholder="Jean Dupont"></div>
+        <div class="form-field"><label>TÉLÉPHONE</label><input type="tel" class="form-input" id="fdt-tel" placeholder="06 12 34 56 78"></div>
+        <div class="form-field"><label>ADRESSE</label><input type="text" class="form-input" id="fdt-adresse" placeholder="12 rue des Lilas, Paris"></div>
+        <div class="grid-2">
+          <div class="form-field"><label>TYPE DE TRAVAUX</label>
+            <select class="form-select" id="fdt-type">
+              <option>Remplacement chaudière</option>
+              <option>Installation sanitaire</option>
+              <option>Rénovation salle de bain</option>
+              <option>Installation VMC</option>
+              <option>Fuite d'eau</option>
+              <option>Débouchage</option>
+              <option>Travaux urgents</option>
+              <option>Autre</option>
+            </select>
+          </div>
+          <div class="form-field"><label>MONTANT ESTIMÉ (€)</label><input type="number" class="form-input" id="fdt-montant" placeholder="0"></div>
+        </div>
+        <div class="form-field"><label>DESCRIPTION DES TRAVAUX</label><textarea class="form-textarea" id="fdt-desc" rows="3" placeholder="Décrire précisément les travaux à chiffrer..."></textarea></div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="toggleFormDevisTech()" style="flex:1;background:#f1f5f9;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;font-family:'Inter',sans-serif;">Annuler</button>
+          <button onclick="envoyerDevisTech()" style="flex:2;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">✅ Envoyer le devis</button>
+        </div>
+      </div>
+
+      <!-- SECTION DEMANDES DE DEVIS RECUES -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:11px;font-weight:800;color:#0d2d52;letter-spacing:1.5px;text-transform:uppercase;">📬 Demandes de devis</div>
+        <span id="acc-devis-count" style="background:#e2e8f0;color:#64748b;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;">0</span>
+      </div>
+      <div id="acc-devis-list">
+        <div class="empty-state" style="padding:24px 0;"><div class="empty-icon">📭</div><div>Aucune demande de devis</div></div>
+      </div>
+
+    </div>
+
     <!-- AGENDA -->
     <div id="page-agenda">
 
@@ -1006,6 +1128,7 @@ function lancerApp(){
   updateCA();renderRdv();renderTabsBadges();renderPerf();renderSemaine();renderHistorique();
   renderKPI();checkUrgences();renderRecapJournee();renderTeamDispos();renderKpiTech();updateTodoBadgeTech();
   verifierAlertes();
+  showPage('accueil');
   document.getElementById("chat-fab").classList.remove("hidden");
   renderModuleNav();
   lastRdvCount=getMesRdvs().length;
@@ -1066,13 +1189,14 @@ function logout(){
 }
 
 function showPage(page){
-  ["agenda","semaine","perf","historique","contrats","todo"].forEach(p=>document.getElementById("page-"+p).classList.add("hidden"));
+  ["accueil","agenda","semaine","perf","historique","contrats","todo"].forEach(p=>document.getElementById("page-"+p).classList.add("hidden"));
   document.getElementById("page-"+page).classList.remove("hidden");
-  document.querySelectorAll(".bnav-btn").forEach(b=>b.classList.remove("active"));
-  const ab=document.getElementById("bnav-"+page);if(ab)ab.classList.add("active");
+  document.querySelectorAll(".tnav-btn").forEach(b=>b.classList.remove("active"));
+  const ab=document.getElementById("tnav-"+page);if(ab)ab.classList.add("active");
   document.querySelectorAll(".nav button").forEach((b,i)=>{
-    b.classList.toggle("active",["agenda","semaine","perf","historique","contrats"][i]===page);
+    b.classList.toggle("active",["accueil","agenda","semaine","perf","historique","contrats"][i]===page);
   });
+  if(page==="accueil")renderAccueil();
   if(page==="perf")renderPerf();
   if(page==="semaine")renderSemaine();
   if(page==="historique")renderHistorique();
@@ -1710,6 +1834,8 @@ function updateTodoBadgeTech(sections){
   if(lbl)lbl.textContent=total>0?'À faire ('+total+')':'À faire';
   var btn=document.getElementById('bnav-todo');
   if(btn)btn.style.color=total>0?'var(--blue)':'';
+  var tbadge=document.getElementById('tnav-todo-badge');
+  if(tbadge){if(total>0){tbadge.textContent=total;tbadge.style.display='inline';}else{tbadge.style.display='none';}}
   return total;
 }
 
@@ -2200,6 +2326,156 @@ function envoyerDevisRapide(){
   showNotif('Demande de devis envoyée au patron !');
 }
 
+
+/* ─────────────────────────────────────────────────
+   STOCKAGE DEVIS
+───────────────────────────────────────────────── */
+function getDevis(){return JSON.parse(localStorage.getItem('pl_devis')||'[]');}
+function saveDevis(d){var v=JSON.stringify(d);localStorage.setItem('pl_devis',v);if(window.gfSync)gfSync('pl_devis',v);}
+
+/* ─────────────────────────────────────────────────
+   PAGE ACCUEIL — DASHBOARD
+───────────────────────────────────────────────── */
+function renderAccueil(){
+  if(!currentUser)return;
+
+  // Salutation & date
+  var jours=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  var moisNoms=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  var now=new Date();
+  var dateStr=jours[now.getDay()]+' '+now.getDate()+' '+moisNoms[now.getMonth()]+' '+now.getFullYear();
+  var el=document.getElementById('acc-date');if(el)el.textContent=dateStr;
+  var prenom=currentUser.nom.split(' ')[0];
+  var salutEl=document.getElementById('acc-salut');
+  if(salutEl)salutEl.textContent='Bonjour, '+prenom+' !';
+
+  // Statut actuel
+  var dispos=JSON.parse(localStorage.getItem('pl_dispos')||'{}');
+  var statut=(dispos[currentUser.nom]||{}).statut||'Disponible';
+  var statutColors={Disponible:'#16a34a','En intervention':'#f97316',Pause:'#eab308',Indisponible:'#ef4444'};
+  var statutColor=statutColors[statut]||'#16a34a';
+  var pillEl=document.getElementById('acc-statut-pill');
+  if(pillEl)pillEl.innerHTML='<span style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;color:#fff;">'
+    +'<span style="width:7px;height:7px;border-radius:50%;background:'+statutColor+';display:inline-block;"></span>'+statut+'</span>';
+
+  // Stats du jour
+  var rdvs=getMesRdvs().filter(function(r){return r.dateRdv===todayStr();});
+  var done=rdvs.filter(function(r){return r.statut==='Termine'||r.statut==='Paye';}).length;
+  var ca=rdvs.reduce(function(s,r){return s+(r.prixVente||0);},0);
+  var s=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+  s('acc-rdv-total',rdvs.length);
+  s('acc-rdv-done',done);
+  s('acc-ca',ca+'€');
+  // Primes du mois
+  var primes=getPrimes();
+  var moisPrimes=(primes[currentUser.nom]||{})[moisStr()]||{total:0};
+  s('acc-primes',moisPrimes.total+'€');
+
+  // Prochain RDV
+  var pending=rdvs.filter(function(r){return r.statut!=='Termine'&&r.statut!=='Paye'&&r.statut!=='Annule';})
+    .sort(function(a,b){return a.heureRdv.localeCompare(b.heureRdv);});
+  var card=document.getElementById('acc-next-rdv-card');
+  if(card){
+    if(pending.length){
+      card.classList.remove('hidden');
+      s('acc-next-heure','→ '+pending[0].heureRdv);
+      s('acc-next-client',pending[0].clientNom);
+      s('acc-next-sub',pending[0].type+' · '+(pending[0].adresse||'').split(',')[0]);
+    } else {
+      card.classList.add('hidden');
+    }
+  }
+
+  // Demandes de devis
+  var devis=getDevis().filter(function(d){return d.statut==='Nouveau';});
+  var countEl=document.getElementById('acc-devis-count');
+  if(countEl)countEl.textContent=devis.length;
+  var listEl=document.getElementById('acc-devis-list');
+  if(listEl){
+    if(!devis.length){
+      listEl.innerHTML='<div class="empty-state" style="padding:24px 0;"><div class="empty-icon">📭</div><div>Aucune demande de devis en attente</div></div>';
+    } else {
+      listEl.innerHTML=devis.slice(0,10).map(function(d){
+        var statColor=d.statut==='Nouveau'?'#f97316':d.statut==='Traité'?'#16a34a':'#64748b';
+        var statBg=d.statut==='Nouveau'?'#fff7ed':d.statut==='Traité'?'#dcfce7':'#f1f5f9';
+        return '<div class="devis-card">'
+          +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;">'
+          +'<div style="flex:1;">'
+          +'<div style="font-weight:700;font-size:14px;color:#0d2d52;">'+d.clientNom+'</div>'
+          +'<div style="font-size:12px;color:#64748b;margin-top:2px;">'+(d.type||d.description||'—')+'</div>'
+          +(d.montant||d.prixEstimatif?'<div style="color:#16a34a;font-weight:800;font-size:14px;margin-top:3px;">'+(d.montant||d.prixEstimatif)+'€ estimé</div>':'')
+          +'<div style="font-size:10px;color:#94a3b8;margin-top:3px;">'+(d.date||'')+(d.source?' · Source : '+d.source:'')+(d.creePar?' · Par : '+d.creePar:'')+(d.technicien?' · '+d.technicien:'')+'</div>'
+          +'</div>'
+          +'<span class="devis-statut-badge" style="background:'+statBg+';color:'+statColor+';">'+d.statut+'</span>'
+          +'</div>'
+          +'<div style="display:flex;gap:6px;flex-wrap:wrap;">'
+          +(d.statut==='Nouveau'?'<button onclick="marquerDevisTraite(''+d.id+'')" style="background:#dcfce7;color:#16a34a;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">✓ Traité</button>':'')
+          +'<button onclick="creerRdvDepuisDevis(''+d.id+'')" style="background:#eff6ff;color:#1d4ed8;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">📅 Créer RDV</button>'
+          +'</div>'
+          +'</div>';
+      }).join('');
+    }
+  }
+}
+
+function marquerDevisTraite(devisId){
+  var devis=getDevis();
+  var d=devis.find(function(x){return String(x.id)===String(devisId);});
+  if(d)d.statut='Traité';
+  saveDevis(devis);
+  renderAccueil();
+  showNotif('Devis marqué comme traité !');
+}
+
+function creerRdvDepuisDevis(devisId){
+  var devis=getDevis();
+  var d=devis.find(function(x){return String(x.id)===String(devisId);});
+  if(!d)return;
+  showNotif('Redirection vers l'agenda — créez le RDV manuellement pour '+d.clientNom);
+  showPage('agenda');
+}
+
+function toggleFormDevisTech(){
+  var f=document.getElementById('form-devis-tech');
+  if(!f)return;
+  f.classList.toggle('open');
+  if(f.classList.contains('open'))f.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function envoyerDevisTech(){
+  if(!currentUser)return;
+  var client=(document.getElementById('fdt-client')||{}).value||'';
+  var tel=(document.getElementById('fdt-tel')||{}).value||'';
+  var adresse=(document.getElementById('fdt-adresse')||{}).value||'';
+  var type=(document.getElementById('fdt-type')||{}).value||'';
+  var montant=Number((document.getElementById('fdt-montant')||{}).value||0);
+  var desc=(document.getElementById('fdt-desc')||{}).value||'';
+  if(!client.trim()){showNotif('Remplissez le nom du client');return;}
+  var devis=getDevis();
+  devis.push({
+    id:Date.now(),
+    clientNom:client,
+    clientTel:tel,
+    adresse:adresse,
+    type:type,
+    montant:montant||undefined,
+    description:desc,
+    statut:'Nouveau',
+    source:'tech',
+    creePar:currentUser.nom,
+    technicien:currentUser.nom,
+    date:todayStr()
+  });
+  saveDevis(devis);
+  // Reset formulaire
+  ['fdt-client','fdt-tel','fdt-adresse','fdt-montant','fdt-desc'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.value='';
+  });
+  toggleFormDevisTech();
+  renderAccueil();
+  showNotif('Devis créé et envoyé au patron !');
+}
+
 window.onload=()=>{
   document.querySelectorAll(".pin-input").forEach((el,i,arr)=>{
     el.addEventListener("input",()=>{if(el.value&&i<arr.length-1)arr[i+1].focus();});
@@ -2244,6 +2520,8 @@ setInterval(function(){
   if(d!==_disposSnap){_disposSnap=d;renderKPI();}
   const u=localStorage.getItem('pl_urgences')||'';
   if(u!==_urgSnap){_urgSnap=u;checkUrgences();renderKPI();}
+  var pageAcc=document.getElementById('page-accueil');
+  if(pageAcc&&!pageAcc.classList.contains('hidden'))renderAccueil();
 },5000);
 </script>
 
