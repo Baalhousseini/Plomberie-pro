@@ -2771,8 +2771,8 @@ function renderAccueil(){
           +'<span class="devis-statut-badge" style="background:'+statBg+';color:'+statColor+';">'+d.statut+'</span>'
           +'</div>'
           +'<div style="display:flex;gap:6px;flex-wrap:wrap;">'
-          +(d.statut==='Nouveau'?'<button onclick="marquerDevisTraite(''+d.id+'')" style="background:#dcfce7;color:#16a34a;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">✓ Traité</button>':'')
-          +'<button onclick="creerRdvDepuisDevis(''+d.id+'')" style="background:#eff6ff;color:#1d4ed8;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">📅 Créer RDV</button>'
+          +(d.statut==='Nouveau'?'<button onclick="marquerDevisTraite('+d.id+')" style="background:#dcfce7;color:#16a34a;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">✓ Traité</button>':'')
+          +'<button onclick="creerRdvDepuisDevis('+d.id+')" style="background:#eff6ff;color:#1d4ed8;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">📅 Créer RDV</button>'
           +'</div>'
           +'</div>';
       }).join('');
@@ -2793,7 +2793,7 @@ function creerRdvDepuisDevis(devisId){
   var devis=getDevis();
   var d=devis.find(function(x){return String(x.id)===String(devisId);});
   if(!d)return;
-  showNotif('Redirection vers l'agenda — créez le RDV manuellement pour '+d.clientNom);
+  showNotif('Redirection vers l\'agenda — créez le RDV manuellement pour '+d.clientNom);
   showPage('agenda');
 }
 
