@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Panneau lateral gauche - camion GreenFlow Technologies -->
+<!-- Format approximatif: adapter les dimensions selon votre véhicule -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600">
+  <defs>
+    <linearGradient id="dropGradL" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4db8e8;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#2a9fd6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5ab85c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="leafGradL" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5cb85c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3a9e3a;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bgDiag" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1a2e5a;stop-opacity:1" />
+      <stop offset="60%" style="stop-color:#1a2e5a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a2e5a;stop-opacity:0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Fond blanc (couleur de base du camion) -->
+  <rect width="1200" height="600" fill="white"/>
+
+  <!-- Bande diagonale bleu marine en bas -->
+  <polygon points="0,480 1200,360 1200,600 0,600" fill="#1a2e5a" opacity="0.95"/>
+
+  <!-- Bande verte décorative -->
+  <polygon points="0,465 1200,345 1200,375 0,510" fill="#5cb85c"/>
+
+  <!-- Bande bleue claire décorative -->
+  <polygon points="0,510 1200,375 1200,395 0,530" fill="#4db8e8" opacity="0.7"/>
+
+  <!-- LOGO : Icône goutte -->
+  <g transform="translate(60, 60) scale(1.8)">
+    <path d="M55,5 C55,5 18,55 18,82 C18,104 34.5,122 55,122 C75.5,122 92,104 92,82 C92,55 55,5 55,5 Z"
+          fill="url(#dropGradL)" />
+    <path d="M55,38 C55,38 75,55 78,75 C78,75 65,88 55,85 C55,85 55,38 55,38 Z"
+          fill="url(#leafGradL)" opacity="0.85"/>
+    <path d="M30,82 Q42,70 55,80 Q68,90 80,78"
+          stroke="white" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.9"/>
+    <path d="M33,95 Q45,84 57,93 Q68,101 80,91"
+          stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.6"/>
+  </g>
+
+  <!-- LOGO : Texte GreenFlow -->
+  <text x="310" y="165" font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+        font-weight="900" font-size="90" fill="#1a2e5a">
+    <tspan fill="#5cb85c">Green</tspan><tspan fill="#1a2e5a">Flow</tspan>
+  </text>
+  <!-- Ligne bleue -->
+  <line x1="310" y1="185" x2="900" y2="185" stroke="#4db8e8" stroke-width="3"/>
+  <!-- TECHNOLOGIES -->
+  <text x="310" y="230" font-family="Arial, Helvetica, sans-serif"
+        font-weight="400" font-size="38" fill="#1a2e5a" letter-spacing="14">
+    TECHNOLOGIES
+  </text>
+
+  <!-- Séparateur -->
+  <line x1="60" y1="290" x2="960" y2="290" stroke="#1a2e5a" stroke-width="2" opacity="0.3"/>
+
+  <!-- Services -->
+  <!-- Icône clé/plomberie -->
+  <circle cx="100" cy="340" r="22" fill="#4db8e8"/>
+  <text x="100" y="348" font-family="Arial" font-size="22" fill="white" text-anchor="middle">✦</text>
+
+  <text x="140" y="352" font-family="'Arial Black', Arial, sans-serif"
+        font-weight="900" font-size="32" fill="#1a2e5a">PLOMBERIE</text>
+
+  <!-- Point séparateur -->
+  <circle cx="410" cy="342" r="5" fill="#5cb85c"/>
+
+  <!-- Icône flamme/chauffage -->
+  <circle cx="440" cy="340" r="22" fill="#e85c1a"/>
+  <text x="440" y="348" font-family="Arial" font-size="22" fill="white" text-anchor="middle">✦</text>
+
+  <text x="480" y="352" font-family="'Arial Black', Arial, sans-serif"
+        font-weight="900" font-size="32" fill="#1a2e5a">CHAUFFAGE</text>
+
+  <!-- Point séparateur -->
+  <circle cx="760" cy="342" r="5" fill="#5cb85c"/>
+
+  <!-- Icône flocon/clim -->
+  <circle cx="790" cy="340" r="22" fill="#4db8e8"/>
+  <text x="790" y="348" font-family="Arial" font-size="22" fill="white" text-anchor="middle">✦</text>
+
+  <text x="830" y="352" font-family="'Arial Black', Arial, sans-serif"
+        font-weight="900" font-size="32" fill="#1a2e5a">CLIMATISATION</text>
+
+  <!-- Numéro de téléphone -->
+  <text x="60" y="435" font-family="'Arial Black', Arial, sans-serif"
+        font-weight="900" font-size="52" fill="#1a2e5a">
+    📞 06 12 34 56 78
+  </text>
+
+  <!-- Site web en bas (sur bande marine) -->
+  <text x="60" y="565" font-family="Arial, Helvetica, sans-serif"
+        font-weight="400" font-size="30" fill="white" letter-spacing="2">
+    www.greenflow-services.fr
+  </text>
+</svg>

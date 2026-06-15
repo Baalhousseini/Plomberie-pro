@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Panneau lateral droit - camion GreenFlow Technologies -->
+<!-- Format approximatif: adapter les dimensions selon votre véhicule -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600">
+  <defs>
+    <linearGradient id="dropGradR" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4db8e8;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#2a9fd6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5ab85c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="leafGradR" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5cb85c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3a9e3a;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Fond blanc -->
+  <rect width="1200" height="600" fill="white"/>
+
+  <!-- Bande diagonale bleu marine en bas -->
+  <polygon points="0,420 1200,380 1200,600 0,600" fill="#1a2e5a" opacity="0.95"/>
+  <!-- Bande verte décorative -->
+  <polygon points="0,405 1200,365 1200,388 0,445" fill="#5cb85c"/>
+  <!-- Bande bleue claire -->
+  <polygon points="0,445 1200,388 1200,408 0,465" fill="#4db8e8" opacity="0.7"/>
+
+  <!-- LOGO PRINCIPAL en haut à gauche -->
+  <!-- Icône goutte -->
+  <g transform="translate(40, 40) scale(1.5)">
+    <path d="M55,5 C55,5 18,55 18,82 C18,104 34.5,122 55,122 C75.5,122 92,104 92,82 C92,55 55,5 55,5 Z"
+          fill="url(#dropGradR)" />
+    <path d="M55,38 C55,38 75,55 78,75 C78,75 65,88 55,85 C55,85 55,38 55,38 Z"
+          fill="url(#leafGradR)" opacity="0.85"/>
+    <path d="M30,82 Q42,70 55,80 Q68,90 80,78"
+          stroke="white" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.9"/>
+    <path d="M33,95 Q45,84 57,93 Q68,101 80,91"
+          stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.6"/>
+  </g>
+
+  <!-- Texte GreenFlow -->
+  <text x="265" y="120" font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+        font-weight="900" font-size="72" fill="#1a2e5a">
+    <tspan fill="#5cb85c">Green</tspan><tspan fill="#1a2e5a">Flow</tspan>
+  </text>
+  <line x1="265" y1="138" x2="830" y2="138" stroke="#4db8e8" stroke-width="3"/>
+  <text x="265" y="178" font-family="Arial, Helvetica, sans-serif"
+        font-weight="400" font-size="30" fill="#1a2e5a" letter-spacing="12">
+    TECHNOLOGIES
+  </text>
+
+  <!-- Séparateur -->
+  <line x1="860" y1="40" x2="860" y2="320" stroke="#1a2e5a" stroke-width="2" opacity="0.25"/>
+
+  <!-- Bloc INTERVENTION RAPIDE (droite) -->
+  <rect x="890" y="40" width="290" height="90" fill="#1a2e5a" rx="6"/>
+  <text x="1035" y="92" font-family="'Arial Black', Arial, sans-serif"
+        font-weight="900" font-size="28" fill="white" text-anchor="middle" letter-spacing="1">
+    INTERVENTION
+  </text>
+  <text x="1035" y="120" font-family="'Arial Black', Arial, sans-serif"
+        font-weight="900" font-size="28" fill="#4db8e8" text-anchor="middle" letter-spacing="1">
+    RAPIDE
+  </text>
+
+  <!-- Badge 24H/7J (droite) -->
+  <circle cx="1035" cy="240" r="70" fill="#1a2e5a"/>
+  <circle cx="1035" cy="240" r="65" fill="none" stroke="#4db8e8" stroke-width="3"/>
+  <text x="1035" y="232" font-family="'Arial Black', Arial, sans-serif"
+        font-weight="900" font-size="38" fill="white" text-anchor="middle">24H</text>
+  <line x1="980" y1="245" x2="1090" y2="245" stroke="#4db8e8" stroke-width="2"/>
+  <text x="1035" y="276" font-family="'Arial Black', Arial, sans-serif"
+        font-weight="900" font-size="30" fill="#4db8e8" text-anchor="middle">7J/7</text>
+
+  <!-- Icônes services (milieu bas gauche) -->
+  <!-- Clé de plomberie -->
+  <circle cx="120" cy="310" r="40" fill="#1a2e5a" opacity="0.1" stroke="#1a2e5a" stroke-width="2"/>
+  <text x="120" y="320" font-family="Arial" font-size="32" fill="#1a2e5a" text-anchor="middle">🔧</text>
+
+  <!-- Flocon clim -->
+  <circle cx="240" cy="310" r="40" fill="#4db8e8" opacity="0.15" stroke="#4db8e8" stroke-width="2"/>
+  <text x="240" y="320" font-family="Arial" font-size="32" fill="#4db8e8" text-anchor="middle">❄</text>
+
+  <!-- Flamme chauffage -->
+  <circle cx="360" cy="310" r="40" fill="#e85c1a" opacity="0.15" stroke="#e85c1a" stroke-width="2"/>
+  <text x="360" y="320" font-family="Arial" font-size="32" fill="#e85c1a" text-anchor="middle">🔥</text>
+
+  <!-- Feuille éco -->
+  <circle cx="480" cy="310" r="40" fill="#5cb85c" opacity="0.15" stroke="#5cb85c" stroke-width="2"/>
+  <text x="480" y="320" font-family="Arial" font-size="32" fill="#5cb85c" text-anchor="middle">🌿</text>
+
+  <!-- Légendes icônes -->
+  <text x="120" y="368" font-family="Arial" font-size="14" fill="#1a2e5a" text-anchor="middle" font-weight="bold">Plomberie</text>
+  <text x="240" y="368" font-family="Arial" font-size="14" fill="#1a2e5a" text-anchor="middle" font-weight="bold">Climatisation</text>
+  <text x="360" y="368" font-family="Arial" font-size="14" fill="#1a2e5a" text-anchor="middle" font-weight="bold">Chauffage</text>
+  <text x="480" y="368" font-family="Arial" font-size="14" fill="#1a2e5a" text-anchor="middle" font-weight="bold">Installation</text>
+
+  <!-- Site web en bas -->
+  <text x="600" y="562" font-family="Arial, Helvetica, sans-serif"
+        font-weight="400" font-size="28" fill="white" text-anchor="middle" letter-spacing="2">
+    www.greenflow-services.fr
+  </text>
+</svg>

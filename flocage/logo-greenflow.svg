@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 160" width="420" height="160">
+  <defs>
+    <linearGradient id="dropGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4db8e8;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#2a9fd6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5ab85c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5cb85c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3a9e3a;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Icône : goutte d'eau stylisée avec feuille -->
+  <g transform="translate(10, 10)">
+    <!-- Goutte principale (bleue) -->
+    <path d="M55,5 C55,5 18,55 18,82 C18,104 34.5,122 55,122 C75.5,122 92,104 92,82 C92,55 55,5 55,5 Z"
+          fill="url(#dropGrad)" />
+    <!-- Feuille verte superposée (droite de la goutte) -->
+    <path d="M55,38 C55,38 75,55 78,75 C78,75 65,88 55,85 C55,85 55,38 55,38 Z"
+          fill="url(#leafGrad)" opacity="0.85"/>
+    <!-- Vague/flux à l'intérieur -->
+    <path d="M30,82 Q42,70 55,80 Q68,90 80,78"
+          stroke="white" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.9"/>
+    <path d="M33,95 Q45,84 57,93 Q68,101 80,91"
+          stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.6"/>
+  </g>
+
+  <!-- Texte GreenFlow -->
+  <text x="112" y="75" font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+        font-weight="900" font-size="54" fill="#1a2e5a" letter-spacing="-1">
+    <tspan fill="#5cb85c">Green</tspan><tspan fill="#1a2e5a">Flow</tspan>
+  </text>
+
+  <!-- Ligne décorative -->
+  <line x1="112" y1="88" x2="412" y2="88" stroke="#4db8e8" stroke-width="2"/>
+
+  <!-- Sous-texte TECHNOLOGIES -->
+  <text x="112" y="118" font-family="'Arial', Helvetica, sans-serif"
+        font-weight="400" font-size="24" fill="#1a2e5a" letter-spacing="10">
+    TECHNOLOGIES
+  </text>
+</svg>
