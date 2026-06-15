@@ -496,8 +496,19 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
         </select>
       </div>
       <div class="grid-2">
-        <div class="form-field"><label>DATE RDV</label><input type="date" class="form-input" id="rdv-date" onchange="updateTechPlanning()"></div>
-        <div class="form-field"><label>HEURE RDV</label><input type="time" class="form-input" id="rdv-heure" value="09:00" onchange="scheduleTravelUpdate()"></div>
+        <div class="form-field"><label id="rdv-date-label">DATE RDV</label><input type="date" class="form-input" id="rdv-date" onchange="updateTechPlanning()"></div>
+        <div class="form-field" id="rdv-heure-field"><label>HEURE RDV</label><input type="time" class="form-input" id="rdv-heure" value="09:00" onchange="scheduleTravelUpdate()"></div>
+      </div>
+      <!-- Champ visible uniquement si "À planifier" -->
+      <div id="rdv-souhaitee-field" class="hidden">
+        <div style="background:#ede9fe;border:1.5px solid #a78bfa;border-radius:10px;padding:10px 12px;margin-bottom:10px;">
+          <div style="font-size:10px;font-weight:800;color:#7c3aed;letter-spacing:1px;margin-bottom:8px;">📋 À PLANIFIER — DATE D'INTERVENTION SOUHAITÉE</div>
+          <div class="grid-2">
+            <div class="form-field" style="margin:0;"><label style="color:#7c3aed;">DATE SOUHAITÉE (optionnel)</label><input type="date" class="form-input" id="rdv-date-souhaitee"></div>
+            <div class="form-field" style="margin:0;"><label style="color:#7c3aed;">HEURE SOUHAITÉE (optionnel)</label><input type="time" class="form-input" id="rdv-heure-souhaitee"></div>
+          </div>
+          <div style="font-size:11px;color:#7c3aed;margin-top:6px;">La date de prise en charge est enregistrée automatiquement. Le technicien sera assigné plus tard.</div>
+        </div>
       </div>
       <div class="form-field"><label>TECHNICIEN</label>
         <select class="form-select" id="rdv-tech" onchange="updateTechPlanning()"><option>Technicien 1</option><option>Technicien 2</option><option value="À planifier">📋 À planifier</option></select>
@@ -1440,7 +1451,9 @@ function renderAPlanifier(){
     html+='<div style="flex:1;">';
     html+='<div style="font-weight:700;font-size:13px;color:#1e1b4b;">'+r.clientNom+'</div>';
     html+='<div style="color:#6d28d9;font-size:12px;font-weight:600;">'+r.type+'</div>';
-    html+='<div style="color:#64748b;font-size:11px;margin-top:2px;">📅 '+r.dateRdv+' à '+r.heureRdv+' &nbsp;·&nbsp; 📍 '+r.adresse+'</div>';
+    html+='<div style="color:#64748b;font-size:11px;margin-top:2px;">📥 Prise en charge : '+(r.datePriseRdv||r.dateRdv)+'</div>';
+    if(r.dateSouhaitee)html+='<div style="color:#7c3aed;font-size:11px;font-weight:700;">📅 Souhaité : '+r.dateSouhaitee+(r.heureSouhaitee?' à '+r.heureSouhaitee:'')+'</div>';
+    html+='<div style="color:#64748b;font-size:11px;margin-top:2px;">📍 '+r.adresse+'</div>';
     if(r.notes)html+='<div style="color:#7c3aed;font-size:11px;margin-top:2px;font-style:italic;">📝 '+r.notes+'</div>';
     html+='</div>';
     html+='<div style="font-weight:800;color:#059669;font-size:15px;white-space:nowrap;">'+r.prixVente+' €</div>';
@@ -2285,7 +2298,16 @@ function creerRdv(){
   var codeDossier=(document.getElementById("rdv-code-dossier")&&document.getElementById("rdv-code-dossier").value.trim())||"";
   var canal=(document.getElementById("rdv-canal")&&document.getElementById("rdv-canal").value)||"Appel entrant";
   var operateurNom=currentOperateur?currentOperateur.nom:"Opérateur";
-  var rdv={id:Date.now(),clientNom:nom,clientTel:tel,adresse:adresse,type:document.getElementById("rdv-type").value,dateRdv:document.getElementById("rdv-date").value,heureRdv:document.getElementById("rdv-heure").value,technicien:document.getElementById("rdv-tech").value,prixVente:Number(prix),statut:"Confirme",notes:document.getElementById("rdv-notes").value.trim(),mandant:mandant,bonCmd:bonCmd,codeDossier:codeDossier,canal:canal,creePar:operateurNom,operateur:operateurNom,creeAt:new Date().toISOString()};
+  var tech=document.getElementById("rdv-tech").value;
+  var isAPlanifier=tech==='À planifier';
+  var dateSouhaitee=isAPlanifier?(document.getElementById("rdv-date-souhaitee")&&document.getElementById("rdv-date-souhaitee").value)||'':'';
+  var heureSouhaitee=isAPlanifier?(document.getElementById("rdv-heure-souhaitee")&&document.getElementById("rdv-heure-souhaitee").value)||'':'';
+  var rdv={id:Date.now(),clientNom:nom,clientTel:tel,adresse:adresse,type:document.getElementById("rdv-type").value,
+    dateRdv:isAPlanifier?todayStr():document.getElementById("rdv-date").value,
+    datePriseRdv:isAPlanifier?todayStr():'',
+    dateSouhaitee:dateSouhaitee,heureSouhaitee:heureSouhaitee,
+    heureRdv:isAPlanifier?'':document.getElementById("rdv-heure").value,
+    technicien:tech,prixVente:Number(prix),statut:"Confirme",notes:document.getElementById("rdv-notes").value.trim(),mandant:mandant,bonCmd:bonCmd,codeDossier:codeDossier,canal:canal,creePar:operateurNom,operateur:operateurNom,creeAt:new Date().toISOString()};
   var rdvs=getRdvs();rdvs.push(rdv);saveRdvs(rdvs);
   // Mettre à jour la base clients
   upsertClient(nom,tel,adresse);
@@ -2300,6 +2322,11 @@ function creerRdv(){
   var sugg=document.getElementById("rdv-client-suggestions");if(sugg)sugg.innerHTML="";
   var aar=document.getElementById("auto-assign-result");if(aar)aar.style.display="none";
   document.getElementById("rdv-date").value=todayStr();
+  var lbl=document.getElementById('rdv-date-label');if(lbl)lbl.textContent='DATE RDV';
+  var sf=document.getElementById('rdv-souhaitee-field');if(sf)sf.classList.add('hidden');
+  var hf=document.getElementById('rdv-heure-field');if(hf)hf.style.display='';
+  var ds=document.getElementById('rdv-date-souhaitee');if(ds)ds.value='';
+  var hs=document.getElementById('rdv-heure-souhaitee');if(hs)hs.value='';
   if(document.getElementById("rdv-mandant"))document.getElementById("rdv-mandant").value="";
   showNotif("RDV cree pour "+nom+" !");actualiserTout();
   if(rdv.clientTel&&rdv.technicien!=='À planifier'){
@@ -3434,8 +3461,23 @@ function updateTechPlanning(){
   var pl=document.getElementById('rdv-plan-list');
   var ca=document.getElementById('rdv-conflict-div');
   var cm=document.getElementById('rdv-conflict-msg');
-  if(!tech||!date||!pd)return;
-  if(tech==='À planifier'){pd.classList.add('hidden');if(ca)ca.classList.add('hidden');return;}
+  var sf=document.getElementById('rdv-souhaitee-field');
+  var lbl=document.getElementById('rdv-date-label');
+  var heureField=document.getElementById('rdv-heure-field');
+  if(!tech||!pd)return;
+  if(tech==='À planifier'){
+    // Date = aujourd'hui (date de prise en charge) — auto
+    var dateEl=document.getElementById('rdv-date');
+    if(dateEl&&!dateEl.value)dateEl.value=todayStr();
+    if(lbl)lbl.textContent='DATE PRISE EN CHARGE';
+    if(sf)sf.classList.remove('hidden');
+    if(heureField)heureField.style.display='none';
+    pd.classList.add('hidden');if(ca)ca.classList.add('hidden');return;
+  }
+  // Tech assigné : restaurer labels normaux
+  if(lbl)lbl.textContent='DATE RDV';
+  if(sf)sf.classList.add('hidden');
+  if(heureField)heureField.style.display='';
   var rdvs=getTechDayRdvs(tech,date);
   if(rdvs.length){
     pd.classList.remove('hidden');
