@@ -112,10 +112,10 @@ function _gfRestPoll(){
         if(val === null || val === undefined) return;
         if(typeof val === 'object' && val.error) return; // règles bloquent
         var json = JSON.stringify(val);
-        if(_restSnaps[key] === json) return; // pas de changement
+        if(_restSnaps[key] === json) return; // pas de changement Firebase
         _restSnaps[key] = json;
-        var cur = localStorage.getItem(key);
-        if(cur === json) return; // déjà à jour localement
+        // Toujours mettre à jour localStorage même si déjà identique en apparence
+        // (le format JSON peut différer légèrement après aller-retour Firebase)
         localStorage.setItem(key, json);
         // Propager à tous les listeners du module courant
         if(_bc) try { _bc.postMessage({key:key, value:json}); } catch(e){}
@@ -130,6 +130,23 @@ setTimeout(function(){
   _gfRestPoll();
   setInterval(_gfRestPoll, 8000);
 }, 3000);
+
+// Force-sync quand la page redevient visible (après verrouillage téléphone, changement d'app, etc.)
+// Les timers sont throttlés en arrière-plan sur mobile — sans ça, les données restent périmées
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState === 'visible'){
+    // Réinitialiser les snapshots pour forcer une comparaison complète au prochain poll
+    _restSnaps = {};
+    _gfRestPoll();
+    // Si Firebase SDK est connecté, forcer une reconnexion
+    if(_db){
+      try {
+        _db.goOffline();
+        setTimeout(function(){ _db.goOnline(); }, 500);
+      } catch(e){}
+    }
+  }
+});
 
 // Badge statut — teste une vraie écriture pour confirmer la connectivité
 document.addEventListener('DOMContentLoaded', function(){

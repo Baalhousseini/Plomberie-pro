@@ -504,7 +504,10 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
 
       <!-- SALUTATION HEADER -->
       <div style="background:linear-gradient(135deg,#0d2d52,#1a4a7a);border-radius:0 0 20px 20px;padding:20px 18px 24px;margin-bottom:16px;margin-top:-16px;">
-        <div style="font-size:11px;color:rgba(255,255,255,0.55);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;" id="acc-date">Lundi 15 juin 2026</div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;" id="acc-date">Lundi 15 juin 2026</div>
+          <button onclick="syncForcer();this.textContent='✓';setTimeout(()=>this.textContent='🔄',1500);" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:#fff;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;" title="Actualiser les données">🔄</button>
+        </div>
         <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.3px;" id="acc-salut">Bonjour !</div>
         <div style="margin-top:8px;" id="acc-statut-pill"></div>
       </div>
@@ -1293,6 +1296,8 @@ function lancerApp(){
   renderKPI();checkUrgences();renderRecapJournee();renderTeamDispos();renderKpiTech();updateTodoBadgeTech();
   verifierAlertes();
   showPage('accueil');
+  // Sync Firebase immédiat au login pour garantir les données les plus récentes
+  setTimeout(syncForcer, 500);
   document.getElementById("chat-fab").classList.remove("hidden");
   renderModuleNav();
   lastRdvCount=getMesRdvs().length;
@@ -3025,6 +3030,33 @@ setInterval(function(){
   var pageAcc=document.getElementById('page-accueil');
   if(pageAcc&&!pageAcc.classList.contains('hidden'))renderAccueil();
 },5000);
+
+// Force-sync depuis Firebase — appelé quand la page redevient visible
+function syncForcer(){
+  if(!currentUser)return;
+  var base='https://plomberie-pro-7a56a-default-rtdb.europe-west1.firebasedatabase.app/greenflow/';
+  ['pl_rdvs','pl_urgences','pl_dispos'].forEach(function(key){
+    fetch(base+key+'.json',{cache:'no-store'})
+      .then(function(r){return r.json();})
+      .then(function(val){
+        if(val===null||val===undefined)return;
+        if(typeof val==='object'&&val.error)return;
+        var json=JSON.stringify(val);
+        var cur=localStorage.getItem(key);
+        if(cur===json)return;
+        localStorage.setItem(key,json);
+        renderRdv();renderKPI();checkUrgences();renderRecapJournee();renderAccueil();
+      }).catch(function(){});
+  });
+}
+
+// Resync automatique quand le tech revient sur l'app (après avoir verrouillé le téléphone, etc.)
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'&&currentUser){
+    syncForcer();
+    renderAccueil();
+  }
+});
 </script>
 
 <!-- CHAT FAB -->
