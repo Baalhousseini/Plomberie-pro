@@ -2966,8 +2966,10 @@ function renderAccueil(){
   if(!draftBanner){
     draftBanner=document.createElement('div');
     draftBanner.id='acc-draft-banner';
-    var devisSection=document.querySelector('#page-accueil');
-    if(devisSection)devisSection.appendChild(draftBanner);
+    // Insérer juste après la carte "Prochain RDV" pour visibilité immédiate
+    var anchor=document.getElementById('acc-next-rdv-card');
+    if(anchor&&anchor.parentNode)anchor.parentNode.insertBefore(draftBanner,anchor.nextSibling);
+    else{var pg=document.getElementById('page-accueil');if(pg)pg.insertBefore(draftBanner,pg.firstChild);}
   }
   try{
     var draftStr=localStorage.getItem('pl_rapport_draft');
