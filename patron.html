@@ -1161,6 +1161,12 @@ body.logged-in #ai-fab{display:flex!important;}
     </div>
     <button class="btn btn-primary btn-full" onclick="sauvegarderObjectif()">Sauvegarder</button>
   </div>
+  <div class="card" style="margin-top:12px;">
+    <div class="lbl">OBJECTIFS CA MENSUEL PAR TECHNICIEN (EUR)</div>
+    <div style="font-size:11px;color:#64748b;margin:8px 0 12px;">Ces objectifs s'affichent dans le module Tech et le Dispatch</div>
+    <div id="patron-obj-techs-fields"></div>
+    <button class="btn btn-primary btn-full" style="margin-top:12px;" onclick="patronSauvegarderObjectifsTechs()">Enregistrer les objectifs</button>
+  </div>
   <div class="card" style="margin-top:12px;background:linear-gradient(135deg,#0d2d52,#1a4a7a);color:#fff;">
     <div class="lbl" style="color:rgba(255,255,255,0.7);">RAPPORT DIRECTION</div>
     <div style="color:rgba(255,255,255,0.6);font-size:12px;margin:8px 0 12px;">Export PDF mensuel pour banque, investisseurs, pilotage</div>
@@ -1653,7 +1659,7 @@ function showPage(p){
   if(p==="rapports")renderRapports();
   if(p==="business")renderBusiness();
   if(p==="primes")renderPrimes();
-  if(p==="params"){renderParams();initRapportSelects();}
+  if(p==="params"){renderParams();initRapportSelects();renderObjectifsTechs();}
   if(p==="devis")renderDevis();
   if(p==="crm")renderCrm();
   if(p==="analytics"){showAnalytics("finances");}
@@ -2476,6 +2482,34 @@ function sauvegarderPrix(){
 function sauvegarderObjectif(){
 localStorage.setItem("pl_objectif",document.getElementById("objectif-input").value);
 showNotif("Objectif sauvegarde !");renderDashboard();
+}
+
+function patronGetObjectifsTechs(){return JSON.parse(localStorage.getItem('pl_objectifs_techs')||'{}');}
+function patronSaveObjectifsTechs(o){var v=JSON.stringify(o);localStorage.setItem('pl_objectifs_techs',v);if(window.gfSync)gfSync('pl_objectifs_techs',v);}
+
+function renderObjectifsTechs(){
+  var techs=getTechs(),obj=patronGetObjectifsTechs();
+  var el=document.getElementById('patron-obj-techs-fields');
+  if(!el)return;
+  if(!techs.length){el.innerHTML='<div style="color:#94a3b8;font-size:12px;">Aucun technicien configuré — ajoutez-en dans la section ci-dessus</div>';return;}
+  el.innerHTML=techs.map(function(t){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'
+      +'<label style="font-size:13px;font-weight:600;color:#0d2d52;">'+t+'</label>'
+      +'<div style="display:flex;align-items:center;gap:6px;">'
+      +'<input type="number" id="patron-obj-'+t.replace(/\s/g,'_')+'" value="'+(obj[t]||25000)+'" placeholder="25000" '
+      +'style="width:130px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 10px;font-size:13px;font-weight:700;color:#16a34a;font-family:inherit;">'
+      +'<span style="font-size:11px;color:#94a3b8;">€/mois</span></div></div>';
+  }).join('');
+}
+
+function patronSauvegarderObjectifsTechs(){
+  var techs=getTechs(),obj={};
+  techs.forEach(function(t){
+    var e=document.getElementById('patron-obj-'+t.replace(/\s/g,'_'));
+    if(e)obj[t]=parseFloat(e.value)||0;
+  });
+  patronSaveObjectifsTechs(obj);
+  showNotif('Objectifs enregistrés et synchronisés sur tous les modules !');
 }
 
 function supprimerTech(i){const t=getTechs();t.splice(i,1);saveTechs(t);renderParams();showNotif("Technicien supprime");}
