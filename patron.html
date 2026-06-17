@@ -2493,10 +2493,12 @@ function renderObjectifsTechs(){
   if(!el)return;
   if(!techs.length){el.innerHTML='<div style="color:#94a3b8;font-size:12px;">Aucun technicien configuré — ajoutez-en dans la section ci-dessus</div>';return;}
   el.innerHTML=techs.map(function(t){
+    var nom=t.nom||t;
+    var safeId=nom.replace(/\s/g,'_');
     return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'
-      +'<label style="font-size:13px;font-weight:600;color:#0d2d52;">'+t+'</label>'
+      +'<label style="font-size:13px;font-weight:600;color:#0d2d52;">'+nom+'</label>'
       +'<div style="display:flex;align-items:center;gap:6px;">'
-      +'<input type="number" id="patron-obj-'+t.replace(/\s/g,'_')+'" value="'+(obj[t]||25000)+'" placeholder="25000" '
+      +'<input type="number" id="patron-obj-'+safeId+'" value="'+(obj[nom]||25000)+'" placeholder="25000" '
       +'style="width:130px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 10px;font-size:13px;font-weight:700;color:#16a34a;font-family:inherit;">'
       +'<span style="font-size:11px;color:#94a3b8;">€/mois</span></div></div>';
   }).join('');
@@ -2505,8 +2507,9 @@ function renderObjectifsTechs(){
 function patronSauvegarderObjectifsTechs(){
   var techs=getTechs(),obj={};
   techs.forEach(function(t){
-    var e=document.getElementById('patron-obj-'+t.replace(/\s/g,'_'));
-    if(e)obj[t]=parseFloat(e.value)||0;
+    var nom=t.nom||t;
+    var e=document.getElementById('patron-obj-'+nom.replace(/\s/g,'_'));
+    if(e)obj[nom]=parseFloat(e.value)||0;
   });
   patronSaveObjectifsTechs(obj);
   showNotif('Objectifs enregistrés et synchronisés sur tous les modules !');
