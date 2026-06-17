@@ -1501,11 +1501,6 @@ function carteBodyHtml(r,isToday,isDone){
     ${isToday&&!isEnCours?`<button class="action-btn btn-orange" onclick="ouvrirDevisSurPlace(${r.id})">Devis</button>`:""}
     <button class="action-btn btn-gray" onclick="ouvrirRapport(${r.id})">Rapport</button>
     <button class="action-btn" style="background:${getFicheLogement(r.clientTel)?'#fef9c3;color:#854d0e;border:1px solid #fde047':'#f8fafc;color:#475569;border:1px solid #e2e8f0'};border-radius:9px;padding:11px 8px;" onclick="ouvrirFicheLogement('${r.clientTel}','${r.clientNom}','${(r.adresse||'').replace(/'/g,"\\'")}')">🏠 ${getFicheLogement(r.clientTel)?'Fiche ✓':'Fiche'}</button>
-  </div>
-  <div style="display:flex;gap:6px;margin-top:8px;">
-    <button onclick="event.stopPropagation();ouvrirActionsRdvTech(${r.id},'modif')" style="flex:1;background:#eff6ff;color:#1d4ed8;border:none;border-radius:8px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;">✏️ Modifier</button>
-    <button onclick="event.stopPropagation();ouvrirActionsRdvTech(${r.id},'decal')" style="flex:1;background:#fff7ed;color:#c2410c;border:none;border-radius:8px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;">📅 Décaler</button>
-    <button onclick="event.stopPropagation();ouvrirActionsRdvTech(${r.id},'annul')" style="flex:1;background:#fef2f2;color:#dc2626;border:none;border-radius:8px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;">❌ Annuler</button>
   </div>`:""}
 </div>`;
 }
@@ -2799,7 +2794,7 @@ function envoyerDevisRapide(){
 function getDevis(){return JSON.parse(localStorage.getItem('pl_devis')||'[]');}
 function saveDevis(d){var v=JSON.stringify(d);localStorage.setItem('pl_devis',v);if(window.gfSync)gfSync('pl_devis',v);}
 
-// ── ACTIONS RDV TECH (modifier / décaler / annuler) ──
+// ── ACTIONS RDV (modification réservée au Patron) ──
 var _rdvTechActionId = null;
 function ouvrirActionsRdvTech(id, tab){
   _rdvTechActionId = id;
@@ -3541,64 +3536,6 @@ if('serviceWorker' in navigator) {
 }
 </script>
 
-<!-- MODAL ACTIONS RDV TECH (modifier / décaler / annuler) -->
-<div id="modal-rdv-tech-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;" onclick="fermerActionsRdvTech()"></div>
-<div id="modal-rdv-tech" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;z-index:201;padding:20px 16px 40px;max-height:92vh;overflow-y:auto;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-    <div style="font-size:13px;font-weight:800;color:#0d2d52;" id="modal-rdv-tech-title">RDV</div>
-    <button onclick="fermerActionsRdvTech()" style="background:#f1f5f9;border:none;border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer;color:#64748b;">×</button>
-  </div>
-  <!-- Onglets -->
-  <div style="display:flex;gap:6px;background:#f1f5f9;border-radius:10px;padding:4px;margin-bottom:16px;">
-    <button id="rdvt-tab-modif" onclick="switchRdvTechTab('modif')" style="flex:1;background:#0d2d52;color:#fff;border:none;border-radius:8px;padding:8px 4px;font-size:12px;font-weight:700;cursor:pointer;">✏️ Modifier</button>
-    <button id="rdvt-tab-decal" onclick="switchRdvTechTab('decal')" style="flex:1;background:none;color:#64748b;border:none;border-radius:8px;padding:8px 4px;font-size:12px;font-weight:700;cursor:pointer;">📅 Décaler</button>
-    <button id="rdvt-tab-annul" onclick="switchRdvTechTab('annul')" style="flex:1;background:none;color:#64748b;border:none;border-radius:8px;padding:8px 4px;font-size:12px;font-weight:700;cursor:pointer;">❌ Annuler</button>
-  </div>
-  <!-- Section Modifier -->
-  <div id="rdvt-section-modif">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-      <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">DATE</label><input type="date" class="fi" id="rdvt-date"></div>
-      <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">HEURE</label><input type="time" class="fi" id="rdvt-heure"></div>
-    </div>
-    <div style="margin-bottom:10px;"><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">PRIX (€)</label><input type="number" class="fi" id="rdvt-prix"></div>
-    <div style="margin-bottom:14px;"><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">NOTES</label><textarea class="fi" id="rdvt-notes" rows="2" style="resize:vertical;"></textarea></div>
-    <div style="display:flex;gap:8px;">
-      <button onclick="fermerActionsRdvTech()" style="flex:1;background:#f1f5f9;border:none;border-radius:10px;padding:13px;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;">Annuler</button>
-      <button onclick="sauvegarderModifRdvTech()" style="flex:2;background:#0d2d52;color:#fff;border:none;border-radius:10px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;">💾 Sauvegarder</button>
-    </div>
-  </div>
-  <!-- Section Décaler -->
-  <div id="rdvt-section-decal" style="display:none;">
-    <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#c2410c;">Indiquer la nouvelle date/heure et la raison.</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-      <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">NOUVELLE DATE</label><input type="date" class="fi" id="rdvt-decal-date"></div>
-      <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">HEURE</label><input type="time" class="fi" id="rdvt-decal-heure"></div>
-    </div>
-    <div style="margin-bottom:14px;"><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">RAISON DU DÉCALAGE</label><textarea class="fi" id="rdvt-decal-raison" rows="2" placeholder="Client indisponible, problème technique..." style="resize:vertical;"></textarea></div>
-    <div style="display:flex;gap:8px;">
-      <button onclick="fermerActionsRdvTech()" style="flex:1;background:#f1f5f9;border:none;border-radius:10px;padding:13px;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;">Annuler</button>
-      <button onclick="confirmerDecalageTech()" style="flex:2;background:#f59e0b;color:#fff;border:none;border-radius:10px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;">📅 Confirmer le décalage</button>
-    </div>
-  </div>
-  <!-- Section Annuler -->
-  <div id="rdvt-section-annul" style="display:none;">
-    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#dc2626;">Cette action est définitive. Le RDV sera masqué de l'agenda.</div>
-    <div style="margin-bottom:14px;"><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">RAISON DE L'ANNULATION</label>
-      <select class="fi" id="rdvt-annul-raison">
-        <option value="Client absent">Client absent</option>
-        <option value="Client a annulé">Client a annulé</option>
-        <option value="Problème technique">Problème technique</option>
-        <option value="Doublon">Doublon</option>
-        <option value="Autre">Autre</option>
-      </select>
-    </div>
-    <div style="margin-bottom:14px;"><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">PRÉCISIONS (optionnel)</label><textarea class="fi" id="rdvt-annul-notes" rows="2" style="resize:vertical;"></textarea></div>
-    <div style="display:flex;gap:8px;">
-      <button onclick="fermerActionsRdvTech()" style="flex:1;background:#f1f5f9;border:none;border-radius:10px;padding:13px;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;">Retour</button>
-      <button onclick="confirmerAnnulationTech()" style="flex:2;background:#dc2626;color:#fff;border:none;border-radius:10px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;">❌ Confirmer l'annulation</button>
-    </div>
-  </div>
-</div>
 
 </body>
 </html>

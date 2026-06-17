@@ -1398,6 +1398,7 @@ const moisStr=()=>new Date().toISOString().slice(0,7);
 const anneeStr=()=>new Date().getFullYear().toString();
 let periode="jour",filtreRapport="tous",semaineOffset=0;
 let agendaFiltre="auj",agendaTech="tous";
+var _rdvPatronId=null;
 
 const getRdvs=()=>JSON.parse(localStorage.getItem("pl_rdvs")||"[]");
 const saveRdvs=r=>{const v=JSON.stringify(r);localStorage.setItem("pl_rdvs",v);if(window.gfSync)gfSync("pl_rdvs",v);};
@@ -1736,6 +1737,8 @@ function renderAPlanifierPatron(){
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;">
         <span style="color:#64748b;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;">Assigner →</span>
         ${Object.keys(TECH_C).map(tech=>{const tc=TECH_C[tech];return`<button class="btn" style="padding:5px 12px;font-size:11px;background:${tc.bg};color:${tc.c};border:1.5px solid ${tc.c};border-radius:8px;font-weight:700;" onclick="assignerRdvPatron(${r.id},'${tech}')">${tc.a} ${tech}</button>`;}).join("")}
+        <button class="btn" style="padding:5px 10px;font-size:11px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:8px;font-weight:700;" onclick="ouvrirActionsRdvPatron(${r.id},'modif')">✏️ Modifier</button>
+        <button class="btn" style="padding:5px 10px;font-size:11px;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;border-radius:8px;font-weight:700;" onclick="ouvrirActionsRdvPatron(${r.id},'decal')">📅 Décaler</button>
         <button class="btn btn-r" style="padding:5px 10px;font-size:11px;margin-left:auto;" onclick="supprimerRdvPatron(${r.id})">✕ Supprimer</button>
       </div>
     </div>`;
@@ -1759,6 +1762,92 @@ function supprimerRdvPatron(id){
   saveRdvs(rdvs);
   renderAPlanifierPatron();renderPlanningJour();updateNavBadges();
   showNotif("RDV supprimé");
+}
+
+function ouvrirActionsRdvPatron(id,tab){
+  var rdvs=getRdvs();
+  var r=rdvs.find(function(x){return x.id===id;});
+  if(!r)return;
+  _rdvPatronId=id;
+  document.getElementById('patron-rdv-modal-title').textContent=r.clientNom;
+  document.getElementById('patron-rdv-modal-sub').textContent=r.type+' · '+r.dateRdv+' à '+r.heureRdv;
+  // Pré-remplir Modifier
+  document.getElementById('patron-mod-date').value=r.dateRdv||'';
+  document.getElementById('patron-mod-heure').value=r.heureRdv||'';
+  document.getElementById('patron-mod-notes').value=r.notes||'';
+  document.getElementById('patron-mod-prix').value=r.prixVente||'';
+  var sel=document.getElementById('patron-mod-tech');
+  var techs=getTechs();
+  sel.innerHTML=['À planifier'].concat(techs.map(function(t){return t.nom||t;}))
+    .map(function(t){return'<option'+(t===(r.technicien||'À planifier')?' selected':'')+'>'+t+'</option>';}).join('');
+  // Pré-remplir Décaler
+  document.getElementById('patron-dec-date').value='';
+  document.getElementById('patron-dec-heure').value='';
+  var checked=document.querySelector('input[name="patron-raison-dec"]:checked');
+  if(checked)checked.checked=false;
+  // Afficher onglet demandé
+  ouvrirSectionRdvPatron(tab==='decal'?'decaler':'modifier');
+  document.getElementById('patron-rdv-modal-bg').style.display='block';
+  document.body.style.overflow='hidden';
+}
+
+function fermerActionsRdvPatron(){
+  document.getElementById('patron-rdv-modal-bg').style.display='none';
+  document.body.style.overflow='';
+  _rdvPatronId=null;
+}
+
+function ouvrirSectionRdvPatron(s){
+  ['modifier','decaler'].forEach(function(x){
+    document.getElementById('patron-section-'+x).style.display=x===s?'block':'none';
+  });
+  document.querySelectorAll('.patron-rdv-tab').forEach(function(btn){
+    btn.style.fontWeight=btn.dataset.tab===s?'800':'500';
+    btn.style.borderBottom=btn.dataset.tab===s?'2px solid #2563eb':'2px solid transparent';
+    btn.style.color=btn.dataset.tab===s?'#2563eb':'#64748b';
+  });
+}
+
+function sauvegarderModifRdvPatron(){
+  if(!_rdvPatronId)return;
+  var rdvs=getRdvs();
+  var idx=rdvs.findIndex(function(x){return x.id===_rdvPatronId;});
+  if(idx<0)return;
+  var r=rdvs[idx];
+  var oldDate=r.dateRdv,oldHeure=r.heureRdv;
+  r.dateRdv=document.getElementById('patron-mod-date').value||r.dateRdv;
+  r.heureRdv=document.getElementById('patron-mod-heure').value||r.heureRdv;
+  r.technicien=document.getElementById('patron-mod-tech').value;
+  r.notes=document.getElementById('patron-mod-notes').value;
+  r.prixVente=parseFloat(document.getElementById('patron-mod-prix').value)||r.prixVente;
+  r.modifs=r.modifs||[];
+  r.modifs.push({type:'modif',label:'Modification : '+r.dateRdv+' à '+r.heureRdv+' — '+r.technicien,par:'Patron',ts:new Date().toISOString()});
+  saveRdvs(rdvs);
+  fermerActionsRdvPatron();
+  renderAPlanifierPatron();renderPlanningJour();updateNavBadges();
+  showNotif('✅ RDV modifié');
+}
+
+function confirmerDecalagePatron(){
+  if(!_rdvPatronId)return;
+  var raison=document.querySelector('input[name="patron-raison-dec"]:checked');
+  if(!raison){showNotif('Sélectionne une raison');return;}
+  var newDate=document.getElementById('patron-dec-date').value;
+  if(!newDate){showNotif('Choisis la nouvelle date');return;}
+  var newHeure=document.getElementById('patron-dec-heure').value;
+  var rdvs=getRdvs();
+  var idx=rdvs.findIndex(function(x){return x.id===_rdvPatronId;});
+  if(idx<0)return;
+  var r=rdvs[idx];
+  var oldDate=r.dateRdv;
+  r.dateRdv=newDate;
+  if(newHeure)r.heureRdv=newHeure;
+  r.modifs=r.modifs||[];
+  r.modifs.push({type:'decalage',label:'Décalé ('+raison.value+') : '+oldDate+' → '+newDate,par:'Patron',ts:new Date().toISOString()});
+  saveRdvs(rdvs);
+  fermerActionsRdvPatron();
+  renderAPlanifierPatron();renderPlanningJour();updateNavBadges();
+  showNotif('📅 RDV décalé au '+newDate);
 }
 
 function setPeriode(p,btn){
@@ -6268,6 +6357,72 @@ async function sendAI(){
     <a id="modal-lead-tel-btn" href="#" class="btn btn-g" style="flex:1;text-align:center;text-decoration:none;">📞 Appeler</a>
     <button class="btn btn-gray" style="flex:1;" onclick="sauvegarderNoteLead()">💾 Note</button>
     <button class="btn btn-gray" onclick="fermerModalLead()">✕</button>
+  </div>
+</div>
+
+<!-- MODAL PATRON : MODIFIER / DÉCALER RDV -->
+<div id="patron-rdv-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:2000;overflow-y:auto;" onclick="if(event.target===this)fermerActionsRdvPatron()">
+  <div style="background:#fff;border-radius:20px 20px 0 0;position:fixed;bottom:0;left:0;right:0;max-height:90vh;overflow-y:auto;padding:20px 16px 32px;">
+    <div style="width:40px;height:4px;background:#e2e8f0;border-radius:4px;margin:0 auto 16px;"></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+      <div>
+        <div style="font-size:11px;color:#64748b;letter-spacing:1.5px;font-weight:700;text-transform:uppercase;">Intervention</div>
+        <div style="font-size:17px;font-weight:800;color:#0d2d52;margin-top:2px;" id="patron-rdv-modal-title">—</div>
+        <div style="font-size:12px;color:#64748b;margin-top:2px;" id="patron-rdv-modal-sub">—</div>
+      </div>
+      <button onclick="fermerActionsRdvPatron()" style="background:#f1f5f9;border:none;border-radius:10px;padding:8px 12px;font-size:16px;cursor:pointer;">✕</button>
+    </div>
+    <!-- Onglets -->
+    <div style="display:flex;gap:0;border-bottom:1px solid #e2e8f0;margin-bottom:16px;">
+      <button class="patron-rdv-tab" data-tab="modifier" onclick="ouvrirSectionRdvPatron('modifier')" style="flex:1;background:none;border:none;border-bottom:2px solid #2563eb;padding:10px;font-size:13px;font-weight:800;color:#2563eb;cursor:pointer;">✏️ Modifier</button>
+      <button class="patron-rdv-tab" data-tab="decaler" onclick="ouvrirSectionRdvPatron('decaler')" style="flex:1;background:none;border:none;border-bottom:2px solid transparent;padding:10px;font-size:13px;font-weight:500;color:#64748b;cursor:pointer;">📅 Décaler</button>
+    </div>
+    <!-- Section Modifier -->
+    <div id="patron-section-modifier" style="display:block;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">DATE</label>
+          <input type="date" id="patron-mod-date" style="width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;box-sizing:border-box;"></div>
+        <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">HEURE</label>
+          <input type="time" id="patron-mod-heure" style="width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;box-sizing:border-box;"></div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">TECHNICIEN</label>
+        <select id="patron-mod-tech" style="width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;box-sizing:border-box;background:#fff;"></select>
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">PRIX (€)</label>
+        <input type="number" id="patron-mod-prix" placeholder="0" style="width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;box-sizing:border-box;"></div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">NOTES</label>
+        <textarea id="patron-mod-notes" rows="2" style="width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;resize:none;box-sizing:border-box;"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="fermerActionsRdvPatron()" style="flex:1;background:#f1f5f9;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;">Annuler</button>
+        <button onclick="sauvegarderModifRdvPatron()" style="flex:2;background:#2563eb;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;">💾 Sauvegarder</button>
+      </div>
+    </div>
+    <!-- Section Décaler -->
+    <div id="patron-section-decaler" style="display:none;">
+      <div style="font-size:11px;font-weight:700;color:#334155;margin-bottom:8px;">Raison du décalage :</div>
+      <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px;">
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;"><input type="radio" name="patron-raison-dec" value="Client demande à décaler"> 👤 Client demande à décaler</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;"><input type="radio" name="patron-raison-dec" value="Tech indisponible"> 👷 Tech indisponible ce jour</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;"><input type="radio" name="patron-raison-dec" value="Pièce manquante"> 🔧 Attente de pièce / matériel</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;"><input type="radio" name="patron-raison-dec" value="Accès impossible"> 🚪 Accès impossible (client absent)</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;"><input type="radio" name="patron-raison-dec" value="Urgence prioritaire"> 🚨 Urgence prioritaire</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;"><input type="radio" name="patron-raison-dec" value="Autre"> 💬 Autre raison</label>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">NOUVEAU JOUR</label>
+          <input type="date" id="patron-dec-date" style="width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;box-sizing:border-box;"></div>
+        <div><label style="font-size:10px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">NOUVELLE HEURE</label>
+          <input type="time" id="patron-dec-heure" style="width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;box-sizing:border-box;"></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="fermerActionsRdvPatron()" style="flex:1;background:#f1f5f9;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;">Annuler</button>
+        <button onclick="confirmerDecalagePatron()" style="flex:2;background:#f59e0b;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;">📅 Confirmer le décalage</button>
+      </div>
+    </div>
   </div>
 </div>
 
