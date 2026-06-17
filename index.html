@@ -1260,6 +1260,7 @@ let statutRdvCurrent="En route";
 let recognition=null,isRecording=false,semaineOffset=0;
 let piecesUtilisees=[],trajetStart=null,trajetInterval=null;
 let chatInterval=null,lastChatCount=0,lastRdvCount=0,devisRdv=null;
+let _brouillonTimer=null;
 
 const getRdvs=()=>{const s=localStorage.getItem("pl_rdvs");if(s)return JSON.parse(s);localStorage.setItem("pl_rdvs",JSON.stringify(DEMO));return DEMO;};
 const saveRdvs=r=>{const v=JSON.stringify(r);localStorage.setItem("pl_rdvs",v);if(window.gfSync)gfSync("pl_rdvs",v);};
@@ -1625,11 +1626,62 @@ async function genererScript(){
 
 function copierScript(){navigator.clipboard.writeText(document.getElementById("script-text").textContent);showNotif("Script copie !");}
 
+function sauvegarderBrouillon(){
+  if(!currentRdv)return;
+  try{
+    var draft={
+      rdvId:currentRdv.id,heureDebut:heureDebut,
+      chronoElapsed:chronoStart?Math.floor((Date.now()-chronoStart)/1000):0,
+      photosAvant:photosAvant,photosApres:photosApres,
+      ventesSelectionnees:ventesSelectionnees,piecesUtilisees:piecesUtilisees,
+      statutRdvCurrent:statutRdvCurrent,
+      description:(document.getElementById('description')||{}).value||'',
+      montantFinal:(document.getElementById('montantFinal')||{}).value||'',
+      satisfaction:(document.getElementById('rp-satisfaction')||{}).value||'5',
+      piecesNotes:(document.getElementById('rp-pieces')||{}).value||'',
+      retour:(document.getElementById('rp-retour')||{}).value||'non',
+      encMode:(document.getElementById('enc-mode')||{}).value||'',
+      savedAt:new Date().toISOString()
+    };
+    try{localStorage.setItem('pl_rapport_draft',JSON.stringify(draft));}
+    catch(e){
+      // Si trop lourd (photos), sauvegarder sans photos
+      var lite={...draft,photosAvant:photosAvant.map(p=>p?{saved:false}:null),photosApres:photosApres.map(p=>p?{saved:false}:null)};
+      try{localStorage.setItem('pl_rapport_draft',JSON.stringify(lite));}catch(e2){}
+    }
+  }catch(e){}
+}
+
 function ouvrirRapport(id){
   currentRdv=getRdvs().find(r=>r.id===id);
-  photosAvant=[null,null,null];photosApres=[null,null,null];
-  ventesSelectionnees=[];statutRdvCurrent="En route";
-  heureDebut=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+  // Vérifier si un brouillon existe pour ce RDV
+  var hasDraft=false;
+  try{
+    var draftStr=localStorage.getItem('pl_rapport_draft');
+    if(draftStr){
+      var draft=JSON.parse(draftStr);
+      if(draft.rdvId===id){
+        photosAvant=draft.photosAvant||[null,null,null];
+        photosApres=draft.photosApres||[null,null,null];
+        ventesSelectionnees=draft.ventesSelectionnees||[];
+        piecesUtilisees=draft.piecesUtilisees||[];
+        statutRdvCurrent=draft.statutRdvCurrent||'En route';
+        heureDebut=draft.heureDebut||new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+        window._draftRestored=draft;
+        hasDraft=true;
+        showNotif('📋 Rapport restauré — continuez où vous en étiez !');
+      }
+    }
+  }catch(e){}
+  if(!hasDraft){
+    photosAvant=[null,null,null];photosApres=[null,null,null];
+    ventesSelectionnees=[];statutRdvCurrent="En route";
+    window._draftRestored=null;
+    heureDebut=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+  }
+  // Démarrer la sauvegarde automatique toutes les 30s
+  if(_brouillonTimer)clearInterval(_brouillonTimer);
+  _brouillonTimer=setInterval(sauvegarderBrouillon,30000);
   document.getElementById("d-nom").textContent=currentRdv.clientNom;
   document.getElementById("d-type").textContent=currentRdv.type;
   document.getElementById("d-adresse").textContent=currentRdv.adresse;
@@ -1669,6 +1721,18 @@ function showEtape(e){
     // Init signature canvas
     effacerSignature();
     setTimeout(initSignatureCanvas,100);
+    // Restaurer les valeurs du brouillon si disponible
+    var dr=window._draftRestored;
+    if(dr){
+      setTimeout(function(){
+        if(dr.description&&document.getElementById('description'))document.getElementById('description').value=dr.description;
+        if(dr.montantFinal&&document.getElementById('montantFinal'))document.getElementById('montantFinal').value=dr.montantFinal;
+        if(dr.satisfaction&&document.getElementById('rp-satisfaction'))document.getElementById('rp-satisfaction').value=dr.satisfaction;
+        if(dr.piecesNotes&&document.getElementById('rp-pieces'))document.getElementById('rp-pieces').value=dr.piecesNotes;
+        if(dr.retour&&document.getElementById('rp-retour'))document.getElementById('rp-retour').value=dr.retour;
+        renderSlotsAvant();renderSlotsApres();renderVentes();renderPieces();
+      },150);
+    }
   }
 }
 
@@ -1717,6 +1781,7 @@ function handlePhoto(type,i,input){
     if(type==="avant")photosAvant[i]={url:e.target.result};
     else photosApres[i]={url:e.target.result};
     if(type==="avant")renderSlotsAvant();else renderSlotsApres();
+    sauvegarderBrouillon();
   };
   reader.readAsDataURL(file);
 }
@@ -1806,6 +1871,9 @@ function updatePrimeTotal(){
 function soumettre(){
   try {
     if(chronoInterval)clearInterval(chronoInterval);
+    if(_brouillonTimer){clearInterval(_brouillonTimer);_brouillonTimer=null;}
+    localStorage.removeItem('pl_rapport_draft');
+    window._draftRestored=null;
     const heureFin=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
     // Mettre à jour heure fin dans le champ
     const heureFinEl=document.getElementById('rp-heure-fin');
@@ -2892,6 +2960,30 @@ function renderAccueil(){
       card.classList.add('hidden');
     }
   }
+
+  // Bannière "Reprendre le rapport" si brouillon en cours
+  var draftBanner=document.getElementById('acc-draft-banner');
+  if(!draftBanner){
+    draftBanner=document.createElement('div');
+    draftBanner.id='acc-draft-banner';
+    var devisSection=document.querySelector('#page-accueil');
+    if(devisSection)devisSection.appendChild(draftBanner);
+  }
+  try{
+    var draftStr=localStorage.getItem('pl_rapport_draft');
+    var draft=draftStr?JSON.parse(draftStr):null;
+    if(draft&&draft.rdvId){
+      var rdvDraft=getRdvs().find(function(r){return r.id===draft.rdvId;});
+      draftBanner.innerHTML='<div style="background:linear-gradient(135deg,#f97316,#fb923c);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="ouvrirRapport('+draft.rdvId+');showEtape(\'form\')">'
+        +'<div><div style="color:#fff;font-weight:800;font-size:13px;">📋 Rapport en cours</div>'
+        +'<div style="color:rgba(255,255,255,0.85);font-size:11px;margin-top:2px;">'+(rdvDraft?rdvDraft.clientNom:'—')+' · Sauvegardé à '+new Date(draft.savedAt).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})+'</div></div>'
+        +'<div style="background:rgba(255,255,255,0.25);border-radius:8px;padding:8px 14px;color:#fff;font-weight:700;font-size:12px;">Reprendre →</div>'
+        +'</div>';
+      draftBanner.style.display='block';
+    } else {
+      draftBanner.style.display='none';
+    }
+  }catch(e){draftBanner.style.display='none';}
 
   // Demandes de devis
   var devis=getDevis().filter(function(d){return d.statut==='Nouveau';});
