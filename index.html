@@ -1893,6 +1893,8 @@ function soumettre(){
       prixInitial:currentRdv.prixVente,
       nbPhotosAvant:photosAvant.filter(Boolean).length,
       nbPhotosApres:photosApres.filter(Boolean).length,
+      photosAvant:photosAvant.filter(Boolean).map(function(p){return p.url||'';}),
+      photosApres:photosApres.filter(Boolean).map(function(p){return p.url||'';}),
       ventes:ventesSelectionnees,totalPrimes,
       pieces:piecesUtilisees,piecesNotes,
       satisfaction,retourRequis,
@@ -1906,8 +1908,8 @@ function soumettre(){
     const rapports=getRapports();rapports.push(rapport);
     try { saveRapports(rapports); }
     catch(e){
-      const light={...rapport,signature:null};
-      try { saveRapports([...rapports.slice(-4).map(r=>({...r,signature:null})),light]); }
+      const light={...rapport,signature:null,photosAvant:[],photosApres:[]};
+      try { saveRapports([...rapports.slice(-4).map(r=>({...r,signature:null,photosAvant:[],photosApres:[]})),light]); }
       catch(e2){ saveRapports([light]); }
     }
 

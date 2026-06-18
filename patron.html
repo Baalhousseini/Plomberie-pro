@@ -1399,6 +1399,7 @@ const anneeStr=()=>new Date().getFullYear().toString();
 let periode="jour",filtreRapport="tous",semaineOffset=0;
 let agendaFiltre="auj",agendaTech="tous";
 var _rdvPatronId=null;
+var _detailRapId=null;
 
 const getRdvs=()=>JSON.parse(localStorage.getItem("pl_rdvs")||"[]");
 const saveRdvs=r=>{const v=JSON.stringify(r);localStorage.setItem("pl_rdvs",v);if(window.gfSync)gfSync("pl_rdvs",v);};
@@ -2368,25 +2369,24 @@ function renderRapports(){
   document.getElementById("liste-validation").innerHTML=aValider.length?aValider.map((r,i)=>{
     const tc=TECH_C[r.technicien]||{color:"#94a3b8",avatar:"??"};
     return`<div class="valid-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;cursor:pointer;" onclick="ouvrirDetailRapport(${r.id})">
         <div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
             <div style="width:24px;height:24px;border-radius:6px;background:${tc.color}20;border:1px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;">${tc.avatar}</div>
             <span style="font-weight:700;font-size:14px;">${r.clientNom}</span>
+            <span style="font-size:10px;color:#2563eb;font-weight:700;">👁 Voir détail</span>
           </div>
-          <div style="color:var(--text-light);font-size:12px;">${r.type} — ${r.date} — ${r.heureDebut} a ${r.heureFin}</div>
-          ${r.description?`<div class="desc-box" style="margin-top:6px;">${r.description.substring(0,100)}${r.description.length>100?"...":""}</div>`:""}
+          <div style="color:var(--text-light);font-size:12px;">${r.type} — ${r.date} — ${r.technicien}</div>
+          <div style="color:#64748b;font-size:11px;">${r.heureDebut} → ${r.heureFin} · ${(r.photosAvant||[]).length+(r.photosApres||[]).length} photos</div>
         </div>
         <div style="text-align:right;"><div style="color:var(--green);font-weight:800;font-size:15px;">${r.montantFinal} EUR</div><div style="color:var(--text-light);font-size:11px;">${r.checklistScore||"N/A"}</div></div>
       </div>
-      <textarea class="comment-input" id="comment-${i}" placeholder="Commentaire avant validation..."></textarea>
-
-  <div style="display:flex;gap:8px;flex-wrap:wrap;">
-    <button class="btn btn-green" onclick="validerRap(${i})">✅ Valider</button>
-    <button class="btn btn-red" onclick="refuserRap(${i})">❌ Refuser</button>
-  </div>
-</div>`;
-
+      <textarea class="comment-input" id="comment-${i}" placeholder="Commentaire avant validation..." onclick="event.stopPropagation()"></textarea>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-green" onclick="validerRap(${i})">✅ Valider</button>
+        <button class="btn btn-red" onclick="refuserRap(${i})">❌ Refuser</button>
+      </div>
+    </div>`;
 }).join(""):`<div style="color:var(--text-light);font-size:13px;padding:12px 0;">Tout est valide !</div>`;
 
 let raps=getRapports().sort((a,b)=>b.soumisLe?.localeCompare(a.soumisLe));
@@ -2396,24 +2396,118 @@ const c=document.getElementById("liste-rapports");
 if(!raps.length){c.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div>Aucun rapport</div>`;return;}
 c.innerHTML=raps.map((r,i)=>{
 const tc=TECH_C[r.technicien]||{color:"#94a3b8",avatar:"??"};
-const isExp=c.dataset.exp===String(i);
-return`<div class="rapport-card"> <div class="rapport-header" onclick="toggleRap(${i})"> <div style="flex:1;"> <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;"> <div style="width:24px;height:24px;border-radius:6px;background:${tc.color}20;border:1px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;">${tc.avatar}</div> <span style="font-weight:700;font-size:14px;">${r.clientNom}</span> <span class="badge ${r.statut==='Paye'?'badge-green':r.statut==='Facture'||r.statut==='Valide'?'badge-orange':'badge-purple'}">${r.statut}</span> </div> <div style="color:var(--text-light);font-size:12px;">${r.type} — ${r.date} — ${r.technicien}</div> </div> <div style="text-align:right;flex-shrink:0;"><div style="color:var(--green);font-weight:800;font-size:15px;">${r.montantFinal} EUR</div></div> </div> ${isExp?`<div class="rapport-body">
-<div style="margin-top:12px;"><div class="lbl">CLIENT</div><div style="color:var(--text);font-size:13px;">${r.clientNom} — <a href="tel:${r.clientTel}" style="color:var(--accent);">${r.clientTel}</a></div></div>
-<div style="margin-top:12px;"><div class="lbl">ADRESSE</div><div style="color:var(--text);font-size:13px;">${r.adresse}</div></div>
-<div style="margin-top:12px;"><div class="lbl">DUREE</div><div style="color:var(--text);font-size:13px;">${r.heureDebut} a ${r.heureFin}</div></div>
-${(r.photosAvant||[]).length?`<div style="margin-top:12px;"><div class="lbl">PHOTOS AVANT</div><div class="photos-row">${(r.photosAvant||[]).map(p=>`<img src="${p}" class="photo-thumb" onclick="openPhotoFs('${p}')">`).join("")}</div></div>`:""}
-${(r.photosApres||[]).length?`<div style="margin-top:12px;"><div class="lbl">PHOTOS APRES</div><div class="photos-row">${(r.photosApres||[]).map(p=>`<img src="${p}" class="photo-thumb" onclick="openPhotoFs('${p}')">`).join("")}</div></div>`:""}
-${r.description?`<div style="margin-top:12px;"><div class="lbl">DESCRIPTION</div><div class="desc-box">${r.description}</div></div>`:""}
-${r.totalPrimes>0?`<div style="margin-top:12px;"><div class="lbl">PRIME TECHNICIEN</div><div style="color:#eab308;font-weight:800;">${r.totalPrimes} EUR</div></div>`:""}
-<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
-<button class="btn btn-primary" onclick="genererFacturePDF(getRapports().sort((a,b)=>b.soumisLe?.localeCompare(a.soumisLe))[${i}])">🧾 Facture PDF</button>
-${r.statut!=='Paye'?`<button class="btn btn-orange" onclick="changerStatutRap(${i},'Paye')">💶 Payé</button>`:""}
-</div>
-</div>`:""} </div>`;
+const nbP=(r.photosAvant||[]).length+(r.photosApres||[]).length;
+return`<div class="rapport-card" onclick="ouvrirDetailRapport(${r.id})" style="cursor:pointer;">
+  <div class="rapport-header">
+    <div style="flex:1;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;">
+        <div style="width:24px;height:24px;border-radius:6px;background:${tc.color}20;border:1px solid ${tc.color};color:${tc.color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;">${tc.avatar}</div>
+        <span style="font-weight:700;font-size:14px;">${r.clientNom}</span>
+        <span class="badge ${r.statut==='Paye'?'badge-green':r.statut==='Facture'||r.statut==='Valide'?'badge-orange':'badge-purple'}">${r.statut}</span>
+      </div>
+      <div style="color:var(--text-light);font-size:12px;">${r.type} — ${r.date} — ${r.technicien}</div>
+      <div style="color:#94a3b8;font-size:11px;margin-top:2px;">${nbP>0?'📷 '+nbP+' photo'+(nbP>1?'s':''):'Aucune photo'} · ${r.checklistScore||'—'}</div>
+    </div>
+    <div style="text-align:right;flex-shrink:0;">
+      <div style="color:var(--green);font-weight:800;font-size:15px;">${r.montantFinal} EUR</div>
+      <div style="color:#2563eb;font-size:10px;font-weight:700;margin-top:4px;">👁 Détail →</div>
+    </div>
+  </div>
+</div>`;
 }).join("");
 }
 
 function toggleRap(i){const c=document.getElementById("liste-rapports");c.dataset.exp=c.dataset.exp===String(i)?"":String(i);renderRapports();}
+
+function ouvrirDetailRapport(id){
+  var r=getRapports().find(function(x){return x.id===id;});
+  if(!r)return;
+  _detailRapId=id;
+  var tc=TECH_C[r.technicien]||{color:'#94a3b8',avatar:'??'};
+  var statutColor=r.statut==='Paye'?'#16a34a':r.statut==='Facture'||r.statut==='Valide'?'#d97706':'#7c3aed';
+  var html='';
+  // Header
+  html+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'
+    +'<div style="width:36px;height:36px;border-radius:10px;background:'+tc.color+'20;border:2px solid '+tc.color+';color:'+tc.color+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0;">'+tc.avatar+'</div>'
+    +'<div><div style="font-size:16px;font-weight:800;color:#0d2d52;">'+r.clientNom+'</div>'
+    +'<div style="font-size:12px;color:#64748b;">'+r.type+' · '+r.date+'</div></div>'
+    +'<span style="margin-left:auto;background:'+statutColor+'18;color:'+statutColor+';border:1px solid '+statutColor+'40;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;">'+r.statut+'</span>'
+    +'</div>';
+  // Infos bloc
+  html+='<div style="background:#f8fafc;border-radius:12px;padding:12px;margin-bottom:14px;display:grid;gap:6px;">';
+  html+='<div style="display:flex;gap:6px;align-items:flex-start;"><span style="font-size:10px;font-weight:700;color:#64748b;min-width:90px;text-transform:uppercase;padding-top:1px;">Client</span><span style="font-size:13px;color:#0f172a;font-weight:600;">'+r.clientNom+'</span></div>';
+  if(r.clientTel)html+='<div style="display:flex;gap:6px;align-items:flex-start;"><span style="font-size:10px;font-weight:700;color:#64748b;min-width:90px;text-transform:uppercase;padding-top:1px;">Téléphone</span><a href="tel:'+r.clientTel+'" style="font-size:13px;color:#2563eb;font-weight:600;text-decoration:none;">'+r.clientTel+'</a></div>';
+  if(r.adresse)html+='<div style="display:flex;gap:6px;align-items:flex-start;"><span style="font-size:10px;font-weight:700;color:#64748b;min-width:90px;text-transform:uppercase;padding-top:1px;">Adresse</span><span style="font-size:12px;color:#334155;">'+r.adresse+'</span></div>';
+  html+='<div style="display:flex;gap:6px;align-items:flex-start;"><span style="font-size:10px;font-weight:700;color:#64748b;min-width:90px;text-transform:uppercase;padding-top:1px;">Technicien</span><span style="font-size:13px;color:#334155;font-weight:600;">'+r.technicien+'</span></div>';
+  html+='<div style="display:flex;gap:6px;align-items:flex-start;"><span style="font-size:10px;font-weight:700;color:#64748b;min-width:90px;text-transform:uppercase;padding-top:1px;">Durée</span><span style="font-size:13px;color:#334155;">'+r.heureDebut+' → '+r.heureFin+'</span></div>';
+  html+='<div style="display:flex;gap:6px;align-items:flex-start;"><span style="font-size:10px;font-weight:700;color:#64748b;min-width:90px;text-transform:uppercase;padding-top:1px;">Paiement</span><span style="font-size:13px;color:#334155;">'+(r.modeEncaissement||'—')+'</span></div>';
+  if(r.checklistScore)html+='<div style="display:flex;gap:6px;align-items:flex-start;"><span style="font-size:10px;font-weight:700;color:#64748b;min-width:90px;text-transform:uppercase;padding-top:1px;">Checklist</span><span style="font-size:13px;color:#334155;">'+r.checklistScore+'</span></div>';
+  if(r.satisfaction)html+='<div style="display:flex;gap:6px;align-items:flex-start;"><span style="font-size:10px;font-weight:700;color:#64748b;min-width:90px;text-transform:uppercase;padding-top:1px;">Satisfaction</span><span style="font-size:13px;color:#334155;">'+'⭐'.repeat(r.satisfaction)+'</span></div>';
+  html+='</div>';
+  // Montant
+  html+='<div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid #22c55e;border-radius:12px;padding:12px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">'
+    +'<div><div style="font-size:11px;font-weight:700;color:#15803d;text-transform:uppercase;letter-spacing:1px;">Montant intervention</div>'
+    +(r.prixInitial&&r.prixInitial!==r.montantFinal?'<div style="font-size:11px;color:#64748b;text-decoration:line-through;">'+r.prixInitial+' €</div>':'')+'</div>'
+    +'<div style="font-size:22px;font-weight:800;color:#15803d;">'+r.montantFinal+' €</div>'
+    +'</div>';
+  // Description
+  if(r.description)html+='<div style="margin-bottom:14px;"><div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">💬 Description</div>'
+    +'<div style="background:#f8fafc;border-left:3px solid #2563eb;border-radius:0 8px 8px 0;padding:10px 12px;font-size:13px;color:#334155;line-height:1.6;">'+r.description+'</div></div>';
+  // Pièces
+  if((r.pieces||[]).length)html+='<div style="margin-bottom:14px;"><div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">🔧 Pièces utilisées</div>'
+    +'<div style="display:flex;flex-direction:column;gap:4px;">'+(r.pieces||[]).map(function(p){return'<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:6px 10px;font-size:12px;color:#c2410c;font-weight:600;">'+p+'</div>';}).join('')+'</div>'
+    +(r.piecesNotes?'<div style="font-size:11px;color:#64748b;margin-top:4px;font-style:italic;">'+r.piecesNotes+'</div>':'')+'</div>';
+  // Ventes
+  if((r.ventes||[]).length)html+='<div style="margin-bottom:14px;"><div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">💰 Ventes réalisées</div>'
+    +'<div style="display:flex;flex-direction:column;gap:4px;">'+(r.ventes||[]).map(function(v){return'<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:6px 10px;font-size:12px;color:#15803d;font-weight:600;">'+v.label+(v.prixVente?' — '+v.prixVente+' €':'')+'</div>';}).join('')+'</div></div>';
+  // Photos avant
+  if((r.photosAvant||[]).length)html+='<div style="margin-bottom:14px;"><div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">📷 Photos avant</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;">'+(r.photosAvant||[]).map(function(p){return'<img src="'+p+'" onclick="openPhotoFs(\''+p+'\')" style="width:90px;height:90px;object-fit:cover;border-radius:10px;border:2px solid #e2e8f0;cursor:pointer;">';}).join('')+'</div></div>';
+  // Photos après
+  if((r.photosApres||[]).length)html+='<div style="margin-bottom:14px;"><div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">📷 Photos après</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;">'+(r.photosApres||[]).map(function(p){return'<img src="'+p+'" onclick="openPhotoFs(\''+p+'\')" style="width:90px;height:90px;object-fit:cover;border-radius:10px;border:2px solid #e2e8f0;cursor:pointer;">';}).join('')+'</div></div>';
+  // Signature
+  if(r.signature)html+='<div style="margin-bottom:14px;"><div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">🖊 Signature client</div>'
+    +'<img src="'+r.signature+'" style="max-width:100%;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;"></div>';
+  // Prime tech
+  if(r.totalPrimes>0)html+='<div style="background:#fefce8;border:1px solid #fde68a;border-radius:10px;padding:10px 12px;margin-bottom:14px;">'
+    +'<span style="font-size:11px;font-weight:700;color:#b45309;text-transform:uppercase;">Prime technicien</span>'
+    +'<span style="float:right;font-weight:800;color:#b45309;">'+r.totalPrimes+' €</span></div>';
+  // Commentaire patron
+  if(r.commentaire)html+='<div style="margin-bottom:14px;background:#eff6ff;border-left:3px solid #2563eb;border-radius:0 8px 8px 0;padding:10px 12px;">'
+    +'<div style="font-size:10px;font-weight:700;color:#1d4ed8;text-transform:uppercase;margin-bottom:4px;">Commentaire patron</div>'
+    +'<div style="font-size:12px;color:#1e40af;">'+r.commentaire+'</div></div>';
+  // Actions
+  html+='<div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:8px;border-top:1px solid #f1f5f9;">';
+  html+='<button onclick="genererFacturePDF(getRapports().find(function(x){return x.id==='+r.id+';}));event.stopPropagation();" style="background:#2563eb;color:#fff;border:none;border-radius:10px;padding:10px 14px;font-size:12px;font-weight:700;cursor:pointer;">🧾 Facture PDF</button>';
+  if(r.statut==='En attente facturation'){
+    html+='<button onclick="patronChangerStatut('+r.id+',\'Valide\');event.stopPropagation();" style="background:#16a34a;color:#fff;border:none;border-radius:10px;padding:10px 14px;font-size:12px;font-weight:700;cursor:pointer;">✅ Valider</button>';
+    html+='<button onclick="patronChangerStatut('+r.id+',\'Refuse\');event.stopPropagation();" style="background:#dc2626;color:#fff;border:none;border-radius:10px;padding:10px 14px;font-size:12px;font-weight:700;cursor:pointer;">❌ Refuser</button>';
+  }
+  if(r.statut!=='Paye')html+='<button onclick="patronChangerStatut('+r.id+',\'Paye\');event.stopPropagation();" style="background:#f59e0b;color:#fff;border:none;border-radius:10px;padding:10px 14px;font-size:12px;font-weight:700;cursor:pointer;">💶 Payé</button>';
+  if(r.statut!=='Facture')html+='<button onclick="patronChangerStatut('+r.id+',\'Facture\');event.stopPropagation();" style="background:#7c3aed;color:#fff;border:none;border-radius:10px;padding:10px 14px;font-size:12px;font-weight:700;cursor:pointer;">📋 Facturé</button>';
+  html+='</div>';
+  document.getElementById('detail-rap-body').innerHTML=html;
+  document.getElementById('detail-rap-modal').style.display='block';
+  document.body.style.overflow='hidden';
+}
+
+function fermerDetailRapport(){
+  document.getElementById('detail-rap-modal').style.display='none';
+  document.body.style.overflow='';
+  _detailRapId=null;
+  renderRapports();
+}
+
+function patronChangerStatut(id,statut){
+  var all=getRapports();
+  var idx=all.findIndex(function(r){return r.id===id;});
+  if(idx<0)return;
+  all[idx].statut=statut;
+  saveRapports(all);
+  showNotif('Statut mis à jour : '+statut);
+  fermerDetailRapport();
+}
 
 function validerRap(i){
 const all=getRapports(),aV=all.filter(r=>r.statut==="En attente facturation");
@@ -6357,6 +6451,20 @@ async function sendAI(){
     <a id="modal-lead-tel-btn" href="#" class="btn btn-g" style="flex:1;text-align:center;text-decoration:none;">📞 Appeler</a>
     <button class="btn btn-gray" style="flex:1;" onclick="sauvegarderNoteLead()">💾 Note</button>
     <button class="btn btn-gray" onclick="fermerModalLead()">✕</button>
+  </div>
+</div>
+
+<!-- MODAL PATRON : DÉTAIL RAPPORT -->
+<div id="detail-rap-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:3000;overflow-y:auto;" onclick="if(event.target===this)fermerDetailRapport()">
+  <div style="background:#fff;border-radius:20px 20px 0 0;position:fixed;bottom:0;left:0;right:0;max-height:92vh;overflow-y:auto;padding:20px 16px 32px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <div style="width:40px;height:4px;background:#e2e8f0;border-radius:4px;margin:0 auto;"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:800;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;">RAPPORT D'INTERVENTION</div>
+      <button onclick="fermerDetailRapport()" style="background:#f1f5f9;border:none;border-radius:10px;padding:8px 12px;font-size:16px;cursor:pointer;">✕</button>
+    </div>
+    <div id="detail-rap-body"></div>
   </div>
 </div>
 
