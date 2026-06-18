@@ -2301,7 +2301,7 @@ function creerRdv(){
   var tel=document.getElementById("rdv-tel").value.trim();
   var adresse=document.getElementById("rdv-adresse").value.trim();
   var prix=document.getElementById("rdv-prix").value;
-  if(!nom||!tel||!adresse||!prix){showNotif("Remplis tous les champs");return;}
+  if(!nom||!tel||!adresse){showNotif("Remplis les champs obligatoires : nom, téléphone, adresse");return;}
   var mandant=(document.getElementById("rdv-mandant")&&document.getElementById("rdv-mandant").value)||"";
   var bonCmd=(document.getElementById("rdv-bon-cmd")&&document.getElementById("rdv-bon-cmd").value.trim())||"";
   var codeDossier=(document.getElementById("rdv-code-dossier")&&document.getElementById("rdv-code-dossier").value.trim())||"";

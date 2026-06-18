@@ -1148,10 +1148,16 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
   </div>
 
   <div class="card accent-yellow" style="margin-bottom:12px;">
-    <div class="lbl">MONTANT FINAL (EUR)</div>
+    <div id="mandant-info-rap" style="display:none;background:rgba(255,255,255,0.15);border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:11px;font-weight:700;color:#fff;letter-spacing:0.5px;"></div>
+    <div class="lbl">MONTANT TOTAL INTERVENTION (EUR)</div>
     <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
       <input type="number" id="montantFinal">
-      <div style="color:var(--text-light);font-size:12px;white-space:nowrap;">Initial<br><span style="color:var(--green);font-weight:700;" id="f-prix-initial"></span></div>
+      <div style="color:var(--text-light);font-size:12px;white-space:nowrap;">Estimé<br><span style="color:var(--green);font-weight:700;" id="f-prix-initial"></span></div>
+    </div>
+    <div id="reste-charge-section" style="display:none;margin-top:10px;">
+      <div class="lbl" style="margin-bottom:6px;">DONT RESTE À CHARGE CLIENT (EUR)</div>
+      <input type="number" id="resteCharge" placeholder="0" style="width:100%;box-sizing:border-box;">
+      <div style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:4px;">Montant payé directement par le client. Le reste est réglé par le mandant/faire-faire.</div>
     </div>
   </div>
 
@@ -1691,8 +1697,18 @@ function showEtape(e){
   document.getElementById("etape-"+e).classList.remove("hidden");
   if(e==="form"){
     document.getElementById("f-nom").textContent=currentRdv.clientNom;
-    document.getElementById("f-prix-initial").textContent=currentRdv.prixVente+" EUR";
-    document.getElementById("montantFinal").value=currentRdv.prixVente;
+    document.getElementById("f-prix-initial").textContent=(currentRdv.prixVente||0)+" EUR";
+    document.getElementById("montantFinal").value=currentRdv.prixVente||'';
+    // Afficher les champs mandant / reste à charge si applicable
+    var mandantInfoEl=document.getElementById('mandant-info-rap');
+    var resteEl=document.getElementById('reste-charge-section');
+    if(currentRdv.mandant){
+      if(mandantInfoEl){mandantInfoEl.style.display='block';mandantInfoEl.textContent='🏢 Mandant / Faire-faire : '+currentRdv.mandant+(currentRdv.bonCmd?' · Bon commande : '+currentRdv.bonCmd:'');}
+      if(resteEl)resteEl.style.display='block';
+    } else {
+      if(mandantInfoEl)mandantInfoEl.style.display='none';
+      if(resteEl)resteEl.style.display='none';
+    }
     document.getElementById("description").value="";
     document.getElementById("chrono-debut").textContent=heureDebut;
     piecesUtilisees=[];renderPieces();
@@ -1709,6 +1725,7 @@ function showEtape(e){
     if(si('rp-satisfaction'))si('rp-satisfaction').value='5';
     if(si('rp-pieces'))si('rp-pieces').value='';
     if(si('rp-retour'))si('rp-retour').value='non';
+    if(si('resteCharge'))si('resteCharge').value='';
     // Reset encaissement
     var encMode=document.getElementById('enc-mode');if(encMode)encMode.value='';
     var encSel=document.getElementById('enc-selected');if(encSel)encSel.textContent='Aucun mode sélectionné — laissez vide si paiement différé';
@@ -1889,7 +1906,8 @@ function soumettre(){
       type:currentRdv.type,technicien:currentUser.nom,
       mandant:currentRdv.mandant||'',canal:currentRdv.canal||'',
       heureDebut,heureFin,date:todayStr(),statutRdv:statutRdvCurrent,
-      description:desc,montantFinal:Number(document.getElementById("montantFinal").value),
+      description:desc,montantFinal:Number(document.getElementById("montantFinal").value)||0,
+      resteCharge:currentRdv.mandant?Number((document.getElementById('resteCharge')||{}).value)||0:undefined,
       prixInitial:currentRdv.prixVente,
       nbPhotosAvant:photosAvant.filter(Boolean).length,
       nbPhotosApres:photosApres.filter(Boolean).length,
