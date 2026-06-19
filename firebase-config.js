@@ -19,7 +19,7 @@ const SYNC_KEYS = [
   'pl_appels_sec','pl_devis_sec','pl_factures_sec',
   'pl_rh_sec','pl_notes_frais','pl_courrier',
   // Config partagée
-  'pl_prix','pl_tel_pro','pl_objectif_annuel',
+  'pl_prix','pl_catalogue','pl_tel_pro','pl_objectif_annuel',
   // RH / techs
   'pl_techs_rh','pl_evaluations','pl_habilitations','pl_nps',
   'pl_fiches_logement','pl_fiches_emp'

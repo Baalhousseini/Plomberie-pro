@@ -527,6 +527,38 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
       <div id="rdv-travel-div" class="hidden" style="border-radius:8px;padding:10px 14px;margin-bottom:14px;border:1.5px solid #bae6fd;">
         <div id="rdv-travel-content"></div>
       </div>
+      <!-- Catalogue tarifs clients directs -->
+      <div id="cat-picker-wrap" style="margin-bottom:12px;">
+        <button type="button" onclick="toggleCatPicker()" style="width:100%;background:#f0fdf4;border:1.5px dashed #22c55e;border-radius:10px;padding:10px 14px;color:#15803d;font-size:12px;font-weight:700;cursor:pointer;text-align:left;">📋 Chercher dans le catalogue tarifaire GreenFlow</button>
+        <div id="cat-picker-body" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:0 0 10px 10px;padding:12px;">
+          <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+            <select id="cat-cat" class="form-select" style="flex:1;min-width:140px;font-size:12px;" onchange="catChangeCat()">
+              <option value="">-- Catégorie --</option>
+            </select>
+            <select id="cat-presta" class="form-select" style="flex:2;min-width:160px;font-size:12px;" onchange="catUpdatePreview()">
+              <option value="">-- Prestation --</option>
+            </select>
+          </div>
+          <div id="cat-preview" style="display:none;background:#fff;border:1.5px solid #bae6fd;border-radius:8px;padding:10px 12px;margin-bottom:8px;">
+            <div style="font-size:11px;font-weight:700;color:#0369a1;margin-bottom:6px;" id="cat-presta-name"></div>
+            <div style="display:flex;gap:6px;">
+              <button onclick="catApply('s')" id="cat-btn-s" style="flex:1;background:#eff6ff;border:2px solid #bfdbfe;border-radius:8px;padding:8px;cursor:pointer;font-size:13px;font-weight:700;color:#1d4ed8;">
+                <div style="font-size:9px;color:#64748b;font-weight:700;letter-spacing:0.5px;margin-bottom:2px;">SIMPLE</div>
+                <span id="cat-price-s">—</span> €
+              </button>
+              <button onclick="catApply('i')" id="cat-btn-i" style="flex:1;background:#fffbeb;border:2px solid #fde68a;border-radius:8px;padding:8px;cursor:pointer;font-size:13px;font-weight:700;color:#92400e;">
+                <div style="font-size:9px;color:#64748b;font-weight:700;letter-spacing:0.5px;margin-bottom:2px;">INTERMÉDIAIRE</div>
+                <span id="cat-price-i">—</span> €
+              </button>
+              <button onclick="catApply('c')" id="cat-btn-c" style="flex:1;background:#fef2f2;border:2px solid #fecaca;border-radius:8px;padding:8px;cursor:pointer;font-size:13px;font-weight:700;color:#dc2626;">
+                <div style="font-size:9px;color:#64748b;font-weight:700;letter-spacing:0.5px;margin-bottom:2px;">COMPLEXE</div>
+                <span id="cat-price-c">—</span> €
+              </button>
+            </div>
+            <div style="font-size:10px;color:#94a3b8;margin-top:6px;">Cliquer sur un tarif pour l'appliquer au RDV</div>
+          </div>
+        </div>
+      </div>
       <div class="form-field"><label>PRIX DE VENTE (EUR)</label>
         <input type="number" class="form-input" id="rdv-prix" placeholder="250" style="color:#1a3a5c;font-weight:800;font-size:18px;">
       </div>
@@ -1068,6 +1100,76 @@ var filtreRap = "tous";
 var expandedRap = null;
 var _prevAPlanifier = -1;
 var _prevRapportCount = -1;
+
+var CATALOGUE_GF={
+  "Frais généraux":[
+    {nom:"Déplacement",s:50,i:65,c:80},
+    {nom:"Diagnostic",s:90,i:110,c:130},
+    {nom:"Main d'œuvre / heure",s:80,i:100,c:120}
+  ],
+  "Fuites plomberie":[
+    {nom:"Recherche fuite simple",s:120,i:185,c:250},
+    {nom:"Recherche fuite complexe",s:300,i:450,c:600},
+    {nom:"Réparation fuite visible",s:120,i:160,c:200},
+    {nom:"Réparation fuite encastrée",s:250,i:350,c:450},
+    {nom:"Remplacement raccord / joint",s:100,i:140,c:180}
+  ],
+  "Débouchage canalisations":[
+    {nom:"Débouchage évier",s:90,i:120,c:150},
+    {nom:"Débouchage WC",s:120,i:170,c:220},
+    {nom:"Débouchage canalisation",s:150,i:225,c:300},
+    {nom:"Curage haute pression",s:250,i:425,c:600},
+    {nom:"Inspection caméra",s:180,i:265,c:350}
+  ],
+  "WC et sanitaires":[
+    {nom:"Réparation chasse d'eau",s:90,i:115,c:140},
+    {nom:"Remplacement mécanisme WC",s:120,i:150,c:180},
+    {nom:"Remplacement robinet flotteur",s:80,i:105,c:130},
+    {nom:"Remplacement WC complet",s:350,i:600,c:850},
+    {nom:"Remplacement abattant",s:70,i:95,c:120}
+  ],
+  "Robinetterie":[
+    {nom:"Remplacement robinet évier",s:120,i:160,c:200},
+    {nom:"Remplacement robinet lavabo",s:110,i:145,c:180},
+    {nom:"Remplacement mitigeur douche",s:150,i:200,c:250},
+    {nom:"Remplacement robinet extérieur",s:150,i:215,c:280}
+  ],
+  "Chauffe-eau":[
+    {nom:"Diagnostic chauffe-eau",s:100,i:125,c:150},
+    {nom:"Remplacement groupe sécurité",s:150,i:200,c:250},
+    {nom:"Remplacement résistance",s:220,i:300,c:380},
+    {nom:"Remplacement thermostat",s:180,i:220,c:260},
+    {nom:"Remplacement ballon complet",s:700,i:1050,c:1400}
+  ],
+  "Chaudière":[
+    {nom:"Diagnostic chaudière",s:100,i:125,c:150},
+    {nom:"Entretien chaudière",s:110,i:155,c:200},
+    {nom:"Réparation panne",s:200,i:350,c:500},
+    {nom:"Remplacement circulateur",s:300,i:400,c:500},
+    {nom:"Remplacement vanne 3 voies",s:300,i:375,c:450},
+    {nom:"Remplacement carte électronique",s:350,i:525,c:700}
+  ],
+  "Radiateurs":[
+    {nom:"Purge radiateur",s:80,i:100,c:120},
+    {nom:"Remplacement robinet radiateur",s:150,i:200,c:250},
+    {nom:"Installation radiateur",s:300,i:450,c:600},
+    {nom:"Désembouage circuit",s:500,i:700,c:900}
+  ],
+  "Pompe à chaleur":[
+    {nom:"Diagnostic PAC",s:150,i:200,c:250},
+    {nom:"Entretien PAC",s:150,i:250,c:350},
+    {nom:"Recharge gaz",s:200,i:300,c:400},
+    {nom:"Remplacement circulateur PAC",s:300,i:400,c:500},
+    {nom:"Remplacement sonde",s:150,i:200,c:250}
+  ],
+  "Prestations complémentaires":[
+    {nom:"Installation adoucisseur",s:900,i:1450,c:2000},
+    {nom:"Thermostat connecté",s:250,i:350,c:450},
+    {nom:"Filtre anti-calcaire",s:180,i:265,c:350},
+    {nom:"Climatisation split installation",s:900,i:1700,c:2500}
+  ]
+};
+function getCatalogueDisp(){try{var r=localStorage.getItem("pl_catalogue");return r?JSON.parse(r):CATALOGUE_GF;}catch(e){return CATALOGUE_GF;}}
 
 function todayStr(){return new Date().toISOString().split("T")[0];}
 function getRdvs(){return JSON.parse(localStorage.getItem("pl_rdvs")||"[]");}
@@ -2308,11 +2410,78 @@ function renderPlanningJour(){
   document.getElementById("planning-jour").innerHTML=html;
 }
 
+var _catPickerOpen=false;
+function toggleCatPicker(){
+  var body=document.getElementById('cat-picker-body');
+  _catPickerOpen=!_catPickerOpen;
+  body.style.display=_catPickerOpen?'block':'none';
+  if(_catPickerOpen) initCatPicker();
+}
+function initCatPicker(){
+  var cat=getCatalogueDisp();
+  var sel=document.getElementById('cat-cat');
+  if(!sel)return;
+  sel.innerHTML='<option value="">-- Catégorie --</option>';
+  Object.keys(cat).forEach(function(k){
+    sel.innerHTML+='<option value="'+k+'">'+k+'</option>';
+  });
+  document.getElementById('cat-presta').innerHTML='<option value="">-- Prestation --</option>';
+  document.getElementById('cat-preview').style.display='none';
+}
+function catChangeCat(){
+  var cat=getCatalogueDisp();
+  var catName=document.getElementById('cat-cat').value;
+  var sel=document.getElementById('cat-presta');
+  sel.innerHTML='<option value="">-- Prestation --</option>';
+  if(!catName||!cat[catName])return;
+  cat[catName].forEach(function(item,idx){
+    sel.innerHTML+='<option value="'+idx+'">'+item.nom+'</option>';
+  });
+  document.getElementById('cat-preview').style.display='none';
+}
+function catUpdatePreview(){
+  var cat=getCatalogueDisp();
+  var catName=document.getElementById('cat-cat').value;
+  var idx=parseInt(document.getElementById('cat-presta').value);
+  var prev=document.getElementById('cat-preview');
+  if(!catName||isNaN(idx)||!cat[catName]||!cat[catName][idx]){prev.style.display='none';return;}
+  var item=cat[catName][idx];
+  document.getElementById('cat-presta-name').textContent=item.nom;
+  document.getElementById('cat-price-s').textContent=item.s;
+  document.getElementById('cat-price-i').textContent=item.i;
+  document.getElementById('cat-price-c').textContent=item.c;
+  prev.style.display='block';
+}
+function catApply(level){
+  var cat=getCatalogueDisp();
+  var catName=document.getElementById('cat-cat').value;
+  var idx=parseInt(document.getElementById('cat-presta').value);
+  if(!catName||isNaN(idx)||!cat[catName]||!cat[catName][idx])return;
+  var item=cat[catName][idx];
+  var prix=item[level]||0;
+  var prixEl=document.getElementById('rdv-prix');
+  if(prixEl){prixEl.value=prix;prixEl.style.background='#f0fdf4';setTimeout(function(){prixEl.style.background='';},1500);}
+  // Mettre à jour le type d'intervention
+  var typeEl=document.getElementById('rdv-type');
+  if(typeEl){
+    var opts=Array.from(typeEl.options).map(function(o){return o.value;});
+    var best=opts.find(function(o){return item.nom.toLowerCase().includes(o.toLowerCase())||o.toLowerCase().includes(catName.split(' ')[0].toLowerCase());});
+    if(best) typeEl.value=best;
+  }
+  // Fermer le picker
+  var body=document.getElementById('cat-picker-body');
+  body.style.display='none';_catPickerOpen=false;
+  showNotif('Tarif appliqué : '+item.nom+' ('+['Simple','Intermédiaire','Complexe'][['s','i','c'].indexOf(level)]+') — '+prix+' €');
+}
+
 function mandantChangedDispatch(){
   var mandant=document.getElementById('rdv-mandant').value;
   var prixField=document.getElementById('rdv-prix');
   var typeField=document.getElementById('rdv-type');
-  if(!mandant){if(prixField)prixField.placeholder='250';return;}
+  // Catalogue GreenFlow uniquement pour clients directs (sans mandant)
+  var catWrap=document.getElementById('cat-picker-wrap');
+  if(catWrap) catWrap.style.display=mandant?'none':'block';
+  if(!mandant){if(prixField)prixField.placeholder='250';document.getElementById('rdv-mandant-info').style.display='none';return;}
   // Chercher le contrat-cadre actif
   var ccs=JSON.parse(localStorage.getItem('pl_contrats_cadres')||'[]');
   var cc=ccs.find(function(c){return c.mandant===mandant&&c.statut==='Actif';});
