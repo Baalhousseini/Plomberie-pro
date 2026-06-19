@@ -2639,6 +2639,7 @@ function renderValidation(){
   else{
     for(var i=0;i<rapports.length;i++){
       var r=rapports[i];
+      var rid=r.id||i;
       html+='<div class="valid-card">';
       html+='<div style="display:flex;justify-content:space-between;margin-bottom:10px;">';
       html+='<div><div style="font-weight:700;font-size:14px;color:#1a2537;">'+r.clientNom+'</div>';
@@ -2646,11 +2647,11 @@ function renderValidation(){
       html+='<div style="color:#94a3b8;font-size:11px;">'+r.adresse+'</div></div>';
       html+='<div style="text-align:right;"><div style="color:#1a3a5c;font-weight:800;font-size:16px;">'+r.montantFinal+' EUR</div></div></div>';
       if(r.description) html+='<div class="desc-box" style="margin-bottom:10px;">'+r.description.substring(0,120)+(r.description.length>120?"...":"")+'</div>';
-      html+='<textarea class="comment-input" id="cv-'+i+'" placeholder="Commentaire avant validation..."></textarea>';
+      html+='<textarea class="comment-input" id="cv-'+rid+'" placeholder="Commentaire avant validation..."></textarea>';
 
   html+='<div style="display:flex;gap:8px;flex-wrap:wrap;">';
-  html+='<button class="btn btn-green" onclick="validerRapport(\''+r.clientNom+'\',\''+r.date+'\','+i+')">✅ Valider</button>';
-  html+='<button class="btn btn-red" onclick="refuserRapport(\''+r.clientNom+'\',\''+r.date+'\','+i+')">❌ Refuser</button>';
+  html+='<button class="btn btn-green" onclick="validerRapport('+rid+')">✅ Valider</button>';
+  html+='<button class="btn btn-red" onclick="refuserRapport('+rid+')">❌ Refuser</button>';
   html+='</div></div>';
 }
 
@@ -2667,15 +2668,15 @@ hh+='<span class="badge badge-green">'+v.statut+'</span></div>';
 document.getElementById("hist-validation").innerHTML=hh||'<div style="color:#94a3b8;font-size:13px;padding:12px 0;">Aucun historique</div>';
 }
 
-function validerRapport(nom,date,idx){
-var r=getRapports(),i=r.findIndex(function(x){return x.clientNom===nom&&x.date===date;});
-if(i>=0){r[i].statut="Valide";var el=document.getElementById("cv-"+idx);r[i].commentaire=el?el.value:"";r[i].valideAt=new Date().toISOString();saveRapports(r);}
+function validerRapport(rid){
+var r=getRapports(),i=r.findIndex(function(x){return x.id===rid;});
+if(i>=0){r[i].statut="Valide";var el=document.getElementById("cv-"+rid);r[i].commentaire=el?el.value:"";r[i].valideAt=new Date().toISOString();saveRapports(r);}
 renderValidation();showNotif("Rapport valide !");
 }
 
-function refuserRapport(nom,date,idx){
-var r=getRapports(),i=r.findIndex(function(x){return x.clientNom===nom&&x.date===date;});
-if(i>=0){r[i].statut="Refuse";var el=document.getElementById("cv-"+idx);r[i].commentaire=el?el.value:"";saveRapports(r);}
+function refuserRapport(rid){
+var r=getRapports(),i=r.findIndex(function(x){return x.id===rid;});
+if(i>=0){r[i].statut="Refuse";var el=document.getElementById("cv-"+rid);r[i].commentaire=el?el.value:"";saveRapports(r);}
 renderValidation();showNotif("Rapport refuse");
 }
 
