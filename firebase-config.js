@@ -14,7 +14,7 @@ const SYNC_KEYS = [
   'pl_stock_pieces','pl_sous_traitants','pl_appels_offres',
   'pl_positions','pl_contrats','pl_passation','pl_clients','pl_appels',
   // Patron
-  'pl_mandants',
+  'pl_mandants','pl_leads',
   // Secrétaire — données isolées avant, maintenant synchonisées
   'pl_appels_sec','pl_devis_sec','pl_factures_sec',
   'pl_rh_sec','pl_notes_frais','pl_courrier',

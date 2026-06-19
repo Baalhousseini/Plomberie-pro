@@ -1362,6 +1362,9 @@ function lancerApp(){
       var fact_tab=document.getElementById('fact-tab-content');
       if(fact_tab&&fact_tab.style.display!=='none')renderFacturesDispatch();
     }
+    if(e.key==='pl_clients'){
+      if(!document.getElementById('page-clients').classList.contains('hidden'))renderClients();
+    }
   });
   setInterval(function(){actualiserDispos();if(!document.getElementById("page-dashboard").classList.contains("hidden"))renderDashboard();},10000);
   setInterval(updateChronos,1000);
