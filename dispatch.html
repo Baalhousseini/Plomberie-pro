@@ -2715,11 +2715,7 @@ if(av.length){html+='<div style="margin-top:12px;"><div class="lbl">AVANT</div><
 if(ap.length){html+='<div style="margin-top:12px;"><div class="lbl">APRES</div><div class="photos-row">';for(var k=0;k<ap.length;k++)html+='<img src="'+ap[k]+'" class="photo-thumb" onclick="openPhotoFs(\''+ap[k]+'\')">';html+='</div></div>';}
 if(r.description) html+='<div style="margin-top:12px;"><div class="lbl">DESCRIPTION</div><div class="desc-box">'+r.description+'</div></div>';
 if(r.totalPrimes>0) html+='<div style="margin-top:12px;"><div class="lbl">PRIME TECH</div><div style="color:#a16207;font-weight:700;">'+r.totalPrimes+' EUR</div></div>';
-html+='<div class="actions-row">';
-html+='<button class="btn btn-primary" onclick="genererDevisPDF(getRapports().filter(function(x){return x.clientNom===\''+r.clientNom+'\'})[0]||{clientNom:\''+r.clientNom+'\',clientTel:\''+r.clientTel+'\',adresse:\''+r.adresse+'\',type:\''+r.type+'\',date:\''+r.date+'\',technicien:\''+r.technicien+'\',montantFinal:'+r.montantFinal+'})">🧾 Facture PDF</button>';
-if(r.statut!=="Paye") html+='<button class="btn btn-green" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Paye\')">💶 Payé</button>';
-if(r.statut==="En attente facturation"||r.statut==="Valide") html+='<button class="btn btn-orange" onclick="changerStatut(\''+r.clientNom+'\',\''+r.date+'\',\'Facture\')">Facture</button>';
-html+='</div></div>';
+html+='</div>';
 }
 html+='</div>';
 }
