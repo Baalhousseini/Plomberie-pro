@@ -5293,6 +5293,14 @@ function exporterMandantsCSV(){
       <div class="form-field"><label>EMAIL CONTACT</label><input class="form-input" id="cc-email" placeholder="contact@mandant.fr"></div>
     </div>
     <div class="form-field" style="margin-top:6px;"><label>NOTES / CONDITIONS SPÉCIALES</label><textarea class="form-textarea" id="cc-notes" rows="2" placeholder="Zones couvertes, exclusivités, pénalités SLA..."></textarea></div>
+    <div class="form-field" style="margin-top:6px;">
+      <label style="display:flex;justify-content:space-between;align-items:center;">
+        GRILLE DE TARIFS PAR TYPE D'INTERVENTION
+        <button type="button" onclick="ajouterLigneGrille()" style="background:#f3f0ff;color:#7c3aed;border:1px solid #c4b5fd;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;">+ Ajouter</button>
+      </label>
+      <div id="cc-grille-rows" style="display:flex;flex-direction:column;gap:5px;margin-top:6px;"></div>
+      <div style="font-size:10px;color:#94a3b8;margin-top:4px;">Le tarif moyen ci-dessus sert de référence globale. La grille affine par type.</div>
+    </div>
     <div style="display:flex;gap:8px;margin-top:10px;">
       <button class="btn" style="background:#7c3aed;color:#fff;" onclick="sauvegarderCC()">Enregistrer</button>
       <button class="btn btn-gray" onclick="toggleFormCC()">Annuler</button>
@@ -5331,7 +5339,36 @@ function toggleFormCC(){
     if(d&&!d.value) d.value=new Date().toISOString().slice(0,10);
     const fin=document.getElementById('cc-date-fin');
     if(fin&&!fin.value){const y=new Date();y.setFullYear(y.getFullYear()+1);fin.value=y.toISOString().slice(0,10);}
+    const gc=document.getElementById('cc-grille-rows');if(gc)gc.innerHTML='';
   }
+}
+
+function ajouterLigneGrille(type,prix){
+  const c=document.getElementById('cc-grille-rows');if(!c)return;
+  const row=document.createElement('div');
+  row.style.cssText='display:flex;gap:6px;align-items:center;';
+  row.innerHTML='<input placeholder="Type d\'intervention (ex: Fuite simple)" style="flex:2;padding:7px 9px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-family:Inter,sans-serif;" value="'+(type||'')+'">'
+    +'<input type="number" placeholder="Prix €" style="flex:1;padding:7px 9px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-family:Inter,sans-serif;" value="'+(prix||'')+'">'
+    +'<button onclick="this.parentNode.remove()" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;padding:7px 9px;cursor:pointer;font-size:13px;flex-shrink:0;">✕</button>';
+  c.appendChild(row);
+}
+
+function lireGrille(){
+  const rows=document.querySelectorAll('#cc-grille-rows > div');
+  const grille=[];
+  rows.forEach(function(row){
+    const inputs=row.querySelectorAll('input');
+    const type=(inputs[0]?.value||'').trim();
+    const prix=parseFloat(inputs[1]?.value)||0;
+    if(type&&prix>0)grille.push({type,prix});
+  });
+  return grille;
+}
+
+function afficherGrilleEnForm(grille){
+  const c=document.getElementById('cc-grille-rows');if(!c)return;
+  c.innerHTML='';
+  (grille||[]).forEach(function(g){ajouterLigneGrille(g.type,g.prix);});
 }
 
 function sauvegarderCC(){
@@ -5348,6 +5385,7 @@ function sauvegarderCC(){
     statut:document.getElementById('cc-statut').value,
     volumeMois:vol,
     tarif:tarif,
+    grille:lireGrille(),
     slaUrgence:parseInt(document.getElementById('cc-sla-urg').value)||4,
     slaStandard:parseInt(document.getElementById('cc-sla-std').value)||48,
     dateDebut:document.getElementById('cc-date-debut').value,
@@ -5432,13 +5470,11 @@ function ccCard(c){
     'Prospect':'#6b7280','Suspendu':'#ea580c','Résilié':'#dc2626'
   };
   const sc=statColors[c.statut]||'#6b7280';
-  const caMois=c.volumeMois*c.tarif;
-  const rdvs=getRdvs().filter(r=>r.mandant===c.mandant);
-  const rdvsMois=rdvs.filter(r=>{
-    if(!r.dateRdv) return false;
-    const now=new Date(),d=new Date(r.dateRdv);
-    return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
-  }).length;
+  const caMoisEngaged=c.volumeMois*c.tarif;
+  const now2=new Date();
+  const rapsM=getRapports().filter(r=>r.mandant===c.mandant&&r.date&&(()=>{const d=new Date(r.date);return d.getMonth()===now2.getMonth()&&d.getFullYear()===now2.getFullYear();})());
+  const rdvsMois=rapsM.length;
+  const caReelMois=rapsM.reduce((s,r)=>s+(r.montantFinal||0),0);
   const pct=c.volumeMois>0?Math.min(100,Math.round(rdvsMois/c.volumeMois*100)):0;
   const expiring=c.dateFin&&(new Date(c.dateFin)-new Date())<30*24*3600*1000&&new Date(c.dateFin)>new Date();
   return `<div style="background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);border-left:4px solid ${sc};">
@@ -5456,20 +5492,28 @@ function ccCard(c){
         </div>
         ${c.statut==='Actif'?`<div style="margin-bottom:6px;">
           <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:3px;">
-            <span>Remplissage ce mois</span><span>${rdvsMois}/${c.volumeMois} · ${pct}%</span>
+            <span>Remplissage ce mois (rapports)</span><span>${rdvsMois}/${c.volumeMois} · ${pct}%</span>
           </div>
           <div style="background:#e2e8f0;border-radius:4px;height:6px;overflow:hidden;">
             <div style="height:6px;border-radius:4px;background:${pct>=80?'#16a34a':pct>=50?'#d97706':'#dc2626'};width:${pct}%;transition:width 0.4s;"></div>
           </div>
-        </div>`:''}
+          <div style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;">
+            <span style="color:var(--muted);">CA réel : <strong style="color:#7c3aed;">${caReelMois.toLocaleString('fr')}€</strong></span>
+            <span style="color:var(--muted);">Engagé : ${caMoisEngaged.toLocaleString('fr')}€</span>
+          </div>
+        </div>`:``}
+        ${(c.grille||[]).length?`<div style="background:#faf5ff;border-radius:8px;padding:8px 10px;margin-bottom:6px;">
+          <div style="font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">GRILLE DE TARIFS</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;">${(c.grille||[]).map(g=>`<span style="background:#fff;border:1px solid #ddd6fe;border-radius:6px;padding:3px 8px;font-size:11px;"><span style="color:#64748b;">${g.type}</span> <strong style="color:#7c3aed;">${g.prix}€</strong></span>`).join('')}</div>
+        </div>`:``}
         ${c.contact?`<div style="font-size:11px;color:var(--muted);">👤 ${c.contact}${c.tel?' · <a href="tel:'+c.tel+'" style="color:var(--blue);text-decoration:none;">'+c.tel+'</a>':''}</div>`:''}
         ${c.dateDebut||c.dateFin?`<div style="font-size:11px;color:var(--muted);margin-top:2px;">📅 ${c.dateDebut||'?'} → ${c.dateFin||'?'}</div>`:''}
         ${c.notes?`<div style="font-size:11px;color:var(--muted);margin-top:4px;font-style:italic;">${c.notes}</div>`:''}
       </div>
       <div style="text-align:right;flex-shrink:0;">
-        <div style="color:#7c3aed;font-weight:800;font-size:18px;">${caMois.toLocaleString('fr')}€</div>
-        <div style="color:var(--muted);font-size:10px;">CA mensuel</div>
-        <div style="color:var(--muted);font-size:10px;margin-top:2px;">${(caMois*12).toLocaleString('fr')}€/an</div>
+        <div style="color:#7c3aed;font-weight:800;font-size:18px;">${caMoisEngaged.toLocaleString('fr')}€</div>
+        <div style="color:var(--muted);font-size:10px;">engagé/mois</div>
+        <div style="color:var(--muted);font-size:10px;margin-top:2px;">${(caMoisEngaged*12).toLocaleString('fr')}€/an</div>
         <div style="display:flex;gap:4px;margin-top:8px;justify-content:flex-end;">
           <button class="btn btn-gray" style="padding:4px 8px;font-size:10px;" onclick="editerCC(${c.id})">✏️</button>
           <button class="btn" style="background:#faf5ff;color:#7c3aed;border:1px solid #ddd4fe;padding:4px 8px;font-size:10px;" onclick="genererFactureCC(${c.id})">🧾 Facture</button>
@@ -5483,32 +5527,43 @@ function ccCard(c){
 function renderCCFacturation(actifs, liste){
   const now=new Date();
   const moisNom=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'][now.getMonth()];
-  const rdvsAll=getRdvs();
+  const rapsAll=getRapports();
+  const isMois=r=>{const d=new Date(r.date||r.dateRdv||'');return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();};
+  let totalReel=0;
   liste.innerHTML=`<div style="background:#faf5ff;border-radius:14px;padding:14px 16px;margin-bottom:14px;border:1.5px solid #ddd4fe;">
     <div style="color:#7c3aed;font-weight:800;font-size:13px;margin-bottom:12px;">🧾 FACTURATION ${moisNom.toUpperCase()} ${now.getFullYear()}</div>
     ${actifs.length===0?'<div style="color:var(--muted);font-size:12px;">Aucun contrat actif à facturer.</div>':actifs.map(c=>{
-      const rdvsMois=rdvsAll.filter(r=>r.mandant===c.mandant&&r.dateRdv&&(()=>{const d=new Date(r.dateRdv);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();})()).length;
-      const caReel=rdvsMois*c.tarif;
+      const rapsMois=rapsAll.filter(r=>r.mandant===c.mandant&&isMois(r));
+      const nbFait=rapsMois.length;
+      const caReel=rapsMois.reduce((s,r)=>s+(r.montantFinal||0),0);
       const caEngaged=c.volumeMois*c.tarif;
       const delta=caReel-caEngaged;
-      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #ede9fe;gap:8px;flex-wrap:wrap;">
-        <div style="flex:1;">
-          <div style="font-weight:700;color:var(--blue);font-size:13px;">${c.mandant}</div>
-          <div style="font-size:11px;color:var(--muted);">${rdvsMois} interv réalisées · Engagé : ${c.volumeMois} · Tarif : ${c.tarif}€</div>
+      const nbAttente=rapsMois.filter(r=>r.statut==='En attente facturation').length;
+      const nbValide=rapsMois.filter(r=>r.statut==='Valide'||r.statut==='Facture').length;
+      const nbPaye=rapsMois.filter(r=>r.statut==='Paye').length;
+      totalReel+=caReel;
+      return `<div style="border-bottom:1px solid #ede9fe;padding:12px 0;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+          <div style="flex:1;">
+            <div style="font-weight:700;color:var(--blue);font-size:13px;">${c.mandant}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">${nbFait} interv réalisées · Engagé : ${c.volumeMois} · Tarif : ${c.tarif}€</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-weight:800;color:#7c3aed;font-size:16px;">${caReel.toLocaleString('fr')}€ réel</div>
+            <div style="font-size:10px;color:${delta>=0?'#16a34a':'#dc2626'};">${delta>=0?'+':''}${delta.toLocaleString('fr')}€ vs engagé (${caEngaged.toLocaleString('fr')}€)</div>
+          </div>
         </div>
-        <div style="text-align:right;">
-          <div style="font-weight:800;color:#7c3aed;font-size:16px;">${caReel.toLocaleString('fr')}€</div>
-          <div style="font-size:10px;color:${delta>=0?'#16a34a':'#dc2626'};">${delta>=0?'+':''}${delta.toLocaleString('fr')}€ vs engagé</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+          ${nbAttente?`<span style="background:#fef3c7;color:#d97706;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;">⏳ ${nbAttente} à valider</span>`:''}
+          ${nbValide?`<span style="background:#ede9fe;color:#7c3aed;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;">✅ ${nbValide} validés</span>`:''}
+          ${nbPaye?`<span style="background:#dcfce7;color:#16a34a;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;">💶 ${nbPaye} payés</span>`:''}
         </div>
-        <button class="btn" style="background:#7c3aed;color:#fff;padding:6px 12px;font-size:11px;white-space:nowrap;" onclick="genererFactureCC(${c.id})">🧾 Générer</button>
+        <button class="btn" style="background:#7c3aed;color:#fff;padding:7px 14px;font-size:11px;" onclick="genererFactureCC(${c.id})">🧾 Générer facture mandant</button>
       </div>`;
     }).join('')}
-    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;margin-top:4px;">
-      <div style="font-weight:800;color:var(--blue);font-size:13px;">TOTAL À FACTURER CE MOIS</div>
-      <div style="font-weight:800;color:#7c3aed;font-size:20px;">${actifs.reduce((s,c)=>{
-        const n=rdvsAll.filter(r=>r.mandant===c.mandant&&r.dateRdv&&(()=>{const d=new Date(r.dateRdv);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();})()).length;
-        return s+n*c.tarif;
-      },0).toLocaleString('fr')}€</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;margin-top:4px;border-top:2px solid #7c3aed30;">
+      <div style="font-weight:800;color:var(--blue);font-size:13px;">TOTAL CA RÉEL CE MOIS (MANDANTS)</div>
+      <div style="font-weight:800;color:#7c3aed;font-size:22px;">${totalReel.toLocaleString('fr')}€</div>
     </div>
   </div>`;
 }

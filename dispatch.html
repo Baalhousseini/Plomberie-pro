@@ -548,21 +548,35 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
         <div class="lbl" style="color:#7c3aed;">PARTENAIRE / ASSURANCE (optionnel)</div>
         <div class="grid-2">
           <div class="form-field"><label>MANDANT</label>
-            <select class="form-select" id="rdv-mandant">
+            <select class="form-select" id="rdv-mandant" onchange="mandantChangedDispatch()">
               <option value="">Aucun (particulier)</option>
-              <option>FairFair</option>
-              <option>AXA Assistance</option>
-              <option>HomeServe</option>
-              <option>Covéa</option>
-              <option>Allianz</option>
-              <option>Generali</option>
-              <option>MAIF</option>
-              <option>Autre assurance</option>
+              <optgroup label="Grande distribution">
+                <option>Leroy Merlin</option>
+                <option>Castorama</option>
+                <option>Brico Dépôt</option>
+                <option>Darty</option>
+              </optgroup>
+              <optgroup label="Faire-faire / Plateforme">
+                <option>FairFair</option>
+                <option>HomeServe</option>
+                <option>Les Bons Artisans</option>
+              </optgroup>
+              <optgroup label="Assurances">
+                <option>AXA Assistance</option>
+                <option>Covéa</option>
+                <option>Allianz</option>
+                <option>Generali</option>
+                <option>MAIF</option>
+                <option>Pacifica</option>
+                <option>Groupama</option>
+                <option>Autre assurance</option>
+              </optgroup>
             </select>
           </div>
           <div class="form-field"><label>N° BON DE COMMANDE</label><input type="text" class="form-input" id="rdv-bon-cmd" placeholder="BC-2024-XXXXX"></div>
         </div>
         <div class="form-field"><label>CODE DOSSIER ASSURANCE</label><input type="text" class="form-input" id="rdv-code-dossier" placeholder="DOS-XXXXXXXX"></div>
+        <div id="rdv-mandant-info" style="display:none;background:#f0fdf4;border:1px solid #22c55e;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:600;color:#15803d;grid-column:1/-1;"></div>
       </div>
       <button class="btn btn-primary btn-full" style="padding:14px;font-size:14px;" onclick="creerRdv()">Creer le RDV et notifier le technicien</button>
     </div>
@@ -2292,6 +2306,34 @@ function renderPlanningJour(){
     html+='</div>';
   }
   document.getElementById("planning-jour").innerHTML=html;
+}
+
+function mandantChangedDispatch(){
+  var mandant=document.getElementById('rdv-mandant').value;
+  var prixField=document.getElementById('rdv-prix');
+  var typeField=document.getElementById('rdv-type');
+  if(!mandant){if(prixField)prixField.placeholder='250';return;}
+  // Chercher le contrat-cadre actif
+  var ccs=JSON.parse(localStorage.getItem('pl_contrats_cadres')||'[]');
+  var cc=ccs.find(function(c){return c.mandant===mandant&&c.statut==='Actif';});
+  if(!cc)return;
+  // Si grille de prix, afficher une aide
+  if(cc.grille&&cc.grille.length){
+    var type=typeField?typeField.value:'';
+    var ligne=cc.grille.find(function(g){return g.type.toLowerCase().includes(type.toLowerCase())||type.toLowerCase().includes(g.type.toLowerCase());});
+    if(ligne&&prixField&&!prixField.value){prixField.value=ligne.prix;return;}
+    // Pas de correspondance exacte — afficher les tarifs disponibles dans le placeholder
+    var hint=cc.grille.slice(0,3).map(function(g){return g.type+' : '+g.prix+'€';}).join(' · ');
+    if(prixField)prixField.placeholder='Grille: '+hint;
+    if(prixField&&!prixField.value&&cc.tarif)prixField.value=cc.tarif;
+  } else if(cc.tarif&&prixField&&!prixField.value){
+    prixField.value=cc.tarif;
+  }
+  // Afficher les SLAs si disponibles
+  var notif='Mandant: '+mandant+(cc.slaUrgence?' · SLA urgence: '+cc.slaUrgence+'h':'')+' · '+cc.volumeMois+' interv/mois engagées';
+  var infoEl=document.getElementById('rdv-mandant-info');
+  if(infoEl)infoEl.textContent=notif;
+  if(infoEl)infoEl.style.display='block';
 }
 
 function creerRdv(){
@@ -4256,7 +4298,7 @@ function renderPerfCA(){
   var objTotal=Object.values(objectifs).reduce(function(s,v){return s+(v||0);},0);
   el('pca-obj-total','Objectif équipe : '+(objTotal?objTotal.toLocaleString('fr-FR')+'€':'Cliquez ⚙️ pour configurer'));
   var caParTech={};techs.forEach(function(t){caParTech[t]=0;});
-  rdvs.filter(function(r){return r.dateRdv&&r.dateRdv.slice(0,7)===ym;}).forEach(function(r){if(r.technicien)caParTech[r.technicien]=(caParTech[r.technicien]||0)+(r.prixVente||0);});
+  getRapports().filter(function(r){return r.date&&r.date.slice(0,7)===ym;}).forEach(function(r){if(r.technicien)caParTech[r.technicien]=(caParTech[r.technicien]||0)+(r.montantFinal||0);});
   var cfEl=document.getElementById('pca-config-fields');
   if(cfEl)cfEl.innerHTML=techs.map(function(t){return'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><label style="font-size:12px;font-weight:600;">'+t+'</label><input type="number" id="obj-'+t.replace(/\s/g,'_')+'" value="'+(objectifs[t]||'')+'" placeholder="25000" style="width:120px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:6px 10px;font-size:12px;font-family:Inter,sans-serif;"></div>';}).join('');
   var listEl=document.getElementById('pca-techs-list');
@@ -4280,11 +4322,46 @@ function renderPerfPlanning(){
 }
 
 function renderPerfMandants(){
-  var rdvs=getRdvs(),stats={},DELAIS={'AXA Assistance':30,'HomeServe':45,'Covéa':60,'Allianz':30,'Generali':45,'MAIF':30,'Leroy Merlin':30,'Les Bons Artisans':21,'Fairfair':30,'Autre assurance':45};
-  rdvs.forEach(function(r){if(!r.mandant||r.mandant==='')return;if(!stats[r.mandant])stats[r.mandant]={dossiers:0,ca:0};stats[r.mandant].dossiers++;stats[r.mandant].ca+=(r.prixVente||0);});
+  var raps=getRapports(),stats={},DELAIS={'AXA Assistance':30,'HomeServe':45,'Covéa':60,'Allianz':30,'Generali':45,'MAIF':30,'Leroy Merlin':30,'Les Bons Artisans':21,'Fairfair':30,'FairFair':30,'Castorama':30,'Brico Dépôt':30,'Darty':45,'Autre assurance':45};
+  var moisCourant=new Date().toISOString().slice(0,7);
+  raps.forEach(function(r){
+    if(!r.mandant||r.mandant==='')return;
+    if(!stats[r.mandant])stats[r.mandant]={dossiers:0,ca:0,caMois:0,enAttente:0,valide:0,paye:0};
+    stats[r.mandant].dossiers++;
+    stats[r.mandant].ca+=(r.montantFinal||0);
+    if((r.date||'').startsWith(moisCourant))stats[r.mandant].caMois+=(r.montantFinal||0);
+    if(r.statut==='En attente facturation')stats[r.mandant].enAttente++;
+    else if(r.statut==='Valide'||r.statut==='Facture')stats[r.mandant].valide++;
+    else if(r.statut==='Paye')stats[r.mandant].paye++;
+  });
   var liste=Object.keys(stats).sort(function(a,b){return stats[b].ca-stats[a].ca;});
   var tableEl=document.getElementById('pmand-table');
-  if(tableEl){if(!liste.length){tableEl.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:12px 0;">Aucun dossier mandant.<br>Ajoutez un partenaire lors de la création d\'un RDV.</div>';return;}var html='<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="border-bottom:2px solid #e2e8f0;"><th style="text-align:left;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;letter-spacing:1px;">PARTENAIRE</th><th style="text-align:center;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;">DOSS.</th><th style="text-align:right;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;">CA</th><th style="text-align:right;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;">MOY.</th><th style="text-align:right;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;">DÉLAI</th></tr></thead><tbody>';liste.forEach(function(m){var s=stats[m],delai=DELAIS[m]||30,moy=s.dossiers?Math.round(s.ca/s.dossiers):0,col=delai<=30?'#16a34a':delai<=45?'#ca8a04':'#dc2626';html+='<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:10px 4px;font-weight:700;">'+m+'</td><td style="padding:10px 4px;text-align:center;color:#64748b;">'+s.dossiers+'</td><td style="padding:10px 4px;text-align:right;font-weight:800;color:#0d2d52;">'+s.ca.toLocaleString('fr-FR')+'€</td><td style="padding:10px 4px;text-align:right;color:#64748b;">'+moy.toLocaleString('fr-FR')+'€</td><td style="padding:10px 4px;text-align:right;font-weight:700;color:'+col+';">'+delai+' j</td></tr>';});tableEl.innerHTML=html+'</tbody></table>';}
+  if(tableEl){
+    if(!liste.length){tableEl.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:12px 0;">Aucun dossier mandant — sélectionne un mandant lors de la création d\'un RDV.</div>';return;}
+    var html='<table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="border-bottom:2px solid #e2e8f0;">'
+      +'<th style="text-align:left;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;letter-spacing:1px;">PARTENAIRE</th>'
+      +'<th style="text-align:center;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;">DOSS.</th>'
+      +'<th style="text-align:right;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;">CA CE MOIS</th>'
+      +'<th style="text-align:right;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;">CA TOTAL</th>'
+      +'<th style="text-align:right;padding:8px 4px;color:#64748b;font-size:10px;font-weight:700;">STATUTS</th>'
+      +'</tr></thead><tbody>';
+    liste.forEach(function(m){
+      var s=stats[m];
+      var moy=s.dossiers?Math.round(s.ca/s.dossiers):0;
+      html+='<tr style="border-bottom:1px solid #f1f5f9;">'
+        +'<td style="padding:10px 4px;"><div style="font-weight:700;font-size:12px;">'+m+'</div><div style="font-size:10px;color:#94a3b8;">moy. '+moy.toLocaleString('fr-FR')+'€/interv</div></td>'
+        +'<td style="padding:10px 4px;text-align:center;font-weight:800;font-size:15px;color:#0d2d52;">'+s.dossiers+'</td>'
+        +'<td style="padding:10px 4px;text-align:right;font-weight:800;color:#7c3aed;font-size:14px;">'+s.caMois.toLocaleString('fr-FR')+'€</td>'
+        +'<td style="padding:10px 4px;text-align:right;font-weight:700;color:#64748b;">'+s.ca.toLocaleString('fr-FR')+'€</td>'
+        +'<td style="padding:10px 4px;text-align:right;">'
+          +(s.enAttente?'<span style="background:#fef3c7;color:#d97706;border-radius:6px;padding:2px 5px;font-size:9px;font-weight:700;display:inline-block;margin-bottom:2px;">⏳ '+s.enAttente+'</span><br>':'')
+          +(s.valide?'<span style="background:#ede9fe;color:#7c3aed;border-radius:6px;padding:2px 5px;font-size:9px;font-weight:700;display:inline-block;margin-bottom:2px;">✅ '+s.valide+'</span><br>':'')
+          +(s.paye?'<span style="background:#dcfce7;color:#16a34a;border-radius:6px;padding:2px 5px;font-size:9px;font-weight:700;display:inline-block;">💶 '+s.paye+'</span>':'')
+        +'</td>'
+        +'</tr>';
+    });
+    tableEl.innerHTML=html+'</tbody></table>';
+  }
   var delaisEl=document.getElementById('pmand-delais');
   if(delaisEl){var bons=liste.filter(function(m){return(DELAIS[m]||30)<=30;}),moyens=liste.filter(function(m){var d=DELAIS[m]||30;return d>30&&d<=45;}),lents=liste.filter(function(m){return(DELAIS[m]||30)>45;});delaisEl.innerHTML=[bons.length?'<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:#16a34a;letter-spacing:1px;margin-bottom:4px;">✅ PAIEMENT RAPIDE ≤30j</div><div style="font-size:12px;">'+bons.join(', ')+'</div></div>':'',moyens.length?'<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:#ca8a04;letter-spacing:1px;margin-bottom:4px;">⚠️ PAIEMENT MOYEN 31-45j</div><div style="font-size:12px;">'+moyens.join(', ')+'</div></div>':'',lents.length?'<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:#dc2626;letter-spacing:1px;margin-bottom:4px;">🔴 PAIEMENT LENT &gt;45j</div><div style="font-size:12px;">'+lents.join(', ')+'</div></div>':''].join('')||'<div style="color:#94a3b8;font-size:12px;">Aucun mandant</div>';}
 }
