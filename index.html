@@ -583,15 +583,6 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
         </div>
       </div>
 
-      <!-- SECTION DEMANDES DE DEVIS RECUES -->
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div style="font-size:11px;font-weight:800;color:#0d2d52;letter-spacing:1.5px;text-transform:uppercase;">📬 Demandes de devis</div>
-        <span id="acc-devis-count" style="background:#e2e8f0;color:#64748b;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;">0</span>
-      </div>
-      <div id="acc-devis-list">
-        <div class="empty-state" style="padding:24px 0;"><div class="empty-icon">📭</div><div>Aucune demande de devis</div></div>
-      </div>
-
     </div>
 
     <!-- AGENDA -->
@@ -620,24 +611,6 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
       <!-- KPI PERSO DU TECH -->
       <div class="g3" id="kpi-tech-strip" style="margin-bottom:12px;"></div>
 
-      <!-- DEVIS RAPIDE -->
-      <div id="form-devis-rapide" class="card green" style="margin-bottom:12px;">
-        <div class="lbl">DEMANDER UN DEVIS AU PATRON</div>
-        <div class="form-field"><label>CLIENT</label><input type="text" class="form-input" id="dq-client" placeholder="Nom du client"></div>
-        <div class="form-field"><label>DESCRIPTION DES TRAVAUX</label><textarea class="form-textarea" id="dq-desc" rows="3" placeholder="Décrire précisément les travaux à chiffrer..."></textarea></div>
-        <div class="grid-2">
-          <div class="form-field"><label>TYPE</label>
-            <select class="form-select" id="dq-type">
-              <option>Remplacement chaudière</option><option>Installation sanitaire</option>
-              <option>Rénovation salle de bain</option><option>Installation VMC</option>
-              <option>Travaux urgents</option><option>Autre</option>
-            </select>
-          </div>
-          <div class="form-field"><label>MONTANT ESTIMÉ (€)</label><input type="number" class="form-input" id="dq-montant" placeholder="0"></div>
-        </div>
-        <div class="form-field"><label>PHOTOS (optionnel)</label><input type="file" id="dq-photos" accept="image/*" multiple style="font-size:12px;color:var(--text);"></div>
-        <button class="btn-primary btn-full" style="padding:13px;" onclick="envoyerDevisRapide()">📋 Envoyer la demande de devis au patron</button>
-      </div>
 
       <div class="card accent-green">
         <div class="lbl">MON STATUT</div>
