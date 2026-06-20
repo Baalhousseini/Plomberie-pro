@@ -45,6 +45,9 @@ if(typeof firebase !== 'undefined'){
 // Appel explicite : écrit une clé dans Firebase + BroadcastChannel
 window.gfSync = function(key, value){
   if(!SYNC_KEYS.includes(key)) return;
+  // Mettre à jour le snapshot REST immédiatement pour éviter que le poll
+  // n'écrase les données locales avec une version Firebase périmée
+  _restSnaps[key] = value;
   // BroadcastChannel (même appareil, autres onglets)
   if(_bc){
     try { _bc.postMessage({key:key, value:value}); } catch(e){}
