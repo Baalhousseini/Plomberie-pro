@@ -818,8 +818,6 @@ body.logged-in #ai-fab{display:flex!important;}
   <div id="appels-patron-liste"></div>
 </div>
 
-<!-- page-gantt kept as hidden fallback (merged into agenda toggle) -->
-<div id="page-gantt" class="hidden"></div>
 
 <!-- PASSATION -->
 <div id="page-passation" class="hidden">
@@ -1556,12 +1554,11 @@ function lancerApp(){
     localStorage.setItem(key,val);
     window.dispatchEvent(new StorageEvent('storage',{key,newValue:val,storageArea:localStorage}));
   });
+  const _upDash=()=>{if(!document.getElementById('page-dashboard').classList.contains('hidden'))renderDashboard();};
   window.addEventListener('storage',e=>{
     if(e.key==='pl_rapports'){
       showNotif('Nouveau rapport recu !');
-      updateNavBadges();
-      updateTodoBadge();
-      renderDashboard();
+      updateNavBadges();updateTodoBadge();_upDash();
       if(!document.getElementById('page-rapports').classList.contains('hidden'))renderRapports();
       if(!document.getElementById('page-todo').classList.contains('hidden'))renderToDo();
     }
@@ -1577,8 +1574,7 @@ function lancerApp(){
       if(!document.getElementById('page-pipeline-com').classList.contains('hidden'))renderPipelineCom();
     }
     if(e.key==='pl_devis'){
-      updateNavBadges();
-      renderDashboard();
+      updateNavBadges();_upDash();
       const devisArr=JSON.parse(e.newValue||'[]');
       const nouveaux=devisArr.filter(d=>d.statut==='Nouveau').sort((a,b)=>b.id-a.id);
       if(nouveaux.length){
@@ -1592,13 +1588,13 @@ function lancerApp(){
       if(!document.getElementById('page-devis').classList.contains('hidden'))renderDevis();
     }
     if(e.key==='pl_rdvs'){
-      renderDisposDispatch();renderPlanningJour();renderDashboard();
-      renderAPlanifierPatron();updateNavBadges();updateTodoBadge();
+      renderDisposDispatch();renderPlanningJour();renderAPlanifierPatron();
+      updateNavBadges();updateTodoBadge();_upDash();
       if(!document.getElementById('page-agenda').classList.contains('hidden'))renderAgenda();
       if(!document.getElementById('page-todo').classList.contains('hidden'))renderToDo();
     }
     if(e.key==='pl_urgences'){
-      updateNavBadges();updateTodoBadge();renderDashboard();renderAlertes();
+      updateNavBadges();updateTodoBadge();renderAlertes();_upDash();
       if(!document.getElementById('page-urgences').classList.contains('hidden'))renderUrgences();
       if(!document.getElementById('page-agenda').classList.contains('hidden'))renderAgenda();
       if(!document.getElementById('page-todo').classList.contains('hidden'))renderToDo();
@@ -1617,13 +1613,12 @@ function lancerApp(){
     if(['pl_rapports','pl_rdvs','pl_urgences','pl_appels'].includes(e.key)){
       if(!document.getElementById('page-live').classList.contains('hidden'))renderLiveFeed();
     }
-    // Données secrétariat — rafraîchir les pages concernées
+    // Données secrétariat
     if(e.key==='pl_devis_sec'||e.key==='pl_appels_sec'){
-      updateNavBadges();
+      updateNavBadges();_upDash();
       if(!document.getElementById('page-devis').classList.contains('hidden'))renderDevis();
       if(!document.getElementById('page-appels').classList.contains('hidden'))renderAppelsPatron();
     }
-    if(e.key==='pl_appels_sec'){renderDashboard();}
     if(e.key==='pl_notes_frais'){
       updateNavBadges();updateTodoBadge();
       if(!document.getElementById('page-todo').classList.contains('hidden'))renderToDo();
@@ -1689,6 +1684,7 @@ const NAV_GROUPS={
   equipe:[
     {p:'equipe',label:'Équipe',id:'nav-equipe'},
     {p:'primes',label:'💰 Primes',id:'nav-primes'},
+    {p:'rh',label:'👥 RH',id:'nav-rh'},
     {p:'organigramme',label:'🏢 Organigramme',id:'nav-organigramme'},
     {p:'planning-long',label:'📆 Planning RH',id:'nav-planning-long'},
   ],
@@ -1736,7 +1732,7 @@ function showPage(p){
     if(p==='dashboard') document.getElementById('ng-home')?.classList.add('active');
     if(p==='params') document.getElementById('ng-params')?.classList.add('active');
   }
-  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps","mandants","contrats-cadres","stock","sous-traitants","appels-offres","organigramme","planning-long","gantt","passation","rappels","appels","todo","leads","com-rdv","pipeline-com"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
+  ["dashboard","dispatch","urgences","equipe","rapports","business","primes","params","devis","crm","analytics","agenda","contrats","live","rh","nps","mandants","contrats-cadres","stock","sous-traitants","appels-offres","organigramme","planning-long","passation","rappels","appels","todo","leads","com-rdv","pipeline-com"].forEach(x=>{const e=document.getElementById("page-"+x);if(e)e.classList.add("hidden");});
   const pageEl=document.getElementById("page-"+p);if(pageEl)pageEl.classList.remove("hidden");
   if(p==="dashboard")renderDashboard();
   if(p==="dispatch"){renderDisposDispatch();renderPlanningJour();renderAPlanifierPatron();}
@@ -1761,7 +1757,6 @@ function showPage(p){
   if(p==="appels-offres")renderAO();
   if(p==="organigramme")renderOrga();
   if(p==="planning-long")renderPlanningLong();
-  if(p==='gantt')renderGantt();
   if(p==='passation')renderPassation();
   if(p==='rappels')renderRappels();
   if(p==='appels')renderAppelsPatron();
