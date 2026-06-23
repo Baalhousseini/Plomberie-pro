@@ -25,6 +25,9 @@ const SYNC_KEYS = [
   'pl_fiches_logement','pl_fiches_emp'
 ];
 
+// File d'attente pour les écritures hors-ligne
+var _offlineQueue = [];
+
 // BroadcastChannel pour sync même appareil / même navigateur
 var _bc = null;
 try { _bc = new BroadcastChannel('gf_sync'); } catch(e){}
@@ -52,7 +55,17 @@ window.gfSync = function(key, value){
   if(_bc){
     try { _bc.postMessage({key:key, value:value}); } catch(e){}
   }
-  // Firebase SDK (cross-device push)
+  // Hors ligne : mettre en file d'attente
+  if(!navigator.onLine){
+    _offlineQueue.push({key:key, value:value});
+    console.log('[GreenFlow] Hors ligne — écrit en file:', key);
+    return;
+  }
+  _gfFirebaseWrite(key, value);
+};
+
+// Écriture Firebase (SDK ou REST)
+function _gfFirebaseWrite(key, value){
   if(_db){
     try {
       _db.ref(_ns + key).set(JSON.parse(value)).catch(function(err){
@@ -60,7 +73,6 @@ window.gfSync = function(key, value){
       });
     } catch(e){}
   } else {
-    // Fallback REST si SDK non dispo
     try {
       fetch(_REST_BASE + key + '.json', {
         method:'PUT',
@@ -69,7 +81,28 @@ window.gfSync = function(key, value){
       }).catch(function(){});
     } catch(e){}
   }
-};
+}
+
+// Vider la file quand la connexion revient
+function _flushOfflineQueue(){
+  if(!_offlineQueue.length) return;
+  console.log('[GreenFlow] Reconnecté — envoi de', _offlineQueue.length, 'élément(s) en attente');
+  var q = _offlineQueue.slice();
+  _offlineQueue = [];
+  q.forEach(function(item){ _gfFirebaseWrite(item.key, item.value); });
+}
+
+window.addEventListener('online', function(){
+  _flushOfflineQueue();
+  // Forcer un poll immédiat pour récupérer les mises à jour manquées
+  _restSnaps = {};
+  _gfRestPoll();
+  if(_db){ try { _db.goOnline(); } catch(e){} }
+});
+
+window.addEventListener('offline', function(){
+  if(_db){ try { _db.goOffline(); } catch(e){} }
+});
 
 // Écoute les changements entrants (Firebase + BroadcastChannel)
 window.gfListen = function(callback){
@@ -149,6 +182,22 @@ document.addEventListener('visibilitychange', function(){
       } catch(e){}
     }
   }
+});
+
+// Bannière hors-ligne en haut de page
+document.addEventListener('DOMContentLoaded', function(){
+  var banner = document.createElement('div');
+  banner.id = 'gf-offline-banner';
+  banner.style.cssText = 'display:none;position:fixed;top:0;left:0;right:0;z-index:99999;background:#b45309;color:#fff;text-align:center;padding:8px 12px;font-size:13px;font-weight:700;font-family:sans-serif;letter-spacing:.3px;';
+  banner.textContent = '📵 Hors ligne — données sauvegardées localement, sync auto à la reconnexion';
+  document.body.appendChild(banner);
+
+  function _updateBanner(){
+    banner.style.display = navigator.onLine ? 'none' : 'block';
+  }
+  _updateBanner();
+  window.addEventListener('online',  _updateBanner);
+  window.addEventListener('offline', _updateBanner);
 });
 
 // Badge statut — teste une vraie écriture pour confirmer la connectivité
