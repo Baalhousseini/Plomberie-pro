@@ -1232,6 +1232,51 @@ const DEMO=[
   {id:4,clientNom:"Amina Kaci",clientTel:"06 77 88 99 00",adresse:"3 impasse des Roses, Montreuil",type:"Urgent / Depannage",technicien:"Technicien 2",dateRdv:todayStr(),heureRdv:"16:30",prixVente:320,statut:"Confirme",notes:"Inondation sous-sol"},
 ];
 
+// ── IndexedDB pour les photos (remplace base64 dans localStorage) ──
+var _photoDB=null;
+function _initPhotoDB(cb){
+  if(_photoDB){cb(_photoDB);return;}
+  try{
+    var req=indexedDB.open('gf_photos',1);
+    req.onupgradeneeded=function(e){e.target.result.createObjectStore('photos');};
+    req.onsuccess=function(e){_photoDB=e.target.result;cb(_photoDB);};
+    req.onerror=function(){cb(null);};
+  }catch(e){cb(null);}
+}
+function _idbSave(key,url,cb){
+  _initPhotoDB(function(db){
+    if(!db){cb&&cb();return;}
+    try{var tx=db.transaction('photos','readwrite');tx.objectStore('photos').put(url,key);tx.oncomplete=function(){cb&&cb();};}catch(e){cb&&cb();}
+  });
+}
+function _idbGet(key,cb){
+  _initPhotoDB(function(db){
+    if(!db){cb(null);return;}
+    try{var tx=db.transaction('photos','readonly');var r=tx.objectStore('photos').get(key);r.onsuccess=function(e){cb(e.target.result||null);};r.onerror=function(){cb(null);};}catch(e){cb(null);}
+  });
+}
+function _idbDel(key){
+  _initPhotoDB(function(db){
+    if(!db)return;
+    try{var tx=db.transaction('photos','readwrite');tx.objectStore('photos').delete(key);}catch(e){}
+  });
+}
+function _idbCleanOld(cutoffMs){
+  _initPhotoDB(function(db){
+    if(!db)return;
+    try{
+      var tx=db.transaction('photos','readwrite');
+      var store=tx.objectStore('photos');
+      store.openCursor().onsuccess=function(e){
+        var cursor=e.target.result;if(!cursor)return;
+        var rdvId=parseInt((cursor.key+'').split('_')[0]);
+        if(!isNaN(rdvId)&&rdvId<cutoffMs)store.delete(cursor.key);
+        cursor.continue();
+      };
+    }catch(e){}
+  });
+}
+
 let currentUser=null,currentVue="auj",currentRdv=null,expandedId=null;
 let photosAvant=[null,null,null],photosApres=[null,null,null];
 let ventesSelectionnees=[],heureDebut="",chronoInterval=null,chronoStart=null;
@@ -1619,10 +1664,12 @@ function copierScript(){navigator.clipboard.writeText(document.getElementById("s
 function sauvegarderBrouillon(){
   if(!currentRdv)return;
   try{
+    // Les photos sont dans IndexedDB — on sauvegarde seulement les clés IDB (pas le base64)
     var draft={
       rdvId:currentRdv.id,heureDebut:heureDebut,
       chronoElapsed:chronoStart?Math.floor((Date.now()-chronoStart)/1000):0,
-      photosAvant:photosAvant,photosApres:photosApres,
+      photosAvant:photosAvant.map(function(p){return p?{idbKey:p.idbKey||null,saved:!!p.url}:null;}),
+      photosApres:photosApres.map(function(p){return p?{idbKey:p.idbKey||null,saved:!!p.url}:null;}),
       ventesSelectionnees:ventesSelectionnees,piecesUtilisees:piecesUtilisees,
       statutRdvCurrent:statutRdvCurrent,
       description:(document.getElementById('description')||{}).value||'',
@@ -1633,12 +1680,7 @@ function sauvegarderBrouillon(){
       encMode:(document.getElementById('enc-mode')||{}).value||'',
       savedAt:new Date().toISOString()
     };
-    try{localStorage.setItem('pl_rapport_draft',JSON.stringify(draft));}
-    catch(e){
-      // Si trop lourd (photos), sauvegarder sans photos
-      var lite={...draft,photosAvant:photosAvant.map(p=>p?{saved:false}:null),photosApres:photosApres.map(p=>p?{saved:false}:null)};
-      try{localStorage.setItem('pl_rapport_draft',JSON.stringify(lite));}catch(e2){}
-    }
+    try{localStorage.setItem('pl_rapport_draft',JSON.stringify(draft));}catch(e){}
   }catch(e){}
 }
 
@@ -1651,8 +1693,18 @@ function ouvrirRapport(id){
     if(draftStr){
       var draft=JSON.parse(draftStr);
       if(draft.rdvId===id){
-        photosAvant=draft.photosAvant||[null,null,null];
-        photosApres=draft.photosApres||[null,null,null];
+        // Restaurer les photos depuis IndexedDB (les clés sont dans le brouillon)
+        var pAvantRefs=draft.photosAvant||[null,null,null];
+        var pApresRefs=draft.photosApres||[null,null,null];
+        photosAvant=[null,null,null];photosApres=[null,null,null];
+        var pending=0;
+        function _tryRenderDraft(){if(pending===0){renderSlotsAvant();renderSlotsApres();}}
+        pAvantRefs.forEach(function(p,i){
+          if(p&&p.idbKey){pending++;_idbGet(p.idbKey,function(url){if(url)photosAvant[i]={url:url,idbKey:p.idbKey};pending--;_tryRenderDraft();});}
+        });
+        pApresRefs.forEach(function(p,i){
+          if(p&&p.idbKey){pending++;_idbGet(p.idbKey,function(url){if(url)photosApres[i]={url:url,idbKey:p.idbKey};pending--;_tryRenderDraft();});}
+        });
         ventesSelectionnees=draft.ventesSelectionnees||[];
         piecesUtilisees=draft.piecesUtilisees||[];
         statutRdvCurrent=draft.statutRdvCurrent||'En route';
@@ -1794,8 +1846,13 @@ function _compressPhoto(file,callback){
 function handlePhoto(type,i,input){
   const file=input.files[0];if(!file)return;
   _compressPhoto(file,function(url){
-    if(type==="avant")photosAvant[i]={url};
-    else photosApres[i]={url};
+    var rdvId=currentRdv?currentRdv.id:'draft';
+    var idbKey=rdvId+'_'+type+'_'+i;
+    // Stocker dans IndexedDB (pas dans localStorage)
+    _idbSave(idbKey,url,function(){});
+    var photoObj={url:url,idbKey:idbKey};
+    if(type==="avant")photosAvant[i]=photoObj;
+    else photosApres[i]=photoObj;
     if(type==="avant")renderSlotsAvant();else renderSlotsApres();
     sauvegarderBrouillon();
   });
@@ -3134,24 +3191,26 @@ function _sessionTimeoutClear(){if(_sessionTimer){clearTimeout(_sessionTimer);_s
 });
 
 function _nettoyerStorage(){
-  // Supprimer les photos des rapports de plus de 30 jours pour libérer le localStorage
   try{
-    var rapports=JSON.parse(localStorage.getItem('pl_rapports')||'[]');
     var cutoff=new Date();cutoff.setDate(cutoff.getDate()-30);
     var cutoffStr=cutoff.toISOString().slice(0,10);
+    // Nettoyer photos base64 résiduelles dans les anciens rapports localStorage
+    var rapports=JSON.parse(localStorage.getItem('pl_rapports')||'[]');
     var modif=false;
     rapports.forEach(function(r){
       if(r.date<cutoffStr&&(r.photosAvant?.length||r.photosApres?.length||r.signature)){
         r.photosAvant=[];r.photosApres=[];r.signature=null;modif=true;
       }
     });
-    if(modif){localStorage.setItem('pl_rapports',JSON.stringify(rapports));}
+    if(modif)localStorage.setItem('pl_rapports',JSON.stringify(rapports));
+    // Nettoyer IndexedDB : photos de plus de 30 jours
+    _idbCleanOld(cutoff.getTime());
     // Limiter le chat à 200 messages
     var chat=JSON.parse(localStorage.getItem('pl_chat')||'[]');
-    if(chat.length>200){localStorage.setItem('pl_chat',JSON.stringify(chat.slice(-200)));}
+    if(chat.length>200)localStorage.setItem('pl_chat',JSON.stringify(chat.slice(-200)));
     // Limiter les annulations à 100 entrées
     var ann=JSON.parse(localStorage.getItem('pl_annulations')||'[]');
-    if(ann.length>100){localStorage.setItem('pl_annulations',JSON.stringify(ann.slice(-100)));}
+    if(ann.length>100)localStorage.setItem('pl_annulations',JSON.stringify(ann.slice(-100)));
   }catch(e){}
 }
 
