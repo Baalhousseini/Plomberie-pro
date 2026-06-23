@@ -1106,8 +1106,8 @@ input[type=number]{width:100%;background:#f7f9fc;border:1.5px solid var(--border
       </select>
     </div>
     <div class="grid-2">
-      <div class="form-field"><label>HEURE DÉBUT</label><input type="text" id="rp-heure-debut" class="form-input" placeholder="09:00" readonly></div>
-      <div class="form-field"><label>HEURE FIN</label><input type="text" id="rp-heure-fin" class="form-input" placeholder="10:00" readonly></div>
+      <div class="form-field"><label>HEURE DÉBUT <span style="color:#94a3b8;font-size:9px;">(modifiable)</span></label><input type="time" id="rp-heure-debut" class="form-input" placeholder="09:00"></div>
+      <div class="form-field"><label>HEURE FIN <span style="color:#94a3b8;font-size:9px;">(modifiable)</span></label><input type="time" id="rp-heure-fin" class="form-input" placeholder="10:00"></div>
     </div>
   </div>
 
@@ -1267,6 +1267,7 @@ const STATUT_COLORS={'Disponible':'#4a9c3f','En intervention':'#f97316','Pause':
 
 
 function lancerApp(){
+  _sessionTimeoutReset();
   document.getElementById("login").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
   const av=document.getElementById("headerAvatar");
@@ -1287,8 +1288,16 @@ function lancerApp(){
     window.dispatchEvent(new StorageEvent('storage',{key:key,newValue:val,storageArea:localStorage}));
   });
   setInterval(()=>{
-    const n=getMesRdvs().length;
-    if(n>lastRdvCount){showNotif((n-lastRdvCount)+" nouveau(x) RDV !");renderRdv();}
+    if(!currentUser)return;
+    const mesRdvs=getMesRdvs();
+    const n=mesRdvs.length;
+    if(n>lastRdvCount){
+      const nouveaux=mesRdvs.filter(r=>r.dateRdv>=todayStr()&&(r.statut==='Confirme'||r.statut==='En attente'));
+      const nouveau=nouveaux.sort((a,b)=>b.id-a.id)[0];
+      if(nouveau)showNotif('Nouveau RDV : '+nouveau.clientNom+' à '+nouveau.heureRdv);
+      else showNotif((n-lastRdvCount)+' nouveau(x) RDV assigné(s)');
+      renderRdv();
+    }
     lastRdvCount=n;
   },15000);
   chatInterval=setInterval(pollChat,8000);
@@ -1331,8 +1340,15 @@ function lancerApp(){
 }
 
 function logout(){
+  // Vider les RDV démo pour éviter la fuite de données entre techniciens
+  try{
+    var rdvs=JSON.parse(localStorage.getItem('pl_rdvs')||'[]');
+    if(rdvs.length&&rdvs[0]&&rdvs[0]._demo){localStorage.removeItem('pl_rdvs');}
+  }catch(e){}
+  if(chatInterval){clearInterval(chatInterval);chatInterval=null;}
   localStorage.removeItem("pl_session");
   currentUser=null;
+  _sessionTimeoutClear();
   document.getElementById("login").classList.remove("hidden");
   document.getElementById("app").classList.add("hidden");
 }
@@ -1872,15 +1888,24 @@ function updatePrimeTotal(){
 
 function soumettre(){
   try {
-    // Vérification prix : le tech ne peut pas facturer moins que le prix dispatch sans confirmation
+    // Validation montant
     const montantSaisi=Number(document.getElementById("montantFinal").value)||0;
     const prixMin=currentRdv.prixVente||0;
+    if(montantSaisi<=0){
+      showNotif("Montant obligatoire — saisis le prix de l'intervention");
+      document.getElementById("montantFinal").focus();
+      return;
+    }
+    if(prixMin>0&&montantSaisi>prixMin*10){
+      const ok=window.confirm("⚠️ Montant saisi : "+montantSaisi+"€\nPrix initial : "+prixMin+"€\n\nCela semble anormalement élevé. Confirmer ?");
+      if(!ok)return;
+    }
     if(prixMin>0&&montantSaisi<prixMin*0.8){
-      const ok=window.confirm("⚠️ Le montant saisi ("+montantSaisi+"€) est inférieur de plus de 20% au prix fixé ("+prixMin+"€).\n\nUne raison a-t-elle été notée dans le rapport ?\n\nCliquer OK pour confirmer quand même.");
+      const ok=window.confirm("⚠️ Le montant ("+montantSaisi+"€) est 20% sous le prix fixé ("+prixMin+"€).\nUne raison est-elle notée dans le rapport ?\n\nConfirmer quand même ?");
       if(!ok)return;
     }
     // Confirmation finale
-    if(!window.confirm("Confirmer la soumission du rapport ?\nMontant : "+(montantSaisi||prixMin)+" €\nClient : "+(currentRdv.clientNom||'')))return;
+    if(!window.confirm("Soumettre le rapport ?\n👤 "+( currentRdv.clientNom||'')+" — "+currentRdv.type+"\n💶 Montant : "+montantSaisi+" €"))return;
 
     if(chronoInterval)clearInterval(chronoInterval);
     if(_brouillonTimer){clearInterval(_brouillonTimer);_brouillonTimer=null;}
@@ -1990,7 +2015,7 @@ function soumettre(){
 function closeModal(id){
   document.getElementById(id).classList.add("hidden");
   if(chronoInterval){clearInterval(chronoInterval);chronoInterval=null;}
-  if(typeof trajetInterval!=='undefined'&&trajetInterval){clearInterval(trajetInterval);trajetInterval=null;}
+  if(trajetInterval){clearInterval(trajetInterval);trajetInterval=null;}
   if(isRecording&&recognition){try{recognition.stop();}catch(e){}isRecording=false;}
   renderRdv();
 }
@@ -2033,7 +2058,7 @@ function renderToDoTech(){
       color:'#f59e0b',icon:'📝',titre:'Rapports à remplir',
       items:rdvsMoi.filter(function(r){
         if(r.statut!=='Termine'&&r.statut!=='En cours')return false;
-        var rap=rapports.find(function(rp){return rp.clientNom===r.clientNom&&rp.date===r.dateRdv;});
+        var rap=rapports.find(function(rp){return rp.rdvId===r.id||(rp.clientNom===r.clientNom&&rp.date===r.dateRdv&&rp.rdvId==null);});
         return !rap;
       }),
       render:function(r){return '<div style="display:flex;justify-content:space-between;align-items:center;">'
@@ -3092,6 +3117,21 @@ function envoyerDevisTech(){
   renderAccueil();
   showNotif('Devis créé et envoyé au patron !');
 }
+
+// ── Session timeout 2h ──
+var _sessionTimer=null,_SESSION_TIMEOUT=7200000;
+function _sessionTimeoutReset(){
+  if(_sessionTimer)clearTimeout(_sessionTimer);
+  if(!currentUser)return;
+  _sessionTimer=setTimeout(function(){
+    if(currentUser)showNotif('Session expirée — reconnexion requise');
+    logout();
+  },_SESSION_TIMEOUT);
+}
+function _sessionTimeoutClear(){if(_sessionTimer){clearTimeout(_sessionTimer);_sessionTimer=null;}}
+['touchstart','click','keydown'].forEach(function(ev){
+  document.addEventListener(ev,function(){if(currentUser)_sessionTimeoutReset();},{passive:true});
+});
 
 function _nettoyerStorage(){
   // Supprimer les photos des rapports de plus de 30 jours pour libérer le localStorage
