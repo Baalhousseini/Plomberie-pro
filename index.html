@@ -1759,26 +1759,43 @@ function setStatutRdv(s,color,btn){
 
 function triggerPhoto(type,i){document.getElementById(`file-${type}-${i}`).click();}
 
-function handlePhoto(type,i,input){
-  const file=input.files[0];if(!file)return;
+function _compressPhoto(file,callback){
+  const MAX_W=1024,QUALITY=0.72;
   const reader=new FileReader();
-  reader.onload=e=>{
-    if(type==="avant")photosAvant[i]={url:e.target.result};
-    else photosApres[i]={url:e.target.result};
-    if(type==="avant")renderSlotsAvant();else renderSlotsApres();
-    sauvegarderBrouillon();
+  reader.onload=function(e){
+    const img=new Image();
+    img.onload=function(){
+      let w=img.width,h=img.height;
+      if(w>MAX_W){h=Math.round(h*MAX_W/w);w=MAX_W;}
+      const c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      callback(c.toDataURL('image/jpeg',QUALITY));
+    };
+    img.src=e.target.result;
   };
   reader.readAsDataURL(file);
+}
+function handlePhoto(type,i,input){
+  const file=input.files[0];if(!file)return;
+  _compressPhoto(file,function(url){
+    if(type==="avant")photosAvant[i]={url};
+    else photosApres[i]={url};
+    if(type==="avant")renderSlotsAvant();else renderSlotsApres();
+    sauvegarderBrouillon();
+  });
 }
 
 function renderSlotsAvant(){renderSlotsGeneric("avant",photosAvant,"slots-avant");}
 function renderSlotsApres(){renderSlotsGeneric("apres",photosApres,"slots-apres");}
 
+function _photoKB(url){if(!url)return 0;return Math.round(url.length*0.75/1024);}
 function renderSlotsGeneric(type,photos,cid){
+  var totalKB=([...photosAvant,...photosApres]).filter(Boolean).reduce(function(s,p){return s+_photoKB(p.url);},0);
+  var sizeWarn=totalKB>3000?'<div style="color:#dc2626;font-size:10px;font-weight:700;margin-top:4px;">⚠️ '+Math.round(totalKB/1024)+'MB — penser à supprimer les doublons</div>':'';
   document.getElementById(cid).innerHTML=photos.map((p,i)=>p
-    ?`<div class="photo-slot"><img src="${p.url}"><button class="photo-del" onclick="delPhoto(event,'${type}',${i})">x</button></div>`
+    ?`<div class="photo-slot"><img src="${p.url}"><button class="photo-del" onclick="delPhoto(event,'${type}',${i})">x</button><div style="font-size:8px;color:#64748b;text-align:center;">${_photoKB(p.url)}Ko</div></div>`
     :`<div class="photo-slot" onclick="triggerPhoto('${type}',${i})"><div>📷</div><div class="photo-label">${type==="avant"?"AVANT":"APRES"} ${i+1}</div></div>`
-  ).join("");
+  ).join("")+sizeWarn;
 }
 
 function delPhoto(e,type,i){
@@ -1855,6 +1872,16 @@ function updatePrimeTotal(){
 
 function soumettre(){
   try {
+    // Vérification prix : le tech ne peut pas facturer moins que le prix dispatch sans confirmation
+    const montantSaisi=Number(document.getElementById("montantFinal").value)||0;
+    const prixMin=currentRdv.prixVente||0;
+    if(prixMin>0&&montantSaisi<prixMin*0.8){
+      const ok=window.confirm("⚠️ Le montant saisi ("+montantSaisi+"€) est inférieur de plus de 20% au prix fixé ("+prixMin+"€).\n\nUne raison a-t-elle été notée dans le rapport ?\n\nCliquer OK pour confirmer quand même.");
+      if(!ok)return;
+    }
+    // Confirmation finale
+    if(!window.confirm("Confirmer la soumission du rapport ?\nMontant : "+(montantSaisi||prixMin)+" €\nClient : "+(currentRdv.clientNom||'')))return;
+
     if(chronoInterval)clearInterval(chronoInterval);
     if(_brouillonTimer){clearInterval(_brouillonTimer);_brouillonTimer=null;}
     localStorage.removeItem('pl_rapport_draft');
@@ -1877,7 +1904,7 @@ function soumettre(){
       id:rapportId,rdvId:currentRdv.id,clientNom:currentRdv.clientNom,
       clientTel:currentRdv.clientTel,adresse:currentRdv.adresse,
       type:currentRdv.type,technicien:currentUser.nom,
-      mandant:currentRdv.mandant||'',canal:currentRdv.canal||'',
+      mandant:currentRdv.mandant||'',canal:currentRdv.canal||'Terrain',
       heureDebut,heureFin,date:todayStr(),statutRdv:statutRdvCurrent,
       description:desc,montantFinal:Number(document.getElementById("montantFinal").value)||0,
       resteCharge:currentRdv.mandant?Number((document.getElementById('resteCharge')||{}).value)||0:undefined,
@@ -1891,7 +1918,6 @@ function soumettre(){
       satisfaction,retourRequis,
       checklistScore:checksDone+"/6",
       modeEncaissement:(document.getElementById('enc-mode')||{}).value||'',
-      mandant:currentRdv.mandant||'',canal:currentRdv.canal||'Terrain',
       signature:getSignatureData(),
       soumisLe:new Date().toISOString(),statut:"En attente facturation"
     };
@@ -1963,8 +1989,9 @@ function soumettre(){
 
 function closeModal(id){
   document.getElementById(id).classList.add("hidden");
-  if(chronoInterval)clearInterval(chronoInterval);
-  if(isRecording&&recognition)recognition.stop();
+  if(chronoInterval){clearInterval(chronoInterval);chronoInterval=null;}
+  if(typeof trajetInterval!=='undefined'&&trajetInterval){clearInterval(trajetInterval);trajetInterval=null;}
+  if(isRecording&&recognition){try{recognition.stop();}catch(e){}isRecording=false;}
   renderRdv();
 }
 
@@ -2259,6 +2286,7 @@ function envoyerMailContrat(){
   var c=_lastContratSaved||_dernierContrat;
   if(c)notifierSecretaireContrat(c);
 }
+if(typeof PRIX_CONTRATS_T==='undefined')var PRIX_CONTRATS_T={'Chaudière':{Essentiel:149,Confort:199,Premium:279},'Pompe à chaleur':{Essentiel:189,Confort:249,Premium:329},'Climatisation':{Essentiel:139,Confort:199,Premium:269},'Ballon thermodynamique':{Essentiel:129,Confort:179,Premium:249},"Adoucisseur d'eau":{Essentiel:119,Confort:169,Premium:219}};
 function majPrixContrat(){
   var eq=document.getElementById('tct-equipement');
   if(!eq)return;
@@ -2384,7 +2412,7 @@ var PRIX_CONTRATS_T={
 function getContratsTech(){try{return JSON.parse(localStorage.getItem('pl_contrats')||'[]');}catch(e){return[];}}
 function saveContratsTech(arr){var s=JSON.stringify(arr);localStorage.setItem('pl_contrats',s);if(window.gfSync)gfSync('pl_contrats',s);}
 function calcPrixContratTech(){
-  var equip=document.getElementById('tct-equip').value;
+  var equip=(document.getElementById('tct-equipement')||document.getElementById('tct-equip')||{}).value||'';
   var formule=document.getElementById('tct-formule').value||'Confort';
   var note=document.getElementById('clim-note-tech');
   if(note)note.classList.toggle('hidden',equip!=='Climatisation');
@@ -3065,7 +3093,30 @@ function envoyerDevisTech(){
   showNotif('Devis créé et envoyé au patron !');
 }
 
+function _nettoyerStorage(){
+  // Supprimer les photos des rapports de plus de 30 jours pour libérer le localStorage
+  try{
+    var rapports=JSON.parse(localStorage.getItem('pl_rapports')||'[]');
+    var cutoff=new Date();cutoff.setDate(cutoff.getDate()-30);
+    var cutoffStr=cutoff.toISOString().slice(0,10);
+    var modif=false;
+    rapports.forEach(function(r){
+      if(r.date<cutoffStr&&(r.photosAvant?.length||r.photosApres?.length||r.signature)){
+        r.photosAvant=[];r.photosApres=[];r.signature=null;modif=true;
+      }
+    });
+    if(modif){localStorage.setItem('pl_rapports',JSON.stringify(rapports));}
+    // Limiter le chat à 200 messages
+    var chat=JSON.parse(localStorage.getItem('pl_chat')||'[]');
+    if(chat.length>200){localStorage.setItem('pl_chat',JSON.stringify(chat.slice(-200)));}
+    // Limiter les annulations à 100 entrées
+    var ann=JSON.parse(localStorage.getItem('pl_annulations')||'[]');
+    if(ann.length>100){localStorage.setItem('pl_annulations',JSON.stringify(ann.slice(-100)));}
+  }catch(e){}
+}
+
 window.onload=()=>{
+  _nettoyerStorage();
   document.querySelectorAll(".pin-input").forEach((el,i,arr)=>{
     el.addEventListener("input",()=>{if(el.value&&i<arr.length-1)arr[i+1].focus();});
     el.addEventListener("keydown",e=>{if(e.key==="Backspace"&&!el.value&&i>0)arr[i-1].focus();});
