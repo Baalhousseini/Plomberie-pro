@@ -733,6 +733,7 @@ body.logged-in #ai-fab{display:flex!important;}
     <button class="btn btn-gray" onclick="filtrerRap('tous',this)">Tous</button>
     <button class="btn btn-gray" onclick="filtrerRap('attente',this)">En attente</button>
     <button class="btn btn-gray" onclick="filtrerRap('ok',this)">Valides</button>
+    <button onclick="exportRapportsPatronCSV()" style="background:#f1f5f9;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;color:#0d2d52;cursor:pointer;margin-left:auto;">⬇ CSV</button>
   </div>
   <!-- VALIDATION -->
   <div id="section-validation" style="margin-bottom:16px;">
@@ -781,6 +782,7 @@ body.logged-in #ai-fab{display:flex!important;}
       <button class="btn btn-gray" id="ag-sem" onclick="setAgendaFiltre('sem',this)">7 jours</button>
       <button class="btn btn-gray" id="ag-mois" onclick="setAgendaFiltre('mois',this)">30 jours</button>
       <button class="btn btn-gray" id="ag-all" onclick="setAgendaFiltre('all',this)">Tout</button>
+      <button onclick="exportRdvsPatronCSV()" style="background:#f1f5f9;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;color:#0d2d52;cursor:pointer;margin-left:auto;">⬇ CSV</button>
     </div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;" id="agenda-tech-btns"></div>
   </div>
@@ -6597,6 +6599,47 @@ async function sendAI(){
     typing.remove();
     addAIMsg('bot','⚠️ Connexion impossible. Vérifie ta connexion internet.');
   }
+}
+
+// ── EXPORT CSV PATRON ──
+function _patronExportCSV(filename, header, rows){
+  var csv = '﻿' + [header].concat(rows).map(function(r){
+    return r.map(function(v){
+      var s = String(v === null || v === undefined ? '' : v).replace(/"/g,'""');
+      return (s.includes(';') || s.includes('"') || s.includes('\n')) ? '"'+s+'"' : s;
+    }).join(';');
+  }).join('\r\n');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'}));
+  a.download = filename;
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+  if(window.showNotif) showNotif('Export CSV téléchargé ✓');
+}
+
+function exportRapportsPatronCSV(){
+  var mois = new Date().toISOString().slice(0,7);
+  var all = JSON.parse(localStorage.getItem('pl_rapports') || '[]');
+  _patronExportCSV('rapports-patron-'+mois+'.csv',
+    ['Date','Client','Téléphone','Adresse','Technicien','Type','Montant (€)','Statut','Mode paiement','Mandant','Description'],
+    all.map(function(r){
+      return [r.date||'', r.clientNom||'', r.clientTel||'', r.adresse||'', r.technicien||'',
+              r.type||r.typeIntervention||'', r.montantFinal||0, r.statut||'',
+              r.modeEncaissement||'', r.mandant||'', (r.description||'').substring(0,80)];
+    })
+  );
+}
+
+function exportRdvsPatronCSV(){
+  var mois = new Date().toISOString().slice(0,7);
+  var all = JSON.parse(localStorage.getItem('pl_rdvs') || '[]');
+  _patronExportCSV('rdvs-patron-'+mois+'.csv',
+    ['Date RDV','Heure','Client','Téléphone','Adresse','Type','Technicien','Statut','Prix (€)','Mandant','Canal'],
+    all.map(function(r){
+      return [r.dateRdv||'', r.heureRdv||'', r.clientNom||'', r.clientTel||'', r.adresse||'',
+              r.type||'', r.technicien||'', r.statut||'', r.prixVente||0, r.mandant||'', r.canal||''];
+    })
+  );
 }
 </script>
 
