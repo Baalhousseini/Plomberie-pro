@@ -2589,8 +2589,9 @@ function sauvegarderUrgence(){
   var rid=Date.now();
 
   // Sauvegarder l'urgence
+  var now=new Date().toISOString();
   var u=getUrgences();
-  u.unshift({id:rid,clientNom:nom,clientTel:tel,adresse:adresse,type:type,technicien:tech,note:note,dateRdv:dateInt,heureRdv:heureInt,creeeAt:new Date().toISOString(),statut:"Active"});
+  u.unshift({id:rid,clientNom:nom,clientTel:tel,adresse:adresse,type:type,technicien:tech,note:note,dateRdv:dateInt,heureRdv:heureInt,creeeAt:now,assignedAt:tech!=='À planifier'?now:null,slaMinutes:null,statut:"Active"});
   saveUrgences(u);
 
   // Créer aussi un RDV dans pl_rdvs pour que le technicien le voit
@@ -2615,6 +2616,24 @@ function renderUrgences(){
     var tc=TECH_C[u.technicien]||{c:"#64748b",a:"??"};
     var mins=Math.floor((Date.now()-new Date(u.creeeAt))/60000);
     var duree=mins<60?mins+"min":Math.floor(mins/60)+"h"+("0"+(mins%60)).slice(-2);
+    // SLA badge
+    var slaHtml='';
+    if(u.slaMinutes!==null&&u.slaMinutes!==undefined){
+      var sh=Math.floor(u.slaMinutes/60),sm=u.slaMinutes%60;
+      slaHtml='<span style="background:#dcfce7;color:#166534;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;">⏱ Assigné en '+(sh?sh+'h ':'')+sm+'min</span>';
+    } else if(u.creeeAt){
+      var elapsed=Math.round((Date.now()-new Date(u.creeeAt))/60000);
+      var eh=Math.floor(elapsed/60),em=elapsed%60;
+      var slaColor=elapsed>60?'#dc2626':elapsed>30?'#ea580c':'#166534';
+      var slaBg=elapsed>60?'#fee2e2':elapsed>30?'#fff7ed':'#dcfce7';
+      slaHtml='<span style="background:'+slaBg+';color:'+slaColor+';font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;">⏱ '+(eh?eh+'h ':'')+em+'min sans assignation</span>';
+    }
+    // Select technicien pour urgences non assignées
+    var techSelectHtml='';
+    if(isActive&&(u.technicien==='À planifier'||!u.technicien)){
+      var techOpts=Object.keys(TECH_C).map(function(t){return '<option value="'+t+'">'+t+'</option>';}).join('');
+      techSelectHtml='<select onchange="assignerUrgence('+i+',this.value)" style="font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid #e2e8f0;color:#475569;background:#f8fafc;cursor:pointer;"><option value="">Assigner un tech...</option>'+techOpts+'</select>';
+    }
     html+='<div class="urgence-card '+(isActive?"urgence-nouvelle":"")+'" style="'+(isActive?"":"opacity:0.5;")+'" id="urg-'+i+'">';
     html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">';
     html+='<div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">';
@@ -2626,7 +2645,9 @@ function renderUrgences(){
     if(u.note) html+='<div style="color:#475569;font-size:12px;margin-top:4px;font-style:italic;">'+u.note+'</div>';
     html+='</div>';
     html+='<div style="width:32px;height:32px;border-radius:8px;background:'+(tc.bg||"#f1f5f9")+';border:1px solid '+tc.c+';color:'+tc.c+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;">'+tc.a+'</div>';
-    html+='</div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+    html+='</div>';
+    if(slaHtml||techSelectHtml)html+='<div style="margin:4px 0 8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">'+slaHtml+techSelectHtml+'</div>';
+    html+='<div style="display:flex;gap:8px;flex-wrap:wrap;">';
     html+='<button class="btn btn-red" onclick="window.open(\'tel:'+u.clientTel+'\')">Appeler</button>';
     if(isActive) html+='<button class="btn btn-green" onclick="resoudreUrgence('+i+')">Resolu</button>';
     html+='<button class="btn btn-gray" onclick="supprimerUrgence('+i+')">Supprimer</button>';
@@ -2645,6 +2666,19 @@ function updateChronos(){
 
 function resoudreUrgence(i){var u=getUrgences();u[i].statut="Resolu";u[i].resoluAt=new Date().toISOString();saveUrgences(u);renderUrgences();updateNavBadges();showNotif("Urgence resolue !");}
 function supprimerUrgence(i){var u=getUrgences();u.splice(i,1);saveUrgences(u);renderUrgences();updateNavBadges();}
+function assignerUrgence(i,tech){
+  if(!tech)return;
+  var u=getUrgences();
+  if(!u[i])return;
+  if(!u[i].assignedAt){
+    u[i].assignedAt=new Date().toISOString();
+    u[i].slaMinutes=Math.round((Date.now()-new Date(u[i].creeeAt))/60000);
+  }
+  u[i].technicien=tech;
+  saveUrgences(u);
+  renderUrgences();updateNavBadges();
+  showNotif("Technicien assigné : "+tech+" !");
+}
 
 var _validPhotoCache={};
 function renderValidation(){
@@ -3441,6 +3475,8 @@ if(savs.length>0)todo.push([savs.length+' SAV',"#0891b2","showPage('sav')"]);
 if(aValider.length>0)todo.push([aValider.length+' rapports',"#a16207","showPage('validation')"]);
 var rdvsAP=rdvs.filter(function(r){return r.technicien==='À planifier'&&r.statut!=='Termine'&&r.statut!=='Annule';});
 if(rdvsAP.length>0)todo.push([rdvsAP.length+' à planifier',"#7c3aed","showPage('tous-rdv')"]);
+var urgsNonAss=getUrgences().filter(function(u){return (u.technicien==='À planifier'||!u.technicien)&&u.statut!=='Resolu'&&u.statut!=='Résolu'&&u.creeeAt&&(Date.now()-new Date(u.creeeAt))>30*60*1000;});
+if(urgsNonAss.length>0)todo.push(['⚠️ '+urgsNonAss.length+' urgence(s) >30min sans tech',"#dc2626","showPage('urgences')"]);
 sh('dash-todo',todo.length===0
 ?'<div style="color:#94a3b8;font-size:12px;padding:6px 0;text-align:center;">Tout est à jour ✓</div>'
 :todo.map(function(t){return '<div onclick="'+t[2]+'" style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:5px;cursor:pointer;"><span style="color:'+t[1]+';font-size:12px;font-weight:700;">'+t[0]+'</span><span style="color:'+t[1]+';font-size:14px;">›</span></div>';}).join(""));
