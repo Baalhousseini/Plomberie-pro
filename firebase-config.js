@@ -29,6 +29,59 @@ const SYNC_KEYS = [
 // File d'attente pour les écritures hors-ligne
 var _offlineQueue = [];
 
+var _notifPerm = false;
+var _prevUrgCount = -1;
+var _prevAlertCount = -1;
+
+function _initNotifications(){
+  if(!('Notification' in window)) return;
+  if(Notification.permission === 'granted'){
+    _notifPerm = true;
+  } else if(Notification.permission !== 'denied'){
+    Notification.requestPermission().then(function(p){ _notifPerm = p === 'granted'; });
+  }
+}
+
+function _fireNotif(title, body){
+  if(!_notifPerm || !('Notification' in window)) return;
+  try {
+    var n = new Notification(title, {body: body, icon: '/favicon.ico'});
+    n.onclick = function(){ window.focus(); n.close(); };
+    setTimeout(function(){ n.close(); }, 8000);
+  } catch(e){}
+}
+
+function _checkUrgenceNotif(val){
+  try {
+    var urgs = JSON.parse(val || '[]');
+    var count = urgs.length;
+    if(_prevUrgCount >= 0 && count > _prevUrgCount){
+      var u = urgs[0];
+      _fireNotif('🚨 Nouvelle urgence !', (u.nom || u.clientNom || 'Client') + ' — ' + (u.type || ''));
+    }
+    _prevUrgCount = count;
+  } catch(e){}
+}
+function _checkAlertNotif(val){
+  try {
+    var alerts = JSON.parse(val || '[]');
+    var unread = alerts.filter(function(a){ return !a.lu; }).length;
+    if(_prevAlertCount >= 0 && unread > _prevAlertCount){
+      _fireNotif('🔔 GreenFlow', (alerts[0] && alerts[0].message) || 'Nouvelle alerte');
+    }
+    _prevAlertCount = unread;
+  } catch(e){}
+}
+
+function _auditLog(key){
+  try {
+    var log = JSON.parse(localStorage.getItem('_pl_audit') || '[]');
+    log.unshift({key: key, ts: new Date().toISOString()});
+    if(log.length > 200) log.length = 200;
+    localStorage.setItem('_pl_audit', JSON.stringify(log));
+  } catch(e){}
+}
+
 // BroadcastChannel pour sync même appareil / même navigateur
 var _bc = null;
 try { _bc = new BroadcastChannel('gf_sync'); } catch(e){}
@@ -48,6 +101,7 @@ if(typeof firebase !== 'undefined'){
 
 // Appel explicite : écrit une clé dans Firebase + BroadcastChannel
 window.gfSync = function(key, value){
+  _auditLog(key);
   if(!SYNC_KEYS.includes(key)) return;
   // Mettre à jour le snapshot REST immédiatement pour éviter que le poll
   // n'écrase les données locales avec une version Firebase périmée
@@ -114,6 +168,8 @@ window.gfListen = function(callback){
         var cur = localStorage.getItem(e.data.key);
         if(cur === e.data.value) return;
         localStorage.setItem(e.data.key, e.data.value);
+        if(e.data.key === 'pl_urgences') _checkUrgenceNotif(e.data.value);
+        if(e.data.key === 'pl_alertes') _checkAlertNotif(e.data.value);
         callback(e.data.key, e.data.value);
       }
     };
@@ -128,6 +184,8 @@ window.gfListen = function(callback){
         var cur = localStorage.getItem(key);
         if(cur === json) return;
         localStorage.setItem(key, json);
+        if(key === 'pl_urgences') _checkUrgenceNotif(json);
+        if(key === 'pl_alertes') _checkAlertNotif(json);
         callback(key, json);
       }, function(err){
         console.warn('[GreenFlow] Firebase listen error on', key, ':', err.message);
@@ -156,6 +214,8 @@ function _gfRestPoll(){
         localStorage.setItem(key, json);
         // Propager à tous les listeners du module courant
         if(_bc) try { _bc.postMessage({key:key, value:json}); } catch(e){}
+        if(key === 'pl_urgences') _checkUrgenceNotif(json);
+        if(key === 'pl_alertes') _checkAlertNotif(json);
         window.dispatchEvent(new StorageEvent('storage',{key:key,newValue:json,storageArea:localStorage}));
       })
       .catch(function(){});
@@ -203,6 +263,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 // Badge statut — teste une vraie écriture pour confirmer la connectivité
 document.addEventListener('DOMContentLoaded', function(){
+  _initNotifications();
   var b = document.createElement('div');
   b.style.cssText = 'position:fixed;bottom:10px;right:10px;z-index:9999;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;font-family:sans-serif;opacity:0.9;cursor:pointer;background:#64748b;';
   b.textContent = '⏳ Connexion…';
