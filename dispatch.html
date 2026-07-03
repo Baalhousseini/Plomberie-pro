@@ -1110,6 +1110,7 @@ var filtreRap = "tous";
 var expandedRap = null;
 var _prevAPlanifier = -1;
 var _prevRapportCount = -1;
+var _prevAttenteCount = -1;
 
 var CATALOGUE_GF={
   "Frais généraux":[
@@ -1184,7 +1185,11 @@ function getCatalogueDisp(){try{var r=localStorage.getItem("pl_catalogue");retur
 function todayStr(){return new Date().toISOString().split("T")[0];}
 function getRdvs(){return JSON.parse(localStorage.getItem("pl_rdvs")||"[]");}
 function saveRdvs(r){var v=JSON.stringify(r);localStorage.setItem("pl_rdvs",v);if(window.gfSync)gfSync("pl_rdvs",v);}
-function getRapports(){return JSON.parse(localStorage.getItem("pl_rapports")||"[]");}
+function getRapports(){
+  var all=JSON.parse(localStorage.getItem("pl_rapports")||"[]");
+  var seen={};
+  return all.filter(function(r){if(!r||!r.id)return false;if(seen[r.id])return false;seen[r.id]=true;return true;});
+}
 function saveRapports(r){var v=JSON.stringify(r);localStorage.setItem("pl_rapports",v);if(window.gfSync)gfSync("pl_rapports",v);}
 function getDispos(){return JSON.parse(localStorage.getItem("pl_dispos")||"{}");}
 function getDevis(){return JSON.parse(localStorage.getItem("pl_devis")||"[]");}
@@ -1292,6 +1297,7 @@ function lancerApp(){
   // Init tracking counters pour notifications intelligentes
   _prevAPlanifier=getRdvs().filter(function(r){return r.technicien==='À planifier'&&r.statut!=='Termine'&&r.statut!=='Annule';}).length;
   _prevRapportCount=getRapports().length;
+  _prevAttenteCount=getRapports().filter(function(r){return r.statut==='En attente facturation';}).length;
   updateTodoBadgeDispatch();
   // Afficher le nom de l'opérateur dans le header
   if(currentOperateur){
@@ -1324,15 +1330,23 @@ function lancerApp(){
     if(e.key==='pl_rapports'){
       var raps=getRapports();
       var nb=raps.length;
-      document.getElementById('hdr-count').textContent=nb;
+      var attenteNow=raps.filter(function(r){return r.statut==='En attente facturation';}).length;
+      document.getElementById('hdr-count').textContent=attenteNow;
+      // Nouveau rapport soumis par un tech
       if(_prevRapportCount>=0&&nb>_prevRapportCount){
-        var newest2=raps[raps.length-1];
+        var newest2=raps.slice().sort(function(a,b){return (b.soumisLe||'').localeCompare(a.soumisLe||'');});
+        newest2=newest2[0];
         showNotif('📝 Rapport reçu de '+(newest2?newest2.technicien+' — '+newest2.clientNom:'un technicien')+' ! À valider.');
       }
+      // Rapport validé par le patron (file réduite sans action dispatch)
+      if(_prevAttenteCount>0&&attenteNow<_prevAttenteCount){
+        showNotif('✅ Rapport validé par le patron — transmis à la secrétaire');
+      }
       _prevRapportCount=nb;
+      _prevAttenteCount=attenteNow;
       actualiserTout();updateTodoBadgeDispatch();
       if(!document.getElementById('page-todo').classList.contains('hidden'))renderToDoDispatch();
-      if(!document.getElementById('page-validation').classList.contains('hidden'))renderValidation();
+      renderValidation(); // toujours re-render pour retirer les rapports validés
     }
     if(e.key==='pl_rdvs'){
       actualiserTout();renderDispatchKPI();updateTodoBadgeDispatch();

@@ -1964,6 +1964,10 @@ function soumettre(){
     // Confirmation finale
     if(!window.confirm("Soumettre le rapport ?\n👤 "+( currentRdv.clientNom||'')+" — "+currentRdv.type+"\n💶 Montant : "+montantSaisi+" €"))return;
 
+    // Désactiver le bouton immédiatement pour éviter la double soumission
+    var btnT=document.getElementById('btn-terminer');
+    if(btnT){btnT.disabled=true;btnT.textContent='Envoi…';}
+
     if(chronoInterval)clearInterval(chronoInterval);
     if(_brouillonTimer){clearInterval(_brouillonTimer);_brouillonTimer=null;}
     localStorage.removeItem('pl_rapport_draft');
@@ -2004,7 +2008,9 @@ function soumettre(){
       soumisLe:new Date().toISOString(),statut:"En attente facturation"
     };
 
-    const rapports=getRapports();rapports.push(rapport);
+    // Dedup : remplace un rapport existant pour le même RDV si le tech re-soumet
+    const rapports=getRapports().filter(function(r){return r.rdvId!==rapport.rdvId;});
+    rapports.push(rapport);
     try { saveRapports(rapports); }
     catch(e){
       const light={...rapport,signature:null,photosAvant:[],photosApres:[]};

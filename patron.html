@@ -1408,7 +1408,7 @@ var _detailRapId=null;
 
 const getRdvs=()=>JSON.parse(localStorage.getItem("pl_rdvs")||"[]");
 const saveRdvs=r=>{const v=JSON.stringify(r);localStorage.setItem("pl_rdvs",v);if(window.gfSync)gfSync("pl_rdvs",v);};
-const getRapports=()=>JSON.parse(localStorage.getItem("pl_rapports")||"[]");
+const getRapports=()=>{const all=JSON.parse(localStorage.getItem("pl_rapports")||"[]");const seen={};return all.filter(r=>{if(!r||!r.id)return false;if(seen[r.id])return false;seen[r.id]=true;return true;});};
 const saveRapports=r=>localStorage.setItem("pl_rapports",JSON.stringify(r));
 const getDispos=()=>JSON.parse(localStorage.getItem("pl_dispos")||"{}");
 const getDevis=()=>{
