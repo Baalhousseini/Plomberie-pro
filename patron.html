@@ -2462,7 +2462,7 @@ function renderRapports(){
           <div style="color:var(--text-light);font-size:12px;">${r.type} — ${r.date} — ${r.technicien}</div>
           <div style="color:#64748b;font-size:11px;">${r.heureDebut} → ${r.heureFin} · ${(r.photosAvant||[]).length+(r.photosApres||[]).length} photos</div>
         </div>
-        <div style="text-align:right;"><div style="color:var(--green);font-weight:800;font-size:15px;">${r.montantFinal} EUR</div><div style="color:var(--text-light);font-size:11px;">${r.checklistScore||"N/A"}</div></div>
+        <div style="text-align:right;"><div style="color:var(--green);font-weight:800;font-size:15px;">${r.montantFinal||0} EUR</div><div style="color:var(--text-light);font-size:11px;">${r.checklistScore||"N/A"}</div></div>
       </div>
       <textarea class="comment-input" id="comment-${i}" placeholder="Commentaire avant validation..." onclick="event.stopPropagation()"></textarea>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -2492,7 +2492,7 @@ return`<div class="rapport-card" onclick="ouvrirDetailRapport(${r.id})" style="c
       <div style="color:#94a3b8;font-size:11px;margin-top:2px;">${nbP>0?'📷 '+nbP+' photo'+(nbP>1?'s':''):'Aucune photo'} · ${r.checklistScore||'—'}</div>
     </div>
     <div style="text-align:right;flex-shrink:0;">
-      <div style="color:var(--green);font-weight:800;font-size:15px;">${r.montantFinal} EUR</div>
+      <div style="color:var(--green);font-weight:800;font-size:15px;">${r.montantFinal||0} EUR</div>
       <div style="color:#2563eb;font-size:10px;font-weight:700;margin-top:4px;">👁 Détail →</div>
     </div>
   </div>
@@ -2601,20 +2601,26 @@ function patronChangerStatut(id,statut){
 
 function validerRap(i){
 const all=getRapports(),aV=all.filter(r=>r.statut==="En attente facturation");
-const idx=all.findIndex(r=>r.clientNom===aV[i].clientNom&&r.date===aV[i].date);
+if(!aV[i])return;
+const idx=all.findIndex(r=>r.id===aV[i].id);
+if(idx<0)return;
 all[idx].statut="Valide";all[idx].commentaire=document.getElementById("comment-"+i)?.value||"";
-all[idx].valideAt=new Date().toISOString();saveRapports(all);renderRapports();showNotif("Rapport valide !");
+all[idx].valideAt=new Date().toISOString();saveRapports(all);renderRapports();showNotif("Rapport validé !");
 }
 
 function refuserRap(i){
 const all=getRapports(),aV=all.filter(r=>r.statut==="En attente facturation");
-const idx=all.findIndex(r=>r.clientNom===aV[i].clientNom&&r.date===aV[i].date);
-all[idx].statut="Refuse";saveRapports(all);renderRapports();showNotif("Rapport refuse");
+if(!aV[i])return;
+const idx=all.findIndex(r=>r.id===aV[i].id);
+if(idx<0)return;
+all[idx].statut="Refuse";saveRapports(all);renderRapports();showNotif("Rapport refusé");
 }
 
-function changerStatutRap(i,statut){
-const raps=getRapports().sort((a,b)=>b.soumisLe?.localeCompare(a.soumisLe));
-raps[i].statut=statut;saveRapports(raps);renderRapports();showNotif("Statut: "+statut);
+function changerStatutRap(id,statut){
+const all=getRapports();
+const idx=all.findIndex(r=>r.id===id);
+if(idx<0)return;
+all[idx].statut=statut;saveRapports(all);renderRapports();showNotif("Statut : "+statut);
 }
 
 // BUSINESS
@@ -2656,7 +2662,7 @@ const taux=devis.length>0?Math.round(traites/devis.length*100):0;
 document.getElementById("tableau-devis").innerHTML=` <div class="grid-3" style="margin-bottom:12px;"> <div class="stat-card"><div class="lbl">TOTAL</div><div class="stat-val" style="color:var(--accent);">${devis.length}</div></div> <div class="stat-card"><div class="lbl">TRAITES</div><div class="stat-val" style="color:var(--green);">${traites}</div></div> <div class="stat-card"><div class="lbl">CONVERSION</div><div class="stat-val" style="color:var(--orange);">${taux}%</div></div> </div> ${devis.filter(d=>d.statut!=="Traite").slice(0,3).map(d=>`<div style="background:#f8fafc;border-radius:8px;padding:10px 12px;margin-bottom:6px;border-left:3px solid var(--accent);"><div style="font-weight:600;font-size:13px;">${d.type}</div><div style="color:var(--text-light);font-size:12px;">${d.clientNom} — ${d.date}</div></div>`).join("")}`;
 
 const impayes=rapports.filter(r=>r.statut==="Facture");
-document.getElementById("liste-impayes").innerHTML=impayes.length?impayes.map(r=>` <div class="alerte-card"> <div style="display:flex;justify-content:space-between;align-items:center;"> <div><div style="font-weight:700;font-size:13px;">${r.clientNom}</div><div style="color:#b91c1c;font-size:12px;">${r.type} — ${r.date}</div><a href="tel:${r.clientTel}" style="color:var(--accent);font-size:12px;">${r.clientTel}</a></div> <div style="text-align:right;"><div style="color:var(--red);font-weight:800;font-size:15px;">${r.montantFinal} EUR</div><button class="btn btn-red" style="margin-top:4px;padding:5px 10px;font-size:11px;" onclick="window.open('tel:${r.clientTel}')">Relancer</button></div> </div> </div>`).join(""):`<div style="color:var(--text-light);font-size:13px;padding:12px 0;">Aucun impaye !</div>`;
+document.getElementById("liste-impayes").innerHTML=impayes.length?impayes.map(r=>` <div class="alerte-card"> <div style="display:flex;justify-content:space-between;align-items:center;"> <div><div style="font-weight:700;font-size:13px;">${r.clientNom}</div><div style="color:#b91c1c;font-size:12px;">${r.type} — ${r.date}</div><a href="tel:${r.clientTel}" style="color:var(--accent);font-size:12px;">${r.clientTel}</a></div> <div style="text-align:right;"><div style="color:var(--red);font-weight:800;font-size:15px;">${r.montantFinal||0} EUR</div><button class="btn btn-red" style="margin-top:4px;padding:5px 10px;font-size:11px;" onclick="window.open('tel:${r.clientTel}')">Relancer</button></div> </div> </div>`).join(""):`<div style="color:var(--text-light);font-size:13px;padding:12px 0;">Aucun impaye !</div>`;
 }
 
 function updateSource(s,d){const src=JSON.parse(localStorage.getItem("pl_sources")||"{}");src[s]=Math.max(0,(src[s]||0)+d);localStorage.setItem("pl_sources",JSON.stringify(src));renderBusiness();}
