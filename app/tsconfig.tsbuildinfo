@@ -1,0 +1,1 @@
+{"root":["./src/App.tsx","./src/main.tsx","./src/components/Layout.tsx","./src/components/Notif.tsx","./src/lib/db.ts","./src/lib/firebase.ts","./src/lib/session.ts","./src/pages/Dispatch.tsx","./src/pages/Login.tsx","./src/pages/Patron.tsx","./src/pages/Secretaire.tsx","./src/pages/Tech.tsx","./src/types/index.ts"],"version":"5.9.3"}
