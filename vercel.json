@@ -1,4 +1,7 @@
 {
+  "buildCommand": "cd app && npm install && npm run build",
+  "outputDirectory": "app/dist",
+  "framework": null,
   "functions": {
     "api/*.js": {
       "memory": 512,
@@ -12,5 +15,8 @@
         { "key": "Access-Control-Allow-Origin", "value": "*" }
       ]
     }
+  ],
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
