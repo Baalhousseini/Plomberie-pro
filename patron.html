@@ -1642,6 +1642,9 @@ function lancerApp(){
   });
   setInterval(()=>{renderDisposDash();updateNavBadges();},10000);
   setInterval(updateChronosUrgences,1000);
+  // Lien direct vers une page (ex: patron.html?page=rapports)
+  var _pageParam=new URLSearchParams(location.search).get('page');
+  if(_pageParam&&document.getElementById('page-'+_pageParam))showPage(_pageParam);
 }
 
 function voirDevisAlerte(){

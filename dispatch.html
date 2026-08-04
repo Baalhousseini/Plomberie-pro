@@ -1381,6 +1381,9 @@ function lancerApp(){
   // Relances SMS 24h avant RDV — check toutes les 30 min
   checkRappelsSMS();
   setInterval(checkRappelsSMS,30*60*1000);
+  // Lien direct vers une page (ex: dispatch.html?page=rapports)
+  var _pageParam=new URLSearchParams(location.search).get('page');
+  if(_pageParam&&document.getElementById('page-'+_pageParam))showPage(_pageParam);
 }
 
 async function optimiserTournees(){
