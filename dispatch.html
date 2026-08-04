@@ -210,6 +210,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:100;overflow-y:auto;}
 .modal-sheet{background:#fff;border-radius:20px 20px 0 0;min-height:60vh;padding:22px 16px 40px;margin-top:80px;}
 .modal-close{background:#f1f5f9;border:none;color:var(--muted);border-radius:8px;width:34px;height:34px;font-size:18px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.rdf-chk{display:flex;align-items:center;gap:5px;background:#f7f9fc;border:1px solid #e2e8f0;border-radius:8px;padding:6px 10px;font-size:12px;color:#334155;cursor:pointer;}
+.rdf-chk input{margin:0;}
 
 /* ── PHOTO FULLSCREEN ── */
 .photo-fs{position:fixed;inset:0;background:rgba(0,0,0,0.93);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;}
@@ -1095,6 +1097,57 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
   </div>
 </div>
 
+<!-- MODAL RAPPORT RECHERCHE DE FUITE -->
+<div class="modal-bg hidden" id="modal-rdf">
+  <div class="modal-sheet" style="max-width:640px;margin:40px auto 0;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div>
+        <div style="color:#1a3a5c;font-size:10px;letter-spacing:2px;font-weight:700;">RAPPORT</div>
+        <div style="font-size:18px;font-weight:800;margin-top:2px;color:#1a2537;">🔍 Recherche de fuite</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-rdf')">x</button>
+    </div>
+    <div class="card" style="margin-bottom:12px;">
+      <div class="lbl">MÉTHODE(S) UTILISÉE(S)</div>
+      <div id="rdf-methodes" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+        <label class="rdf-chk"><input type="checkbox" value="Caméra thermique"> Caméra thermique</label>
+        <label class="rdf-chk"><input type="checkbox" value="Gaz traceur"> Gaz traceur</label>
+        <label class="rdf-chk"><input type="checkbox" value="Corrélateur acoustique"> Corrélateur acoustique</label>
+        <label class="rdf-chk"><input type="checkbox" value="Test de mise en pression"> Test de mise en pression</label>
+        <label class="rdf-chk"><input type="checkbox" value="Colorant / fluorescéine"> Colorant / fluorescéine</label>
+        <label class="rdf-chk"><input type="checkbox" value="Endoscopie"> Endoscopie</label>
+        <label class="rdf-chk"><input type="checkbox" value="Humidimètre"> Humidimètre</label>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:12px;">
+      <div class="lbl">ZONE(S) INVESTIGUÉE(S)</div>
+      <textarea class="form-textarea" id="rdf-zones" rows="2" placeholder="Ex: Salle de bain étage, cuisine RDC, gaine technique..." style="margin-top:6px;"></textarea>
+    </div>
+    <div class="card" style="margin-bottom:12px;">
+      <div class="lbl">RÉSULTAT</div>
+      <select class="form-select" id="rdf-resultat" style="margin-top:6px;">
+        <option value="Fuite localisée">Fuite localisée</option>
+        <option value="Fuite non localisée">Fuite non localisée</option>
+        <option value="Absence de fuite constatée">Absence de fuite constatée</option>
+      </select>
+      <div class="form-field" style="margin-top:8px;"><label>EMPLACEMENT PRÉCIS</label>
+        <input type="text" class="form-input" id="rdf-emplacement" placeholder="Ex: Sous carrelage, colonne EU/EP, joint douche...">
+      </div>
+      <div class="form-field" style="margin-top:8px;"><label>CAUSE PROBABLE</label>
+        <input type="text" class="form-input" id="rdf-cause" placeholder="Ex: Percement canalisation, joint défectueux...">
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:12px;">
+      <div class="lbl">PRÉCONISATIONS / TRAVAUX À PRÉVOIR</div>
+      <textarea class="form-textarea" id="rdf-preco" rows="3" placeholder="Travaux nécessaires pour réparer la fuite localisée..." style="margin-top:6px;"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+      <button class="btn btn-primary" onclick="genererRapportFuitePDF()">🖨️ Générer le rapport</button>
+      <button class="btn btn-gray" onclick="closeModal('modal-rdf')">Annuler</button>
+    </div>
+  </div>
+</div>
+
 <script>
 var CREDS = {
   patron:{pin:"2580",role:"patron",nom:"Direction"},
@@ -1110,6 +1163,7 @@ var filtreRap = "tous";
 var expandedRap = null;
 var _prevAPlanifier = -1;
 var _prevRapportCount = -1;
+var _rdfRapportId = null;
 
 var CATALOGUE_GF={
   "Frais généraux":[
@@ -2982,6 +3036,7 @@ if(av.length){html+='<div style="margin-top:12px;"><div class="lbl">AVANT</div><
 if(ap.length){html+='<div style="margin-top:12px;"><div class="lbl">APRES</div><div class="photos-row">';for(var k=0;k<ap.length;k++)html+='<img src="'+ap[k]+'" class="photo-thumb" onclick="openPhotoFs(\''+ap[k]+'\')">';html+='</div></div>';}
 if(r.description) html+='<div style="margin-top:12px;"><div class="lbl">DESCRIPTION</div><div class="desc-box">'+r.description+'</div></div>';
 if(r.totalPrimes>0) html+='<div style="margin-top:12px;"><div class="lbl">PRIME TECH</div><div style="color:#a16207;font-weight:700;">'+r.totalPrimes+' EUR</div></div>';
+if(/fuite/i.test(r.type||''))html+='<div style="margin-top:12px;"><button class="btn btn-primary" onclick="event.stopPropagation();ouvrirRDF('+r.id+')">🔍 Rapport recherche de fuite</button></div>';
 html+='</div>';
 }
 html+='</div>';
@@ -3350,6 +3405,58 @@ function genererFacturePDFById(id){
   var r=getRapports().find(function(x){return String(x.id)===String(id);});
   if(!r){showNotif('Rapport introuvable');return;}
   genererFacturePDF(r);
+}
+
+function ouvrirRDF(rid){
+  var r=getRapports().find(function(x){return String(x.id)===String(rid);});
+  if(!r){showNotif('Rapport introuvable');return;}
+  _rdfRapportId=rid;
+  document.querySelectorAll('#rdf-methodes input[type="checkbox"]').forEach(function(c){c.checked=false;});
+  document.getElementById('rdf-zones').value='';
+  document.getElementById('rdf-resultat').value='Fuite localisée';
+  document.getElementById('rdf-emplacement').value='';
+  document.getElementById('rdf-cause').value='';
+  document.getElementById('rdf-preco').value='';
+  document.getElementById('modal-rdf').classList.remove('hidden');
+}
+
+function genererRapportFuitePDF(){
+  var r=getRapports().find(function(x){return String(x.id)===String(_rdfRapportId);});
+  if(!r){showNotif('Rapport introuvable');return;}
+  function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  var methodes=Array.prototype.slice.call(document.querySelectorAll('#rdf-methodes input:checked')).map(function(c){return c.value;});
+  var zones=document.getElementById('rdf-zones').value.trim();
+  var resultat=document.getElementById('rdf-resultat').value;
+  var emplacement=document.getElementById('rdf-emplacement').value.trim();
+  var cause=document.getElementById('rdf-cause').value.trim();
+  var preco=document.getElementById('rdf-preco').value.trim();
+  var num='RDF-'+(r.date||todayStr()).replace(/-/g,'')+'-'+String(r.id||Date.now()).slice(-4);
+  var av=r.photosAvant||[],ap=r.photosApres||[];
+  var photosHtml='';
+  if(av.length||ap.length){
+    photosHtml='<div style="margin-top:20px;"><div style="font-size:10px;letter-spacing:2px;font-weight:700;color:#64748b;margin-bottom:8px;">PHOTOS</div><div style="display:flex;gap:8px;flex-wrap:wrap;">';
+    av.forEach(function(p){photosHtml+='<img src="'+p+'" style="width:140px;height:105px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0;">';});
+    ap.forEach(function(p){photosHtml+='<img src="'+p+'" style="width:140px;height:105px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0;">';});
+    photosHtml+='</div></div>';
+  }
+  var resultatColor=resultat==='Fuite localisée'?'#dcfce7':resultat==='Absence de fuite constatée'?'#f1f5f9':'#fef9c3';
+  var resultatText=resultat==='Fuite localisée'?'#15803d':resultat==='Absence de fuite constatée'?'#475569':'#a16207';
+  var w=window.open('','_blank','width=900,height=700');
+  if(!w)return;
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rapport recherche de fuite '+num+'</title><style>body{font-family:Arial,sans-serif;margin:0;padding:30px;color:#0d1b2e;}@media print{@page{size:A4;margin:1cm;}body{padding:15px;}}.header{display:flex;justify-content:space-between;border-bottom:3px solid #0d2d52;padding-bottom:20px;margin-bottom:24px;}.logo{font-size:26px;font-weight:900;}.logo span{color:#3a8c30;}.section{margin-bottom:18px;}.lbl{font-size:10px;letter-spacing:2px;font-weight:700;color:#64748b;margin-bottom:6px;}.sign-area{border:2px dashed #e2e8f0;border-radius:8px;height:80px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px;}</style></head><body>'+
+    '<div class="header"><div><div class="logo">Green<span>Flow</span></div><div style="font-size:11px;color:#64748b;margin-top:4px;">Plomberie · Chauffage · Sanitaire</div><div style="font-size:11px;color:#64748b;">SIRET : [VOTRE SIRET] — TVA : [VOTRE NUM TVA]</div></div><div style="text-align:right;"><div style="font-size:10px;color:#64748b;letter-spacing:2px;font-weight:700;">RAPPORT DE RECHERCHE DE FUITE</div><div style="font-size:20px;font-weight:900;color:#0d2d52;margin-top:4px;">'+num+'</div><div style="font-size:11px;color:#64748b;margin-top:4px;">Émis le '+esc(r.date)+'</div></div></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-bottom:20px;"><div><div class="lbl">CLIENT</div><div style="font-weight:700;font-size:14px;">'+esc(r.clientNom)+'</div><div style="color:#64748b;">'+esc(r.clientTel)+'</div><div style="color:#64748b;font-size:12px;">'+esc(r.adresse)+'</div></div><div><div class="lbl">INTERVENTION</div><div style="font-weight:700;font-size:13px;">'+esc(r.type)+'</div><div style="color:#64748b;font-size:12px;">Technicien : '+esc(r.technicien)+'</div>'+(r.mandant?'<div style="color:#64748b;font-size:12px;">Mandant / dossier : '+esc(r.mandant)+'</div>':'')+'</div></div>'+
+    '<div class="section"><div class="lbl">MÉTHODE(S) DE RECHERCHE UTILISÉE(S)</div><div style="font-size:13px;">'+(methodes.length?esc(methodes.join(', ')):'—')+'</div></div>'+
+    (zones?'<div class="section"><div class="lbl">ZONE(S) INVESTIGUÉE(S)</div><div style="font-size:13px;white-space:pre-wrap;">'+esc(zones)+'</div></div>':'')+
+    '<div class="section" style="background:'+resultatColor+';border-radius:10px;padding:14px 16px;"><div class="lbl" style="color:'+resultatText+';">RÉSULTAT</div><div style="font-weight:800;font-size:15px;color:'+resultatText+';">'+esc(resultat)+'</div>'+(emplacement?'<div style="font-size:13px;margin-top:6px;"><strong>Emplacement :</strong> '+esc(emplacement)+'</div>':'')+(cause?'<div style="font-size:13px;margin-top:4px;"><strong>Cause probable :</strong> '+esc(cause)+'</div>':'')+'</div>'+
+    (preco?'<div class="section"><div class="lbl">PRÉCONISATIONS / TRAVAUX À PRÉVOIR</div><div style="font-size:13px;white-space:pre-wrap;">'+esc(preco)+'</div></div>':'')+
+    (r.description?'<div class="section"><div class="lbl">OBSERVATIONS COMPLÉMENTAIRES</div><div style="font-size:13px;white-space:pre-wrap;">'+esc(r.description)+'</div></div>':'')+
+    photosHtml+
+    (r.signature?'<div style="margin-top:24px;"><div class="lbl">SIGNATURE CLIENT</div><img src="'+r.signature+'" style="height:70px;border:1px solid #e2e8f0;border-radius:6px;"/></div>':'<div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:24px;"><div><div class="lbl">Signature client :</div><div class="sign-area"></div></div><div><div class="lbl">Pour GreenFlow :</div><div class="sign-area"></div></div></div>')+
+    '<div style="font-size:11px;color:#64748b;text-align:center;margin-top:24px;padding-top:20px;border-top:1px solid #e2e8f0;">Rapport de recherche de fuite non destructive — GreenFlow Technologies</div>'+
+    '</body></html>');
+  w.document.close();setTimeout(function(){w.print();},400);
+  closeModal('modal-rdf');
 }
 
 function renderFacturation(){
