@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d2d52">
+<title>Rapport d'intervention – GreenFlow Technologies</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --blue:#0d2d52;
+  --blue2:#1a4a7a;
+  --green:#3a8c30;
+  --green-light:#4ea843;
+  --green-bg:#f0f9ee;
+  --bg:#f0f4f8;
+  --card:#ffffff;
+  --border:#dde3ec;
+  --text:#0d1b2e;
+  --muted:#6b7a8f;
+  --red:#dc2626;
+  --shadow:0 1px 4px rgba(13,45,82,0.08),0 4px 16px rgba(13,45,82,0.06);
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.5;}
+body > div[style*="position:fixed"][style*="bottom:10px"]{display:none!important;}
+.page{max-width:640px;margin:0 auto;padding:16px 16px 60px;}
+
+.doc-header{background:var(--blue);color:#fff;border-radius:16px;padding:20px 24px;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+.logo-circle{width:44px;height:44px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;flex-shrink:0;}
+.brand-name{font-size:17px;font-weight:800;letter-spacing:-0.3px;}
+.brand-sub{font-size:11px;color:rgba(255,255,255,0.65);letter-spacing:0.5px;margin-top:1px;}
+.doc-title{font-size:12px;color:rgba(255,255,255,0.7);margin-top:6px;letter-spacing:0.3px;}
+
+.card{background:var(--card);border-radius:14px;box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden;}
+.card-title{background:var(--blue);color:#fff;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:10px 18px;}
+.card-body{padding:16px 18px;}
+
+.form-field{margin-bottom:14px;}
+.form-field:last-child{margin-bottom:0;}
+.form-field label{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px;}
+.form-input,.form-select,.form-textarea{width:100%;background:#fbfcfe;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;font-weight:500;outline:none;box-sizing:border-box;font-family:'Inter',sans-serif;transition:border-color .15s;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--blue2);}
+.form-textarea{resize:vertical;min-height:70px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:420px){.grid-2{grid-template-columns:1fr;}}
+
+.chk-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.chk-chip{display:flex;align-items:center;gap:6px;background:#f7f9fc;border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;font-size:13px;color:#334155;cursor:pointer;user-select:none;transition:all .15s;}
+.chk-chip input{margin:0;accent-color:var(--green);}
+.chk-chip.checked{background:var(--green-bg);border-color:var(--green);color:var(--green);font-weight:700;}
+
+.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.pay-btn{background:#f7f9fc;border:1.5px solid var(--border);border-radius:10px;padding:12px 8px;font-size:13px;font-weight:700;color:#334155;cursor:pointer;text-align:center;transition:all .15s;font-family:'Inter',sans-serif;}
+.pay-btn.selected{background:var(--blue);border-color:var(--blue);color:#fff;}
+
+.sat-grid{display:flex;gap:6px;flex-wrap:wrap;}
+.sat-btn{flex:1;min-width:60px;background:#f7f9fc;border:1.5px solid var(--border);border-radius:10px;padding:10px 4px;font-size:18px;text-align:center;cursor:pointer;transition:all .15s;}
+.sat-btn.selected{background:#fffbeb;border-color:#fbbf24;transform:scale(1.05);}
+.sat-lbl{font-size:9px;font-weight:700;color:var(--muted);text-align:center;margin-top:2px;}
+
+.canvas-wrap{margin:0;border:2px solid var(--border);border-radius:10px;background:#fafbfd;overflow:hidden;touch-action:none;position:relative;}
+#sig-canvas{display:block;width:100%;cursor:crosshair;}
+.canvas-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;color:#c5cdd9;font-size:13px;font-weight:500;}
+.sig-actions{display:flex;gap:8px;margin-top:10px;}
+.btn-clear{background:transparent;border:1.5px solid var(--border);border-radius:10px;padding:10px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;flex-shrink:0;}
+.chk-inline{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:10px;}
+
+.send-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f7f9fc;border-radius:10px;margin-bottom:8px;}
+.send-opt input{width:18px;height:18px;accent-color:var(--green);flex-shrink:0;}
+.send-opt .send-lbl{font-size:13px;font-weight:600;color:var(--text);flex:1;}
+.send-opt .send-sub{font-size:11px;color:var(--muted);}
+
+.btn-submit{width:100%;background:var(--green);color:#fff;border:none;border-radius:12px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;letter-spacing:-0.2px;transition:background .15s;}
+.btn-submit:disabled{background:#b0c4b8;cursor:not-allowed;}
+.btn-submit:not(:disabled):active{background:var(--green-light);}
+.err-msg{color:var(--red);font-size:12px;font-weight:600;margin-top:8px;display:none;}
+
+.success-screen{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:32px 24px;text-align:center;}
+.success-icon-wrap{width:72px;height:72px;background:var(--green-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;}
+.success-title{font-size:20px;font-weight:800;color:var(--blue);margin-bottom:8px;}
+.success-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;}
+.btn-secondary{width:100%;background:var(--blue);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-top:8px;}
+
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="doc-header">
+    <div class="logo-circle">G</div>
+    <div>
+      <div class="brand-name">GreenFlow</div>
+      <div class="brand-sub">Technologies</div>
+      <div class="doc-title">📋 Rapport d'intervention terrain</div>
+    </div>
+  </div>
+
+  <!-- FORM -->
+  <div id="form-content">
+
+    <div class="card">
+      <div class="card-title">Technicien</div>
+      <div class="card-body">
+        <select class="form-select" id="f-tech">
+          <option value="">— Sélectionner —</option>
+          <option value="Technicien 1">Technicien 1</option>
+          <option value="Technicien 2">Technicien 2</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Client — chez qui l'intervention a eu lieu</div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="form-field"><label>Nom</label><input type="text" class="form-input" id="f-nom" placeholder="Dupont"></div>
+          <div class="form-field"><label>Prénom</label><input type="text" class="form-input" id="f-prenom" placeholder="Martin"></div>
+        </div>
+        <div class="form-field"><label>Adresse</label><input type="text" class="form-input" id="f-adresse" placeholder="12 rue des Lilas, Paris"></div>
+        <div class="grid-2">
+          <div class="form-field"><label>Téléphone</label><input type="tel" class="form-input" id="f-tel" placeholder="06 12 34 56 78"></div>
+          <div class="form-field"><label>Email</label><input type="email" class="form-input" id="f-email" placeholder="client@email.fr"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Travaux effectués</div>
+      <div class="card-body">
+        <div class="chk-grid" id="chk-travaux">
+          <label class="chk-chip"><input type="checkbox" value="Recherche de fuite"> Recherche de fuite</label>
+          <label class="chk-chip"><input type="checkbox" value="Réparation fuite"> Réparation fuite</label>
+          <label class="chk-chip"><input type="checkbox" value="Débouchage canalisation"> Débouchage canalisation</label>
+          <label class="chk-chip"><input type="checkbox" value="WC / sanitaires"> WC / sanitaires</label>
+          <label class="chk-chip"><input type="checkbox" value="Robinetterie"> Robinetterie</label>
+          <label class="chk-chip"><input type="checkbox" value="Chauffe-eau"> Chauffe-eau</label>
+          <label class="chk-chip"><input type="checkbox" value="Chaudière"> Chaudière</label>
+          <label class="chk-chip"><input type="checkbox" value="Radiateurs"> Radiateurs</label>
+          <label class="chk-chip"><input type="checkbox" value="Dépannage urgence"> Dépannage urgence</label>
+          <label class="chk-chip"><input type="checkbox" value="Autre"> Autre</label>
+        </div>
+        <div class="form-field" style="margin-top:12px;"><label>Détails (optionnel)</label><textarea class="form-textarea" id="f-details" rows="3" placeholder="Précisions sur les travaux réalisés..."></textarea></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Paiement</div>
+      <div class="card-body">
+        <div class="form-field"><label>Montant (€)</label><input type="number" class="form-input" id="f-montant" placeholder="0" min="0" step="0.01"></div>
+        <div class="form-field"><label>Mode de règlement</label>
+          <div class="pay-grid" id="pay-grid">
+            <div class="pay-btn" data-v="Carte bancaire" onclick="choisirPaiement(this)">💳 Carte</div>
+            <div class="pay-btn" data-v="Espèces" onclick="choisirPaiement(this)">💵 Espèces</div>
+            <div class="pay-btn" data-v="Chèque" onclick="choisirPaiement(this)">📄 Chèque</div>
+            <div class="pay-btn" data-v="Virement" onclick="choisirPaiement(this)">🏦 Virement</div>
+          </div>
+          <div class="pay-btn" data-v="Non payé (à facturer)" onclick="choisirPaiement(this)" style="margin-top:8px;">⏳ Non payé — à facturer</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Satisfaction client</div>
+      <div class="card-body">
+        <div class="sat-grid" id="sat-grid">
+          <div><div class="sat-btn" data-v="5" onclick="choisirSatisfaction(this)">⭐⭐⭐⭐⭐</div><div class="sat-lbl">Très satisfait</div></div>
+          <div><div class="sat-btn" data-v="4" onclick="choisirSatisfaction(this)">⭐⭐⭐⭐</div><div class="sat-lbl">Satisfait</div></div>
+          <div><div class="sat-btn" data-v="3" onclick="choisirSatisfaction(this)">⭐⭐⭐</div><div class="sat-lbl">Neutre</div></div>
+          <div><div class="sat-btn" data-v="2" onclick="choisirSatisfaction(this)">⭐⭐</div><div class="sat-lbl">Insatisfait</div></div>
+          <div><div class="sat-btn" data-v="1" onclick="choisirSatisfaction(this)">⭐</div><div class="sat-lbl">Très insatisfait</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Signature client</div>
+      <div class="card-body">
+        <div class="canvas-wrap" id="canvas-wrap">
+          <canvas id="sig-canvas" height="160"></canvas>
+          <div class="canvas-placeholder" id="canvas-placeholder">Signez ici avec le doigt</div>
+        </div>
+        <div class="sig-actions">
+          <button type="button" class="btn-clear" onclick="clearSig()">Effacer</button>
+        </div>
+        <label class="chk-inline"><input type="checkbox" id="f-no-sig" onchange="toggleNoSig()"> Client absent / signature impossible</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Envoi du rapport</div>
+      <div class="card-body">
+        <label class="send-opt"><input type="checkbox" id="f-send-email" checked><span class="send-lbl">📧 Envoyer par email<div class="send-sub">Envoi automatique</div></span></label>
+        <label class="send-opt" id="wa-opt"><input type="checkbox" id="f-send-wa" checked><span class="send-lbl">💬 Envoyer par WhatsApp<div class="send-sub">Ouvre WhatsApp — il ne restera qu'à appuyer sur Envoyer</div></span></label>
+      </div>
+    </div>
+
+    <button class="btn-submit" id="btn-submit" onclick="envoyerRapport()">✅ Envoyer le rapport</button>
+    <div class="err-msg" id="err-msg"></div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="state-success" class="hidden">
+    <div class="success-screen">
+      <div class="success-icon-wrap">✅</div>
+      <div class="success-title">Rapport envoyé !</div>
+      <div class="success-sub" id="suc-sub">Le rapport a bien été enregistré.</div>
+      <button class="btn-secondary" onclick="nouveauRapport()">➕ Nouveau rapport</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ── HIDE FIREBASE BADGE ── */
+(function hideBadge(){
+  var obs = new MutationObserver(function(muts){
+    muts.forEach(function(m){
+      m.addedNodes.forEach(function(n){
+        if(n.nodeType===1){
+          var s = n.getAttribute('style')||'';
+          if(s.includes('position:fixed')&&s.includes('bottom:10px')) n.style.display='none';
+        }
+      });
+    });
+  });
+  obs.observe(document.documentElement,{childList:true,subtree:true});
+})();
+
+/* ── CONFIG DESTINATAIRE PATRON ── */
+// Adresse email qui reçoit chaque rapport envoyé depuis ce lien.
+var PATRON_EMAIL = 'ba.alhousseini.diaby@gmail.com';
+// Numéro WhatsApp du patron (format international, ex: '336XXXXXXXX' sans le +).
+// ⚠️ À COMPLÉTER — tant que ce numéro n'est pas renseigné, l'option WhatsApp reste masquée.
+var PATRON_WHATSAPP = '';
+
+/* ── HELPERS ── */
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function esc(s){return String(s||'');}
+
+/* ── TECHNICIEN — mémorisé sur le téléphone ── */
+(function initTech(){
+  var saved = localStorage.getItem('pl_rt_tech');
+  if(saved) document.getElementById('f-tech').value = saved;
+})();
+document.getElementById('f-tech').addEventListener('change', function(){
+  localStorage.setItem('pl_rt_tech', this.value);
+});
+
+/* ── CHIPS TRAVAUX ── */
+document.querySelectorAll('#chk-travaux input').forEach(function(c){
+  c.addEventListener('change', function(){
+    c.closest('.chk-chip').classList.toggle('checked', c.checked);
+  });
+});
+
+/* ── PAIEMENT ── */
+var paiementChoisi = '';
+function choisirPaiement(el){
+  document.querySelectorAll('.pay-btn').forEach(function(b){b.classList.remove('selected');});
+  el.classList.add('selected');
+  paiementChoisi = el.dataset.v;
+}
+
+/* ── SATISFACTION ── */
+var satisfactionChoisie = '';
+function choisirSatisfaction(el){
+  document.querySelectorAll('.sat-btn').forEach(function(b){b.classList.remove('selected');});
+  el.classList.add('selected');
+  satisfactionChoisie = el.dataset.v;
+}
+
+/* ── WHATSAPP — masqué si non configuré ── */
+if(!PATRON_WHATSAPP){
+  var waOptEl = document.getElementById('wa-opt');
+  waOptEl.classList.add('hidden');
+  document.getElementById('f-send-wa').checked = false;
+}
+
+/* ── SIGNATURE CANVAS ── */
+var canvas, ctx, drawing=false, hasSig=false;
+function initCanvas(){
+  canvas = document.getElementById('sig-canvas');
+  canvas.width = canvas.offsetWidth || 400;
+  ctx = canvas.getContext('2d');
+  ctx.strokeStyle = '#0d2d52';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  canvas.addEventListener('mousedown', function(e){startDraw(getPos(e,canvas));});
+  canvas.addEventListener('mousemove', function(e){if(drawing)draw(getPos(e,canvas));});
+  canvas.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('mouseleave', endDraw);
+  canvas.addEventListener('touchstart', function(e){e.preventDefault();startDraw(getPos(e.touches[0],canvas));},{passive:false});
+  canvas.addEventListener('touchmove', function(e){e.preventDefault();if(drawing)draw(getPos(e.touches[0],canvas));},{passive:false});
+  canvas.addEventListener('touchend', function(e){e.preventDefault();endDraw();},{passive:false});
+}
+function getPos(e, el){
+  var r = el.getBoundingClientRect();
+  var scale = el.width / r.width;
+  return {x:(e.clientX-r.left)*scale, y:(e.clientY-r.top)*scale};
+}
+function startDraw(pos){drawing=true;ctx.beginPath();ctx.moveTo(pos.x,pos.y);}
+function draw(pos){
+  ctx.lineTo(pos.x,pos.y);ctx.stroke();
+  if(!hasSig){hasSig=true;document.getElementById('canvas-placeholder').style.display='none';}
+}
+function endDraw(){drawing=false;}
+function clearSig(){
+  if(!canvas)return;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  hasSig=false;
+  document.getElementById('canvas-placeholder').style.display='flex';
+}
+function toggleNoSig(){
+  var off = document.getElementById('f-no-sig').checked;
+  document.getElementById('canvas-wrap').style.opacity = off?'0.4':'1';
+  document.getElementById('canvas-wrap').style.pointerEvents = off?'none':'auto';
+  if(off)clearSig();
+}
+setTimeout(initCanvas, 50);
+
+/* ── ENVOI ── */
+function showErr(msg){
+  var e=document.getElementById('err-msg');
+  e.textContent=msg;e.style.display='block';
+  e.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function hideErr(){document.getElementById('err-msg').style.display='none';}
+
+function envoyerRapport(){
+  hideErr();
+  var tech = document.getElementById('f-tech').value;
+  var nom = document.getElementById('f-nom').value.trim();
+  var prenom = document.getElementById('f-prenom').value.trim();
+  var adresse = document.getElementById('f-adresse').value.trim();
+  var tel = document.getElementById('f-tel').value.trim();
+  var email = document.getElementById('f-email').value.trim();
+  var travaux = Array.prototype.slice.call(document.querySelectorAll('#chk-travaux input:checked')).map(function(c){return c.value;});
+  var details = document.getElementById('f-details').value.trim();
+  var montant = document.getElementById('f-montant').value;
+  var noSig = document.getElementById('f-no-sig').checked;
+
+  if(!tech){showErr('Sélectionne le technicien.');return;}
+  if(!nom||!prenom){showErr('Renseigne le nom et le prénom du client.');return;}
+  if(!adresse){showErr('Renseigne l\'adresse de l\'intervention.');return;}
+  if(!tel){showErr('Renseigne le téléphone du client.');return;}
+  if(!travaux.length){showErr('Coche au moins un type de travaux effectués.');return;}
+  if(montant===''||montant===null||Number(montant)<0){showErr('Renseigne le montant.');return;}
+  if(!paiementChoisi){showErr('Sélectionne le mode de règlement.');return;}
+  if(!satisfactionChoisie){showErr('Sélectionne la satisfaction du client.');return;}
+  if(!noSig&&!hasSig){showErr('Fais signer le client, ou coche "signature impossible".');return;}
+
+  var btn=document.getElementById('btn-submit');
+  btn.disabled=true;btn.textContent='⏳ Envoi en cours...';
+
+  var rapport = {
+    id: Date.now(),
+    technicien: tech,
+    clientNom: (prenom+' '+nom).trim(),
+    clientPrenom: prenom,
+    clientNomFamille: nom,
+    clientTel: tel,
+    clientEmail: email,
+    adresse: adresse,
+    type: travaux.join(', '),
+    travaux: travaux,
+    description: details,
+    montantFinal: Number(montant)||0,
+    modeEncaissement: paiementChoisi,
+    satisfaction: Number(satisfactionChoisie),
+    signature: (!noSig&&hasSig&&canvas) ? canvas.toDataURL('image/png') : null,
+    signatureIndisponible: noSig,
+    canal: 'Lien mobile',
+    date: todayStr(),
+    soumisLe: new Date().toISOString(),
+    statut: 'En attente facturation'
+  };
+
+  pousserRapport(rapport, function(ok, err){
+    if(!ok){
+      btn.disabled=false;btn.textContent='✅ Envoyer le rapport';
+      showErr('Erreur d\'enregistrement — vérifie ta connexion et réessaie.'+(err?(' ('+err.message+')'):''));
+      return;
+    }
+    var envoiEmail = document.getElementById('f-send-email').checked;
+    var envoiWa = document.getElementById('f-send-wa').checked && PATRON_WHATSAPP;
+
+    var promesses=[];
+    if(envoiEmail) promesses.push(envoyerEmailRapport(rapport).catch(function(){return null;}));
+    Promise.all(promesses).then(function(){
+      if(envoiWa) ouvrirWhatsApp(rapport);
+      afficherSucces(envoiEmail, envoiWa);
+    });
+  });
+}
+
+function pousserRapport(rapport, cb){
+  if(!_db){cb(false, new Error('Firebase indisponible'));return;}
+  _db.ref('greenflow/pl_rapports').once('value').then(function(snap){
+    var val = snap.val();
+    var arr = Array.isArray(val) ? val.slice() : (val && typeof val==='object' ? Object.keys(val).map(function(k){return val[k];}) : []);
+    arr.push(rapport);
+    return _db.ref('greenflow/pl_rapports').set(arr).then(function(){return arr;});
+  }).then(function(arr){
+    try{
+      localStorage.setItem('pl_rapports', JSON.stringify(arr));
+      if(_bc) _bc.postMessage({key:'pl_rapports', value:JSON.stringify(arr)});
+    }catch(e){}
+    cb(true);
+  }).catch(function(err){cb(false, err);});
+}
+
+function fmtTravaux(rapport){
+  return rapport.travaux.join(', ');
+}
+
+function envoyerEmailRapport(r){
+  var lignes = [
+    'RAPPORT D\'INTERVENTION — GreenFlow Technologies',
+    '────────────────────────────────────',
+    'Date         : '+r.date,
+    'Technicien   : '+r.technicien,
+    '',
+    'Client       : '+r.clientNom,
+    'Téléphone    : '+r.clientTel,
+    'Email        : '+(r.clientEmail||'—'),
+    'Adresse      : '+r.adresse,
+    '',
+    'Travaux      : '+fmtTravaux(r),
+    'Détails      : '+(r.description||'—'),
+    '',
+    'Montant      : '+r.montantFinal+' €',
+    'Règlement    : '+r.modeEncaissement,
+    'Satisfaction : '+'⭐'.repeat(r.satisfaction)+' ('+r.satisfaction+'/5)',
+    'Signature    : '+(r.signature?'✅ signée':(r.signatureIndisponible?'⚠️ non disponible':'❌ absente')),
+    '',
+    'Rapport enregistré automatiquement — visible dans l\'onglet Rapports.'
+  ].join('\n');
+  var subject = '📋 Rapport intervention — '+r.clientNom+' — '+fmtTravaux(r);
+  return fetch('/api/gmail', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({action:'send', to: PATRON_EMAIL, subject: subject, body: lignes})
+  }).then(function(res){return res.json();});
+}
+
+function ouvrirWhatsApp(r){
+  var txt = '📋 *Rapport intervention — GreenFlow*\n\n'+
+    '👤 '+r.technicien+'\n'+
+    '🙋 '+r.clientNom+' — '+r.adresse+'\n'+
+    '🔧 '+fmtTravaux(r)+'\n'+
+    (r.description?('📝 '+r.description+'\n'):'')+
+    '💶 '+r.montantFinal+' € — '+r.modeEncaissement+'\n'+
+    '⭐ Satisfaction : '+r.satisfaction+'/5';
+  var phone = String(PATRON_WHATSAPP).replace(/[^0-9]/g,'');
+  window.open('https://api.whatsapp.com/send?phone='+phone+'&text='+encodeURIComponent(txt), '_blank');
+}
+
+function afficherSucces(envoiEmail, envoiWa){
+  document.getElementById('form-content').classList.add('hidden');
+  var sub = 'Le rapport est enregistré et visible dans l\'app.';
+  if(envoiEmail&&envoiWa) sub += ' Email envoyé, WhatsApp ouvert.';
+  else if(envoiEmail) sub += ' Email envoyé.';
+  else if(envoiWa) sub += ' WhatsApp ouvert.';
+  document.getElementById('suc-sub').textContent = sub;
+  document.getElementById('state-success').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function nouveauRapport(){
+  document.getElementById('state-success').classList.add('hidden');
+  document.getElementById('form-content').classList.remove('hidden');
+  ['f-nom','f-prenom','f-adresse','f-tel','f-email','f-details','f-montant'].forEach(function(id){document.getElementById(id).value='';});
+  document.querySelectorAll('#chk-travaux input').forEach(function(c){c.checked=false;c.closest('.chk-chip').classList.remove('checked');});
+  document.querySelectorAll('.pay-btn').forEach(function(b){b.classList.remove('selected');});
+  document.querySelectorAll('.sat-btn').forEach(function(b){b.classList.remove('selected');});
+  paiementChoisi='';satisfactionChoisie='';
+  document.getElementById('f-no-sig').checked=false;
+  toggleNoSig();
+  clearSig();
+  var btn=document.getElementById('btn-submit');
+  btn.disabled=false;btn.textContent='✅ Envoyer le rapport';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
