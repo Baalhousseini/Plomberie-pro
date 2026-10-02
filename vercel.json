@@ -9,8 +9,21 @@
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" }
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
       ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/fuite",
+      "destination": "/recherche-fuite.html"
+    },
+    {
+      "source": "/recherche-de-fuite",
+      "destination": "/recherche-fuite.html"
     }
   ]
 }
