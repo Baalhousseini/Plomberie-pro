@@ -447,7 +447,7 @@ document.getElementById("lead-form").addEventListener("submit", function(e){
     "Urgence : " + (choix.urgence || "non précisé"),
     val("f-email") ? "E-mail : " + val("f-email") : "",
     val("f-desc") ? "Description : " + val("f-desc") : ""
-  ].filter(Boolean).join("\n");
+  ].filter(Boolean).join(" · ");
 
   var rdv = {
     id: id,
@@ -458,6 +458,7 @@ document.getElementById("lead-form").addEventListener("submit", function(e){
     adresse: adresse,
     type: "Recherche de fuite",
     dateRdv: "",
+    datePriseRdv: new Date().toISOString().split("T")[0],
     heureRdv: "",
     technicien: "À planifier",
     prixVente: 0,
