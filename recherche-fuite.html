@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d2d52">
+<title>Recherche de fuite non destructive — GreenFlow</title>
+<meta name="description" content="Recherche de fuite d'eau non destructive en Nouvelle-Aquitaine : caméra thermique, gaz traceur, détection acoustique. Rapport complet pour votre assurance. Intervention rapide, devis gratuit.">
+<meta property="og:title" content="Recherche de fuite non destructive — GreenFlow">
+<meta property="og:description" content="Localisation précise des fuites sans casse. Rapport accepté par les assurances.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Plumber",
+  "name":"GreenFlow Technologies — Recherche de fuite",
+  "description":"Recherche de fuite non destructive : caméra thermique, gaz traceur, détection acoustique, rapport pour assurance.",
+  "areaServed":"Nouvelle-Aquitaine",
+  "priceRange":"€€"
+}
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --blue:#0d2d52;
+  --blue2:#1a4a7a;
+  --green:#3a8c30;
+  --green2:#2d7324;
+  --green-light:#5ab048;
+  --green-bg:#f0f9ee;
+  --water:#1e88e5;
+  --water-bg:#e8f2fd;
+  --red:#dc2626;
+  --bg:#f8fafc;
+  --card:#ffffff;
+  --border:#e2e8f0;
+  --text:#1a2537;
+  --muted:#64748b;
+  --shadow:0 2px 8px rgba(13,45,82,.07),0 8px 24px rgba(13,45,82,.06);
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased;}
+a{color:inherit;}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px;}
+.hidden{display:none!important;}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:50;background:rgba(13,45,82,.97);backdrop-filter:blur(8px);color:#fff;}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:12px;}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:18px;text-decoration:none;letter-spacing:.2px;}
+.brand-drop{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--water),var(--green-light));display:grid;place-items:center;}
+.brand small{display:block;font-size:10px;font-weight:600;opacity:.65;letter-spacing:1px;text-transform:uppercase;}
+.nav-links{display:flex;gap:22px;font-size:14px;font-weight:500;}
+.nav-links a{text-decoration:none;opacity:.8;}
+.nav-links a:hover{opacity:1;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:10px;padding:12px 18px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;transition:background .2s,transform .1s;}
+.btn:active{transform:scale(.98);}
+.btn-green{background:var(--green);color:#fff;}
+.btn-green:hover{background:var(--green2);}
+.btn-ghost{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.25);}
+.btn-ghost:hover{background:rgba(255,255,255,.18);}
+.btn-lg{padding:15px 22px;font-size:15px;}
+
+/* HERO */
+.hero{background:radial-gradient(1200px 500px at 85% -10%,rgba(30,136,229,.35),transparent 60%),linear-gradient(160deg,var(--blue) 0%,var(--blue2) 100%);color:#fff;padding:64px 0 72px;overflow:hidden;}
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center;}
+.pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);padding:6px 12px;border-radius:99px;font-size:12px;font-weight:600;letter-spacing:.3px;}
+.pill .dot{width:8px;height:8px;border-radius:50%;background:var(--green-light);box-shadow:0 0 0 4px rgba(90,176,72,.25);}
+.hero h1{font-size:44px;line-height:1.1;font-weight:800;letter-spacing:-1px;margin:18px 0 16px;}
+.hero h1 span{background:linear-gradient(90deg,#7cc4ff,var(--green-light));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero p.lead{font-size:17px;opacity:.85;max-width:540px;margin-bottom:26px;}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap;}
+.hero-checks{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:26px;font-size:13px;opacity:.9;}
+.hero-checks div::before{content:"✓";color:var(--green-light);font-weight:800;margin-right:7px;}
+.hero-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:22px;}
+.hero-card h3{font-size:14px;font-weight:700;margin-bottom:14px;opacity:.9;}
+.sign{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-top:1px solid rgba(255,255,255,.1);font-size:14px;}
+.sign:first-of-type{border-top:none;}
+.sign-ic{flex:0 0 34px;height:34px;border-radius:9px;background:rgba(255,255,255,.1);display:grid;place-items:center;font-size:17px;}
+.sign b{display:block;font-weight:600;}
+.sign span{opacity:.7;font-size:12.5px;}
+
+/* SECTIONS */
+section{padding:72px 0;}
+.eyebrow{color:var(--green);font-size:12px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:8px;}
+.h2{font-size:32px;font-weight:800;color:var(--blue);letter-spacing:-.6px;line-height:1.2;margin-bottom:12px;}
+.sub{color:var(--muted);font-size:16px;max-width:640px;margin-bottom:36px;}
+.grid{display:grid;gap:16px;}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g4{grid-template-columns:repeat(4,1fr);}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:var(--shadow);}
+.card .ic{width:44px;height:44px;border-radius:12px;background:var(--water-bg);display:grid;place-items:center;font-size:22px;margin-bottom:14px;}
+.card h3{font-size:16px;font-weight:700;color:var(--blue);margin-bottom:6px;}
+.card p{font-size:14px;color:var(--muted);}
+.alt{background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+
+/* STEPS */
+.steps{counter-reset:s;}
+.step{position:relative;padding-top:8px;}
+.step::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--blue);color:#fff;font-weight:800;font-size:15px;margin-bottom:14px;}
+.step h3{font-size:16px;color:var(--blue);margin-bottom:6px;}
+.step p{font-size:14px;color:var(--muted);}
+
+/* INSURANCE */
+.ins{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;}
+.ins ul{list-style:none;display:grid;gap:12px;}
+.ins li{display:flex;gap:12px;font-size:15px;}
+.ins li::before{content:"✓";flex:0 0 24px;height:24px;border-radius:50%;background:var(--green-bg);color:var(--green);font-weight:800;display:grid;place-items:center;font-size:13px;}
+.report{background:linear-gradient(160deg,#fff,#f4f8fc);border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:var(--shadow);font-size:13px;}
+.report-h{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--blue);padding-bottom:10px;margin-bottom:14px;}
+.report-h b{color:var(--blue);font-size:15px;}
+.tag{font-size:11px;font-weight:700;padding:4px 9px;border-radius:99px;background:var(--green-bg);color:var(--green);}
+.rrow{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--border);gap:12px;}
+.rrow span:first-child{color:var(--muted);}
+.rrow span:last-child{font-weight:600;text-align:right;}
+
+/* FORM */
+.form-sec{background:linear-gradient(160deg,var(--blue),var(--blue2));color:#fff;}
+.form-sec .h2{color:#fff;}
+.form-sec .sub{color:rgba(255,255,255,.75);}
+.form-layout{display:grid;grid-template-columns:.8fr 1.2fr;gap:40px;align-items:start;}
+.contact-box{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:20px;margin-top:8px;}
+.contact-box .big{font-size:24px;font-weight:800;display:block;margin:4px 0 6px;text-decoration:none;}
+.form{background:#fff;color:var(--text);border-radius:20px;padding:26px;box-shadow:0 24px 64px rgba(0,0,0,.25);}
+.form h3{font-size:18px;color:var(--blue);margin-bottom:4px;}
+.form .muted{color:var(--muted);font-size:13px;margin-bottom:18px;}
+.f-label{display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:16px 0 8px;}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{border:1.5px solid var(--border);background:#fff;border-radius:99px;padding:8px 13px;font:inherit;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;transition:all .15s;}
+.chip:hover{border-color:var(--water);}
+.chip.on{border-color:var(--water);background:var(--water-bg);color:var(--blue);}
+.chip.urg.on{border-color:var(--red);background:#fef2f2;color:var(--red);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.input{width:100%;background:#f7f9fc;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font:inherit;font-size:15px;color:var(--text);outline:none;transition:border-color .2s;}
+.input:focus{border-color:var(--water);background:#fff;}
+textarea.input{min-height:84px;resize:vertical;}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:12px;color:var(--muted);margin-top:14px;}
+.consent input{margin-top:3px;}
+.form .btn{width:100%;margin-top:18px;}
+.err{color:var(--red);font-size:13px;font-weight:600;margin-top:10px;min-height:1px;}
+.ok{text-align:center;padding:20px 6px;}
+.ok .big-ic{width:64px;height:64px;border-radius:50%;background:var(--green-bg);color:var(--green);font-size:32px;display:grid;place-items:center;margin:0 auto 14px;}
+.ok h3{font-size:20px;}
+.ok .ref{display:inline-block;margin:12px 0;font-weight:800;color:var(--blue);background:var(--water-bg);padding:6px 14px;border-radius:8px;letter-spacing:1px;}
+
+/* FAQ */
+.faq{max-width:780px;}
+details{background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:10px;padding:0 18px;}
+summary{cursor:pointer;list-style:none;font-weight:600;color:var(--blue);padding:16px 0;display:flex;justify-content:space-between;gap:12px;}
+summary::-webkit-details-marker{display:none;}
+summary::after{content:"+";font-size:20px;line-height:1;color:var(--muted);}
+details[open] summary::after{content:"–";}
+details p{color:var(--muted);font-size:14.5px;padding-bottom:16px;}
+
+footer{background:#081d36;color:rgba(255,255,255,.6);font-size:13px;padding:28px 0;}
+footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+footer a{text-decoration:none;}
+footer a:hover{color:#fff;}
+
+/* Barre d'appel mobile */
+.mobile-bar{display:none;}
+
+@media (max-width:900px){
+  .hero .wrap,.ins,.form-layout{grid-template-columns:1fr;}
+  .g3,.g4{grid-template-columns:1fr 1fr;}
+  .nav-links{display:none;}
+}
+@media (max-width:600px){
+  .hero{padding:40px 0 48px;}
+  .hero h1{font-size:32px;}
+  .hero p.lead{font-size:15.5px;}
+  section{padding:52px 0;}
+  .h2{font-size:25px;}
+  .g3,.g4,.row2{grid-template-columns:1fr;}
+  .form{padding:20px;}
+  .nav .btn{display:none;}
+  body{padding-bottom:72px;}
+  .mobile-bar{display:flex;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:60;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--border);box-shadow:0 -4px 16px rgba(0,0,0,.08);}
+  .mobile-bar .btn{flex:1;padding:13px 10px;}
+  .mobile-bar .btn-call{background:var(--blue);color:#fff;}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <div class="brand-drop">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C8 7.5 5 11.2 5 15a7 7 0 0 0 14 0c0-3.8-3-7.5-7-13z"/></svg>
+      </div>
+      <div>GreenFlow<small>Recherche de fuite</small></div>
+    </a>
+    <div class="nav-links">
+      <a href="#methodes">Méthodes</a>
+      <a href="#deroulement">Déroulement</a>
+      <a href="#assurance">Assurance</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <a class="btn btn-green" href="#demande">Demander une intervention</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <div class="pill"><span class="dot"></span>Intervention rapide · Nouvelle-Aquitaine</div>
+      <h1>Recherche de fuite <span>sans casser</span> vos murs ni vos sols</h1>
+      <p class="lead">Nos techniciens localisent l'origine exacte de votre fuite grâce à la caméra thermique, au gaz traceur et à la détection acoustique. Vous recevez un rapport détaillé, prêt à transmettre à votre assurance.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-green btn-lg" href="#demande">Obtenir un devis gratuit</a>
+        <a class="btn btn-ghost btn-lg js-call" href="#demande">📞 <span class="js-tel">Être rappelé</span></a>
+      </div>
+      <div class="hero-checks">
+        <div>Méthodes non destructives</div>
+        <div>Rapport pour l'assurance</div>
+        <div>Devis gratuit</div>
+      </div>
+    </div>
+    <div class="hero-card">
+      <h3>Vous avez peut-être une fuite si…</h3>
+      <div class="sign"><div class="sign-ic">💧</div><div><b>Votre facture d'eau augmente</b><span>sans changement de consommation</span></div></div>
+      <div class="sign"><div class="sign-ic">🧱</div><div><b>Taches, auréoles ou moisissures</b><span>sur un mur, un plafond, un sol</span></div></div>
+      <div class="sign"><div class="sign-ic">🔄</div><div><b>Le compteur tourne</b><span>alors que tous les robinets sont fermés</span></div></div>
+      <div class="sign"><div class="sign-ic">🌡️</div><div><b>Le chauffage perd en pression</b><span>vous remettez de l'eau régulièrement</span></div></div>
+      <div class="sign"><div class="sign-ic">🏢</div><div><b>Dégât des eaux chez le voisin</b><span>et l'origine reste inconnue</span></div></div>
+    </div>
+  </div>
+</header>
+
+<section id="methodes">
+  <div class="wrap">
+    <div class="eyebrow">Nos méthodes</div>
+    <h2 class="h2">Le bon outil pour chaque fuite</h2>
+    <p class="sub">Nous combinons plusieurs techniques pour localiser la fuite au centimètre près, sans démolition inutile.</p>
+    <div class="grid g3">
+      <div class="card"><div class="ic">🌡️</div><h3>Caméra thermique</h3><p>Repère les écarts de température causés par l'eau, idéale pour les planchers chauffants et les canalisations encastrées.</p></div>
+      <div class="card"><div class="ic">🎧</div><h3>Détection acoustique</h3><p>Des micros ultrasensibles captent le bruit de l'eau sous pression qui s'échappe d'une canalisation enterrée ou encastrée.</p></div>
+      <div class="card"><div class="ic">🧪</div><h3>Gaz traceur</h3><p>Un gaz neutre (azote hydrogéné) est injecté dans le réseau puis détecté en surface à l'endroit précis de la fuite.</p></div>
+      <div class="card"><div class="ic">🟢</div><h3>Fluorescéine</h3><p>Un colorant inoffensif pour identifier les infiltrations : douche, baignoire, terrasse, évacuations, toiture.</p></div>
+      <div class="card"><div class="ic">📹</div><h3>Inspection caméra</h3><p>Endoscopie et caméra de canalisation pour visualiser l'intérieur des évacuations et des gaines.</p></div>
+      <div class="card"><div class="ic">📈</div><h3>Mise en pression & humidimètre</h3><p>Test de pression du réseau et mesure du taux d'humidité des matériaux pour confirmer et cartographier la zone touchée.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="eyebrow">Ce que nous détectons</div>
+    <h2 class="h2">Toutes les fuites, intérieures et extérieures</h2>
+    <p class="sub">Particuliers, syndics, gestionnaires de biens et professionnels.</p>
+    <div class="grid g4">
+      <div class="card"><div class="ic">🚿</div><h3>Salle de bain</h3><p>Douche à l'italienne, baignoire, joints, receveur.</p></div>
+      <div class="card"><div class="ic">🔥</div><h3>Chauffage</h3><p>Plancher chauffant, radiateurs, chaudière, circuit fermé.</p></div>
+      <div class="card"><div class="ic">🚰</div><h3>Canalisations</h3><p>Eau froide / chaude encastrée, alimentation enterrée après compteur.</p></div>
+      <div class="card"><div class="ic">🏊</div><h3>Piscine & extérieur</h3><p>Bassin, skimmer, réseau enterré, terrasse, toiture-terrasse.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="deroulement">
+  <div class="wrap">
+    <div class="eyebrow">Déroulement</div>
+    <h2 class="h2">Simple, rapide, sans mauvaise surprise</h2>
+    <p class="sub">De votre demande au rapport final.</p>
+    <div class="grid g4 steps">
+      <div class="step"><h3>Votre demande</h3><p>Remplissez le formulaire ou appelez-nous. Nous qualifions la situation avec vous et vous donnons un devis gratuit.</p></div>
+      <div class="step"><h3>Intervention</h3><p>Un technicien équipé se déplace au créneau convenu et met en œuvre les méthodes adaptées.</p></div>
+      <div class="step"><h3>Localisation</h3><p>La fuite est localisée et marquée précisément. Vous savez exactement où et quoi réparer.</p></div>
+      <div class="step"><h3>Rapport & réparation</h3><p>Rapport détaillé avec photos et mesures. Nous pouvons aussi réaliser la réparation.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="assurance">
+  <div class="wrap ins">
+    <div>
+      <div class="eyebrow">Assurance & dégâts des eaux</div>
+      <h2 class="h2">Un rapport pensé pour votre assureur</h2>
+      <p class="sub" style="margin-bottom:22px">En cas de dégât des eaux, la recherche de fuite est souvent prise en charge par votre contrat d'assurance habitation. Notre rapport vous aide à constituer votre dossier.</p>
+      <ul>
+        <li>Rapport technique avec photos, thermogrammes et mesures</li>
+        <li>Origine et cause de la fuite clairement identifiées</li>
+        <li>Facture et rapport transmis directement au client ou à son mandataire</li>
+        <li>Accompagnement pour la déclaration de sinistre (convention IRSI)</li>
+      </ul>
+    </div>
+    <div class="report" aria-hidden="true">
+      <div class="report-h"><b>Rapport de recherche de fuite</b><span class="tag">Exemple</span></div>
+      <div class="rrow"><span>Méthodes</span><span>Thermographie · Gaz traceur</span></div>
+      <div class="rrow"><span>Localisation</span><span>Alimentation EC, cloison SDB</span></div>
+      <div class="rrow"><span>Cause</span><span>Raccord sertis défaillant</span></div>
+      <div class="rrow"><span>Humidité relevée</span><span>Zone repérée sur plan</span></div>
+      <div class="rrow"><span>Photos jointes</span><span>Avant / pendant / après</span></div>
+      <div class="rrow" style="border:none"><span>Préconisation</span><span>Remplacement du raccord</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="form-sec" id="demande">
+  <div class="wrap form-layout">
+    <div>
+      <div class="eyebrow" style="color:var(--green-light)">Demande d'intervention</div>
+      <h2 class="h2">Décrivez votre fuite, on s'occupe du reste</h2>
+      <p class="sub">Notre équipe vous rappelle rapidement pour confirmer le créneau et le devis.</p>
+      <div class="contact-box js-contact hidden">
+        <div style="font-size:13px;opacity:.75">Urgence ? Appelez-nous directement</div>
+        <a class="big js-call" href="#"><span class="js-tel"></span></a>
+        <div style="font-size:12px;opacity:.6">Du lundi au samedi</div>
+      </div>
+    </div>
+
+    <form class="form" id="lead-form" novalidate>
+      <div id="form-body">
+        <h3>Votre demande</h3>
+        <p class="muted">2 minutes · sans engagement</p>
+
+        <span class="f-label">Type de fuite</span>
+        <div class="chips" data-group="fuite">
+          <button type="button" class="chip">Fuite visible / dégât des eaux</button>
+          <button type="button" class="chip">Compteur qui tourne</button>
+          <button type="button" class="chip">Chauffage / plancher chauffant</button>
+          <button type="button" class="chip">Douche / salle de bain</button>
+          <button type="button" class="chip">Canalisation enterrée</button>
+          <button type="button" class="chip">Piscine</button>
+          <button type="button" class="chip">Je ne sais pas</button>
+        </div>
+
+        <span class="f-label">Logement</span>
+        <div class="chips" data-group="logement">
+          <button type="button" class="chip">Maison</button>
+          <button type="button" class="chip">Appartement</button>
+          <button type="button" class="chip">Local professionnel</button>
+        </div>
+
+        <span class="f-label">Déclaré à l'assurance ?</span>
+        <div class="chips" data-group="assurance">
+          <button type="button" class="chip">Oui</button>
+          <button type="button" class="chip">Pas encore</button>
+          <button type="button" class="chip">Non concerné</button>
+        </div>
+
+        <span class="f-label">Urgence</span>
+        <div class="chips" data-group="urgence">
+          <button type="button" class="chip urg">Urgent (eau qui coule)</button>
+          <button type="button" class="chip">Sous 48h</button>
+          <button type="button" class="chip">Cette semaine</button>
+        </div>
+
+        <span class="f-label">Vos coordonnées</span>
+        <div class="row2">
+          <input class="input" id="f-nom" placeholder="Nom et prénom" autocomplete="name">
+          <input class="input" id="f-tel" type="tel" placeholder="Téléphone" autocomplete="tel">
+        </div>
+        <input class="input" id="f-email" type="email" placeholder="E-mail (facultatif)" autocomplete="email" style="margin-top:12px">
+        <input class="input" id="f-adresse" placeholder="Adresse d'intervention (rue, code postal, ville)" autocomplete="street-address" style="margin-top:12px">
+        <textarea class="input" id="f-desc" placeholder="Décrivez ce que vous constatez (où, depuis quand…)" style="margin-top:12px"></textarea>
+
+        <label class="consent"><input type="checkbox" id="f-consent">J'accepte d'être recontacté par GreenFlow au sujet de ma demande. Mes données ne sont utilisées que pour traiter cette demande.</label>
+
+        <button class="btn btn-green btn-lg" type="submit" id="f-submit">Envoyer ma demande</button>
+        <div class="err" id="f-err"></div>
+      </div>
+
+      <div id="form-ok" class="ok hidden">
+        <div class="big-ic">✓</div>
+        <h3>Demande bien reçue !</h3>
+        <div class="ref" id="ok-ref"></div>
+        <p class="muted" style="margin:0">Un conseiller vous rappelle très vite pour planifier l'intervention.</p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="eyebrow">Questions fréquentes</div>
+    <h2 class="h2">Vos questions</h2>
+    <div class="faq" style="margin-top:24px">
+      <details><summary>Faut-il casser pour trouver la fuite ?</summary><p>Non. Nos méthodes (thermographie, acoustique, gaz traceur, fluorescéine) sont non destructives. Seule la réparation nécessite parfois une ouverture, limitée à la zone exacte de la fuite.</p></details>
+      <details><summary>Mon assurance peut-elle prendre en charge la recherche ?</summary><p>Dans de nombreux contrats multirisques habitation, la recherche de fuite est couverte en cas de dégât des eaux. Vérifiez votre contrat ou contactez votre assureur : notre rapport vous servira de justificatif.</p></details>
+      <details><summary>Combien de temps dure une intervention ?</summary><p>En général entre 1 h et 3 h selon la complexité du réseau et le nombre de méthodes nécessaires.</p></details>
+      <details><summary>Que dois-je faire en attendant le technicien ?</summary><p>Si l'eau coule, coupez l'arrivée d'eau générale (vanne près du compteur) et, si besoin, l'électricité de la pièce concernée. Prenez des photos des dégâts pour votre assurance.</p></details>
+      <details><summary>Réparez-vous la fuite après l'avoir trouvée ?</summary><p>Oui. Nos plombiers peuvent réparer dans la foulée lorsque c'est possible, ou planifier la réparation avec un devis séparé.</p></details>
+      <details><summary>Intervenez-vous pour les syndics et gestionnaires ?</summary><p>Oui, nous travaillons avec les syndics, gestionnaires de biens et mandataires d'assurance, avec un suivi de dossier dédié.</p></details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>© <span id="yr"></span> GreenFlow Technologies — Plomberie · Recherche de fuite · Nouvelle-Aquitaine</div>
+    <div><a href="#demande">Demander une intervention</a></div>
+  </div>
+</footer>
+
+<div class="mobile-bar">
+  <a class="btn btn-call js-call" href="#demande">📞 Appeler</a>
+  <a class="btn btn-green" href="#demande">Devis gratuit</a>
+</div>
+
+<script>
+var FB = "https://plomberie-pro-7a56a-default-rtdb.europe-west1.firebasedatabase.app/greenflow/";
+document.getElementById("yr").textContent = new Date().getFullYear();
+
+// Numéro de téléphone : même source que les autres pages (config patron → pl_tel_pro)
+fetch(FB + "pl_tel_pro.json").then(function(r){ return r.json(); }).then(function(v){
+  if(!v || !v.tel || !v.raw) return;
+  document.querySelectorAll(".js-tel").forEach(function(el){ el.textContent = v.tel; });
+  document.querySelectorAll(".js-call").forEach(function(el){ el.href = "tel:" + v.raw; });
+  document.querySelectorAll(".js-contact").forEach(function(el){ el.classList.remove("hidden"); });
+}).catch(function(){});
+
+// Chips à choix unique
+var choix = {};
+document.querySelectorAll(".chips").forEach(function(group){
+  group.addEventListener("click", function(e){
+    var chip = e.target.closest(".chip");
+    if(!chip) return;
+    group.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("on"); });
+    chip.classList.add("on");
+    choix[group.dataset.group] = chip.textContent;
+  });
+});
+
+function val(id){ return document.getElementById(id).value.trim(); }
+
+document.getElementById("lead-form").addEventListener("submit", function(e){
+  e.preventDefault();
+  var err = document.getElementById("f-err");
+  err.textContent = "";
+  var nom = val("f-nom"), tel = val("f-tel"), adresse = val("f-adresse");
+  if(!nom){ err.textContent = "Merci d'indiquer votre nom."; return; }
+  if(tel.replace(/\D/g,"").length < 9){ err.textContent = "Merci d'indiquer un numéro de téléphone valide."; return; }
+  if(!adresse){ err.textContent = "Merci d'indiquer l'adresse d'intervention."; return; }
+  if(!document.getElementById("f-consent").checked){ err.textContent = "Merci d'accepter d'être recontacté."; return; }
+
+  var id = Date.now();
+  var ref = "RF-" + String(id).slice(-6);
+  var urgent = /Urgent/.test(choix.urgence || "");
+  var notes = [
+    "Type de fuite : " + (choix.fuite || "non précisé"),
+    "Logement : " + (choix.logement || "non précisé"),
+    "Assurance : " + (choix.assurance || "non précisé"),
+    "Urgence : " + (choix.urgence || "non précisé"),
+    val("f-email") ? "E-mail : " + val("f-email") : "",
+    val("f-desc") ? "Description : " + val("f-desc") : ""
+  ].filter(Boolean).join("\n");
+
+  var rdv = {
+    id: id,
+    ref: ref,
+    clientNom: nom,
+    clientTel: tel,
+    clientEmail: val("f-email"),
+    adresse: adresse,
+    type: "Recherche de fuite",
+    dateRdv: "",
+    heureRdv: "",
+    technicien: "À planifier",
+    prixVente: 0,
+    statut: "Nouveau",
+    urgence: urgent,
+    notes: notes,
+    canal: "Site recherche de fuite",
+    creePar: "client-web",
+    creeAt: new Date().toISOString()
+  };
+
+  var btn = document.getElementById("f-submit");
+  btn.disabled = true; btn.textContent = "Envoi en cours…";
+
+  // Lire la liste à jour puis ajouter (on n'écrase jamais avec une copie locale)
+  fetch(FB + "pl_rdvs.json").then(function(r){
+    if(!r.ok) throw new Error("lecture");
+    return r.json();
+  }).then(function(list){
+    if(typeof list === "string"){ try { list = JSON.parse(list); } catch(x){ list = []; } }
+    if(list && !Array.isArray(list)) list = Object.keys(list).map(function(k){ return list[k]; });
+    list = list || [];
+    list.push(rdv);
+    return fetch(FB + "pl_rdvs.json", { method:"PUT", headers:{"Content-Type":"application/json"}, body: JSON.stringify(list) });
+  }).then(function(r){
+    if(!r.ok) throw new Error("ecriture");
+    document.getElementById("ok-ref").textContent = ref;
+    document.getElementById("form-body").classList.add("hidden");
+    document.getElementById("form-ok").classList.remove("hidden");
+  }).catch(function(){
+    btn.disabled = false; btn.textContent = "Envoyer ma demande";
+    err.textContent = "L'envoi a échoué. Vérifiez votre connexion et réessayez, ou appelez-nous.";
+  });
+});
+</script>
+</body>
+</html>
