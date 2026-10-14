@@ -449,41 +449,27 @@ document.getElementById("lead-form").addEventListener("submit", function(e){
     val("f-desc") ? "Description : " + val("f-desc") : ""
   ].filter(Boolean).join(" · ");
 
-  var rdv = {
+  var demande = {
     id: id,
     ref: ref,
-    clientNom: nom,
-    clientTel: tel,
-    clientEmail: val("f-email"),
-    adresse: adresse,
-    type: "Recherche de fuite",
-    dateRdv: "",
-    datePriseRdv: new Date().toISOString().split("T")[0],
-    heureRdv: "",
-    technicien: "À planifier",
-    prixVente: 0,
-    statut: "Nouveau",
-    urgence: urgent,
-    notes: notes,
-    canal: "Site recherche de fuite",
-    creePar: "client-web",
+    nom: nom,
+    telephone: tel,
+    commune: adresse,
+    probleme: "Recherche de fuite",
+    urgence: urgent ? "Urgent — eau qui coule / plus d'eau" : (choix.urgence || "Non précisé"),
+    description: notes,
+    page: location.pathname,
+    titrePage: document.title,
+    origine: { arrivee: location.pathname, referrer: document.referrer || "" },
     creeAt: new Date().toISOString()
   };
 
   var btn = document.getElementById("f-submit");
   btn.disabled = true; btn.textContent = "Envoi en cours…";
 
-  // Lire la liste à jour puis ajouter (on n'écrase jamais avec une copie locale)
-  fetch(FB + "pl_rdvs.json").then(function(r){
-    if(!r.ok) throw new Error("lecture");
-    return r.json();
-  }).then(function(list){
-    if(typeof list === "string"){ try { list = JSON.parse(list); } catch(x){ list = []; } }
-    if(list && !Array.isArray(list)) list = Object.keys(list).map(function(k){ return list[k]; });
-    list = list || [];
-    list.push(rdv);
-    return fetch(FB + "pl_rdvs.json", { method:"PUT", headers:{"Content-Type":"application/json"}, body: JSON.stringify(list) });
-  }).then(function(r){
+  // Ajout seul dans pl_demandes_site : le Dispatch l'importe dans « À planifier »
+  fetch(FB + "pl_demandes_site.json", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(demande) })
+  .then(function(r){
     if(!r.ok) throw new Error("ecriture");
     document.getElementById("ok-ref").textContent = ref;
     document.getElementById("form-body").classList.add("hidden");

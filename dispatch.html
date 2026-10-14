@@ -1298,6 +1298,9 @@ function lancerApp(){
     var hOp=document.getElementById('header-operateur');
     if(hOp){hOp.textContent=currentOperateur.nom;hOp.style.display='block';}
   }
+  // Demandes envoyées depuis le site public → RDV « À planifier »
+  importerDemandesSite();
+  setInterval(importerDemandesSite,30000);
   // SLA urgences
   const _slaVus=new Set();
   setInterval(function(){
@@ -1566,6 +1569,47 @@ function assignerRdv(id,tech){
   }
 }
 
+// Le site public n'écrit que dans greenflow/pl_demandes_site (ajout seul).
+// On recopie ici chaque nouvelle demande dans pl_rdvs, puis on la marque importée.
+var _gfDemandesBase='https://plomberie-pro-7a56a-default-rtdb.europe-west1.firebasedatabase.app/greenflow/pl_demandes_site';
+function _gfPropre(v,max){return String(v==null?'':v).replace(/[<>"'`\\]/g,'').replace(/\s+/g,' ').trim().slice(0,max);}
+function importerDemandesSite(){
+  fetch(_gfDemandesBase+'.json',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
+    if(!d||typeof d!=='object'||d.error)return;
+    var rdvs=getRdvs(),nouveaux=[],aMarquer=[];
+    Object.keys(d).forEach(function(k){
+      var x=d[k];
+      if(!x||typeof x!=='object'||x.importe)return;
+      aMarquer.push(k);
+      if(rdvs.some(function(r){return r.leadKey===k;}))return;
+      var urgent=/^Urgent/.test(x.urgence||'');
+      var o=x.origine||{};
+      var source=_gfPropre(o.utm_source||(o.gclid?'google-ads':'')||String(o.referrer||'').replace(/^https?:\/\/([^/]+).*/,'$1')||'direct',60);
+      var notes=['Problème : '+_gfPropre(x.probleme,60),'Urgence : '+_gfPropre(x.urgence,60),
+        x.description?'Description : '+_gfPropre(x.description,1500):'',
+        'Page : '+_gfPropre(x.page,200),'Source : '+source].filter(Boolean).join(' · ');
+      var rdv={id:Number(x.id)>0?Number(x.id):Date.now()+nouveaux.length,leadKey:k,ref:_gfPropre(x.ref,20),
+        clientNom:_gfPropre(x.nom,80)||'(sans nom)',clientTel:_gfPropre(x.telephone,25),adresse:_gfPropre(x.commune,80),
+        type:_gfPropre(x.probleme,60)||'Demande site web',dateRdv:'',heureRdv:'',datePriseRdv:todayStr(),
+        technicien:'À planifier',prixVente:0,statut:'Nouveau',urgence:urgent,notes:notes,
+        canal:'Site web',creePar:'client-web',pageOrigine:_gfPropre(x.page,200),sourceVisite:source,
+        creeAt:_gfPropre(x.creeAt,40)};
+      if(rdvs.some(function(r){return r.id===rdv.id;}))rdv.id=Date.now()+nouveaux.length+1;
+      rdvs.push(rdv);nouveaux.push(rdv);
+    });
+    if(nouveaux.length){
+      saveRdvs(rdvs);actualiserTout();
+      showNotif((nouveaux.some(function(r){return r.urgence;})?'🚨 ':'🌐 ')+nouveaux.length+' demande(s) du site : '+nouveaux.map(function(r){return r.clientNom+' — '+r.type;}).join(', '));
+    }
+    // Marquage différé : laisse le temps à pl_rdvs d'être écrit dans Firebase
+    if(aMarquer.length)setTimeout(function(){
+      aMarquer.forEach(function(k){
+        fetch(_gfDemandesBase+'/'+encodeURIComponent(k)+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({importe:true,importeAt:new Date().toISOString()})}).catch(function(){});
+      });
+    },5000);
+  }).catch(function(){});
+}
+
 function renderAPlanifier(){
   var ap=getRdvs().filter(function(r){return r.technicien==='À planifier'&&r.statut!=='Annule'&&r.statut!=='Termine';});
   var sec=document.getElementById('section-a-planifier');
@@ -1642,8 +1686,8 @@ function actualiserTout(){
 function updateNavBadges(){
   var u = getUrgences().filter(function(x){return x.statut!=="Resolu";});
   var btnU = document.getElementById("nav-urgences");
-  btnU.textContent = u.length>0 ? "Urgences ("+u.length+")" : "Urgences";
-  btnU.style.color = u.length>0 ? "#dc2626" : "";
+  if(btnU){btnU.textContent = u.length>0 ? "Urgences ("+u.length+")" : "Urgences";
+  btnU.style.color = u.length>0 ? "#dc2626" : "";}
   var devisNew = getDevis().filter(function(d){return d.statut==="Nouveau";}).length;
   var btnD = document.getElementById("nav-devis");
   if(btnD){btnD.textContent=devisNew>0?"Devis ("+devisNew+")":"Devis";btnD.style.color=devisNew>0?"#2563eb":"";}
